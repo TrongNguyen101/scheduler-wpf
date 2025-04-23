@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
     <PackageReference Include="Syncfusion.Licensing" Version="29.1.39" />
     <PackageReference Include="Syncfusion.Shared.WPF" Version="29.1.39" />
   </ItemGroup>
