@@ -1,7 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
-using System.IO;
-using System.Linq.Expressions;
+﻿using System.IO;
 using System.Windows;
 using Microsoft.Extensions.Configuration;
 using Syncfusion.Licensing;
@@ -15,7 +12,6 @@ namespace SchedulerWpfApp
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            
             base.OnStartup(e);
             try
             {
@@ -35,10 +31,10 @@ namespace SchedulerWpfApp
                     .SetBasePath(baseDirectory)
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                     .Build();
-                string syncfusionLicenseKey = configuration["Syncfusion:LicenseKey"];
-                if (!string.IsNullOrEmpty(syncfusionLicenseKey))
+                string syncfusionLicenceKey = configuration["Syncfusion:LicenceKey"];
+                if (!string.IsNullOrEmpty(syncfusionLicenceKey))
                 {
-                    SyncfusionLicenseProvider.RegisterLicense(syncfusionLicenseKey);
+                    SyncfusionLicenseProvider.RegisterLicense(syncfusionLicenceKey);
                 }
                 else
                 {
