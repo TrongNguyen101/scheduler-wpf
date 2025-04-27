@@ -1,6 +1,9 @@
 ﻿using System.Configuration;
 using System.Data;
+using System.IO;
+using System.Linq.Expressions;
 using System.Windows;
+using Microsoft.Extensions.Configuration;
 using Syncfusion.Licensing;
 
 namespace SchedulerWpfApp
@@ -12,13 +15,42 @@ namespace SchedulerWpfApp
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            //Synnfusion lincense key
-            SyncfusionLicenseProvider.RegisterLicense("MzgyODQ1MEAzMjM5MmUzMDJlMzAzYjMyMzkzYklZclFGTjJ4eVUzc3BWT3hmd1pOL3hiMmd1UDdFUmZNUXhVd1lnYU13WG89");
+            
             base.OnStartup(e);
-            // Set the default theme for the application
-            // This is where you can set the theme for your application
-            // For example, you can set it to "Light" or "Dark"
-            // Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/YourTheme.xaml") });
+            try
+            {
+                string binDirectory = AppDomain.CurrentDomain.BaseDirectory; ;
+                string baseDirectory = Path.GetFullPath(Path.Combine(binDirectory, @"..\\..\\..\\"));
+                string configFilePath = Path.Combine(baseDirectory, "appsettings.json");
+                if (!File.Exists(configFilePath))
+                {
+                    baseDirectory = Path.GetFullPath(Path.Combine(binDirectory, "@..\\.."));
+                    configFilePath = Path.Combine(baseDirectory, "appsettings.json");
+                    if(!File.Exists(configFilePath))
+                    {
+                        throw new FileNotFoundException("appsettings.json file not found.");
+                    }
+                }
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(baseDirectory)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .Build();
+                string syncfusionLicenseKey = configuration["Syncfusion:LicenseKey"];
+                if (!string.IsNullOrEmpty(syncfusionLicenseKey))
+                {
+                    SyncfusionLicenseProvider.RegisterLicense(syncfusionLicenseKey);
+                }
+                else
+                {
+                    MessageBox.Show("Syncfusion license key is not configured.", "Error", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error registering Syncfusion license: {ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
