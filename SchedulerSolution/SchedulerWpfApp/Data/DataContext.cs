@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Data
