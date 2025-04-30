@@ -1,6 +1,11 @@
 ﻿using System.IO;
 using System.Windows;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using SchedulerWpfApp.Data;
+using SchedulerWpfApp.Services;
+using SchedulerWpfApp.ViewModel;
 using Syncfusion.Licensing;
 
 namespace SchedulerWpfApp
@@ -11,14 +16,24 @@ namespace SchedulerWpfApp
     /// </summary>
     public partial class App : Application
     {
+        private readonly IHost _host;
+        public App()
+        {
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureServices((context, services) =>
+                {
+                    ConfigureService(services);
+                })
+                .Build();
+        }
         /// <summary>
         /// Application startup event handler.
         /// </summary>
         /// <param name="e"></param>
         /// <exception cref="FileNotFoundException"></exception>
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
+            await _host.StartAsync();
             try
             {
                 // Get the executing assembly's directory
@@ -70,6 +85,28 @@ namespace SchedulerWpfApp
                 MessageBox.Show($"Error registering Syncfusion license: {ex.Message}",
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            mainWindow.DataContext = _host.Services.GetRequiredService<MainViewModel>();
+            mainWindow.Show();
+            base.OnStartup(e);
+        }
+
+        private void ConfigureService(IServiceCollection services)
+        {
+            services.AddDbContext<DataContext>();
+            services.AddScoped<IPersonService, PersonService>();
+            services.AddSingleton<MainWindow>();
+            services.AddSingleton<MainViewModel>();
+        }
+
+        protected override async void OnExit(ExitEventArgs e)
+        {
+            using (_host)
+            {
+                await _host.StopAsync();
+                _host.Dispose();
+            }
+            base.OnExit(e);
         }
     }
 }
