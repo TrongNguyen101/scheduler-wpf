@@ -17,16 +17,27 @@ namespace SchedulerWpfApp
     /// </summary>
     public partial class App : Application
     {
+        #region Fields
         private readonly IHost _host;
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// Constructor for the application class.
+        /// Initializes the host using the Host Builder pattern.
+        /// </summary>
         public App()
         {
-            _host = Host.CreateDefaultBuilder()
-                .ConfigureServices((context, services) =>
+            _host = Host.CreateDefaultBuilder() // Creates a default builder with preconfigured defaults
+                .ConfigureServices((context, services) => // Configures the service container
                 {
-                    ConfigureService(services);
+                    ConfigureService(services); // Delegates service registration to the ConfigureService method
                 })
-                .Build();
+                .Build(); // Builds the host, finalizing the service container configuration
         }
+        #endregion
+
+        #region Methods
         /// <summary>
         /// Application startup event handler.
         /// </summary>
@@ -92,24 +103,45 @@ namespace SchedulerWpfApp
             base.OnStartup(e);
         }
 
+        /// <summary>
+        /// Configures the dependency injection container with required services.
+        /// </summary>
+        /// <param name="services">The service collection to configure</param>
         private void ConfigureService(IServiceCollection services)
         {
+            // Register the database context
             services.AddDbContext<DataContext>();
+
+            // Register person service with scoped lifetime (one instance per scope)
             services.AddScoped<IPersonService, PersonService>();
+
+            // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();
+
+            // Register the add person window as transient (new instance created each time)
             services.AddTransient<AddPersonWindow>();
+
+            // Register the main view model as singleton (shared across the application)
             services.AddSingleton<MainViewModel>();
         }
 
+        /// <summary>
+        /// Application exit event handler.
+        /// Properly disposes of the host and stops all hosted services.
+        /// </summary>
+        /// <param name="e">Exit event arguments</param>
         protected override async void OnExit(ExitEventArgs e)
         {
             using (_host)
             {
+                // Stop all hosted services gracefully
                 await _host.StopAsync();
+                // Release all resources held by the host
                 _host.Dispose();
             }
             base.OnExit(e);
         }
+        #endregion
     }
 }
 
