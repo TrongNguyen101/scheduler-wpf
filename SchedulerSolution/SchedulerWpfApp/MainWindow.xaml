@@ -7,11 +7,93 @@
         xmlns:local="clr-namespace:SchedulerWpfApp"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <syncfusion:ButtonAdv Content="Click Me" 
-                      HorizontalAlignment="Center" 
-                      VerticalAlignment="Center" 
-                      Width="120" 
-                      Height="30"/>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="Person Management" 
+                   FontSize="24" FontWeight="Bold" 
+                   HorizontalAlignment="Center" Margin="0,0,0,10" />
+
+        <!-- Syncfusion DataGrid -->
+        <syncfusion:SfDataGrid Grid.Row="1" 
+                              x:Name="PersonGrid"
+                              ItemsSource="{Binding People}"
+                              SelectedItem="{Binding SelectedPerson, Mode=TwoWay}"
+                              AllowResizingColumns="True"
+                              AllowFiltering="True"
+                              AllowSorting="True"
+                              AutoGenerateColumns="False"
+                              NavigationMode="Cell"
+                              SelectionMode="Single"
+                              ShowBusyIndicator="True">
+            <syncfusion:SfDataGrid.Columns>
+                <syncfusion:GridTextColumn HeaderText="ID" MappingName="Id" IsReadOnly="True" />
+                <syncfusion:GridTextColumn HeaderText="First Name" MappingName="FirstName" />
+                <syncfusion:GridTextColumn HeaderText="Last Name" MappingName="LastName" />
+                <syncfusion:GridTextColumn HeaderText="Email" MappingName="Email" />
+                <syncfusion:GridDateTimeColumn HeaderText="Date of Birth" MappingName="DateOfBirth" />
+            </syncfusion:SfDataGrid.Columns>
+        </syncfusion:SfDataGrid>
+
+        <!-- CRUD Panel -->
+        <Grid Grid.Row="2" Margin="0,15,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Form for new/edited person -->
+            <GroupBox Grid.Row="0" Header="Person Details" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- First Name -->
+                    <StackPanel Grid.Column="0" Grid.Row="0" Margin="5">
+                        <TextBlock Text="First Name" Margin="0,0,0,5" />
+                        <syncfusion:SfTextBoxExt Text="{Binding SelectedPerson.FirstName, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+
+                    <!-- Last Name -->
+                    <StackPanel Grid.Column="1" Grid.Row="0" Margin="5">
+                        <TextBlock Text="Last Name" Margin="0,0,0,5" />
+                        <syncfusion:SfTextBoxExt Text="{Binding SelectedPerson.LastName, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+
+                    <!-- Email -->
+                    <StackPanel Grid.Column="2" Grid.Row="0" Margin="5">
+                        <TextBlock Text="Email" Margin="0,0,0,5" />
+                        <syncfusion:SfTextBoxExt Text="{Binding SelectedPerson.Email, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+
+                    <!-- Date of Birth -->
+                    <StackPanel Grid.Column="3" Grid.Row="0" Margin="5">
+                        <TextBlock Text="Date of Birth" Margin="0,0,0,5" />
+                        <syncfusion:SfDatePicker Value="{Binding SelectedPerson.DateOfBirth, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- Action Buttons -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                <syncfusion:ButtonAdv Label="Add" Command="{Binding ShowAddPersonFormCommand}" Margin="5" Width="100" />
+                <syncfusion:ButtonAdv Label="Update" Command="{Binding UpdatePersonCommand}" Margin="5" Width="100" />
+                <syncfusion:ButtonAdv Label="Delete" Command="{Binding DeletePersonCommand}" Margin="5" Width="100" />
+                <syncfusion:ButtonAdv Label="Refresh" Command="{Binding LoadPeopleCommand}" Margin="5" Width="100" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

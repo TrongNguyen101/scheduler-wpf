@@ -21,8 +21,14 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
-    <PackageReference Include="Syncfusion.Licensing" Version="29.1.39" />
-    <PackageReference Include="Syncfusion.Shared.WPF" Version="29.1.39" />
+    <PackageReference Include="Syncfusion.Licensing" Version="29.1.40" />
+    <PackageReference Include="Syncfusion.SfGrid.WPF" Version="29.1.40" />
+    <PackageReference Include="Syncfusion.SfInput.WPF" Version="29.1.40" />
+    <PackageReference Include="Syncfusion.Shared.WPF" Version="29.1.40" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\" />
   </ItemGroup>
 
 </Project>
