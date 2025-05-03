@@ -91,6 +91,14 @@ namespace SchedulerWpfApp.Data
                     LastName = "Smith",
                     Email = "Jane.smith@example.com",
                     Phone = "987-654-3210",
+                },
+                new Person
+                {
+                    Id = 3,
+                    FirstName = "Alice",
+                    LastName = "Johnson",
+                    Email = "Alice.johnson@example.com",
+                    Phone = "555-123-4567",
                 }
              );
         }
