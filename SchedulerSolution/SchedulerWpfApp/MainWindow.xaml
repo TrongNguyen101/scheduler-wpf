@@ -4,9 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
-        xmlns:local="clr-namespace:SchedulerWpfApp"
+        xmlns:local="clr-namespace:SchedulerWpfApp.Helper"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    
+    <Window.Resources>
+        <local:NullToBooleanConverter x:Key="NullToBooleanConverter" />
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
+    
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -36,7 +42,7 @@
                 <syncfusion:GridTextColumn HeaderText="First Name" MappingName="FirstName" />
                 <syncfusion:GridTextColumn HeaderText="Last Name" MappingName="LastName" />
                 <syncfusion:GridTextColumn HeaderText="Email" MappingName="Email" />
-                <syncfusion:GridDateTimeColumn HeaderText="Date of Birth" MappingName="DateOfBirth" />
+                <syncfusion:GridDateTimeColumn HeaderText="Phone" MappingName="Phone" />
             </syncfusion:SfDataGrid.Columns>
         </syncfusion:SfDataGrid>
 
@@ -79,10 +85,10 @@
                         <syncfusion:SfTextBoxExt Text="{Binding SelectedPerson.Email, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
 
-                    <!-- Date of Birth -->
+                    <!-- Phone -->
                     <StackPanel Grid.Column="3" Grid.Row="0" Margin="5">
-                        <TextBlock Text="Date of Birth" Margin="0,0,0,5" />
-                        <syncfusion:SfDatePicker Value="{Binding SelectedPerson.DateOfBirth, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="Phone" Margin="0,0,0,5" />
+                        <syncfusion:SfTextBoxExt Text="{Binding SelectedPerson.Phone, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
                 </Grid>
             </GroupBox>

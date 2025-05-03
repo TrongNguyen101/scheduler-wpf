@@ -1,0 +1,41 @@
+﻿<Window x:Class="SchedulerWpfApp.Views.AddPersonWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:local="clr-namespace:SchedulerWpfApp.Views"
+        mc:Ignorable="d"
+        Title="AddPersonWindow" Height="450" Width="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Form Fields -->
+        <StackPanel Grid.Row="0" Margin="10">
+            <!-- First Name -->
+            <TextBlock Text="First Name" Margin="0,0,0,5" />
+            <syncfusion:SfTextBoxExt Text="{Binding NewPerson.FirstName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+
+            <!-- Last Name -->
+            <TextBlock Text="Last Name" Margin="0,0,0,5" />
+            <syncfusion:SfTextBoxExt Text="{Binding NewPerson.LastName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+
+            <!-- Email -->
+            <TextBlock Text="Email" Margin="0,0,0,5" />
+            <syncfusion:SfTextBoxExt Text="{Binding NewPerson.Email, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+
+            <!-- Phone -->
+            <TextBlock Text="Phone" Margin="0,0,0,5" />
+            <syncfusion:SfTextBoxExt Text="{Binding NewPerson.Phone, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+        </StackPanel>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <syncfusion:ButtonAdv Label="Save" Command="{Binding AddPersonCommand}" Width="75" Margin="5" />
+            <syncfusion:ButtonAdv Label="Cancel" Width="75" Margin="5" Click="Cancel_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

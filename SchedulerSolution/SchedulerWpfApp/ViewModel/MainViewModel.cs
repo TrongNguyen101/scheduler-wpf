@@ -3,6 +3,7 @@ using System.Windows.Input;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Services;
+using SchedulerWpfApp.Views;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -13,6 +14,7 @@ namespace SchedulerWpfApp.ViewModel
         private ObservableCollection<Person> _people;
         private Person? _selectedPerson;
         private Person _newPerson;
+        private bool _isAddPersonFormVisible;
         #endregion
 
         #region Cotrructor
@@ -23,6 +25,7 @@ namespace SchedulerWpfApp.ViewModel
             AddPersonCommand = new RelayCommand(async () => await AddPersonAsync(), CanAddPerson);
             UpdatePersonCommand = new RelayCommand(async () => await UpdatePersonAsync(), () => SelectedPerson != null);
             DeletePersonCommand = new RelayCommand(async () => await DeletePersonAsync(), () => SelectedPerson != null);
+            ShowAddPersonFormCommand = new RelayCommand(ShowAddPersonForm);
             NewPerson = new Person();
             LoadPeopleAsync().ConfigureAwait(false);
         }
@@ -43,6 +46,12 @@ namespace SchedulerWpfApp.ViewModel
             get => _newPerson;
             set => SetProperty(ref _newPerson, value);
         }
+
+        public bool IsAddPersonFormVisible
+        {
+            get => _isAddPersonFormVisible;
+            set => SetProperty(ref _isAddPersonFormVisible, value);
+        }
         #endregion
 
         #region Commands
@@ -50,6 +59,7 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand AddPersonCommand { get; }
         public ICommand UpdatePersonCommand { get; }
         public ICommand DeletePersonCommand { get; }
+        public ICommand ShowAddPersonFormCommand { get; }
         #endregion
 
         private async Task LoadPeopleAsync()
@@ -106,6 +116,16 @@ namespace SchedulerWpfApp.ViewModel
         {
             return !string.IsNullOrWhiteSpace(NewPerson?.FirstName) &&
                    !string.IsNullOrWhiteSpace(NewPerson?.LastName);
+        }
+
+        private void ShowAddPersonForm()
+        {
+            NewPerson = new Person();
+            var addPersonWindow = new AddPersonWindow
+            {
+                DataContext = this
+            };
+            addPersonWindow.ShowDialog();
         }
     }
 }

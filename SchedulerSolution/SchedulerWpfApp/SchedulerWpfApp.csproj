@@ -27,8 +27,4 @@
     <PackageReference Include="Syncfusion.Shared.WPF" Version="29.1.40" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Views\" />
-  </ItemGroup>
-
 </Project>
