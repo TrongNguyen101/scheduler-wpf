@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Services;
 using SchedulerWpfApp.ViewModel;
+using SchedulerWpfApp.Views;
 using Syncfusion.Licensing;
 
 namespace SchedulerWpfApp
@@ -96,6 +97,7 @@ namespace SchedulerWpfApp
             services.AddDbContext<DataContext>();
             services.AddScoped<IPersonService, PersonService>();
             services.AddSingleton<MainWindow>();
+            services.AddTransient<AddPersonWindow>();
             services.AddSingleton<MainViewModel>();
         }
 

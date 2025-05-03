@@ -75,6 +75,24 @@ namespace SchedulerWpfApp.Data
         /// <param name="modelBuilder">The builder used to configure the model.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Person>().HasData(
+                new Person
+                {
+                    Id = 1,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@example.com",
+                    Phone = "123-456-7890",
+                },
+                new Person
+                {
+                    Id = 2,
+                    FirstName = "Jane",
+                    LastName = "Smith",
+                    Email = "Jane.smith@example.com",
+                    Phone = "987-654-3210",
+                }
+             );
         }
     }
 }

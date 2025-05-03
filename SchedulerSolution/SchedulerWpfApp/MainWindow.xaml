@@ -42,7 +42,7 @@
                 <syncfusion:GridTextColumn HeaderText="First Name" MappingName="FirstName" />
                 <syncfusion:GridTextColumn HeaderText="Last Name" MappingName="LastName" />
                 <syncfusion:GridTextColumn HeaderText="Email" MappingName="Email" />
-                <syncfusion:GridDateTimeColumn HeaderText="Phone" MappingName="Phone" />
+                <syncfusion:GridTextColumn HeaderText="Phone" MappingName="Phone" />
             </syncfusion:SfDataGrid.Columns>
         </syncfusion:SfDataGrid>
 
