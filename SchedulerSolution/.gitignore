@@ -9,6 +9,9 @@ appsettings.json
 # Ignore AppData folder
 AppData/
 
+# Ignore Migrations Folder
+Migrations/
+
 # dotenv files
 .env
 
