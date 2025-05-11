@@ -25,6 +25,7 @@
     <PackageReference Include="Syncfusion.SfGrid.WPF" Version="29.1.40" />
     <PackageReference Include="Syncfusion.SfInput.WPF" Version="29.1.40" />
     <PackageReference Include="Syncfusion.Shared.WPF" Version="29.1.40" />
+    <PackageReference Include="Syncfusion.XlsIO.Wpf" Version="29.1.40" />
   </ItemGroup>
 
 </Project>

@@ -1,10 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Data.Sqlite;
+using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Services;
 using SchedulerWpfApp.Views;
+using Syncfusion.XlsIO;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -26,6 +30,7 @@ namespace SchedulerWpfApp.ViewModel
             AddPersonCommand = new RelayCommand(async () => await AddPersonAsync(), CanAddPerson);
             UpdatePersonCommand = new RelayCommand(async () => await UpdatePersonAsync(), () => SelectedPerson != null);
             DeletePersonCommand = new RelayCommand(async () => await DeletePersonAsync(), () => SelectedPerson != null);
+            ImportExcelCommand = new RelayCommand(async () => await ImportExcelAsync());
             ShowAddPersonFormCommand = new RelayCommand(ShowAddPersonForm);
             NewPerson = new Person();
             LoadPeopleAsync().ConfigureAwait(false);
@@ -104,9 +109,65 @@ namespace SchedulerWpfApp.ViewModel
         /// Creates a new Person instance for data binding.
         /// </summary>
         public ICommand ShowAddPersonFormCommand { get; }
+
+        public ICommand ImportExcelCommand { get; }
+
         #endregion
 
         #region Methods
+        private async Task ImportExcelAsync()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Excel Files (*.xlsx)|*.xlsx"
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                var data = ReadPersonsFromExcel(dialog.FileName);
+                await _personService.ImportPersonFromExcel(data);
+                await LoadPeopleAsync();
+            }
+        }
+
+        private List<Person> ReadPersonsFromExcel(string filePath)
+        {
+            var persons = new List<Person>();
+
+            using ExcelEngine excelEngine = new();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Xlsx;
+
+            IWorkbook workbook = application.Workbooks.Open(filePath);
+            IWorksheet sheet = workbook.Worksheets[0];
+
+            int rowCount = sheet.UsedRange.LastRow;
+            int colCount = sheet.UsedRange.LastColumn;
+
+            // Đọc header
+            Dictionary<string, int> headerMap = new();
+            for (int c = 1; c <= colCount; c++)
+            {
+                string header = sheet[1, c].Value.Trim();
+                headerMap[header] = c;
+            }
+
+            // Đọc từng dòng dữ liệu
+            for (int r = 2; r <= rowCount; r++)
+            {
+                var person = new Person
+                {
+                    FirstName = sheet[r, headerMap["FirstName"]].Value,
+                    LastName = sheet[r, headerMap["LastName"]].Value,
+                    Email = sheet[r, headerMap["Email"]].Value,
+                    Phone = sheet[r, headerMap["Phone"]].Value
+                };
+
+                persons.Add(person);
+            }
+
+            return persons;
+        }
+
         /// <summary>
         /// Loads people from the data service and populates the People collection.
         /// Clears any selected person to avoid reference issues.

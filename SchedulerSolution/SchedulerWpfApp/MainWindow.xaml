@@ -99,6 +99,8 @@
                 <syncfusion:ButtonAdv Label="Update" Command="{Binding UpdatePersonCommand}" Margin="5" Width="100" />
                 <syncfusion:ButtonAdv Label="Delete" Command="{Binding DeletePersonCommand}" Margin="5" Width="100" />
                 <syncfusion:ButtonAdv Label="Refresh" Command="{Binding LoadPeopleCommand}" Margin="5" Width="100" />
+                <syncfusion:ButtonAdv Label="add file" Command="{Binding ImportExcelCommand}" Margin="5" Width="100" />
+
             </StackPanel>
         </Grid>
     </Grid>
