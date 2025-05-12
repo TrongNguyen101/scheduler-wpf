@@ -5,103 +5,280 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
         xmlns:local="clr-namespace:SchedulerWpfApp.Helper"
+        xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
+        WindowStyle="None"
+        
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    
+        Title="MainWindow"
+        Height="650"
+        Width="1000">
+
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+
+
     <Window.Resources>
-        <local:NullToBooleanConverter x:Key="NullToBooleanConverter" />
-        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <!-- Colors -->
+        <SolidColorBrush x:Key="AccentColor" Color="#f39c12" />
+        <SolidColorBrush x:Key="TextColor" Color="#2c3e50" />
+        <SolidColorBrush x:Key="LightTextColor" Color="#7f8c8d" />
+
+        <!-- Styles -->
+        <Style x:Key="MenuItemStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="Margin" Value="20,0,0,2"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Width" Value="240"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E3F2FD"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <!-- Remove default button visuals -->
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <!-- Use ContentPresenter so we can use Grid inside Button -->
+                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ActiveMenuItemStyle" TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2980b9" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="MenuIconStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="MenuTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Margin" Value="12,0,0,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{StaticResource TextColor}" />
+        </Style>
+
+        <Style x:Key="ActiveMenuTextStyle" TargetType="TextBlock" BasedOn="{StaticResource MenuTextStyle}">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
     </Window.Resources>
-    
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="183*"/>
+            <ColumnDefinition Width="17*"/>
+        </Grid.ColumnDefinitions>
+        <!--<Grid.RowDefinitions>
+            <RowDefinition Height="65" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+        </Grid.RowDefinitions>-->
 
         <!-- Header -->
-        <TextBlock Grid.Row="0" Text="Person Management" 
-                   FontSize="24" FontWeight="Bold" 
-                   HorizontalAlignment="Center" Margin="0,0,0,10" />
+        <!--<Grid>-->
+        <!--<Grid.Effect>
+                <DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.3" Color="Gray" />
+            </Grid.Effect>
 
-        <!-- Syncfusion DataGrid -->
-        <syncfusion:SfDataGrid Grid.Row="1" 
-                              x:Name="PersonGrid"
-                              ItemsSource="{Binding People}"
-                              SelectedItem="{Binding SelectedPerson, Mode=TwoWay}"
-                              AllowResizingColumns="True"
-                              AllowFiltering="True"
-                              AllowSorting="True"
-                              AutoGenerateColumns="False"
-                              NavigationMode="Cell"
-                              SelectionMode="Single"
-                              ShowBusyIndicator="True">
-            <syncfusion:SfDataGrid.Columns>
-                <syncfusion:GridTextColumn HeaderText="ID" MappingName="Id" IsReadOnly="True" />
-                <syncfusion:GridTextColumn HeaderText="First Name" MappingName="FirstName" />
-                <syncfusion:GridTextColumn HeaderText="Last Name" MappingName="LastName" />
-                <syncfusion:GridTextColumn HeaderText="Email" MappingName="Email" />
-                <syncfusion:GridTextColumn HeaderText="Phone" MappingName="Phone" />
-            </syncfusion:SfDataGrid.Columns>
-        </syncfusion:SfDataGrid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>-->
 
-        <!-- CRUD Panel -->
-        <Grid Grid.Row="2" Margin="0,15,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <!-- Logo -->
+        <!--<StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                <Border Width="38" Height="38" CornerRadius="19" Background="White">
+                    <TextBlock Text="FPT" FontSize="16" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </Border>
+                <TextBlock Text="Phòng Đào Tạo" FontSize="18" FontWeight="SemiBold" Foreground="White" Margin="12,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>-->
 
-            <!-- Form for new/edited person -->
-            <GroupBox Grid.Row="0" Header="Person Details" Padding="10">
-                <Grid>
+
+
+        <!-- User Info -->
+        <!--<Border Grid.Column="2" CornerRadius="8" Background="#2980b9" Margin="0,0,10,0" Padding="10,5">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Border Width="45" Height="45" CornerRadius="22.5" Background="White" Margin="0,0,12,0">
+                        <Border.Effect>
+                            <DropShadowEffect ShadowDepth="0" BlurRadius="5" Opacity="0.2" Color="Black" />
+                        </Border.Effect>
+                        <TextBlock Text="NV" FontWeight="Bold" FontSize="16" Foreground="{StaticResource PrimaryColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Nguyễn Văn A" Foreground="White" FontWeight="SemiBold" FontSize="15" />
+                        <TextBlock Text="Quản trị viên" Foreground="White" FontSize="12" Opacity="0.9" Margin="0,2,0,0" />
+                    </StackPanel>
+                    <TextBlock Text="▼" Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="12" />
+                </StackPanel>
+            </Border>-->
+
+        <!--</Grid>-->
+
+
+        <!-- Main Content -->
+        <Grid Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar Navigation -->
+            <Border Grid.Column="0" Background="#F0F4F8" BorderThickness="0,0,1,0" BorderBrush="#E0E6ED">
+
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="3" Direction="0" BlurRadius="8" Opacity="0.1" Color="Gray" />
+                </Border.Effect>
+                <StackPanel Margin="0,20,0,0">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                        <Border Width="38" Height="38" CornerRadius="19" Background="White">
+                            <TextBlock Text="FPT" FontSize="16" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="Phòng Đào Tạo" FontSize="18" FontWeight="SemiBold" Foreground="Orange" Margin="12,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <!-- Menu Items -->
+                    <Border Style="{StaticResource MenuItemStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="📊" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                            <TextBlock Text="Tổng quan" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource MenuItemStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="📅" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                            <TextBlock Text="Xếp lịch học" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource MenuItemStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="👨‍🎓" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                            <TextBlock Text="Quản lý học viên" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource MenuItemStyle}">
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowTeacherCommand}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="👨‍🏫" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                                <TextBlock Text="Quản lý giảng viên" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                            </Grid>
+                        </Button>
+                    </Border>
+
+                    <Border Style="{StaticResource MenuItemStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="📚" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                            <TextBlock Text="Quản lý môn học" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource MenuItemStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="🏫" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                            <TextBlock Text="Quản lý phòng học" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource MenuItemStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="🏫" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                            <TextBlock Text="Quản Lí Lớp Học" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource MenuItemStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="⚙️" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                            <TextBlock Text="Cài đặt" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Version info at bottom -->
+                    <TextBlock Text="Phiên bản: 1.0.2" Margin="20,40,0,0" Foreground="{StaticResource LightTextColor}" FontSize="12" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1">
+                <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="31*"/>
+                        <ColumnDefinition Width="353*"/>
+                        <ColumnDefinition Width="366*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <!-- First Name -->
-                    <StackPanel Grid.Column="0" Grid.Row="0" Margin="5">
-                        <TextBlock Text="First Name" Margin="0,0,0,5" />
-                        <syncfusion:SfTextBoxExt Text="{Binding SelectedPerson.FirstName, UpdateSourceTrigger=PropertyChanged}" />
+                    <!-- Optional Top Content -->
+                    <StackPanel Background="#F0F4F8" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,0" Grid.Column="2">
+
+                        <Button Content="🗕" Width="35" Height="30" Click="MinimizeButton_Click" Background="Transparent" BorderBrush="Transparent" Foreground="Orange" />
+                        <Button Content="🗖" Width="35" Height="30" Click="MaximizeRestoreButton_Click" Background="Transparent" BorderBrush="Transparent" Foreground="Blue" />
+                        <Button Content="✖" Width="35" Height="30" Click="CloseButton_Click" Background="Transparent" BorderBrush="Transparent" Foreground="red" />
                     </StackPanel>
 
-                    <!-- Last Name -->
-                    <StackPanel Grid.Column="1" Grid.Row="0" Margin="5">
-                        <TextBlock Text="Last Name" Margin="0,0,0,5" />
-                        <syncfusion:SfTextBoxExt Text="{Binding SelectedPerson.LastName, UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
-
-                    <!-- Email -->
-                    <StackPanel Grid.Column="2" Grid.Row="0" Margin="5">
-                        <TextBlock Text="Email" Margin="0,0,0,5" />
-                        <syncfusion:SfTextBoxExt Text="{Binding SelectedPerson.Email, UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
-
-                    <!-- Phone -->
-                    <StackPanel Grid.Column="3" Grid.Row="0" Margin="5">
-                        <TextBlock Text="Phone" Margin="0,0,0,5" />
-                        <syncfusion:SfTextBoxExt Text="{Binding SelectedPerson.Phone, UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
+                    <!-- Main Dynamic Content -->
+                    <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}" Grid.ColumnSpan="3" />
                 </Grid>
-            </GroupBox>
+            </Border>
 
-            <!-- Action Buttons -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                <syncfusion:ButtonAdv Label="Add" Command="{Binding ShowAddPersonFormCommand}" Margin="5" Width="100" />
-                <syncfusion:ButtonAdv Label="Update" Command="{Binding UpdatePersonCommand}" Margin="5" Width="100" />
-                <syncfusion:ButtonAdv Label="Delete" Command="{Binding DeletePersonCommand}" Margin="5" Width="100" />
-                <syncfusion:ButtonAdv Label="Refresh" Command="{Binding LoadPeopleCommand}" Margin="5" Width="100" />
-                <syncfusion:ButtonAdv Label="add file" Command="{Binding ImportExcelCommand}" Margin="5" Width="100" />
 
-            </StackPanel>
+
         </Grid>
     </Grid>
 </Window>
