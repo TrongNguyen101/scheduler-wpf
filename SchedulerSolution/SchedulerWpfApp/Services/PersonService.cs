@@ -36,6 +36,15 @@ namespace SchedulerWpfApp.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task ImportPersonFromExcel(List<Person> listPersonFromExcel)
+        {
+            foreach (var person in listPersonFromExcel)
+            {
+                _context.Persons.Add(person);
+            }
+            await _context.SaveChangesAsync();
+        }
+
         /// <summary>
         /// Deletes a person from the database by their ID
         /// </summary>

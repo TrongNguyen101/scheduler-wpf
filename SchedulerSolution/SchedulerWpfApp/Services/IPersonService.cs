@@ -9,5 +9,6 @@ namespace SchedulerWpfApp.Services
         Task AddPerson(Person person);
         Task UpdatePerson(Person person);
         Task DeletePerson(int id);
+        Task ImportPersonFromExcel(List<Person> listPersonFromExcel);
     }
 }

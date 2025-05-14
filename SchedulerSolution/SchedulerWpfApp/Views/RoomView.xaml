@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="SchedulerWpfApp.Views.RoomView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
+             DataContext="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext}"
+             Background="White">
+    <Grid>
+        <StackPanel Margin="20">
+            <TextBlock Text="Room Management" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" />
+
+            <!-- List of rooms -->
+            <ListBox ItemsSource="{Binding Rooms}" Margin="0,0,0,20" Height="200" />
+
+            <!-- Buttons to add and remove rooms -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Add Room" Command="{Binding AddRoomCommand}" Width="100"/>
+                <Button Content="Remove Room" Command="{Binding RemoveRoomCommand}" Width="100"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

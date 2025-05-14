@@ -1,0 +1,21 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
+                    xmlns:views="clr-namespace:SchedulerWpfApp.Views">
+
+    <!-- DataTemplate for CourseView -->
+    <DataTemplate DataType="{x:Type vm:CourseViewModel}">
+        <views:CourseView/>
+    </DataTemplate>
+
+    <!-- DataTemplate for LecturerView -->
+    <DataTemplate DataType="{x:Type vm:LecturerViewModel}">
+        <views:LecturerView/>
+    </DataTemplate>
+
+    <!-- DataTemplate for RoomView -->
+    <DataTemplate DataType="{x:Type vm:RoomViewModel}">
+        <views:RoomView/>
+    </DataTemplate>
+
+</ResourceDictionary>
