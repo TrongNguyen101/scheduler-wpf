@@ -4,7 +4,7 @@ using SchedulerWpfApp.Helper;
 namespace SchedulerWpfApp.ViewModel
 {
     /// <summary>
-    /// The main ViewModel used to manage navigation between different sub-views (Course, Lecturer, Room).
+    /// The main ViewModel used to manage navigation between different sub-views (Course, Person, Room).
     /// </summary>
     public class MainViewModel : ViewBaseModel
     {
@@ -13,7 +13,7 @@ namespace SchedulerWpfApp.ViewModel
 
         // Factory delegates to lazily create view models
         private readonly Func<CourseViewModel> _courseViewModelFactory;
-        private readonly Func<LecturerViewModel> _lecturerViewModelFactory;
+        private readonly Func<PersonViewModel> _personViewModelFactory;
         private readonly Func<RoomViewModel> _roomViewModelFactory;
 
         /// <summary>
@@ -28,29 +28,29 @@ namespace SchedulerWpfApp.ViewModel
 
         // Commands bound to buttons or menu items to switch views
         public ICommand ShowCourseCommand { get; }
-        public ICommand ShowTeacherCommand { get; }
+        public ICommand ShowPersonCommand { get; }
         public ICommand ShowRoomCommand { get; }
 
         /// <summary>
         /// Initializes the MainViewModel with view model factories.
-        /// Sets up commands and sets the default view to LecturerViewModel.
+        /// Sets up commands and sets the default view to PersonViewModel.
         /// </summary>
         public MainViewModel(Func<CourseViewModel> courseViewModelFactory,
-            Func<LecturerViewModel> lecturerViewModelFactory,
+            Func<PersonViewModel> personViewModelFactory,
             Func<RoomViewModel> roomViewModelFactory)
         {
             // Assign factory methods
             _courseViewModelFactory = courseViewModelFactory;
-            _lecturerViewModelFactory = lecturerViewModelFactory;
+            _personViewModelFactory = personViewModelFactory;
             _roomViewModelFactory = roomViewModelFactory;
 
             // Initialize commands for switching views
             ShowCourseCommand = new RelayCommand(ShowCourse);
-            ShowTeacherCommand = new RelayCommand(ShowTeacher);
+            ShowPersonCommand = new RelayCommand(ShowPerson);
             ShowRoomCommand = new RelayCommand(ShowRoom);
 
-            // Set default view to LecturerViewModel
-            CurrentViewModel = _lecturerViewModelFactory();
+            // Set default view to PersonViewModel
+            CurrentViewModel = _personViewModelFactory();
         }
 
         /// <summary>
@@ -59,9 +59,9 @@ namespace SchedulerWpfApp.ViewModel
         private void ShowCourse() => CurrentViewModel = _courseViewModelFactory();
 
         /// <summary>
-        /// Switches the current view to LecturerViewModel.
+        /// Switches the current view to PersonViewModel.
         /// </summary>
-        private void ShowTeacher() => CurrentViewModel = _lecturerViewModelFactory();
+        private void ShowPerson() => CurrentViewModel = _personViewModelFactory();
 
         /// <summary>
         /// Switches the current view to RoomViewModel.
