@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace SchedulerWpfApp.Views
 {
     /// <summary>
-    /// Interaction logic for LecturerView.xaml
+    /// Interaction logic for PersonView.xaml
     /// </summary>
-    public partial class LecturerView : UserControl
+    public partial class PersonView : UserControl
     {
-        public LecturerView()
+        public PersonView()
         {
             InitializeComponent();
         }

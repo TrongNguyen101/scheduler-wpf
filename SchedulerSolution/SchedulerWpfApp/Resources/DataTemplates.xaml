@@ -8,9 +8,9 @@
         <views:CourseView/>
     </DataTemplate>
 
-    <!-- DataTemplate for LecturerView -->
-    <DataTemplate DataType="{x:Type vm:LecturerViewModel}">
-        <views:LecturerView/>
+    <!-- DataTemplate for PersonView -->
+    <DataTemplate DataType="{x:Type vm:PersonViewModel}">
+        <views:PersonView/>
     </DataTemplate>
 
     <!-- DataTemplate for RoomView -->

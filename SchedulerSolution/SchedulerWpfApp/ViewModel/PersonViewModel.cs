@@ -8,9 +8,9 @@ using SchedulerWpfApp.Services;
 
 namespace SchedulerWpfApp.ViewModel
 {   /// <summary>
-    /// ViewModel responsible for managing lecturers: loading, importing, exporting, and deleting.
+    /// ViewModel responsible for managing persons: loading, importing, exporting, and deleting.
     /// </summary>
-    public class LecturerViewModel : ViewBaseModel
+    public class PersonViewModel : ViewBaseModel
     {
         // Dependencies injected via constructor
         private readonly IPersonService _personService;
@@ -18,7 +18,7 @@ namespace SchedulerWpfApp.ViewModel
         private readonly IExcelPersonExporter _excelExporter;
 
         // Internal data fields
-        private ObservableCollection<Person> _lecturer;
+        private ObservableCollection<Person> _person;
         private Person? _selectedPerson;
         private string _searchKeyword;
 
@@ -26,40 +26,40 @@ namespace SchedulerWpfApp.ViewModel
         /// Gets or sets the collection of people displayed in the UI.
         /// This observable collection automatically notifies the UI of changes.
         /// </summary>
-        public ObservableCollection<Person> Lecturers
+        public ObservableCollection<Person> Persons
         {
-            get => _lecturer;
-            set => SetProperty(ref _lecturer, value);
+            get => _person;
+            set => SetProperty(ref _person, value);
         }
 
         // Commands exposed to the View
         public ICommand LoadPeopleCommand { get; }
-        public ICommand ExportLecturerCommand { get; }
-        public ICommand ImportLecturerCommand { get; }
-        public ICommand AddLecturerCommand { get; }
-        public ICommand EditLecturerCommand { get; }
-        public ICommand DeleteLecturerCommand { get; }
+        public ICommand ExportPersonCommand { get; }
+        public ICommand ImportPersonCommand { get; }
+        public ICommand AddPersonCommand { get; }
+        public ICommand EditPersonCommand { get; }
+        public ICommand DeletePersonCommand { get; }
 
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public LecturerViewModel(IPersonService personService, IExcelPersonImporter excelImporter, IExcelPersonExporter excelExporter)
+        public PersonViewModel(IPersonService personService, IExcelPersonImporter excelImporter, IExcelPersonExporter excelExporter)
         {
             _personService = personService;
             _excelImporter = excelImporter;
             _excelExporter = excelExporter;
 
-            Lecturers = new ObservableCollection<Person>();
+            Persons = new ObservableCollection<Person>();
 
             // Initialize commands with async methods
             LoadPeopleCommand = new RelayCommand(async () => await LoadPeopleAsync());
-            ImportLecturerCommand = new RelayCommand(async () => await ImportLecturerAsync());
-            ExportLecturerCommand = new RelayCommand(async () => await ExportLecturerAsync());
-            AddLecturerCommand = new RelayCommand(async () => await AddLecturerAsync());
-            EditLecturerCommand = new RelayCommand(async () => await EditLecturerAsync());
+            ImportPersonCommand = new RelayCommand(async () => await ImportPersonAsync());
+            ExportPersonCommand = new RelayCommand(async () => await ExportPersonAsync());
+            AddPersonCommand = new RelayCommand(async () => await AddPersonAsync());
+            EditPersonCommand = new RelayCommand(async () => await EditPersonAsync());
 
             // Generic command with parameter (used for deletion)
-            DeleteLecturerCommand = new RelayCommandGeneric<Person>(async (person) => await DeleteLecturerAsync(person), (person) => person != null);
+            DeletePersonCommand = new RelayCommandGeneric<Person>(async (person) => await DeletePersonAsync(person), (person) => person != null);
 
             // Load data immediately when ViewModel is constructed
             _ = LoadPeopleAsync();
@@ -73,29 +73,29 @@ namespace SchedulerWpfApp.ViewModel
             try
             {
                 var peopleList = await _personService.GetAllAsync();
-                Lecturers = new ObservableCollection<Person>(peopleList);
+                Persons = new ObservableCollection<Person>(peopleList);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load lecturers: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Failed to load persons: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         /// <summary>
-        /// Exports the current list of lecturers to an Excel file.
+        /// Exports the current list of persons to an Excel file.
         /// </summary>
-        private async Task ExportLecturerAsync()
+        private async Task ExportPersonAsync()
         {
-            if (Lecturers == null || Lecturers.Count == 0)
+            if (Persons == null || Persons.Count == 0)
             {
-                MessageBox.Show("No lecturers to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("No persons to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             var dialog = new SaveFileDialog
             {
                 Filter = "Excel Files (*.xlsx)|*.xlsx",
-                FileName = "Lecturers.xlsx"
+                FileName = "Persons.xlsx"
             };
 
             if (dialog.ShowDialog() == true)
@@ -103,7 +103,7 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     // Export only non-null list
-                    var personList = Lecturers.Where(p => p != null).ToList();
+                    var personList = Persons.Where(p => p != null).ToList();
                     _excelExporter.ExportToExcel(personList, dialog.FileName);
                     MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -115,9 +115,9 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Imports lecturers from an Excel file and adds them to the data source.
+        /// Imports persons from an Excel file and adds them to the data source.
         /// </summary>
-        private async Task ImportLecturerAsync()
+        private async Task ImportPersonAsync()
         {
             var dialog = new OpenFileDialog
             {
@@ -140,25 +140,25 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
-        private async Task AddLecturerAsync()
+        private async Task AddPersonAsync()
         {
             // TODO: Show file dialog, read file, import data
 
         }
-        private async Task EditLecturerAsync()
+        private async Task EditPersonAsync()
         {
             // TODO: Show file dialog, read file, import data
 
         }
 
         /// <summary>
-        /// Deletes lecturer after confirmation.
+        /// Deletes person after confirmation.
         /// </summary>
-        private async Task DeleteLecturerAsync(Person person)
+        private async Task DeletePersonAsync(Person person)
         {
             if (person == null)
             {
-                MessageBox.Show("No lecturer selected to delete.");
+                MessageBox.Show("No person selected to delete.");
                 return;
             }
 

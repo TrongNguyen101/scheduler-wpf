@@ -128,7 +128,7 @@ namespace SchedulerWpfApp
             services.AddTransient<AddPersonWindow>();
 
             // Register the add person window as transient (new instance created each time)
-            services.AddTransient<LecturerViewModel>();
+            services.AddTransient<PersonViewModel>();
 
             services.AddTransient<CourseViewModel>();
 
@@ -136,7 +136,7 @@ namespace SchedulerWpfApp
 
             // Add factories
             services.AddSingleton<Func<CourseViewModel>>(sp => () => sp.GetRequiredService<CourseViewModel>());
-            services.AddSingleton<Func<LecturerViewModel>>(sp => () => sp.GetRequiredService<LecturerViewModel>());
+            services.AddSingleton<Func<PersonViewModel>>(sp => () => sp.GetRequiredService<PersonViewModel>());
             services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
         
         }
