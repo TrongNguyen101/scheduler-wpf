@@ -5,31 +5,22 @@ using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Services;
-using Syncfusion.XlsIO;
 
 namespace SchedulerWpfApp.ViewModel
-{
+{   /// <summary>
+    /// ViewModel responsible for managing lecturers: loading, importing, exporting, and deleting.
+    /// </summary>
     public class LecturerViewModel : ViewBaseModel
     {
-        private string _searchKeyword;
+        // Dependencies injected via constructor
         private readonly IPersonService _personService;
+        private readonly IExcelPersonImporter _excelImporter;
+        private readonly IExcelPersonExporter _excelExporter;
+
+        // Internal data fields
         private ObservableCollection<Person> _lecturer;
         private Person? _selectedPerson;
-
-        public ObservableCollection<Person> FilteredPersons { get; set; } = new();
-        public string SearchKeyword
-        {
-            get => _searchKeyword;
-            set
-            {
-                if (_searchKeyword != value)
-                {
-                    _searchKeyword = value;
-                    OnPropertyChanged(); // notify binding
-                    //FilterLecturers();    // trigger filtering
-                }
-            }
-        }
+        private string _searchKeyword;
 
         /// <summary>
         /// Gets or sets the collection of people displayed in the UI.
@@ -41,55 +32,91 @@ namespace SchedulerWpfApp.ViewModel
             set => SetProperty(ref _lecturer, value);
         }
 
-        /// <summary>
-        /// Gets or sets the currently selected person in the UI.
-        /// Used for edit, update, and delete operations.
-        /// </summary>
-        public Person SelectedPerson
-        {
-            get => _selectedPerson;
-            set => SetProperty(ref _selectedPerson, value);
-        }
-
+        // Commands exposed to the View
         public ICommand LoadPeopleCommand { get; }
         public ICommand ExportLecturerCommand { get; }
         public ICommand ImportLecturerCommand { get; }
         public ICommand AddLecturerCommand { get; }
         public ICommand EditLecturerCommand { get; }
+        public ICommand DeleteLecturerCommand { get; }
 
-        public LecturerViewModel(IPersonService personService)
+        /// <summary>
+        /// Constructor initializes dependencies and commands.
+        /// </summary>
+        public LecturerViewModel(IPersonService personService, IExcelPersonImporter excelImporter, IExcelPersonExporter excelExporter)
         {
             _personService = personService;
+            _excelImporter = excelImporter;
+            _excelExporter = excelExporter;
+
+            Lecturers = new ObservableCollection<Person>();
+
+            // Initialize commands with async methods
             LoadPeopleCommand = new RelayCommand(async () => await LoadPeopleAsync());
-            ExportLecturerCommand = new RelayCommand(async () => await ExportLecturerAsync());
             ImportLecturerCommand = new RelayCommand(async () => await ImportLecturerAsync());
+            ExportLecturerCommand = new RelayCommand(async () => await ExportLecturerAsync());
             AddLecturerCommand = new RelayCommand(async () => await AddLecturerAsync());
             EditLecturerCommand = new RelayCommand(async () => await EditLecturerAsync());
+
+            // Generic command with parameter (used for deletion)
+            DeleteLecturerCommand = new RelayCommandGeneric<Person>(async (person) => await DeleteLecturerAsync(person), (person) => person != null);
+
+            // Load data immediately when ViewModel is constructed
             _ = LoadPeopleAsync();
         }
 
         /// <summary>
         /// Loads people from the data service and populates the People collection.
-        /// Clears any selected person to avoid reference issues.
         /// </summary>
         private async Task LoadPeopleAsync()
         {
             try
             {
-                SelectedPerson = null;
                 var peopleList = await _personService.GetAllAsync();
                 Lecturers = new ObservableCollection<Person>(peopleList);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"LoadPeopleAsync error: {ex.Message}");
+                MessageBox.Show($"Failed to load lecturers: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
+        /// <summary>
+        /// Exports the current list of lecturers to an Excel file.
+        /// </summary>
         private async Task ExportLecturerAsync()
         {
-            // TODO: Xử lý import từ file Excel hoặc nguồn dữ liệu khác
+            if (Lecturers == null || Lecturers.Count == 0)
+            {
+                MessageBox.Show("No lecturers to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                Filter = "Excel Files (*.xlsx)|*.xlsx",
+                FileName = "Lecturers.xlsx"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    // Export only non-null list
+                    var personList = Lecturers.Where(p => p != null).ToList();
+                    _excelExporter.ExportToExcel(personList, dialog.FileName);
+                    MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Export failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
+
+        /// <summary>
+        /// Imports lecturers from an Excel file and adds them to the data source.
+        /// </summary>
         private async Task ImportLecturerAsync()
         {
             var dialog = new OpenFileDialog
@@ -99,12 +126,20 @@ namespace SchedulerWpfApp.ViewModel
 
             if (dialog.ShowDialog() == true)
             {
-                var data = ReadPersonsFromExcel(dialog.FileName);
-                await _personService.ImportPersonFromExcel(data);
-                MessageBox.Show("Import completed.");
-                await LoadPeopleAsync();
+                try
+                {
+                    var data = _excelImporter.ReadPersonsFromExcel(dialog.FileName);
+                    await _personService.ImportPersonFromExcel(data);
+                    MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    await LoadPeopleAsync();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Import failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
+
         private async Task AddLecturerAsync()
         {
             // TODO: Show file dialog, read file, import data
@@ -116,44 +151,36 @@ namespace SchedulerWpfApp.ViewModel
 
         }
 
-        private List<Person> ReadPersonsFromExcel(string filePath)
+        /// <summary>
+        /// Deletes lecturer after confirmation.
+        /// </summary>
+        private async Task DeleteLecturerAsync(Person person)
         {
-            var persons = new List<Person>();
-
-            using ExcelEngine excelEngine = new();
-            IApplication application = excelEngine.Excel;
-            application.DefaultVersion = ExcelVersion.Xlsx;
-
-            IWorkbook workbook = application.Workbooks.Open(filePath);
-            IWorksheet sheet = workbook.Worksheets[0];
-
-            int rowCount = sheet.UsedRange.LastRow;
-            int colCount = sheet.UsedRange.LastColumn;
-
-            // Đọc header
-            Dictionary<string, int> headerMap = new();
-            for (int c = 1; c <= colCount; c++)
+            if (person == null)
             {
-                string header = sheet[1, c].Value.Trim();
-                headerMap[header] = c;
+                MessageBox.Show("No lecturer selected to delete.");
+                return;
             }
 
-            // Đọc từng dòng dữ liệu
-            for (int r = 2; r <= rowCount; r++)
+            var confirm = MessageBox.Show(
+                $"Are you sure you want to delete {person.FirstName} {person.LastName}?",
+                "Confirm Delete",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (confirm == MessageBoxResult.Yes)
             {
-                var person = new Person
+                try
                 {
-                    FirstName = sheet[r, headerMap["FirstName"]].Value,
-                    LastName = sheet[r, headerMap["LastName"]].Value,
-                    Email = sheet[r, headerMap["Email"]].Value,
-                    Phone = sheet[r, headerMap["Phone"]].Value
-                };
-
-                persons.Add(person);
+                    await _personService.DeletePerson(person.Id);
+                    MessageBox.Show("Deleted successfully.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    await LoadPeopleAsync();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error deleting: {ex.Message}");
+                }
             }
-
-            return persons;
         }
-
     }
 }

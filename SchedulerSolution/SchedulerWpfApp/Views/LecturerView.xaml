@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
              xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
-             
              Background="White">
 
     <Grid Background="#f8f9fa">
@@ -183,7 +182,8 @@
                                         </Button>
                                         <Button Style="{StaticResource DeleteButtonStyle}"
                                                 Padding="10,5"
-                                                Command="{Binding DeleteLecturerCommand}">
+                                                Command="{Binding DataContext.DeleteLecturerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
                                             <TextBlock Text="🗑️ Xóa"/>
                                         </Button>
                                     </StackPanel>
@@ -368,7 +368,8 @@
                                 Content="Xóa"
                                 Style="{StaticResource DeleteButtonStyle}"
                                 Padding="20,8"
-                                Command="{Binding ConfirmDeleteLecturerCommand}"/>
+                                Command="{Binding DataContext.ShowDeleteConfirmationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"/>
                     </Grid>
                 </Grid>
             </Border>
