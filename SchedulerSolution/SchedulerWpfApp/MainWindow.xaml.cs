@@ -44,6 +44,5 @@ namespace SchedulerWpfApp
                 this.DragMove();
             }
         }
-
     }
 }

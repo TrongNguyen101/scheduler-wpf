@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\Logo\FPTU_logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -26,6 +30,10 @@
     <PackageReference Include="Syncfusion.SfInput.WPF" Version="29.1.40" />
     <PackageReference Include="Syncfusion.Shared.WPF" Version="29.1.40" />
     <PackageReference Include="Syncfusion.XlsIO.Wpf" Version="29.1.40" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\Logo\FPTU_logo.png" />
   </ItemGroup>
 
 </Project>

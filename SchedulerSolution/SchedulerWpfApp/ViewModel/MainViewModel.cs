@@ -1,6 +1,8 @@
 ﻿using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
+using SchedulerWpfApp.Services;
 using Syncfusion.XlsIO;
 
 namespace SchedulerWpfApp.ViewModel
@@ -8,6 +10,7 @@ namespace SchedulerWpfApp.ViewModel
     public class MainViewModel : ViewBaseModel
     {
         private object _currentViewModel;
+        private readonly IServiceProvider _serviceProvider;
         public object CurrentViewModel
         {
             get => _currentViewModel;
@@ -18,14 +21,14 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ShowTeacherCommand { get; }
         public ICommand ShowRoomCommand { get; }
 
-        public MainViewModel()
+        public MainViewModel(IServiceProvider serviceProvider)
         {
+            _serviceProvider = serviceProvider;
             ShowCourseCommand = new RelayCommand(ShowCourse);
             ShowTeacherCommand = new RelayCommand(ShowTeacher);
             ShowRoomCommand = new RelayCommand(ShowRoom);
 
-            // Mặc định load "Quản lý môn"
-            CurrentViewModel = new CourseViewModel();
+            CurrentViewModel = _serviceProvider.GetRequiredService<LecturerViewModel>();
         }
 
         private void ShowCourse()
@@ -35,7 +38,7 @@ namespace SchedulerWpfApp.ViewModel
 
         private void ShowTeacher()
         {
-            CurrentViewModel = new LecturerViewModel();
+            CurrentViewModel = _serviceProvider.GetRequiredService<LecturerViewModel>();
         }
 
         private void ShowRoom()
@@ -43,43 +46,5 @@ namespace SchedulerWpfApp.ViewModel
             CurrentViewModel = new RoomViewModel();
         }
 
-        private List<Person> ReadPersonsFromExcel(string filePath)
-        {
-            var persons = new List<Person>();
-
-            using ExcelEngine excelEngine = new();
-            IApplication application = excelEngine.Excel;
-            application.DefaultVersion = ExcelVersion.Xlsx;
-
-            IWorkbook workbook = application.Workbooks.Open(filePath);
-            IWorksheet sheet = workbook.Worksheets[0];
-
-            int rowCount = sheet.UsedRange.LastRow;
-            int colCount = sheet.UsedRange.LastColumn;
-
-            // Đọc header
-            Dictionary<string, int> headerMap = new();
-            for (int c = 1; c <= colCount; c++)
-            {
-                string header = sheet[1, c].Value.Trim();
-                headerMap[header] = c;
-            }
-
-            // Đọc từng dòng dữ liệu
-            for (int r = 2; r <= rowCount; r++)
-            {
-                var person = new Person
-                {
-                    FirstName = sheet[r, headerMap["FirstName"]].Value,
-                    LastName = sheet[r, headerMap["LastName"]].Value,
-                    Email = sheet[r, headerMap["Email"]].Value,
-                    Phone = sheet[r, headerMap["Phone"]].Value
-                };
-
-                persons.Add(person);
-            }
-
-            return persons;
-        }
     }
 }

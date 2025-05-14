@@ -121,6 +121,9 @@ namespace SchedulerWpfApp
             // Register the add person window as transient (new instance created each time)
             services.AddTransient<AddPersonWindow>();
 
+            // Register the add person window as transient (new instance created each time)
+            services.AddTransient<LecturerViewModel>();
+
             // Register the main view model as singleton (shared across the application)
             services.AddSingleton<MainViewModel>();
         }
