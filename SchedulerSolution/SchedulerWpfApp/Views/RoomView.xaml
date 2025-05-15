@@ -67,7 +67,7 @@
                 </Button>
 
                 <!-- Import Button -->
-                <Button Grid.Column="2" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0" Command="{Binding ImportClassRoomCommand}">
+                <Button Grid.Column="2" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0" Command="{Binding ImportRoomCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📥" VerticalAlignment="Center" />
                         <TextBlock Text=" Import Dữ Liệu" Margin="5,0,0,0" VerticalAlignment="Center" />

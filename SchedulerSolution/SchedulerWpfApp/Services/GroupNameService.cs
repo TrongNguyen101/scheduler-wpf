@@ -37,9 +37,13 @@ namespace SchedulerWpfApp.Services
             throw new NotImplementedException();
         }
 
-        public Task ImportGroupNameFromExcel(List<GroupName> listGroupNameFromExcel)
+        public async Task ImportGroupNameFromExcel(List<GroupName> listGroupNameFromExcel)
         {
-            throw new NotImplementedException();
+            foreach (var room in listGroupNameFromExcel)
+            {
+                _context.GroupName.Add(room);
+            }
+            await _context.SaveChangesAsync();
         }
 
         public Task UpdateGroupName(GroupName person)
