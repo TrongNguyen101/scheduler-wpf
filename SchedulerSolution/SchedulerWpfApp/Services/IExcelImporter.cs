@@ -10,5 +10,8 @@ namespace SchedulerWpfApp.Services
     public interface IExcelPersonImporter
     {
         List<Person> ReadPersonsFromExcel(string filePath);
+
+        List<GroupName> ReadRoomFromExcel(string filePath);
+
     }
 }

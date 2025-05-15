@@ -115,6 +115,8 @@ namespace SchedulerWpfApp
 
             // Register person service with scoped lifetime (one instance per scope)
             services.AddScoped<IPersonService, PersonService>();
+            services.AddScoped<IGroupNameService, GroupNameService>();
+
 
             services.AddSingleton<IExcelPersonImporter, ExcelPersonImporter>();
 
