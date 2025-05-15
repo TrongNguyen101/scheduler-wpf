@@ -36,4 +36,8 @@
     <Resource Include="Images\Logo\FPTU_logo.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="AppData\" />
+  </ItemGroup>
+
 </Project>
