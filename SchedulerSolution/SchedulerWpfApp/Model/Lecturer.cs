@@ -11,7 +11,6 @@
         {
             LecturerId = lecturerId;
             LecturerName = lecturerName;
-            //Role = role;
             LecturerSubjects = lecturerSubjects ?? new List<LecturerSubject>();
         }
     }
