@@ -31,4 +31,35 @@ public class ExcelPersonExporter : IExcelPersonExporter
 
         workbook.SaveAs(filePath);
     }
+
+
+    public void ExportToExcelRoom(List<GroupName> groupname, string filePath)
+    {
+        using ExcelEngine excelEngine = new();
+        IApplication application = excelEngine.Excel;
+        application.DefaultVersion = ExcelVersion.Xlsx;
+
+        IWorkbook workbook = application.Workbooks.Create(1);
+        IWorksheet sheet = workbook.Worksheets[0];
+
+        // Header
+        sheet[1, 1].Text = "ClassId";
+        sheet[1, 2].Text = "Major";
+        sheet[1, 3].Text = "Category";
+        sheet[1, 4].Text = "NumberOfStudents";
+        sheet[1, 5].Text = "NumberOfScheduler";
+        int row = 2;
+        foreach (var groupnames in groupname)
+        {
+            sheet[row, 1].Text = groupnames.ClassId ?? "";
+            sheet[row, 2].Text = groupnames.Major ?? "";
+            sheet[row, 3].Text = groupnames.Category ?? "";
+            sheet[row, 4].Text = groupnames.NumberOfStudents.ToString();
+            sheet[row, 5].Text = groupnames.NumberOfScheduler.ToString();
+
+            row++;
+        }
+
+        workbook.SaveAs(filePath);
+    }
 }
