@@ -194,7 +194,6 @@ namespace SchedulerWpfApp.ViewModel
             IsPersonFormOpen = true;
         }
 
-
         /// <summary>
         /// Deletes person after confirmation.
         /// </summary>

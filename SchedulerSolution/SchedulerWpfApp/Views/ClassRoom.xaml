@@ -14,7 +14,7 @@
         <!-- Header -->
         <Grid Grid.Row="0" Height="40" Margin="0,0,0,0">
             <Border Background="{StaticResource PrimaryColor}" CornerRadius="10, 10, 0 , 0">
-                <TextBlock Text="Quản Lí Phòng Học" FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
+                <TextBlock Text="Quản Lí Lớp Học" FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
             </Border>
         </Grid>
 
@@ -118,9 +118,9 @@
                         </Style>
                     </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Mã số phòng" MappingName="Id" />
-                        <syncfusion:GridTextColumn HeaderText="Tên Phòng" MappingName="FirstName" />
-                        <syncfusion:GridTextColumn HeaderText="Loại Phòng" MappingName="LastName" />
+                        <syncfusion:GridTextColumn HeaderText="Mã Lớp Học" MappingName="Id" />
+                        <syncfusion:GridTextColumn HeaderText="Số Học Sinh" MappingName="FirstName" />
+                        <syncfusion:GridTextColumn HeaderText="Giáo Viên" MappingName="LastName" />
                         <syncfusion:GridTextColumn HeaderText="Sức Chứa" MappingName="Email" />
                         <syncfusion:GridTextColumn HeaderText="Tình Trạng" MappingName="Phone" />
                         <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False">

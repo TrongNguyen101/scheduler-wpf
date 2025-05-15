@@ -33,6 +33,8 @@ namespace SchedulerWpfApp.Data
         public DbSet<Subject> Subjects { get; set; } = null!;
         public DbSet<Lecturer> Lecturers { get; set; } = null!;
         public DbSet<LecturerSubject> LecturerSubjects { get; set; } = null!;
+        public DbSet<GroupName> GroupName { get; set; }
+
 
         /// <summary>
         /// Configures the database connection if not already configured.
@@ -144,6 +146,33 @@ namespace SchedulerWpfApp.Data
                 new LecturerSubject { Id=1, LecturerId = "1", SubjectCode = "SEP492", LecturerName= "Nguyễn Văn A", NumberOfClasses=10 },
                 new LecturerSubject { Id=2, LecturerId = "2", SubjectCode = "SEP492", LecturerName = "Trần Thị B", NumberOfClasses = 5 }
             );
+            
+            modelBuilder.Entity<GroupName>().HasData(
+              new GroupName
+              {
+                  ClassId = "CL01",
+                  Category = "Class room",
+                  Major = "SE",
+                  NumberOfScheduler = 5,
+                  NumberOfStudents = 35
+              },
+              new GroupName
+              {
+                  ClassId = "CL02",
+                  Category = "Class room",
+                  Major = "MC",
+                  NumberOfScheduler = 5,
+                  NumberOfStudents = 35
+              },
+              new GroupName
+              {
+                  ClassId = "CL03",
+                  Category = "Computer lab",
+                  Major = "SE",
+                  NumberOfScheduler = 5,
+                  NumberOfStudents = 35
+              }
+           );
         }
     }
 }

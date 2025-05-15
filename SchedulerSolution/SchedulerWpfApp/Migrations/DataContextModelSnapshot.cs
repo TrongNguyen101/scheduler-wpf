@@ -15,7 +15,7 @@ namespace SchedulerWpfApp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
-
+            
             modelBuilder.Entity("SchedulerWpfApp.Model.Lecturer", b =>
                 {
                     b.Property<string>("LecturerId")
@@ -72,7 +72,7 @@ namespace SchedulerWpfApp.Migrations
                     b.HasIndex("SubjectCode");
 
                     b.ToTable("LecturerSubject");
-
+                    
                     b.HasData(
                         new
                         {
@@ -89,6 +89,58 @@ namespace SchedulerWpfApp.Migrations
                             LecturerName = "Trần Thị B",
                             NumberOfClasses = 5,
                             SubjectCode = "SEP492"
+                        });
+                 });
+                 
+            modelBuilder.Entity("SchedulerWpfApp.Model.GroupName", b =>
+                {
+                    b.Property<string>("ClassId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("Category");
+
+                    b.Property<string>("Major")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("Major");
+
+                    b.Property<int>("NumberOfScheduler")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("NumberOfScheduler");
+
+                    b.Property<int>("NumberOfStudents")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("NumberOfStudents");
+
+                    b.HasKey("ClassId");
+
+                    b.ToTable("GroupName");
+
+                    b.HasData(
+                        new
+                        {
+                            ClassId = "CL01",
+                            Category = "Class room",
+                            Major = "SE",
+                            NumberOfScheduler = 5,
+                            NumberOfStudents = 35
+                        },
+                        new
+                        {
+                            ClassId = "CL02",
+                            Category = "Class room",
+                            Major = "MC",
+                            NumberOfScheduler = 5,
+                            NumberOfStudents = 35
+                        },
+                        new
+                        {
+                            ClassId = "CL03",
+                            Category = "Computer lab",
+                            Major = "SE",
+                            NumberOfScheduler = 5,
+                            NumberOfStudents = 35
                         });
                 });
 
