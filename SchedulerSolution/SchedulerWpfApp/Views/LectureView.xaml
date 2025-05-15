@@ -1,5 +1,4 @@
-﻿<UserControl x:Class="SchedulerWpfApp.Views.CourseView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel" xmlns:syncfusion="http://schemas.syncfusion.com/wpf" DataContext="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext}" Background="White">
-
+﻿<UserControl x:Class="SchedulerWpfApp.Views.LectureView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:SchedulerWpfApp.Views" xmlns:syncfusion="http://schemas.syncfusion.com/wpf" Background="White">
     <Grid Background="#f8f9fa">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -9,7 +8,7 @@
         <!-- Header -->
         <Grid Grid.Row="0" Height="40" Margin="0,0,0,0">
             <Border Background="{StaticResource PrimaryColor}" CornerRadius="10, 10, 0 , 0">
-                <TextBlock Text="Quản Lí Môn Học" FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
+                <TextBlock Text="Quản Lí Giảng Viên" FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
             </Border>
         </Grid>
 
@@ -56,7 +55,7 @@
                     </Grid>
                 </Border>
 
-                <Button Grid.Column="1" Style="{StaticResource ExportButtonStyle}" Margin="0,0,10,0" Command="{Binding ExportStudentCommand}">
+                <Button Grid.Column="1" Style="{StaticResource ExportButtonStyle}" Margin="0,0,10,0" Command="{Binding ExportLecturerCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📤" VerticalAlignment="Center" />
                         <TextBlock Text=" Export Dữ Liệu" Margin="5,0,0,0" VerticalAlignment="Center" />
@@ -64,18 +63,18 @@
                 </Button>
 
                 <!-- Import Button -->
-                <Button Grid.Column="2" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0" Command="{Binding ImportStudentCommand}">
+                <Button Grid.Column="2" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0" Command="{Binding ImportLecturerCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📥" VerticalAlignment="Center" />
                         <TextBlock Text=" Import Dữ Liệu" Margin="5,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
 
-                <!-- Add Student Button -->
-                <Button Grid.Column="3" Style="{StaticResource SuccessButtonStyle}" Command="{Binding AddStudentCommand}">
+                <!-- Add Lecturer Button -->
+                <Button Grid.Column="3" Style="{StaticResource SuccessButtonStyle}" Command="{Binding AddLecturerCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕" VerticalAlignment="Center" />
-                        <TextBlock Text=" Thêm Môn Học" Margin="5,0,0,0" VerticalAlignment="Center" />
+                        <TextBlock Text=" Thêm Giảng Viên" Margin="5,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </Grid>
@@ -86,21 +85,47 @@
                     <DropShadowEffect ShadowDepth="1" BlurRadius="10" Opacity="0.1" Color="Gray" />
                 </Border.Effect>
 
-                <syncfusion:SfDataGrid x:Name="studentsDataGrid" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ItemsSource="{Binding Students}" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" CurrentCellBorderBrush="White">
+                <syncfusion:SfDataGrid x:Name="LecturersDataGrid" ItemsSource="{Binding Lecturers}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
+                    <syncfusion:SfDataGrid.RowStyle>
+                        <Style TargetType="syncfusion:VirtualizingCellsControl">
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                            <Setter Property="Focusable" Value="False" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="BorderBrush" Value="Transparent" />
+                        </Style>
+                    </syncfusion:SfDataGrid.RowStyle>
+
+                    <!-- ✅ Cell style đã OK -->
+                    <syncfusion:SfDataGrid.Resources>
+                        <Style TargetType="syncfusion:GridCell">
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                            <Setter Property="Focusable" Value="False" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="syncfusion:GridCell">
+                                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                            <ContentPresenter />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Mã Lớp Học" MappingName="StudentId" />
-                        <syncfusion:GridTextColumn HeaderText="Tên Lớp" MappingName="FullName" />
-                        <syncfusion:GridTextColumn HeaderText="Số Học Sinh" MappingName="Email" />
-                        <syncfusion:GridTextColumn HeaderText="Số Giảng Viên" MappingName="Phone" />
-                        <syncfusion:GridTemplateColumn HeaderText="Actions" Width="90" AllowFiltering="False">
+                        <syncfusion:GridTextColumn HeaderText="Mã số giảng viên" MappingName="Id" />
+                        <syncfusion:GridTextColumn HeaderText="Họ" MappingName="FirstName" />
+                        <syncfusion:GridTextColumn HeaderText="Tên" MappingName="LastName" />
+                        <syncfusion:GridTextColumn HeaderText="Email" MappingName="Email" />
+                        <syncfusion:GridTextColumn HeaderText="Số điện thoại" MappingName="Phone" />
+                        <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False">
                             <syncfusion:GridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Button Style="{StaticResource EditButtonStyle}" Command="{Binding EditStudentCommand}" CommandParameter="{Binding StudentId}">
-                                            <TextBlock Text="✏️" />
+                                        <Button Style="{StaticResource EditButtonStyle}" Command="{Binding EditLecturerCommand}" CommandParameter="{Binding LectureId}" >
+                                            <TextBlock Text="✏️" VerticalAlignment="Center" />
                                         </Button>
-                                        <Button Style="{StaticResource DeleteButtonStyle}" Command="{Binding DeleteStudentCommand}">
-                                            <TextBlock Text="🗑️" />
+                                        <Button Style="{StaticResource DeleteButtonStyle}"  Command="{Binding DeleteLecturerCommand}" >
+                                            <TextBlock Text="🗑️" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Button>
                                     </StackPanel>
                                 </DataTemplate>
@@ -119,13 +144,13 @@
 
                 <!-- Pagination -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <syncfusion:SfDataPager x:Name="dataPager" PageSize="10" NumericButtonCount="5" PagedSource="{Binding Students}" />
+                    <syncfusion:SfDataPager x:Name="dataPager" PageSize="10" NumericButtonCount="5" PagedSource="{Binding Lecturers}" />
                 </StackPanel>
             </Grid>
         </Grid>
 
-        <!-- Student Form Popup -->
-        <Popup x:Name="studentFormPopup" StaysOpen="False" Placement="Center" IsOpen="False" AllowsTransparency="True">
+        <!-- Lecturer Form Popup -->
+        <Popup x:Name="LecturerFormPopup" StaysOpen="False" Placement="Center" IsOpen="False" AllowsTransparency="True">
             <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="500">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="15" Opacity="0.2" Color="Black" />
@@ -146,7 +171,7 @@
                     <!-- Form Fields -->
                     <StackPanel Grid.Row="1" Margin="0,0,0,20">
                         <TextBlock Text="Mã sinh viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox x:Name="txtStudentId" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+                        <TextBox x:Name="txtLecturerId" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
                         <TextBlock Text="Họ tên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
                         <TextBox x:Name="txtFullName" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
@@ -166,9 +191,9 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="1" Content="Hủy" Style="{StaticResource ActionButtonStyle}" Background="#95a5a6" Margin="0,0,10,0" Padding="20,8" Command="{Binding EditStudentCommand}" />
+                        <Button Grid.Column="1" Content="Hủy" Style="{StaticResource ActionButtonStyle}" Background="#95a5a6" Margin="0,0,10,0" Padding="20,8" Command="{Binding EditLecturerCommand}" />
 
-                        <Button Grid.Column="2" x:Name="btnSaveStudent" Content="Lưu" Style="{StaticResource SuccessButtonStyle}" Padding="20,8" Command="{Binding SaveStudentCommand}" />
+                        <Button Grid.Column="2" x:Name="btnSaveLecturer" Content="Lưu" Style="{StaticResource SuccessButtonStyle}" Padding="20,8" Command="{Binding SaveLecturerCommand}" />
                     </Grid>
                 </Grid>
             </Border>
@@ -202,9 +227,9 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="1" Content="Hủy" Style="{StaticResource ActionButtonStyle}" Background="#95a5a6" Margin="0,0,10,0" Padding="20,8" Command="{Binding SaveStudentCommand}" />
+                        <Button Grid.Column="1" Content="Hủy" Style="{StaticResource ActionButtonStyle}" Background="#95a5a6" Margin="0,0,10,0" Padding="20,8" Command="{Binding SaveLecturerCommand}" />
 
-                        <Button Grid.Column="2" Content="Xóa" Style="{StaticResource DeleteButtonStyle}" Padding="20,8" Command="{Binding ConfirmDeleteStudentCommand}" />
+                        <Button Grid.Column="2" Content="Xóa" Style="{StaticResource DeleteButtonStyle}" Padding="20,8" Command="{Binding ConfirmDeleteLecturerCommand}" />
                     </Grid>
                 </Grid>
             </Border>

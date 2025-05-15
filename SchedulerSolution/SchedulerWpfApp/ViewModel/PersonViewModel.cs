@@ -21,6 +21,10 @@ namespace SchedulerWpfApp.ViewModel
         private ObservableCollection<Person> _person;
         private Person? _selectedPerson;
         private string _searchKeyword;
+        private bool _isPersonFormOpen;
+        private bool _isOpenDialog;
+        private bool _isConfirmationOpen;
+
 
         /// <summary>
         /// Gets or sets the collection of people displayed in the UI.
@@ -31,6 +35,26 @@ namespace SchedulerWpfApp.ViewModel
             get => _person;
             set => SetProperty(ref _person, value);
         }
+        public Person SelectedPerson
+        {
+            get => _selectedPerson;
+            set => SetProperty(ref _selectedPerson, value);
+        }
+        public bool IsPersonFormOpen
+        {
+            get => _isPersonFormOpen;
+            set => SetProperty(ref _isPersonFormOpen, value);
+        }
+        public bool IsOpenDialog
+        {
+            get => _isOpenDialog;
+            set => SetProperty(ref _isOpenDialog, value);
+        }
+        public bool IsConfirmationOpen
+        {
+            get => _isConfirmationOpen;
+            set => SetProperty(ref _isConfirmationOpen, value);
+        }
 
         // Commands exposed to the View
         public ICommand LoadPeopleCommand { get; }
@@ -39,6 +63,10 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand AddPersonCommand { get; }
         public ICommand EditPersonCommand { get; }
         public ICommand DeletePersonCommand { get; }
+        public ICommand SavePersonCommand { get; }
+        public ICommand CancelEditPersonCommand { get; }
+        public ICommand ConfirmDeleteCommand { get; }
+        public ICommand CancelDeletePersonCommand { get; }
 
         /// <summary>
         /// Constructor initializes dependencies and commands.
@@ -56,10 +84,15 @@ namespace SchedulerWpfApp.ViewModel
             ImportPersonCommand = new RelayCommand(async () => await ImportPersonAsync());
             ExportPersonCommand = new RelayCommand(async () => await ExportPersonAsync());
             AddPersonCommand = new RelayCommand(async () => await AddPersonAsync());
-            EditPersonCommand = new RelayCommand(async () => await EditPersonAsync());
+            EditPersonCommand = new RelayCommandGeneric<Person>(async (person) => await EditPersonAsync(person), (person) => person != null);
 
             // Generic command with parameter (used for deletion)
             DeletePersonCommand = new RelayCommandGeneric<Person>(async (person) => await DeletePersonAsync(person), (person) => person != null);
+
+            SavePersonCommand = new RelayCommand(async () => await SavePersonAsync());
+            CancelEditPersonCommand = new RelayCommand(CancelEdit);
+            ConfirmDeleteCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
+            CancelDeletePersonCommand = new RelayCommand(CancelDelete);
 
             // Load data immediately when ViewModel is constructed
             _ = LoadPeopleAsync();
@@ -142,45 +175,56 @@ namespace SchedulerWpfApp.ViewModel
 
         private async Task AddPersonAsync()
         {
-            // TODO: Show file dialog, read file, import data
-
+            SelectedPerson = new Person(); // Khởi tạo object trống cho form
+            IsPersonFormOpen = true;
         }
-        private async Task EditPersonAsync()
+        private async Task EditPersonAsync(Person person)
         {
-            // TODO: Show file dialog, read file, import data
+            if (person == null) return;
 
+            SelectedPerson = new Person
+            {
+                Id = person.Id,
+                FirstName = person.FirstName,
+                LastName = person.LastName,
+                Email = person.Email,
+                Phone = person.Phone
+            };
+
+            IsPersonFormOpen = true;
         }
+
 
         /// <summary>
         /// Deletes person after confirmation.
         /// </summary>
         private async Task DeletePersonAsync(Person person)
+
         {
-            if (person == null)
-            {
-                MessageBox.Show("No person selected to delete.");
-                return;
-            }
 
-            var confirm = MessageBox.Show(
-                $"Are you sure you want to delete {person.FirstName} {person.LastName}?",
-                "Confirm Delete",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+            IsOpenDialog = true;
 
-            if (confirm == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    await _personService.DeletePerson(person.Id);
-                    MessageBox.Show("Deleted successfully.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                    await LoadPeopleAsync();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error deleting: {ex.Message}");
-                }
-            }
+        }
+
+
+        public async Task SavePersonAsync()
+        {
+
+        }
+        public async Task ConfirmDeleteAsync()
+        {
+
+        }
+        public void CancelEdit()
+        {
+            IsPersonFormOpen = false;
+            SelectedPerson = null;
+
+        }
+        public void CancelDelete()
+        {
+            IsOpenDialog = false;
+
         }
     }
 }

@@ -131,6 +131,10 @@ namespace SchedulerWpfApp
             services.AddTransient<PersonViewModel>();
 
             services.AddTransient<CourseViewModel>();
+            services.AddTransient<LectureView>();
+            services.AddTransient<ClassRoom>();
+
+
 
             services.AddTransient<RoomViewModel>();
 
