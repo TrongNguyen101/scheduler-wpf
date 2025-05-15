@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SchedulerWpfApp.Data;
+using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Services;
 using SchedulerWpfApp.ViewModel;
 using SchedulerWpfApp.Views;
@@ -142,7 +143,13 @@ namespace SchedulerWpfApp
             services.AddSingleton<Func<CourseViewModel>>(sp => () => sp.GetRequiredService<CourseViewModel>());
             services.AddSingleton<Func<PersonViewModel>>(sp => () => sp.GetRequiredService<PersonViewModel>());
             services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
-        
+
+
+            services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime
+            services.AddScoped<TreeForSchedule>(); // Register TreeNode with a scoped lifetime
+            services.AddScoped<SortSubjectsOneSession>(); // Register SortSubjectsOneSession with a scoped lifetime
+            services.AddScoped<GetLecturerForSubject>(); // Register GetLecturerForSubject with a scoped lifetime
+            services.AddScoped<GenerateScheduleForAllDate>(); // Register GenerateScheduleForAllDate with a scoped lifetime
         }
 
         /// <summary>
