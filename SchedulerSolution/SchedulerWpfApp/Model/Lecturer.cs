@@ -18,8 +18,6 @@ namespace SchedulerWpfApp.Model
 
         public Lecturer() { }
         
-        public List<LecturerSubject>? LecturerSubjects { get; set; }
-
         public Lecturer(string lecturerId, string lecturerName, List<LecturerSubject>? lecturerSubjects = null)
         {
             LecturerId = lecturerId;
