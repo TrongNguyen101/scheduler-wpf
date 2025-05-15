@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SchedulerWpfApp.Data;
-using SchedulerWpfApp.Model;
+using SchedulerWpfApp.Algorithm;
 using SchedulerWpfApp.Services;
 using SchedulerWpfApp.ViewModel;
 using SchedulerWpfApp.Views;
@@ -118,9 +118,9 @@ namespace SchedulerWpfApp
             services.AddScoped<IGroupNameService, GroupNameService>();
 
 
-            services.AddSingleton<IExcelPersonImporter, ExcelPersonImporter>();
+            services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
 
-            services.AddSingleton<IExcelPersonExporter, ExcelPersonExporter>();
+            services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
 
             // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();

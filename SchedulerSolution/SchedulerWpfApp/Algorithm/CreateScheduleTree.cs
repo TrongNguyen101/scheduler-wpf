@@ -1,11 +1,6 @@
 ﻿using SchedulerWpfApp.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SchedulerWpfApp.Services
+namespace SchedulerWpfApp.Algorithm
 {
     public class CreateScheduleTree
     {
@@ -28,8 +23,8 @@ namespace SchedulerWpfApp.Services
             lecturerSubjects.Add(new LecturerSubject("L1", "SWP391", "Nguyen Van Xoai", 1));
             List<LecturerRequest> lecturerRequests = new List<LecturerRequest>();
 
-            lecturerRequests.Add(new LecturerRequest(1, "L1", "Monday", "AM", null, null));
-            lecturerRequests.Add(new LecturerRequest(1, "L1", "Wednesday", "AM", null, null));
+            lecturerRequests.Add(new LecturerRequest(1, "L1", "Monday", "A", null, null));
+            lecturerRequests.Add(new LecturerRequest(1, "L1", "Wednesday", "A", null, null));
 
             lecturerSubjects.Add(new LecturerSubject("L2", "SWP391", "Sờ Mai", 1));
             lecturerSubjects.Add(new LecturerSubject("L3", "SWP391", "Nguyen Mang Gồ", 1));

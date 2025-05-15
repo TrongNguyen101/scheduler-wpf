@@ -1,6 +1,6 @@
 ﻿using SchedulerWpfApp.Model;
 
-namespace SchedulerWpfApp.Services
+namespace SchedulerWpfApp.Algorithm
 {
     public class GetLecturerForSubject
     {

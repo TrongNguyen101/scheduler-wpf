@@ -2,11 +2,11 @@
 using System.Windows.Input;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
-using SchedulerWpfApp.Services;
 using System.Diagnostics;
 using Syncfusion.XlsIO;
 using Microsoft.Win32;
 using System.Windows;
+using SchedulerWpfApp.Algorithm;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -232,7 +232,7 @@ namespace SchedulerWpfApp.ViewModel
                 sheet[row, 10].Text = s.LecturerId ?? "";
                 sheet[row, 11].Text = s.SlotTypeCode ?? "";
                 sheet[row, 12].Text = s.TypeSlot ?? "";
-                sheet[row, 13].Text = s.SessionNo ?? "";
+                sheet[row, 13].Number = s.SessionNo;
 
                 row++;
             }
