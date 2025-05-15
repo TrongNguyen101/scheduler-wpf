@@ -30,6 +30,7 @@ namespace SchedulerWpfApp.Data
         /// DbSet representing the Persons table in the database.
         /// </summary>
         public DbSet<Person> Persons { get; set; } = null!;
+        public DbSet<GroupName> GroupName { get; set; }
 
         /// <summary>
         /// Configures the database connection if not already configured.
@@ -101,6 +102,34 @@ namespace SchedulerWpfApp.Data
                     Phone = "555-123-4567",
                 }
              );
+            modelBuilder.Entity<GroupName>().HasData(
+              new GroupName
+              {
+                  ClassId = "CL01",
+                  Category = "Class room",
+                  Major = "SE",
+                  NumberOfScheduler = 5,
+                  NumberOfStudents = 35
+              },
+              new GroupName
+              {
+                  ClassId = "CL02",
+                  Category = "Class room",
+                  Major = "MC",
+                  NumberOfScheduler = 5,
+                  NumberOfStudents = 35
+              },
+              new GroupName
+              {
+                  ClassId = "CL03",
+                  Category = "Computer lab",
+                  Major = "SE",
+                  NumberOfScheduler = 5,
+                  NumberOfStudents = 35
+              }
+           );
+
+
         }
     }
 }

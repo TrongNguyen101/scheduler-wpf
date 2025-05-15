@@ -27,7 +27,7 @@
         <Setter Property="Width" Value="30" />
         <Setter Property="Height" Value="30" />
         <Setter Property="Padding" Value="6,2,4,2" />
-        <Setter Property="Margin" Value="0,0,5,0" />
+        <Setter Property="Margin" Value="5,0,0,0" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Focusable" Value="False" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -51,8 +51,9 @@
     <Style x:Key="EditButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
         <Setter Property="Width" Value="30" />
         <Setter Property="Height" Value="30" />
-        <Setter Property="Padding" Value="6,2,4,2" />
-        <Setter Property="Margin" Value="0,0,5,0" />
+        <Setter Property="Padding" Value="4,2,4,2" />
+        <Setter Property="Background" Value="{StaticResource AccentColor}" />
+        <Setter Property="BorderBrush" Value="{StaticResource SearchBorder}" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Focusable" Value="False" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -61,7 +62,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}" CornerRadius="4">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <ContentPresenter VerticalAlignment="Center" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -72,7 +73,6 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-
     <Style x:Key="SuccessButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
         <Setter Property="Background" Value="{StaticResource SuccessColor}" />
         <Style.Triggers>
