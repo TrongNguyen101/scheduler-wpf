@@ -30,6 +30,11 @@ namespace SchedulerWpfApp.Data
         /// DbSet representing the Persons table in the database.
         /// </summary>
         public DbSet<Person> Persons { get; set; } = null!;
+        public DbSet<Subject> Subjects { get; set; } = null!;
+        public DbSet<Lecturer> Lecturers { get; set; } = null!;
+        public DbSet<LecturerSubject> LecturerSubjects { get; set; } = null!;
+        public DbSet<GroupName> GroupName { get; set; }
+
 
         /// <summary>
         /// Configures the database connection if not already configured.
@@ -101,6 +106,73 @@ namespace SchedulerWpfApp.Data
                     Phone = "555-123-4567",
                 }
              );
+
+            modelBuilder.Entity<Subject>().HasData(
+                new Subject
+                {
+                    SubjectCode = "WDP201",
+                    SubjectName = "Web development",
+                    Major = "SE",
+                    TotalSessions = 1,
+                    SlotsPerWeek = 20,
+                    SemesterId = "SU25"
+                },
+                new Subject
+                {
+                    SubjectCode = "SEP492",
+                    SubjectName = "Do an tot nghiep",
+                    Major = "SE",
+                    TotalSessions = 1,
+                    SlotsPerWeek = 20,
+                    SemesterId = "SU25"
+                },
+                new Subject
+                {
+                    SubjectCode = "HCM202",
+                    SubjectName = "Tw tuong Ho Chi Minh",
+                    Major = "SE",
+                    TotalSessions = 1,
+                    SlotsPerWeek = 20,
+                    SemesterId = "SU25"
+                }
+             );
+
+            modelBuilder.Entity<Lecturer>().HasData(
+                new Lecturer { LecturerId = "1", LecturerName = "Nguyễn Văn A" },
+                new Lecturer { LecturerId = "2", LecturerName = "Trần Thị B" }
+            );
+
+            modelBuilder.Entity<LecturerSubject>().HasData(
+                new LecturerSubject { Id=1, LecturerId = "1", SubjectCode = "SEP492", LecturerName= "Nguyễn Văn A", NumberOfClasses=10 },
+                new LecturerSubject { Id=2, LecturerId = "2", SubjectCode = "SEP492", LecturerName = "Trần Thị B", NumberOfClasses = 5 }
+            );
+            
+            modelBuilder.Entity<GroupName>().HasData(
+              new GroupName
+              {
+                  ClassId = "CL01",
+                  Category = "Class room",
+                  Major = "SE",
+                  NumberOfScheduler = 5,
+                  NumberOfStudents = 35
+              },
+              new GroupName
+              {
+                  ClassId = "CL02",
+                  Category = "Class room",
+                  Major = "MC",
+                  NumberOfScheduler = 5,
+                  NumberOfStudents = 35
+              },
+              new GroupName
+              {
+                  ClassId = "CL03",
+                  Category = "Computer lab",
+                  Major = "SE",
+                  NumberOfScheduler = 5,
+                  NumberOfStudents = 35
+              }
+           );
         }
     }
 }
