@@ -117,7 +117,8 @@
                         <syncfusion:GridTextColumn HeaderText="Chuyên Ngành" MappingName="Major" />
                         <syncfusion:GridTextColumn HeaderText="Số Học Sinh" MappingName="NumberOfStudents" />
                         <syncfusion:GridTextColumn HeaderText="Số Môn" MappingName="NumberOfScheduler" />
-                        <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False">
+                        <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False" MappingName="ActionPlaceholder">
+
                             <syncfusion:GridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

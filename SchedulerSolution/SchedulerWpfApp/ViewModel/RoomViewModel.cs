@@ -54,7 +54,7 @@ namespace SchedulerWpfApp.ViewModel
                 if (SetProperty(ref _searchKeyword, value))
                 {
                     // use function fillter list by keyword
-                    FilterRooms(); 
+                    FilterRooms();
                 }
             }
         }
@@ -237,11 +237,20 @@ namespace SchedulerWpfApp.ViewModel
                 // check which event is edit or add
                 if (_isEditing)
                 {
-                    // call UpdateGroupName to update information
-                    await _groupnameService.UpdateGroupName(SelectedGroupname);
-                    MessageBox.Show("Cập nhật lớp thành công");
-                    await LoadRoomAsync();
-                    _isEditing = false;
+                    // check duplicate classid
+                    bool exists = await _groupnameService.CheckClassIdExistsAsync(SelectedGroupname.ClassId);
+                    if (exists)
+                    {
+                        // call UpdateGroupName to update information
+                        await _groupnameService.UpdateGroupName(SelectedGroupname);
+                        MessageBox.Show("Cập nhật lớp thành công");
+                        await LoadRoomAsync();
+                        _isEditing = false;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Room không tồn tại");
+                    }
 
                 }
                 // if it is an add event
