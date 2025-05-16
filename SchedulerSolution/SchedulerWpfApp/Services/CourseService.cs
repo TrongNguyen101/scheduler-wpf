@@ -9,6 +9,9 @@ using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Services
 {
+    /// <summary>
+    /// Service for managing Subject entities in the database
+    /// </summary>
     public class CourseService : ICourseService
     {
         #region Fields
@@ -28,9 +31,9 @@ namespace SchedulerWpfApp.Services
 
         #region Methods
         /// <summary>
-        /// Adds a new person to the database
+        /// Adds a new subject to the database
         /// </summary>
-        /// <param name="person">The person entity to add</param>
+        /// <param name="subject">The person entity to add</param>
         /// <returns>A task representing the asynchronous operation</returns>
         public async Task AddSubject(Subject subject)
         {
@@ -48,11 +51,11 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
-        /// Deletes a person from the database by their ID
+        /// Deletes a subject from the database by their ID
         /// </summary>
-        /// <param name="id">The ID of the person to delete</param>
+        /// <param name="id">The ID of the subject to delete</param>
         /// <returns>A task representing the asynchronous operation</returns>
-        /// <remarks>If no person with the specified ID exists, no action is taken</remarks>
+        /// <remarks>If no subject with the specified ID exists, no action is taken</remarks>
         public async Task DeleteSubject(string subjectCode)
         {
             var existingSubject = await GetBySubjectCodeAsync(subjectCode);
@@ -64,30 +67,30 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
-        /// Retrieves all persons from the database
+        /// Retrieves all subjects from the database
         /// </summary>
-        /// <returns>A list of all persons in the database</returns>
+        /// <returns>A list of all subjects in the database</returns>
         public async Task<List<Subject>> GetAllAsync()
         {
             return await _context.Subjects.ToListAsync();
         }
 
         /// <summary>
-        /// Retrieves a specific person by their ID
+        /// Retrieves a specific subject by their ID
         /// </summary>
-        /// <param name="id">The ID of the person to retrieve</param>
-        /// <returns>The person with the specified ID, or null if not found</returns>
+        /// <param name="id">The ID of the subject to retrieve</param>
+        /// <returns>The subject with the specified ID, or null if not found</returns>
         public async Task<Subject?> GetBySubjectCodeAsync(string subjectCode)
         {
             return await _context.Subjects.FindAsync(subjectCode);
         }
 
         /// <summary>
-        /// Updates an existing person in the database
+        /// Updates an existing subject in the database
         /// </summary>
-        /// <param name="person">The person entity with updated values</param>
+        /// <param name="subject">The subject entity with updated values</param>
         /// <returns>A task representing the asynchronous operation</returns>
-        /// <remarks>If no person with the specified ID exists, no action is taken</remarks>
+        /// <remarks>If no subject with the specified ID exists, no action is taken</remarks>
         public async Task UpdateSubject(Subject subject)
         {
             var existingSubject = await GetBySubjectCodeAsync(subject.SubjectCode);

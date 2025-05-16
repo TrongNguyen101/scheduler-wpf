@@ -120,7 +120,6 @@ namespace SchedulerWpfApp
 
 
             services.AddSingleton<IExcelPersonImporter, ExcelPersonImporter>();
-
             services.AddSingleton<IExcelPersonExporter, ExcelPersonExporter>();
 
             services.AddSingleton<IExcelSubjectImporter, ExcelSubjectImporter>();

@@ -170,7 +170,8 @@
                                                    MappingName="SlotsPerWeek" />
                         <syncfusion:GridTemplateColumn HeaderText="Actions"
                                                        Width="90"
-                                                       AllowFiltering="False">
+                                                       AllowFiltering="False"
+                                                       MappingName="ActionPlaceholder">
                             <syncfusion:GridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal"
@@ -248,7 +249,7 @@
                     <Grid Grid.Row="0"
                           Margin="0,0,0,20">
                         <TextBlock x:Name="formTitle"
-                                   Text="Thêm Môn Học Mới"
+                                   Text="{Binding Title}"
                                    FontSize="18"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource TextColor}" />
@@ -262,7 +263,7 @@
                                    Foreground="{StaticResource TextColor}" />
                         <TextBox Text="{Binding SelectedSubject.SubjectCode}"
                                  Style="{StaticResource ModernTextBoxStyle}"
-                                 IsReadOnly="True"
+                                 IsReadOnly="{Binding IsSubjectCodeEdit}"
                                  Margin="0,0,0,15" />
 
                         <TextBlock Text="Tên lớp"

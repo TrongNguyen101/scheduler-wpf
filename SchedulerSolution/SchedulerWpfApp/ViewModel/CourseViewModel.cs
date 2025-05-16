@@ -22,6 +22,16 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isSubjectFormOpen;
         private bool _isOpenDialog;
         private bool _isConfirmationOpen;
+        private bool _isEdit;
+        private bool _isSubjectCodeEdit;
+        private ObservableCollection<Subject> _allSubjects;
+
+        public string Title => SelectedSubject?.SubjectCode != null ? "Chỉnh Sửa Môn Học" : "Thêm Mới Môn Học";
+        public bool IsSubjectCodeEdit
+        {
+            get => _isSubjectCodeEdit;
+            set => SetProperty(ref _isSubjectCodeEdit, value);
+        }
 
         // Observable collection to hold list of courses
         public ObservableCollection<Subject> Subjects
@@ -33,7 +43,13 @@ namespace SchedulerWpfApp.ViewModel
         public Subject SelectedSubject
         {
             get => _selectedSubject;
-            set => SetProperty(ref _selectedSubject, value);
+            set
+            {
+                if (SetProperty(ref _selectedSubject, value))
+                {
+                    OnPropertyChanged(nameof(Title));
+                }
+            }
         }
         public bool IsSubjectFormOpen
         {
@@ -50,7 +66,19 @@ namespace SchedulerWpfApp.ViewModel
             get => _isConfirmationOpen;
             set => SetProperty(ref _isConfirmationOpen, value);
         }
-
+        public string SearchKeyword
+        {
+            get => _searchKeyword;
+            set
+            {
+                if (SetProperty(ref _searchKeyword, value))
+                {
+                    // use function fillter list by keyword
+                    FilterSubjects();
+                }
+            }
+        }
+        // Commands exposed to the View
         public ICommand LoadPeopleCommand { get; }
         public ICommand ExportSubjectCommand { get; }
         public ICommand ImportSubjectCommand { get; }
@@ -62,6 +90,9 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ConfirmDeleteCommand { get; }
         public ICommand CancelDeleteSubjectCommand { get; }
 
+        /// <summary>
+        /// Constructor initializes dependencies and commands.
+        /// </summary>
         public CourseViewModel(ICourseService courseService, IExcelSubjectExporter excelExporter, IExcelSubjectImporter excelImporter)
         {
             _courseService = courseService;
@@ -91,12 +122,17 @@ namespace SchedulerWpfApp.ViewModel
             _ = LoadSubjectAsync();
 
         }
+
+        /// <summary>
+        /// Loads subject from the data service and populates the Lecture collection.
+        /// </summary>
         private async Task LoadSubjectAsync()
         {
             try
             {
                 var subjectList = await _courseService.GetAllAsync();
-                Subjects = new ObservableCollection<Subject>(subjectList);
+                _allSubjects = new ObservableCollection<Subject>(subjectList);
+                ResetToAllSubjects();
             }
             catch (Exception ex)
             {
@@ -109,8 +145,11 @@ namespace SchedulerWpfApp.ViewModel
         {
             SelectedSubject = new Subject(); // Khởi tạo object trống cho form
             IsSubjectFormOpen = true;
+            _isEdit = false;
+            IsSubjectCodeEdit = false;
         }
 
+        // Edit a course existed
         private async Task EditSubjectAsync(Subject subject)
         {
             if (subject == null) return;
@@ -126,6 +165,8 @@ namespace SchedulerWpfApp.ViewModel
             };
 
             IsSubjectFormOpen = true;
+            _isEdit = true;
+            IsSubjectCodeEdit = true;
         }
 
         // Remove a course from the list
@@ -155,25 +196,39 @@ namespace SchedulerWpfApp.ViewModel
 
             try
             {
-                var existingSubject = Subjects.FirstOrDefault(s => s.SubjectCode == SelectedSubject.SubjectCode);
-
-                if (existingSubject != null)
+                // Check if _isEdit is false will create new course. Otherwise, update course
+                if (!_isEdit)
                 {
-                    // Cập nhật thông tin
-                    existingSubject.SubjectName = SelectedSubject.SubjectName;
-                    existingSubject.Major = SelectedSubject.Major;
-                    existingSubject.TotalSessions = SelectedSubject.TotalSessions;
-                    existingSubject.SlotsPerWeek = SelectedSubject.SlotsPerWeek;
-                    existingSubject.SemesterId = SelectedSubject.SemesterId;
+                    var existingSubject = Subjects.FirstOrDefault(s => s.SubjectCode == SelectedSubject.SubjectCode);
 
-                    await _courseService.UpdateSubject(existingSubject);
+                    if (existingSubject == null)
+                        await _courseService.AddSubject(SelectedSubject);
+                    else
+                        // Cảnh báo
+                        MessageBox.Show("Môn học đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
                 {
-                    // Cảnh báo
-                    MessageBox.Show("Môn học không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+                    var existingSubject = Subjects.FirstOrDefault(s => s.SubjectCode == SelectedSubject.SubjectCode);
 
+                    if (existingSubject != null)
+                    {
+                        // Cập nhật thông tin
+                        existingSubject.SubjectName = SelectedSubject.SubjectName;
+                        existingSubject.Major = SelectedSubject.Major;
+                        existingSubject.TotalSessions = SelectedSubject.TotalSessions;
+                        existingSubject.SlotsPerWeek = SelectedSubject.SlotsPerWeek;
+                        existingSubject.SemesterId = SelectedSubject.SemesterId;
+
+                        await _courseService.UpdateSubject(existingSubject);
+                    }
+                    else
+                    {
+                        // Cảnh báo
+                        MessageBox.Show("Môn học không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+
+                }
             }
             catch (Exception ex)
             {
@@ -191,13 +246,13 @@ namespace SchedulerWpfApp.ViewModel
         {
             IsSubjectFormOpen = false;
             SelectedSubject = null;
-
         }
         public void CancelDelete()
         {
-
             IsOpenDialog = false;
         }
+
+        // Delete subject after confirmation
         private async Task ConfirmDeleteAsync()
         {
             if (SelectedSubject == null)
@@ -223,8 +278,11 @@ namespace SchedulerWpfApp.ViewModel
                 SelectedSubject = null;
                 LoadSubjectAsync();
             }
-
         }
+
+        /// <summary>
+        /// Exports the current list of subjects to an Excel file.
+        /// </summary>
         private async Task ExportSubjectAsync()
         {
             if (Subjects == null || Subjects.Count == 0)
@@ -254,6 +312,10 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
+
+        /// <summary>
+        /// Imports subjects from an Excel file and adds them to the data source.
+        /// </summary>
         private async Task ImportSubjectAsync()
         {
             var dialog = new OpenFileDialog
@@ -277,5 +339,36 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
+        /// <summary>
+        /// Filter subject with 3 column SubjectCode, SubjectName, Major
+        /// </summary>
+        private void FilterSubjects()
+        {
+            if (string.IsNullOrWhiteSpace(SearchKeyword))
+            {
+                ResetToAllSubjects();
+            }
+            else
+            {
+                // enter keyword from box
+                var lowerKeyword = SearchKeyword.ToLower();
+                // can search by ClassId, Category, Major
+                var filtered = _allSubjects.Where(subject =>
+                    (!string.IsNullOrEmpty(subject.SubjectCode) && subject.SubjectCode.ToLower().Contains(lowerKeyword)) ||
+                    (!string.IsNullOrEmpty(subject.SubjectName) && subject.SubjectName.ToLower().Contains(lowerKeyword)) ||
+                    (!string.IsNullOrEmpty(subject.Major) && subject.Major.ToLower().Contains(lowerKeyword))
+                ).ToList();
+
+                Subjects = new ObservableCollection<Subject>(filtered);
+            }
+        }
+
+        /// <summary>
+        /// Reset Subjects
+        /// </summary>
+        private void ResetToAllSubjects()
+        {
+            Subjects = new ObservableCollection<Subject>(_allSubjects);
+        }
     }
 }
