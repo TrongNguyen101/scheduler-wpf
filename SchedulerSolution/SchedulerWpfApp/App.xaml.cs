@@ -115,17 +115,19 @@ namespace SchedulerWpfApp
 
             // Register person service with scoped lifetime (one instance per scope)
             services.AddScoped<IPersonService, PersonService>();
+            services.AddScoped<ICourseService, CourseService>();
             services.AddScoped<IGroupNameService, GroupNameService>();
 
-
             services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
-
             services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
+
+            services.AddSingleton<IExcelSubjectImporter, ExcelSubjectImporter>();
+            services.AddSingleton<IExcelSubjectExporter, ExcelSubjectExporter>();
 
             // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();
 
-            services.AddSingleton<MainViewModel>();
+            services.AddScoped<MainViewModel>();
 
             // Register the add person window as transient (new instance created each time)
             services.AddTransient<AddPersonWindow>();
@@ -136,9 +138,6 @@ namespace SchedulerWpfApp
             services.AddTransient<CourseViewModel>();
             services.AddTransient<LectureView>();
             services.AddTransient<ClassRoom>();
-
-
-
             services.AddTransient<RoomViewModel>();
 
             // Add factories
