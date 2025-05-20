@@ -13,7 +13,7 @@
         public string? GroupName { get; set; } // Class name of the schedule
         public string? LecturerId { get; set; } // Lecturer id of the schedule
         public string? TypeSlot { get; set; } // Type of the slot (New Slot - Old Slot)
-        public string? SessionNo { get; set; } // order of slot (1, 2, 3, 4, 5, 6, 7, 8, 9,...)
+        public int SessionNo { get; set; } // order of slot (1, 2, 3, 4, 5, 6, 7, 8, 9,...)
         // Slot type code of the schedule
         // (A24 meaning: A: session in day(AM -PM), 2: slot 1 moday, 4: slot 2 Wednesday)
         // (A42 meaning: A: session in day(AM -PM), 4: slot 1 Wednesday, 2: slot 2 Moday)                                             
@@ -21,7 +21,7 @@
         // (P46 meaning: P: session in day(AM -PM), 4: slot 3 Wednesday, 6: slot 4 Friday)                                                                                      
         public string? SlotTypeCode { get; set; } 
 
-        public Schedule(string roomNo, string partOfDay, string slotTime, string statusSlot, string subjectCode, DateTime date, string groupName, string lecturerId, string slotTypeCode, string typeSlot, string sessionNo)
+        public Schedule(string roomNo, string partOfDay, string slotTime, string statusSlot, string subjectCode, DateTime date, string groupName, string lecturerId, string slotTypeCode, string typeSlot, int sessionNo)
         {
             RoomNo = roomNo;
             PartOfDay = partOfDay;

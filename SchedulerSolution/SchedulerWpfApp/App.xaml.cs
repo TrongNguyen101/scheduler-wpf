@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SchedulerWpfApp.Data;
-using SchedulerWpfApp.Model;
+using SchedulerWpfApp.Algorithm;
 using SchedulerWpfApp.Services;
 using SchedulerWpfApp.ViewModel;
 using SchedulerWpfApp.Views;
@@ -118,9 +118,8 @@ namespace SchedulerWpfApp
             services.AddScoped<ICourseService, CourseService>();
             services.AddScoped<IGroupNameService, GroupNameService>();
 
-
-            services.AddSingleton<IExcelPersonImporter, ExcelPersonImporter>();
-            services.AddSingleton<IExcelPersonExporter, ExcelPersonExporter>();
+            services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
+            services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
 
             services.AddSingleton<IExcelSubjectImporter, ExcelSubjectImporter>();
             services.AddSingleton<IExcelSubjectExporter, ExcelSubjectExporter>();
@@ -139,9 +138,6 @@ namespace SchedulerWpfApp
             services.AddTransient<CourseViewModel>();
             services.AddTransient<LectureView>();
             services.AddTransient<ClassRoom>();
-
-
-
             services.AddTransient<RoomViewModel>();
 
             // Add factories

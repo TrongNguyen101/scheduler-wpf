@@ -1,4 +1,6 @@
-﻿namespace SchedulerWpfApp.Model
+﻿using SchedulerWpfApp.Model;
+
+namespace SchedulerWpfApp.Algorithm
 {
     public class TreeForSchedule
     {
@@ -35,31 +37,31 @@
             TreeForSchedule root = new TreeForSchedule(room, roomNo: room);
 
             // Second level: PartOfDay (AM, PM)
-            root.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "AM");
-            root.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "PM");
+            root.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "A");
+            root.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "P");
 
             // Third level: Slot (Slot 1, Slot 2, Slot 3, Slot 4)
-            root.Left.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "AM", slotTime: "slot 1");
-            root.Left.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "AM", slotTime: "slot 2");
-            root.Right.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "PM", slotTime: "slot 3");
-            root.Right.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "PM", slotTime: "slot 4");
+            root.Left.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "A", slotTime: "slot 1");
+            root.Left.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "A", slotTime: "slot 2");
+            root.Right.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "P", slotTime: "slot 3");
+            root.Right.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "P", slotTime: "slot 4");
 
             // Fourth level: Slot Type (Online, Offline)
             // Each slot has two types: Online and Offline
-            root.Left.Left.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "AM", slotTime: "slot 1", statusSlot: "online");
-            root.Left.Left.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "AM", slotTime: "slot 1", statusSlot: "offline");
-            root.Left.Right.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "AM", slotTime: "slot 2", statusSlot: "online");
-            root.Left.Right.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "AM", slotTime: "slot 2", statusSlot: "offline");
-            root.Right.Left.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "PM", slotTime: "slot 3", statusSlot: "online");
-            root.Right.Left.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "PM", slotTime: "slot 3", statusSlot: "offline");
-            root.Right.Right.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "PM", slotTime: "slot 4", statusSlot: "online");
-            root.Right.Right.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "PM", slotTime: "slot 4", statusSlot: "offline");
+            root.Left.Left.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "A", slotTime: "slot 1", statusSlot: "online");
+            root.Left.Left.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "A", slotTime: "slot 1", statusSlot: "offline");
+            root.Left.Right.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "A", slotTime: "slot 2", statusSlot: "online");
+            root.Left.Right.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "A", slotTime: "slot 2", statusSlot: "offline");
+            root.Right.Left.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "P", slotTime: "slot 3", statusSlot: "online");
+            root.Right.Left.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "P", slotTime: "slot 3", statusSlot: "offline");
+            root.Right.Right.Left = new TreeForSchedule(room, roomNo: room, partOfDay: "P", slotTime: "slot 4", statusSlot: "online");
+            root.Right.Right.Right = new TreeForSchedule(room, roomNo: room, partOfDay: "P", slotTime: "slot 4", statusSlot: "offline");
 
             return root;
         }
 
         // Thu thập lịch trình từ các node lá cho một ngày cụ thể
-        public void CollectSchedules(TreeForSchedule node, List<Schedule> schedules, string subject, DateTime date, string classId, string slotTime, string lecturerName, string slotTypeCode, string typeSlot, string sessionNo, string partOfDayFilter = null, string statusSlot = null)
+        public void CollectSchedules(TreeForSchedule node, List<Schedule> schedules, string subject, DateTime date, string classId, string slotTime, string lecturerName, string slotTypeCode, string typeSlot, int sessionNo, string partOfDayFilter = null, string statusSlot = null)
         {
             // Nếu node là null, trả về
             // Nếu có bộ lọc phiên (AM hoặc PM), chỉ xử lý các node thuộc nhánh phù hợp
