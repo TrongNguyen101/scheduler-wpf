@@ -34,6 +34,8 @@ namespace SchedulerWpfApp.Data
         public DbSet<Lecturer> Lecturers { get; set; } = null!;
         public DbSet<LecturerSubject> LecturerSubjects { get; set; } = null!;
         public DbSet<GroupName> GroupName { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
+        public DbSet<LecturerRequest> LecturerRequests { get; set; } = null!;
 
 
         /// <summary>
@@ -134,19 +136,123 @@ namespace SchedulerWpfApp.Data
                     TotalSessions = 1,
                     SlotsPerWeek = 20,
                     SemesterId = "SU25"
+                },
+                new Subject
+                {
+                    SubjectCode = "SWP391",
+                    SubjectName = "Software Engineering",
+                    Major = "SE",
+                    TotalSessions = 4,
+                    SlotsPerWeek = 2,
+                    SemesterId = ""
+                },
+                new Subject
+                {
+                    SubjectCode = "SWT301",
+                    SubjectName = "Software Testing",
+                    Major = "SE",
+                    TotalSessions = 4,
+                    SlotsPerWeek = 2,
+                    SemesterId = ""
+                },
+                new Subject
+                {
+                    SubjectCode = "SWR302",
+                    SubjectName = "Software Requirement",
+                    Major = "SE",
+                    TotalSessions = 4,
+                    SlotsPerWeek = 2,
+                    SemesterId = ""
+                },
+                new Subject
+                {
+                    SubjectCode = "PRN211",
+                    SubjectName = "Programming",
+                    Major = "SE",
+                    TotalSessions = 4,
+                    SlotsPerWeek = 2,
+                    SemesterId = ""
+                },
+                new Subject
+                {
+                    SubjectCode = "ENW11",
+                    SubjectName = "English",
+                    Major = "SE",
+                    TotalSessions = 4,
+                    SlotsPerWeek = 1,
+                    SemesterId = ""
                 }
              );
 
+            modelBuilder.Entity<LecturerRequest>().HasData(
+                new LecturerRequest
+                {
+                    Id = 1,
+                    LecturerId = "L1",
+                    DayName = "Monday",
+                    Session = "A",
+                    SlotTime = null,
+                    SlotType = null
+                },
+                new LecturerRequest
+                {
+                    Id = 2,
+                    LecturerId = "L1",
+                    DayName = "Wednesday",
+                    Session = "A",
+                    SlotTime = null,
+                    SlotType = null
+                }
+            );
+
+
             modelBuilder.Entity<Lecturer>().HasData(
-                new Lecturer { LecturerId = "1", LecturerName = "Nguyễn Văn A" },
-                new Lecturer { LecturerId = "2", LecturerName = "Trần Thị B" }
+                new Lecturer { LecturerId = "1", LecturerName = "Nguyễn Văn A", Role = null },
+                new Lecturer { LecturerId = "2", LecturerName = "Trần Thị B", Role = null },
+                new Lecturer { LecturerId = "L1", LecturerName = "Nguyen Van Xoai", Role = null },
+                new Lecturer { LecturerId = "L2", LecturerName = "Sờ Mai", Role = null },
+                new Lecturer { LecturerId = "L3", LecturerName = "Nguyen Mang Gồ", Role = null },
+                new Lecturer { LecturerId = "L4", LecturerName = "Nguyen Vỉa Hè", Role = null },
+                new Lecturer { LecturerId = "L5", LecturerName = "Nguyen Hoa Hong", Role = null },
+                new Lecturer { LecturerId = "L6", LecturerName = "Nguyen Thi Hoa", Role = null },
+                new Lecturer { LecturerId = "L7", LecturerName = "Nguyen Thi Bưởi", Role = null },
+                new Lecturer { LecturerId = "L8", LecturerName = "Nguyen Thi Đào", Role = null },
+                new Lecturer { LecturerId = "L9", LecturerName = "Nguyen Thi Oi", Role = null },
+                new Lecturer { LecturerId = "L10", LecturerName = "Nguyen Thi Cam", Role = null },
+                new Lecturer { LecturerId = "L11", LecturerName = "Nguyen Thi Mit", Role = null },
+                new Lecturer { LecturerId = "L12", LecturerName = "Nguyen Thi Leo", Role = null },
+                new Lecturer { LecturerId = "L13", LecturerName = "Nguyen Thi Man", Role = null },
+                new Lecturer { LecturerId = "L14", LecturerName = "Nguyen Teo Em", Role = null },
+                new Lecturer { LecturerId = "L15", LecturerName = "Nguyen Thi Cam", Role = null },
+                new Lecturer { LecturerId = "L16", LecturerName = "Nguyen Thi Chuoi", Role = null },
+                new Lecturer { LecturerId = "L17", LecturerName = "Nguyen Thi Hoa", Role = null }
+
             );
 
             modelBuilder.Entity<LecturerSubject>().HasData(
-                new LecturerSubject { Id=1, LecturerId = "1", SubjectCode = "SEP492", LecturerName= "Nguyễn Văn A", NumberOfClasses=10 },
-                new LecturerSubject { Id=2, LecturerId = "2", SubjectCode = "SEP492", LecturerName = "Trần Thị B", NumberOfClasses = 5 }
+                new LecturerSubject { Id = 1, LecturerId = "L2", SubjectCode = "SWP391", LecturerName = "Sờ Mai", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 2, LecturerId = "L3", SubjectCode = "SWP391", LecturerName = "Nguyen Mang Gồ", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 3, LecturerId = "L4", SubjectCode = "SWP391", LecturerName = "Nguyen Vỉa Hè", NumberOfClasses = 1 },
+
+                new LecturerSubject { Id = 4, LecturerId = "L5", SubjectCode = "SWT301", LecturerName = "Nguyen Hoa Hong", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 5, LecturerId = "L6", SubjectCode = "SWT301", LecturerName = "Nguyen Thi Hoa", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 6, LecturerId = "L7", SubjectCode = "SWT301", LecturerName = "Nguyen Thi Bưởi", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 7, LecturerId = "L8", SubjectCode = "SWT301", LecturerName = "Nguyen Thi Đào", NumberOfClasses = 1 },
+
+                new LecturerSubject { Id = 8, LecturerId = "L9", SubjectCode = "SWR302", LecturerName = "Nguyen Thi Oi", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 9, LecturerId = "L10", SubjectCode = "SWR302", LecturerName = "Nguyen Thi Cam", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 10, LecturerId = "L11", SubjectCode = "SWR302", LecturerName = "Nguyen Thi Mit", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 11, LecturerId = "L12", SubjectCode = "SWR302", LecturerName = "Nguyen Thi Leo", NumberOfClasses = 1 },
+
+                new LecturerSubject { Id = 12, LecturerId = "L13", SubjectCode = "PRN211", LecturerName = "Nguyen Thi Man", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 13, LecturerId = "L14", SubjectCode = "PRN211", LecturerName = "Nguyen Teo Em", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 14, LecturerId = "L15", SubjectCode = "PRN211", LecturerName = "Nguyen Thi Cam", NumberOfClasses = 1 },
+                new LecturerSubject { Id = 15, LecturerId = "L16", SubjectCode = "PRN211", LecturerName = "Nguyen Thi Chuoi", NumberOfClasses = 1 },
+
+                new LecturerSubject { Id = 16, LecturerId = "L17", SubjectCode = "ENW11", LecturerName = "Nguyen Thi Hoa", NumberOfClasses = 1 }
+
             );
-            
+
             modelBuilder.Entity<GroupName>().HasData(
               new GroupName
               {

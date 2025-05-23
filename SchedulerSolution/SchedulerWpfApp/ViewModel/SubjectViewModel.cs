@@ -8,10 +8,10 @@ using SchedulerWpfApp.Services;
 
 namespace SchedulerWpfApp.ViewModel
 {
-    public class CourseViewModel : ViewBaseModel
+    public class SubjectViewModel : ViewBaseModel
     {
         // Dependencies injected via constructor
-        private readonly ICourseService _courseService;
+        private readonly ISubjectServices _courseService;
         private readonly IExcelSubjectImporter _excelImporter;
         private readonly IExcelSubjectExporter _excelExporter;
 
@@ -93,7 +93,7 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public CourseViewModel(ICourseService courseService, IExcelSubjectExporter excelExporter, IExcelSubjectImporter excelImporter)
+        public SubjectViewModel(ISubjectServices courseService, IExcelSubjectExporter excelExporter, IExcelSubjectImporter excelImporter)
         {
             _courseService = courseService;
             _excelExporter = excelExporter;

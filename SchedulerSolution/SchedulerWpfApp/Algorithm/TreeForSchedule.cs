@@ -1,4 +1,5 @@
 ﻿using SchedulerWpfApp.Model;
+using SchedulerWpfApp.Services.ScheduleServices;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -12,7 +13,10 @@ namespace SchedulerWpfApp.Algorithm
         public string? SlotTime { get; set; }
         public string? StatusSlot { get; set; }
 
-        public TreeForSchedule() { }
+        public TreeForSchedule()
+        {
+        }
+
         public TreeForSchedule(string value, string roomNo = null, string partOfDay = null, string slotTime = null, string statusSlot = null)
         {
             Value = value;
@@ -89,7 +93,21 @@ namespace SchedulerWpfApp.Algorithm
                 // Nếu là node lá (có SlotType, tức cấp 4), tạo mục lịch trình
                 if (node.Left == null && node.Right == null && node.StatusSlot != null)
                 {
-                    Schedule schedule = new Schedule(node.RoomNo, node.PartOfDay, node.SlotTime, node.StatusSlot, subject, date, classId, lecturerName, slotTypeCode, typeSlot, sessionNo);
+                    //Schedule schedule = new Schedule(node.RoomNo, node.PartOfDay, node.SlotTime, node.StatusSlot, subject, date, classId, lecturerName, slotTypeCode, typeSlot, sessionNo);
+                    Schedule schedule = new Schedule
+                    {
+                        RoomNo = node.RoomNo,
+                        PartOfDay = node.PartOfDay,
+                        SlotTime = node.SlotTime,
+                        StatusSlot = node.StatusSlot,
+                        SubjectCode = subject,
+                        Date = date,
+                        GroupName = classId,
+                        LecturerId = lecturerName,
+                        SlotTypeCode = slotTypeCode,
+                        TypeSlot = typeSlot,
+                        SessionNo = sessionNo
+                    };
                     schedules.Add(schedule);
                 }
 

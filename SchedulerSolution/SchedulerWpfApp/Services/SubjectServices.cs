@@ -12,7 +12,7 @@ namespace SchedulerWpfApp.Services
     /// <summary>
     /// Service for managing Subject entities in the database
     /// </summary>
-    public class CourseService : ICourseService
+    public class SubjectServices : ISubjectServices
     {
         #region Fields
         private readonly DataContext _context;
@@ -23,7 +23,7 @@ namespace SchedulerWpfApp.Services
         /// Initializes a new instance of the PersonService class
         /// </summary>
         /// <param name="context">The database context used for data operations</param>
-        public CourseService(DataContext context)
+        public SubjectServices(DataContext context)
         {
             _context = context;
         }

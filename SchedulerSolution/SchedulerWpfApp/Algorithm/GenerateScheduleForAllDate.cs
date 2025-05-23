@@ -1,5 +1,4 @@
 ﻿using SchedulerWpfApp.Model;
-using SchedulerWpfApp.Services;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -21,8 +20,6 @@ namespace SchedulerWpfApp.Algorithm
             {
                 // Calculate the number of rooms needed based on the number of classes
                 int numberOfRoom = CalculateNumberOfRooms(numberOfClass);
-
-
 
                 // Cache lecturer lookup
                 // có bao nhiêu ông thầy thì có bấy nhiêu lớp học cùng lúc
@@ -80,7 +77,7 @@ namespace SchedulerWpfApp.Algorithm
                 var (classIndex, cycleLevel) = MapToCycle(roomNo);
                 int sessionNo = 0;
 
-                for (int week = 1; week <= 10; week++)
+                for (int week = 1; week <= 2; week++)
                 {
                     string slotType = GetSlotTypeForWeek(week);
 

@@ -114,6 +114,8 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
+        
+
         /// <summary>
         /// Exports the current list of persons to an Excel file.
         /// </summary>

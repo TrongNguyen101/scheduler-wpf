@@ -9,10 +9,9 @@ namespace SchedulerWpfApp.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-
-        [ForeignKey("Lecturer")]
+        [ForeignKey("LecturerId")]
         public string LecturerId { get; set; }
-        [ForeignKey("Subject")]
+        [ForeignKey("SubjectCode")]
         public string SubjectCode { get; set; }
         [Column("LecturerName")]
         public string? LecturerName { get; set; }
@@ -20,15 +19,5 @@ namespace SchedulerWpfApp.Model
         public int NumberOfClasses { get; set; }
         public virtual Subject? Subject { get; set; }
         public virtual Lecturer? Lecturer { get; set; }
-
-        public LecturerSubject() { }
-
-        public LecturerSubject(string lecturerId, string subjectCode, string lecturerName, int numberOfClasses)
-        {
-            LecturerId = lecturerId;
-            SubjectCode = subjectCode;
-            NumberOfClasses = numberOfClasses;
-            LecturerName = lecturerName;
-        }
     }
 }
