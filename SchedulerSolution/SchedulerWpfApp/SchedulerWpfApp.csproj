@@ -25,6 +25,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.69" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Syncfusion.Licensing" Version="29.1.40" />
     <PackageReference Include="Syncfusion.SfGrid.WPF" Version="29.1.40" />
     <PackageReference Include="Syncfusion.SfInput.WPF" Version="29.1.40" />
