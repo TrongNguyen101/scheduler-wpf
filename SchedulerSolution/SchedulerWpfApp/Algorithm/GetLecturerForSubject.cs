@@ -29,11 +29,10 @@ namespace SchedulerWpfApp.Algorithm
                 string subjectId = subject.Key;
                 List<LecturerSubject> lecturers = subject.Value;
 
-
                 // Lọc danh sách giảng viên cho môn học này
                 var availableLecturers = lecturers.Where(lecturer =>
                 {
-                    // Kiểm tra xem giảng viên này có lịch dạy trong session và ngày cụ thể hay không
+                    // Kiểm tra xem giảng viên này có bận trong session và ngày cụ thể hay không
                     bool isTeachingInSession = lecturerRequests.Any(request =>
                         request.LecturerId == lecturer.LecturerId // So khớp giảng viên
                         && request.Session == currentSessionFilter // So khớp buổi (AM/PM)
@@ -72,7 +71,7 @@ namespace SchedulerWpfApp.Algorithm
                 // Lọc danh sách giảng viên cho môn học này
                 var availableLecturers = lecturers.Where(lecturer =>
                 {
-                    // Kiểm tra xem giảng viên này có lịch dạy trong session và ngày cụ thể hay không
+                    // Kiểm tra xem giảng viên này có bận trong session và ngày cụ thể hay không
                     bool isTeachingInSession = lecturerRequests.Any(request =>
                         request.LecturerId == lecturer.LecturerId // So khớp giảng viên
                         && request.Session == currentSessionFilter // So khớp buổi (AM/PM)
@@ -80,7 +79,7 @@ namespace SchedulerWpfApp.Algorithm
                         && request.SlotType == null // So khop offline/online
                         );
 
-                    // Giữ lại giảng viên nếu KHÔNG dạy trong session này
+                    // Giữ lại giảng viên nếu KHÔNG bận trong session và ngày này
                     return !isTeachingInSession;
                 }).ToList();
 

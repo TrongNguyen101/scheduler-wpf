@@ -155,25 +155,29 @@ namespace SchedulerWpfApp.ViewModel
                     foreach (var slot in slots)
                     {
                         // Mỗi slot có 3 dòng (Subject, Lecturer, Status)
-                        string[] rowLines = new string[5];
+                        string[] rowLines = new string[7];
                         rowLines[0] = slot.PadRight(10) + "| "; // Dòng đầu tiên bắt đầu bằng slot
                         rowLines[1] = "".PadRight(10) + "| ";   // Dòng thứ hai và ba để trống ở cột slot
                         rowLines[2] = "".PadRight(10) + "| ";
                         rowLines[3] = "".PadRight(10) + "| ";
                         rowLines[4] = "".PadRight(10) + "| ";
+                        rowLines[5] = "".PadRight(10) + "| ";
+                        rowLines[6] = "".PadRight(10) + "| ";
 
                         foreach (var date in dates)
                         {
                             var schedule = weekGroup.FirstOrDefault(s => s.Date == date && s.SlotTime == slot);
                             if (schedule != null)
                             {
-                                if (schedule.SubjectCode == "No subject")
+                                if (schedule.SubjectCode == "")
                                 {
                                     rowLines[0] += "".PadRight(columnWidth) + "| ";
                                     rowLines[1] += "".PadRight(columnWidth) + "| ";
                                     rowLines[2] += "".PadRight(columnWidth) + "| ";
                                     rowLines[3] += "".PadRight(columnWidth) + "| ";
                                     rowLines[4] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[5] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[6] += "".PadRight(columnWidth) + "| ";
                                 }
                                 else
                                 {
@@ -182,6 +186,8 @@ namespace SchedulerWpfApp.ViewModel
                                     rowLines[2] += $"Slot type: {schedule.StatusSlot}".PadRight(columnWidth) + "| ";
                                     rowLines[3] += $"Session: {schedule.PartOfDay}".PadRight(columnWidth) + "| ";
                                     rowLines[4] += $"Room: {schedule.RoomNo}".PadRight(columnWidth) + "| ";
+                                    rowLines[5] += $"Slot code: {schedule.SlotTypeCode}".PadRight(columnWidth) + "| ";
+                                    rowLines[6] += $"Session No: {schedule.SessionNo}".PadRight(columnWidth) + "| ";
 
                                 }
                             }
@@ -197,6 +203,13 @@ namespace SchedulerWpfApp.ViewModel
                         Debug.WriteLine(rowLines[0]);
                         Debug.WriteLine(rowLines[1]);
                         Debug.WriteLine(rowLines[2]);
+                        Debug.WriteLine(rowLines[3]);
+                        Debug.WriteLine(rowLines[4]);
+                        Debug.WriteLine(rowLines[5]);
+                        Debug.WriteLine(rowLines[6]);
+
+
+
                         Debug.WriteLine(new string('-', header.Length));
                     }
 

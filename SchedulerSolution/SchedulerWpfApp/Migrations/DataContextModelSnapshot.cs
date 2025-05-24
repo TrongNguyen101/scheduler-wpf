@@ -576,7 +576,7 @@ namespace SchedulerWpfApp.Migrations
                             SemesterId = "",
                             SlotsPerWeek = 2,
                             SubjectName = "Software Engineering",
-                            TotalSessions = 4
+                            TotalSessions = 20
                         },
                         new
                         {
@@ -585,7 +585,7 @@ namespace SchedulerWpfApp.Migrations
                             SemesterId = "",
                             SlotsPerWeek = 2,
                             SubjectName = "Software Testing",
-                            TotalSessions = 4
+                            TotalSessions = 20
                         },
                         new
                         {
@@ -594,7 +594,7 @@ namespace SchedulerWpfApp.Migrations
                             SemesterId = "",
                             SlotsPerWeek = 2,
                             SubjectName = "Software Requirement",
-                            TotalSessions = 4
+                            TotalSessions = 20
                         },
                         new
                         {
@@ -603,7 +603,7 @@ namespace SchedulerWpfApp.Migrations
                             SemesterId = "",
                             SlotsPerWeek = 2,
                             SubjectName = "Programming",
-                            TotalSessions = 4
+                            TotalSessions = 20
                         },
                         new
                         {
@@ -612,7 +612,7 @@ namespace SchedulerWpfApp.Migrations
                             SemesterId = "",
                             SlotsPerWeek = 1,
                             SubjectName = "English",
-                            TotalSessions = 4
+                            TotalSessions = 10
                         });
                 });
 

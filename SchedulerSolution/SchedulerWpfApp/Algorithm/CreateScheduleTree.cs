@@ -26,6 +26,7 @@ namespace SchedulerWpfApp.Algorithm
 
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate)
         {
+            /*Cần hàm đọc số lượng lớp ở đây*/
             int numberOfClasss = 4; // Total number of classes
 
             List<Schedule> allSchedules = new List<Schedule>();
@@ -35,7 +36,7 @@ namespace SchedulerWpfApp.Algorithm
             List<LecturerRequest> lecturerRequests = new List<LecturerRequest>();
 
             _generateScheduleForAllDate.CreateSchedules(allSchedules, subjects, numberOfClasss, lecturerSubjects, startDate, lecturerRequests);
-            _implementScheduleServices.AddScheduleAsync(allSchedules);
+            //_implementScheduleServices.AddScheduleAsync(allSchedules);
 
             return allSchedules;
         }

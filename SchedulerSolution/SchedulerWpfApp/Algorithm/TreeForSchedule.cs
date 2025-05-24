@@ -93,7 +93,7 @@ namespace SchedulerWpfApp.Algorithm
                 // Nếu là node lá (có SlotType, tức cấp 4), tạo mục lịch trình
                 if (node.Left == null && node.Right == null && node.StatusSlot != null)
                 {
-                    //Schedule schedule = new Schedule(node.RoomNo, node.PartOfDay, node.SlotTime, node.StatusSlot, subject, date, classId, lecturerName, slotTypeCode, typeSlot, sessionNo);
+
                     Schedule schedule = new Schedule
                     {
                         RoomNo = node.RoomNo,

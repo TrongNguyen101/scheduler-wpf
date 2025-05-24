@@ -142,7 +142,7 @@ namespace SchedulerWpfApp.Data
                     SubjectCode = "SWP391",
                     SubjectName = "Software Engineering",
                     Major = "SE",
-                    TotalSessions = 4,
+                    TotalSessions = 20,
                     SlotsPerWeek = 2,
                     SemesterId = ""
                 },
@@ -151,7 +151,7 @@ namespace SchedulerWpfApp.Data
                     SubjectCode = "SWT301",
                     SubjectName = "Software Testing",
                     Major = "SE",
-                    TotalSessions = 4,
+                    TotalSessions = 20,
                     SlotsPerWeek = 2,
                     SemesterId = ""
                 },
@@ -160,7 +160,7 @@ namespace SchedulerWpfApp.Data
                     SubjectCode = "SWR302",
                     SubjectName = "Software Requirement",
                     Major = "SE",
-                    TotalSessions = 4,
+                    TotalSessions = 20,
                     SlotsPerWeek = 2,
                     SemesterId = ""
                 },
@@ -169,7 +169,7 @@ namespace SchedulerWpfApp.Data
                     SubjectCode = "PRN211",
                     SubjectName = "Programming",
                     Major = "SE",
-                    TotalSessions = 4,
+                    TotalSessions = 20,
                     SlotsPerWeek = 2,
                     SemesterId = ""
                 },
@@ -178,7 +178,7 @@ namespace SchedulerWpfApp.Data
                     SubjectCode = "ENW11",
                     SubjectName = "English",
                     Major = "SE",
-                    TotalSessions = 4,
+                    TotalSessions = 10,
                     SlotsPerWeek = 1,
                     SemesterId = ""
                 }
