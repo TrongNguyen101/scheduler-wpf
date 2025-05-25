@@ -50,21 +50,5 @@ namespace SchedulerWpfApp.Model
         // (P46 meaning: P: session in day(AM -PM), 4: slot 3 Wednesday, 6: slot 4 Friday)
         [Column("SlotTypeCode")]
         public string? SlotTypeCode { get; set; }
-
-        //public Schedule(string roomNo, string partOfDay, string slotTime, string statusSlot, string subjectCode, DateTime date, string groupName, string lecturerId, string slotTypeCode, string typeSlot, int sessionNo)
-        //{
-        //    RoomNo = roomNo;
-        //    PartOfDay = partOfDay;
-        //    SlotTime = slotTime;
-        //    StatusSlot = statusSlot;
-        //    Date = date;
-        //    Major = null;
-        //    SubjectCode = subjectCode;
-        //    GroupName = groupName;
-        //    LecturerId = lecturerId;
-        //    SlotTypeCode = slotTypeCode;
-        //    TypeSlot = typeSlot;
-        //    SessionNo = sessionNo;
-        //}
     }
 }
