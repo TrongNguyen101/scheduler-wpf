@@ -26,17 +26,5 @@ namespace SchedulerWpfApp.Model
         public string? SemesterId { get; set; }
 
         public virtual List<LecturerSubject>? LecturerSubjects { get; set; }
-        public Subject() { }
-
-        public Subject(string subjectCode, string subjectName, string major, int numberOfSlots, int numberOfSlotsPerWeek, string semesterId, List<LecturerSubject>? lecturerSubjects = null)
-        {
-            SubjectCode = subjectCode;
-            SubjectName = subjectName;
-            Major = major;
-            TotalSessions = numberOfSlots;
-            SlotsPerWeek = numberOfSlotsPerWeek;
-            SemesterId = semesterId;
-            LecturerSubjects = lecturerSubjects ?? new List<LecturerSubject>();
-        }
     }
 }

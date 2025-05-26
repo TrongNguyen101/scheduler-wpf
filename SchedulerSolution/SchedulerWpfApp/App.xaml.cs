@@ -9,6 +9,9 @@ using SchedulerWpfApp.Services;
 using SchedulerWpfApp.ViewModel;
 using SchedulerWpfApp.Views;
 using Syncfusion.Licensing;
+using Microsoft.Extensions.Logging;
+using SchedulerWpfApp.Services.ScheduleServices;
+using SchedulerWpfApp.Services.LecturerSubjectServices;
 
 namespace SchedulerWpfApp
 {
@@ -110,19 +113,31 @@ namespace SchedulerWpfApp
         /// <param name="services">The service collection to configure</param>
         private void ConfigureService(IServiceCollection services)
         {
+            services.AddLogging(config =>
+            {
+                config.ClearProviders(); // Delete all existing providers
+                config.AddConsole();     // Show log in Console output
+                config.AddDebug();       // Show log in Debug output
+            });
+
             // Register the database context
             services.AddDbContext<DataContext>();
 
             // Register person service with scoped lifetime (one instance per scope)
             services.AddScoped<IPersonService, PersonService>();
-            services.AddScoped<ICourseService, CourseService>();
+            services.AddScoped<ISubjectServices, SubjectServices>();
             services.AddScoped<IGroupNameService, GroupNameService>();
+            services.AddScoped<InterfaceScheduleServices, ImplementScheduleServices>();
+            services.AddScoped<InterfaceLecturerServices, ImplementLecturerServices>();
+            services.AddScoped<InterfaceLecturerSubjectServices, ImplementLecturerSubjectServices>();
 
             services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
             services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
 
-            services.AddSingleton<IExcelSubjectImporter, ExcelSubjectImporter>();
-            services.AddSingleton<IExcelSubjectExporter, ExcelSubjectExporter>();
+            services.AddScoped<InterfaceScheduleServices, ImplementScheduleServices>();
+
+            services.AddScoped<IExcelSubjectImporter, ExcelSubjectImporter>();
+            services.AddScoped<IExcelSubjectExporter, ExcelSubjectExporter>();
 
             // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();
@@ -135,15 +150,17 @@ namespace SchedulerWpfApp
             // Register the add person window as transient (new instance created each time)
             services.AddTransient<PersonViewModel>();
 
-            services.AddTransient<CourseViewModel>();
+            services.AddTransient<SubjectViewModel>();
             services.AddTransient<LectureView>();
             services.AddTransient<ClassRoom>();
             services.AddTransient<RoomViewModel>();
+            services.AddTransient<CreateScheduleViewModel>();
 
             // Add factories
-            services.AddSingleton<Func<CourseViewModel>>(sp => () => sp.GetRequiredService<CourseViewModel>());
+            services.AddSingleton<Func<SubjectViewModel>>(sp => () => sp.GetRequiredService<SubjectViewModel>());
             services.AddSingleton<Func<PersonViewModel>>(sp => () => sp.GetRequiredService<PersonViewModel>());
             services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
+            services.AddSingleton<Func<CreateScheduleViewModel>>(sp => () => sp.GetRequiredService<CreateScheduleViewModel>());
 
 
             services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime

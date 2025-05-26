@@ -1,30 +1,9 @@
 ﻿using SchedulerWpfApp.Model;
 
-namespace SchedulerWpfApp.Services
+namespace SchedulerWpfApp.Algorithm
 {
     public class SortSubjectsOneSession
     {
-        public Subject[,] SortSubjectsOneSesstion(List<Subject> allSubjects)
-        {
-
-            //  get all subjects with 2 slots per week
-            var subjects = allSubjects.Where(subject => subject.SlotsPerWeek == 2).ToList();
-            var subjectOneSlot = allSubjects.Where(subject => subject.SlotsPerWeek == 1).ToList();
-
-            Subject[,] schedule = new Subject[8, 2];
-            schedule[1, 0] = subjects[0]; // monday slot 1
-            schedule[3, 1] = subjects[0]; // wednesday slot 2
-            schedule[1, 1] = subjects[1]; // monday slot 2
-            schedule[3, 0] = subjects[1]; // wednesday slot 1
-            schedule[2, 0] = subjects[2]; // tuesday slot 1
-            schedule[4, 1] = subjects[2]; // thursday slot 2
-            schedule[2, 1] = subjects[3]; // tuesday slot 2
-            schedule[4, 0] = subjects[3]; // thursday slot 1
-            schedule[5, 0] = subjectOneSlot[0]; // friday slot 1
-
-            return schedule;
-        }
-
         public Subject[,,] SortSubjectFourClass(List<Subject> allSubjects, int numClasses = 4)
         {
 
