@@ -23,4 +23,9 @@
         <views:CreateScheduleView/>
     </DataTemplate>
 
+    <!-- DataTemplate for LectureView -->
+    <DataTemplate DataType="{x:Type vm:LectureViewModel}">
+        <views:LectureView />
+    </DataTemplate>
+
 </ResourceDictionary>

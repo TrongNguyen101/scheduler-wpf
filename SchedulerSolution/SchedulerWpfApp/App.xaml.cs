@@ -139,6 +139,9 @@ namespace SchedulerWpfApp
             services.AddScoped<IExcelSubjectImporter, ExcelSubjectImporter>();
             services.AddScoped<IExcelSubjectExporter, ExcelSubjectExporter>();
 
+            services.AddScoped<IExcelLectureExporter, ExcelLectureExporter>();
+            services.AddScoped<IExcelLectureImporter, ExcelLectureImporter>();
+
             // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();
 
@@ -155,12 +158,14 @@ namespace SchedulerWpfApp
             services.AddTransient<ClassRoom>();
             services.AddTransient<RoomViewModel>();
             services.AddTransient<CreateScheduleViewModel>();
+            services.AddTransient<LectureViewModel>();
 
             // Add factories
             services.AddSingleton<Func<SubjectViewModel>>(sp => () => sp.GetRequiredService<SubjectViewModel>());
             services.AddSingleton<Func<PersonViewModel>>(sp => () => sp.GetRequiredService<PersonViewModel>());
             services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
             services.AddSingleton<Func<CreateScheduleViewModel>>(sp => () => sp.GetRequiredService<CreateScheduleViewModel>());
+            services.AddSingleton<Func<LectureViewModel>>(sp => () => sp.GetRequiredService<LectureViewModel>());
 
 
             services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime

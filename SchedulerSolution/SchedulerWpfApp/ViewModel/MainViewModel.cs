@@ -25,6 +25,7 @@ namespace SchedulerWpfApp.ViewModel
         private readonly Func<PersonViewModel> _personViewModelFactory;
         private readonly Func<RoomViewModel> _roomViewModelFactory;
         private readonly Func<CreateScheduleViewModel> _createScheduleViewModelFactory;
+        private readonly Func<LectureViewModel> _lectureViewModelFactory;
 
         /// <summary>
         /// The current view model being shown in the main content area.
@@ -41,6 +42,7 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ShowPersonCommand { get; }
         public ICommand ShowRoomCommand { get; }
         public ICommand ShowCreateScheduleCommand { get; }
+        public ICommand ShowLectureCommand { get; }
 
         /// <summary>
         /// Initializes the MainViewModel with view model factories.
@@ -49,19 +51,22 @@ namespace SchedulerWpfApp.ViewModel
         public MainViewModel(Func<SubjectViewModel> courseViewModelFactory,
             Func<PersonViewModel> personViewModelFactory,
             Func<RoomViewModel> roomViewModelFactory,
-            Func<CreateScheduleViewModel> createScheduleViewModelFactory)
+            Func<CreateScheduleViewModel> createScheduleViewModelFactory,
+            Func<LectureViewModel> lectureViewModelFactory)
         {
             // Assign factory methods
             _subjectViewModelFactory = courseViewModelFactory;
             _personViewModelFactory = personViewModelFactory;
             _roomViewModelFactory = roomViewModelFactory;
             _createScheduleViewModelFactory = createScheduleViewModelFactory;
+            _lectureViewModelFactory = lectureViewModelFactory;
 
             // Initialize commands for switching views
             ShowCourseCommand = new RelayCommand(ShowCourse);
             ShowPersonCommand = new RelayCommand(ShowPerson);
             ShowRoomCommand = new RelayCommand(ShowRoom);
             ShowCreateScheduleCommand = new RelayCommand(ShowCreateSchedule);
+            ShowLectureCommand = new RelayCommand(ShowLecture);
 
             // Set default view to PersonViewModel
             CurrentViewModel = _personViewModelFactory();
@@ -83,5 +88,7 @@ namespace SchedulerWpfApp.ViewModel
         private void ShowRoom() => CurrentViewModel = _roomViewModelFactory();
 
         private void ShowCreateSchedule() => CurrentViewModel = _createScheduleViewModelFactory();
+
+        private void ShowLecture() => CurrentViewModel = _lectureViewModelFactory();
     }
 }
