@@ -112,33 +112,6 @@ namespace SchedulerWpfApp.Data
             modelBuilder.Entity<Subject>().HasData(
                 new Subject
                 {
-                    SubjectCode = "WDP201",
-                    SubjectName = "Web development",
-                    Major = "SE",
-                    TotalSessions = 1,
-                    SlotsPerWeek = 20,
-                    SemesterId = "SU25"
-                },
-                new Subject
-                {
-                    SubjectCode = "SEP492",
-                    SubjectName = "Do an tot nghiep",
-                    Major = "SE",
-                    TotalSessions = 1,
-                    SlotsPerWeek = 20,
-                    SemesterId = "SU25"
-                },
-                new Subject
-                {
-                    SubjectCode = "HCM202",
-                    SubjectName = "Tw tuong Ho Chi Minh",
-                    Major = "SE",
-                    TotalSessions = 1,
-                    SlotsPerWeek = 20,
-                    SemesterId = "SU25"
-                },
-                new Subject
-                {
                     SubjectCode = "SWP391",
                     SubjectName = "Software Engineering",
                     Major = "SE",

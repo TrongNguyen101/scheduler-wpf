@@ -13,6 +13,7 @@ namespace SchedulerWpfApp.Algorithm
             var subjects = allSubjects.Where(subject => subject.SlotsPerWeek == 2).ToList();
             var subjectOneSlot = allSubjects.Where(subject => subject.SlotsPerWeek == 1).ToList();
 
+
             // Kiểm tra đầu vào
             if (subjects == null || subjects.Count != 4)
             {
