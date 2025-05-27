@@ -4,7 +4,6 @@
              xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
              xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
              Background="White">
-
     <Grid Background="#f8f9fa">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

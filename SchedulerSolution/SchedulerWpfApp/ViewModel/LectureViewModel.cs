@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using SchedulerWpfApp.Helper;
 using System.Windows.Input;
 using SchedulerWpfApp.Model;
@@ -174,7 +168,6 @@ namespace SchedulerWpfApp.ViewModel
 
         // Remove a course from the list
         private async Task DeleteLectureAsync(Lecturer lecture)
-
         {
             if (lecture == null) return;
 
@@ -186,7 +179,6 @@ namespace SchedulerWpfApp.ViewModel
             };
 
             IsOpenDialog = true;
-
         }
 
         private async Task SaveLectureAsync()
@@ -225,7 +217,6 @@ namespace SchedulerWpfApp.ViewModel
                         // Cảnh báo
                         MessageBox.Show("Môn học không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
-
                 }
             }
             catch (Exception ex)

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:SchedulerWpfApp.Views"
+             xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
              xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
              Background="White">
     <Grid Background="#f8f9fa">
@@ -160,41 +161,7 @@
                                        Focusable="False"
                                        FocusVisualStyle="{x:Null}"
                                        CurrentCellBorderBrush="White">
-                    <!--<syncfusion:SfDataGrid.RowStyle>
-                        <Style TargetType="syncfusion:VirtualizingCellsControl">
-                            <Setter Property="FocusVisualStyle"
-                                    Value="{x:Null}" />
-                            <Setter Property="Focusable"
-                                    Value="False" />
-                            <Setter Property="BorderThickness"
-                                    Value="0" />
-                            <Setter Property="BorderBrush"
-                                    Value="Transparent" />
-                        </Style>
-                    </syncfusion:SfDataGrid.RowStyle>
 
-                    -->
-                    <!-- ✅ Cell style đã OK -->
-                    <!--
-                    <syncfusion:SfDataGrid.Resources>
-                        <Style TargetType="syncfusion:GridCell">
-                            <Setter Property="FocusVisualStyle"
-                                    Value="{x:Null}" />
-                            <Setter Property="Focusable"
-                                    Value="False" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="syncfusion:GridCell">
-                                        <Border Background="{TemplateBinding Background}"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}">
-                                            <ContentPresenter />
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </syncfusion:SfDataGrid.Resources>-->
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:GridTextColumn HeaderText="Mã số giảng viên"
                                                    MappingName="LecturerId" />
@@ -204,19 +171,20 @@
                                                    MappingName="Role" />
                         <syncfusion:GridTemplateColumn HeaderText="Action"
                                                        Width="90"
-                                                       AllowFiltering="False">
+                                                       AllowFiltering="False" MappingName="ActionPlaceHolder">
                             <syncfusion:GridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal"
                                                 HorizontalAlignment="Center">
                                         <Button Style="{StaticResource EditButtonStyle}"
-                                                Command="{Binding DataContext.EditLectureCommand}"
+                                                Command="{Binding DataContext.EditLectureCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}"
                                                 CommandParameter="{Binding}">
                                             <TextBlock Text="✏️"
+                                                       TextAlignment="Center"
                                                        VerticalAlignment="Center" />
                                         </Button>
                                         <Button Style="{StaticResource DeleteButtonStyle}"
-                                                Command="{Binding DataContext.DeleteLectureCommand}"
+                                                Command="{Binding DataContext.DeleteLectureCommand,   RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}"
                                                 CommandParameter="{Binding}">
                                             <TextBlock Text="🗑️"
                                                        TextAlignment="Center"
