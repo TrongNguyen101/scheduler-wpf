@@ -130,9 +130,14 @@ namespace SchedulerWpfApp.ViewModel
                     Debug.WriteLine($"Week {weekCount}: {weekStart:dd/MM/yyyy} - {weekEnd:dd/MM/yyyy}");
 
                     // Lấy danh sách ngày trong tuần này
-                    var dates = weekGroup.Select(s => s.Date)
-                        .Distinct()
-                        .OrderBy(d => d)
+                    //var dates = weekGroup.Select(s => s.Date)
+                    //    .Distinct()
+                    //    .OrderBy(d => d)
+                    //    .ToList();
+
+                    // MỚI: Lấy đủ 7 ngày từ thứ Hai đến Chủ nhật
+                    var dates = Enumerable.Range(0, 7)
+                        .Select(offset => weekStart.AddDays(offset))
                         .ToList();
 
                     // Danh sách slot duy nhất
@@ -196,6 +201,10 @@ namespace SchedulerWpfApp.ViewModel
                                 rowLines[0] += "".PadRight(columnWidth) + "| ";
                                 rowLines[1] += "".PadRight(columnWidth) + "| ";
                                 rowLines[2] += "".PadRight(columnWidth) + "| ";
+                                rowLines[3] += "".PadRight(columnWidth) + "| ";
+                                rowLines[4] += "".PadRight(columnWidth) + "| ";
+                                rowLines[5] += "".PadRight(columnWidth) + "| ";
+                                rowLines[6] += "".PadRight(columnWidth) + "| ";
                             }
                         }
 
@@ -208,8 +217,6 @@ namespace SchedulerWpfApp.ViewModel
                         Debug.WriteLine(rowLines[5]);
                         Debug.WriteLine(rowLines[6]);
 
-
-
                         Debug.WriteLine(new string('-', header.Length));
                     }
 
@@ -220,11 +227,6 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
-        public static DateTime GetWeekStartDate(DateTime date)
-        {
-            int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
-            return date.AddDays(-1 * diff).Date;
-        }
 
         private static DateTime? GetWeekStartDate(DateTime? date)
         {
@@ -233,6 +235,11 @@ namespace SchedulerWpfApp.ViewModel
 
             int diff = (7 + (date.Value.DayOfWeek - DayOfWeek.Monday)) % 7;
             return date.Value.AddDays(-diff).Date;
+        }
+        public static DateTime GetWeekStartDate(DateTime date)
+        {
+            int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+            return date.AddDays(-1 * diff).Date;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using SchedulerWpfApp.Model;
+using System;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -110,11 +111,8 @@ namespace SchedulerWpfApp.Algorithm
                 var (classIndex, cycleLevel) = MapToCycle(roomNo);
 
                 // duyệt qua 10 tuần
-                for (int week = 1; week <= 10; week++)
+                for (int week = 1; week <= 3; week++)
                 {
-                    // Tạo kiểu onl hay off cho tuần đó
-                    string slotType = GetSlotTypeForWeek(week);
-
                     //Duyệt qua 7 ngày trong tuần
                     for (int dayOfWeek = 1; dayOfWeek <= 7; dayOfWeek++)
                     {
@@ -130,6 +128,9 @@ namespace SchedulerWpfApp.Algorithm
 
                             // Lấy mã loại slot dựa trên ngày, slot và buổi
                             string slotTypeCode = GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, sessionFilter);
+
+                            // Tạo kiểu onl hay off cho tuần đó
+                            string slotType = GetSlotTypeForWeek(week, dayOfWeek + 1, slotTypeCode);
 
                             // Lấy thứ tự buổi học trong kỳ
                             int sessionNo = GetSessionNo(subjectAppearanceOrder, subject);
@@ -217,9 +218,23 @@ namespace SchedulerWpfApp.Algorithm
             return (numberOfClass + 1) / 2; // Làm tròn lên, tối ưu hơn
         }
 
-        private string GetSlotTypeForWeek(int week)
+        private string GetSlotTypeForWeek(int week, int dayOfWeek, string slotTypeCode)
         {
-            return week % 2 == 0 ? "online" : "offline";
+            // Nếu là slot học trực tuyến theo mã
+            if (slotTypeCode == "AC" || slotTypeCode == "PC")
+                return "online";
+
+            // Nếu là tuần đầu hoặc tuần cuối (tuần 1, 10): luôn học offline
+            if (week == 1 || week == 10)
+                return "offline";
+
+            // Với các tuần còn lại:
+            bool isEvenWeek = week % 2 == 0;
+            bool isEvenDay = dayOfWeek % 2 == 0;
+
+            // Nếu tuần chẵn: ngày chẵn online, lẻ offline
+            // Nếu tuần lẻ: ngày chẵn offline, lẻ online
+            return isEvenWeek == isEvenDay ? "online" : "offline";
         }
 
 
