@@ -46,8 +46,12 @@ namespace SchedulerWpfApp.Algorithm
                 var lecturersAM = _getLecturerForSubject.FilterLecturerInSession(lecturersTeachSubject, lecturerRequests, "AM");
                 var lecturersPM = _getLecturerForSubject.FilterLecturerInSession(lecturersTeachSubject, lecturerRequests, "PM");
 
-                CreateScheduleForSession(allSchedules, subjects, lecturersAM, numberOfRoom, startDate, lecturerRequests, "A", "G", 1);
-                CreateScheduleForSession(allSchedules, subjects, lecturersPM, numberOfRoom, startDate, lecturerRequests, "P", "G", numberOfRoom + 1);
+                CreateSchedulesForFirstAndFinalWeek(allSchedules, subjects, lecturersAM, numberOfRoom, startDate, lecturerRequests, "A", "G", 1);
+                CreateSchedulesForFirstAndFinalWeek(allSchedules, subjects, lecturersAM, numberOfRoom, startDate, lecturerRequests, "P", "G", numberOfRoom + 1);
+
+
+                //CreateScheduleForSession(allSchedules, subjects, lecturersAM, numberOfRoom, startDate, lecturerRequests, "A", "G", 1);
+                //CreateScheduleForSession(allSchedules, subjects, lecturersPM, numberOfRoom, startDate, lecturerRequests, "P", "G", numberOfRoom + 1);
             }
             catch (Exception ex)
             {
@@ -77,7 +81,93 @@ namespace SchedulerWpfApp.Algorithm
         /// <param name="sessionFilter">Session hiện tại ("A" cho AM, "P" cho PM).</param>
         /// <param name="roomCodePrefix">Tiền tố mã phòng (ví dụ: "G").</param>
         /// <param name="classIdStartIndex">Chỉ số bắt đầu để sinh mã lớp.</param>
-        private void CreateScheduleForSession(List<Schedule> allSchedules,
+        private void CreateSchedulesForFirstAndFinalWeek(List<Schedule> allSchedules,
+                                      List<Subject> subjects,
+                                      Dictionary<string, List<LecturerSubject>> lecturersTeachSubjectSession,
+                                      int numberOfRoom,
+                                      DateTime startDate,
+                                      List<LecturerRequest> lecturerRequests,
+                                      string sessionFilter,
+                                      string roomCodePrefix,
+                                      int classIdStartIndex)
+        {
+            var subjectSchedule = _sortSubjectsOneSession.SortSubjectFourClass(subjects);
+
+            // Dictionary dùng để tạo thứ tự từng slot học trong kỳ
+            var subjectAppearanceOrder = new Dictionary<string, int>();
+
+            // số thứ tự slot dựa vào buổi trong ngày
+            int slotStart = sessionFilter == "A" ? 1 : 3;
+
+            // số lượng slot trong 1 buổi
+            int slotsPerSession = 2;
+
+            // Tạo kiểu onl hay off cho tuần đó
+            string slotType = "offline";
+
+            for (int roomNo = 1; roomNo <= numberOfRoom; roomNo++)
+            {
+                /* Cần hàm tạo room Id ở đây*/
+                var roomId = $"{roomCodePrefix}{roomNo}";
+                TreeForSchedule roomNode = _treeNode.BuildTreeForRoom(roomId);
+
+                /* Cần hàm tạo group name (mã lơp) ở đây*/
+                string classId = $"SE160{classIdStartIndex + roomNo - 1}";
+
+                // tìm thầy cho mỗi 4 lớp
+                var (classIndex, cycleLevel) = MapToCycle(roomNo);
+
+                // duyệt qua 10 tuần
+                foreach (int week in new int[] { 1, 10 })
+                {
+                    //Duyệt qua 7 ngày trong tuần
+                    for (int dayOfWeek = 1; dayOfWeek <= 7; dayOfWeek++)
+                    {
+                        //Lấy ngày tháng hiện tại của ngày
+                        DateTime currentDate = startDate.AddDays((week - 1) * 7 + (dayOfWeek - 1));
+
+                        // duyệt qua 2 slot của 1 buổi
+                        for (int slotIndex = 0; slotIndex < slotsPerSession; slotIndex++)
+                        {
+                            // Lấy môn học đã được xếp vào ngày slot hiện tại
+                            var subject = subjectSchedule[dayOfWeek, classIndex, slotIndex];
+                            if (subject == null) continue;
+
+                            // Lấy mã loại slot dựa trên ngày, slot và buổi
+                            string slotTypeCode = GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, sessionFilter);
+
+                            // Lấy thứ tự buổi học trong kỳ
+                            int sessionNo = GetSessionNo(subjectAppearanceOrder, subject);
+
+                            // lấy tên giảng viên để thêm vào lịch
+                            var lecturerName = _getLecturerForSubject.FindLecturerForSubject(
+                                subject?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
+
+                            string slotLabel = $"slot {slotIndex + slotStart}";
+
+                            _treeNode.CollectSchedules(
+                                roomNode,
+                                allSchedules,
+                                subject.SubjectCode,
+                                currentDate,
+                                classId,
+                                slotLabel,
+                                lecturerName,
+                                slotTypeCode,
+                                "NewSlot",
+                                sessionNo,
+                                sessionFilter,
+                                slotType
+
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        
+        private void CreateSchedulesForWeek(List<Schedule> allSchedules,
                                       List<Subject> subjects,
                                       Dictionary<string, List<LecturerSubject>> lecturersTeachSubjectSession,
                                       int numberOfRoom,
@@ -111,7 +201,7 @@ namespace SchedulerWpfApp.Algorithm
                 var (classIndex, cycleLevel) = MapToCycle(roomNo);
 
                 // duyệt qua 10 tuần
-                for (int week = 1; week <= 3; week++)
+                for (int week = 1; week <= 10; week++)
                 {
                     //Duyệt qua 7 ngày trong tuần
                     for (int dayOfWeek = 1; dayOfWeek <= 7; dayOfWeek++)

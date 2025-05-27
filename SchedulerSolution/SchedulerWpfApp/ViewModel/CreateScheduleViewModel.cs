@@ -28,7 +28,7 @@ namespace SchedulerWpfApp.ViewModel
 
         private async Task CreateScheduleDemo()
         {           
-            DateTime startDate = new DateTime(2025, 04, 14);
+            DateTime startDate = new DateTime(2025, 01, 06);
             var schedules = await _createScheduleTree.GenerateSchedules(startDate);
 
             PrintTimetableGroupByWeek(schedules);
@@ -160,7 +160,7 @@ namespace SchedulerWpfApp.ViewModel
                     foreach (var slot in slots)
                     {
                         // Mỗi slot có 3 dòng (Subject, Lecturer, Status)
-                        string[] rowLines = new string[7];
+                        string[] rowLines = new string[8];
                         rowLines[0] = slot.PadRight(10) + "| "; // Dòng đầu tiên bắt đầu bằng slot
                         rowLines[1] = "".PadRight(10) + "| ";   // Dòng thứ hai và ba để trống ở cột slot
                         rowLines[2] = "".PadRight(10) + "| ";
@@ -168,6 +168,7 @@ namespace SchedulerWpfApp.ViewModel
                         rowLines[4] = "".PadRight(10) + "| ";
                         rowLines[5] = "".PadRight(10) + "| ";
                         rowLines[6] = "".PadRight(10) + "| ";
+                        rowLines[7] = "".PadRight(10) + "| ";
 
                         foreach (var date in dates)
                         {
@@ -183,6 +184,7 @@ namespace SchedulerWpfApp.ViewModel
                                     rowLines[4] += "".PadRight(columnWidth) + "| ";
                                     rowLines[5] += "".PadRight(columnWidth) + "| ";
                                     rowLines[6] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[7] += "".PadRight(columnWidth) + "| ";
                                 }
                                 else
                                 {
@@ -193,7 +195,7 @@ namespace SchedulerWpfApp.ViewModel
                                     rowLines[4] += $"Room: {schedule.RoomNo}".PadRight(columnWidth) + "| ";
                                     rowLines[5] += $"Slot code: {schedule.SlotTypeCode}".PadRight(columnWidth) + "| ";
                                     rowLines[6] += $"Session No: {schedule.SessionNo}".PadRight(columnWidth) + "| ";
-
+                                    rowLines[7] += $"Class: {schedule.GroupName}".PadRight(columnWidth) + "| ";
                                 }
                             }
                             else
@@ -205,6 +207,7 @@ namespace SchedulerWpfApp.ViewModel
                                 rowLines[4] += "".PadRight(columnWidth) + "| ";
                                 rowLines[5] += "".PadRight(columnWidth) + "| ";
                                 rowLines[6] += "".PadRight(columnWidth) + "| ";
+                                rowLines[7] += "".PadRight(columnWidth) + "| ";
                             }
                         }
 
@@ -216,6 +219,7 @@ namespace SchedulerWpfApp.ViewModel
                         Debug.WriteLine(rowLines[4]);
                         Debug.WriteLine(rowLines[5]);
                         Debug.WriteLine(rowLines[6]);
+                        Debug.WriteLine(rowLines[7]);
 
                         Debug.WriteLine(new string('-', header.Length));
                     }
