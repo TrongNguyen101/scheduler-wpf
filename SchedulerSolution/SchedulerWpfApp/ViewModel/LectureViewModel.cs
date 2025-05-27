@@ -186,6 +186,12 @@ namespace SchedulerWpfApp.ViewModel
             if (SelectedLecture == null)
                 return;
 
+            if (string.IsNullOrWhiteSpace(SelectedLecture.LecturerId) || string.IsNullOrWhiteSpace(SelectedLecture.LecturerName) || string.IsNullOrWhiteSpace(SelectedLecture.Role))
+            {
+                MessageBox.Show("Mã lớp không được để trống", "Cảnh báo");
+                return;
+            }
+
             try
             {
                 // Check if _isEdit is false will create new course. Otherwise, update course
