@@ -30,5 +30,39 @@ namespace SchedulerWpfApp.Services
         }
 
 
+        public async Task<Room?> GetByIdAsync(int id)
+        {
+            return await _context.Rooms.FindAsync(id);
+        }
+        public async Task AddRoom(Room room)
+        {
+            _context.Rooms.Add(room);
+            await _context.SaveChangesAsync();
+        }
+        public async Task UpdateRoom(Room room)
+        {
+            _context.Rooms.Update(room);
+            await _context.SaveChangesAsync();
+        }
+        public async Task DeleteRoom(int id)
+        {
+            var room = await GetByIdAsync(id);
+            if (room != null)
+            {
+                _context.Rooms.Remove(room);
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task<List<Room>> SearchRoomsAsync(string searchTerm)
+        {
+            return await _context.Rooms
+                .Where(r => r.RoomName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToListAsync();
+        }
+        public async Task<bool> CheckRoomIdExistsAsync(string roomname)
+        {
+            return await _context.Rooms.AnyAsync(r => r.RoomName == roomname);
+        }
+
     }
 }
