@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SchedulerWpfApp.Views.RoomView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel" xmlns:syncfusion="http://schemas.syncfusion.com/wpf" Background="White">
+﻿<UserControl x:Class="SchedulerWpfApp.Views.GroupNameView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:SchedulerWpfApp.Views" xmlns:syncfusion="http://schemas.syncfusion.com/wpf" Background="White">
     <Grid Background="#f8f9fa">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -8,7 +8,7 @@
         <!-- Header -->
         <Grid Grid.Row="0" Height="40" Margin="0,0,0,0">
             <Border Background="{StaticResource PrimaryColor}" CornerRadius="10, 10, 0 , 0">
-                <TextBlock Text="Quản Lí Phòng" FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
+                <TextBlock Text="Quản Lí Lớp Học" FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
             </Border>
         </Grid>
 
@@ -55,7 +55,7 @@
                     </Grid>
                 </Border>
 
-                <Button Grid.Column="1" Style="{StaticResource ExportButtonStyle}" Margin="0,0,10,0" Command="{Binding ExportRoomListCommand}">
+                <Button Grid.Column="1" Style="{StaticResource ExportButtonStyle}" Margin="0,0,10,0" Command="{Binding ExportRoomCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📤" VerticalAlignment="Center" />
                         <TextBlock Text=" Export Dữ Liệu" Margin="5,0,0,0" VerticalAlignment="Center" />
@@ -63,7 +63,7 @@
                 </Button>
 
                 <!-- Import Button -->
-                <Button Grid.Column="2" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0" Command="{Binding ImportRoomListCommand}">
+                <Button Grid.Column="2" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0" Command="{Binding ImportRoomCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📥" VerticalAlignment="Center" />
                         <TextBlock Text=" Import Dữ Liệu" Margin="5,0,0,0" VerticalAlignment="Center" />
@@ -85,7 +85,7 @@
                     <DropShadowEffect ShadowDepth="1" BlurRadius="10" Opacity="0.1" Color="Gray" />
                 </Border.Effect>
 
-                <syncfusion:SfDataGrid x:Name="ClassRoomDataGrid" ItemsSource="{Binding Rooms}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
+                <syncfusion:SfDataGrid x:Name="ClassRoomDataGrid" ItemsSource="{Binding GroupNames}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
                     <syncfusion:SfDataGrid.RowStyle>
                         <Style TargetType="syncfusion:VirtualizingCellsControl">
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -112,10 +112,11 @@
                         </Style>
                     </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="ID" MappingName="RoomId" />
-                        <syncfusion:GridTextColumn HeaderText="Tên Phòng" MappingName="RoomName" />
-                        <syncfusion:GridTextColumn HeaderText="SLSV" MappingName="TotalPersons" />
-                        <syncfusion:GridTextColumn HeaderText="Loại phòng" MappingName="TypeOfRoom" />
+                        <syncfusion:GridTextColumn HeaderText="Mã phòng" MappingName="ClassId" />
+                        <syncfusion:GridTextColumn HeaderText="Loại phòng" MappingName="Category" />
+                        <syncfusion:GridTextColumn HeaderText="Chuyên Ngành" MappingName="Major" />
+                        <syncfusion:GridTextColumn HeaderText="Số Học Sinh" MappingName="NumberOfStudents" />
+                        <syncfusion:GridTextColumn HeaderText="Số Môn" MappingName="NumberOfScheduler" />
                         <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False" MappingName="ActionPlaceholder">
 
                             <syncfusion:GridTemplateColumn.CellTemplate>

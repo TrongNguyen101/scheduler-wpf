@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchedulerWpfApp.Data;
 
@@ -10,9 +11,11 @@ using SchedulerWpfApp.Data;
 namespace SchedulerWpfApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250527061354_Room")]
+    partial class Room
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
@@ -450,30 +453,6 @@ namespace SchedulerWpfApp.Migrations
                             LastName = "Johnson",
                             Phone = "555-123-4567"
                         });
-                });
-
-            modelBuilder.Entity("SchedulerWpfApp.Model.Room", b =>
-                {
-                    b.Property<int>("RoomId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("RoomId");
-
-                    b.Property<string>("RoomName")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("RoomName");
-
-                    b.Property<int?>("TotalPersons")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("TotalPersons");
-
-                    b.Property<string>("TypeOfRoom")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("TypeOfRoom");
-
-                    b.HasKey("RoomId");
-
-                    b.ToTable("Room");
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Schedule", b =>

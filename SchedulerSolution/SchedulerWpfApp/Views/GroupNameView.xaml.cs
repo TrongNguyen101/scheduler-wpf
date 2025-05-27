@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace SchedulerWpfApp.Views
 {
     /// <summary>
-    /// Interaction logic for Room.xaml
+    /// Interaction logic for GroupNameView.xaml
     /// </summary>
-    public partial class RoomView : UserControl
+    public partial class GroupNameView : UserControl
     {
-        public RoomView()
+        public GroupNameView()
         {
             InitializeComponent();
         }

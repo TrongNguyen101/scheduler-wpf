@@ -12,6 +12,7 @@ using Syncfusion.Licensing;
 using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Services.ScheduleServices;
 using SchedulerWpfApp.Services.LecturerSubjectServices;
+using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp
 {
@@ -49,6 +50,14 @@ namespace SchedulerWpfApp
         /// <exception cref="FileNotFoundException"></exception>
         protected override async void OnStartup(StartupEventArgs e)
         {
+
+            // chạy hàm này khi muốn reset lại db 
+            //using (var context = new DataContext()) // <-- thay tên DbContext của bạn ở đây
+            //{
+            //    context.Database.EnsureDeleted();    // Xóa toàn bộ database SQLite cũ
+            //    context.Database.EnsureCreated();    // Tạo lại database mới
+            //}
+
             await _host.StartAsync();
             try
             {
@@ -103,6 +112,7 @@ namespace SchedulerWpfApp
             }
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             mainWindow.DataContext = _host.Services.GetRequiredService<MainViewModel>();
+
             mainWindow.Show();
             base.OnStartup(e);
         }
@@ -138,6 +148,10 @@ namespace SchedulerWpfApp
 
             services.AddScoped<IExcelSubjectImporter, ExcelSubjectImporter>();
             services.AddScoped<IExcelSubjectExporter, ExcelSubjectExporter>();
+            services.AddScoped<IRoomService, RoomService>();
+            services.AddScoped<IExcelRoomExporter, ExcelRoomExporter>();
+            services.AddScoped<IExcelRoomImport, ExcelRoomImport>();
+
 
             // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();
@@ -152,15 +166,18 @@ namespace SchedulerWpfApp
 
             services.AddTransient<SubjectViewModel>();
             services.AddTransient<LectureView>();
-            services.AddTransient<ClassRoom>();
-            services.AddTransient<RoomViewModel>();
+            services.AddTransient<GroupNameViewModel>();
             services.AddTransient<CreateScheduleViewModel>();
+            services.AddTransient<RoomViewModel>();
+
 
             // Add factories
             services.AddSingleton<Func<SubjectViewModel>>(sp => () => sp.GetRequiredService<SubjectViewModel>());
             services.AddSingleton<Func<PersonViewModel>>(sp => () => sp.GetRequiredService<PersonViewModel>());
-            services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
+            services.AddSingleton<Func<GroupNameViewModel>>(sp => () => sp.GetRequiredService<GroupNameViewModel>());
             services.AddSingleton<Func<CreateScheduleViewModel>>(sp => () => sp.GetRequiredService<CreateScheduleViewModel>());
+            services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
+
 
 
             services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime
