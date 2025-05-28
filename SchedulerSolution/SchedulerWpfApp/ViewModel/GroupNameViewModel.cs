@@ -251,7 +251,6 @@ namespace SchedulerWpfApp.ViewModel
                     {
                         MessageBox.Show("Room không tồn tại");
                     }
-
                 }
                 // if it is an add event
                 else
@@ -270,7 +269,6 @@ namespace SchedulerWpfApp.ViewModel
                     else
                     {
                         MessageBox.Show("Lớp này đã tồn tại");
-
                     }
                 }
             }
@@ -318,7 +316,6 @@ namespace SchedulerWpfApp.ViewModel
             catch (Exception ex)
             {
                 MessageBox.Show($"Xóa thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-
             }
         }
         // Cancel edit 
@@ -335,7 +332,6 @@ namespace SchedulerWpfApp.ViewModel
 
             SelectedGroupname = null;
             IsOpenDialog = false;
-
         }
         // When user enters keyword or deletes, it will render room list
         private void ResetToAllGroupNames()
@@ -363,6 +359,5 @@ namespace SchedulerWpfApp.ViewModel
                 GroupNames = new ObservableCollection<GroupName>(filtered);
             }
         }
-
     }
 }
