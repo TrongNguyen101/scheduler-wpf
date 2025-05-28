@@ -12,7 +12,6 @@ namespace SchedulerWpfApp.Services
     {
         public void ExportRoomToExcel(List<Room> room, string filePath)
         {
-
             using ExcelEngine excelEngine = new();
             IApplication application = excelEngine.Excel;
             application.DefaultVersion = ExcelVersion.Xlsx;
@@ -36,7 +35,5 @@ namespace SchedulerWpfApp.Services
 
             workbook.SaveAs(filePath);
         }
-
-
     }
 }

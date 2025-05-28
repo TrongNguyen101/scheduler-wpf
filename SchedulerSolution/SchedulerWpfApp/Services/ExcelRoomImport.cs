@@ -48,7 +48,6 @@ namespace SchedulerWpfApp.Services
 
                 rooms.Add(room);
             }
-
             return rooms;
         }
 

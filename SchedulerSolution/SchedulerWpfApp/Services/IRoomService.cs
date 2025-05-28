@@ -9,7 +9,6 @@ namespace SchedulerWpfApp.Services
 {
     public interface IRoomService
     {
-
         Task ImportPersonFromExcel(List<Room> listRoomFromExcel);
         Task<List<Room>> GetAllAsync();
         Task<Room?> GetByIdAsync(int id);
@@ -18,6 +17,5 @@ namespace SchedulerWpfApp.Services
         Task DeleteRoom(int id);
         Task<List<Room>> SearchRoomsAsync(string searchTerm);
         Task<bool> CheckRoomIdExistsAsync(string classId);
-
     }
 }

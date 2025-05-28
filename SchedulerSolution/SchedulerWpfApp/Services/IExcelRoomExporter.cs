@@ -10,6 +10,5 @@ namespace SchedulerWpfApp.Services
     public interface IExcelRoomExporter
     {
         void ExportRoomToExcel(List<Room> rooms, string filePath);
-
     }
 }

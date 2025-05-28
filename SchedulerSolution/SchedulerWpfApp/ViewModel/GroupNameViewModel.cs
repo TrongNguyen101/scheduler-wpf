@@ -68,7 +68,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 if (SetProperty(ref _selectedGroupname, value))
                 {
-                    OnPropertyChanged(nameof(FormTitle)); // 🔥 Notify form title update
+                    OnPropertyChanged(nameof(FormTitle)); //Notify form title update
                 }
             }
         }
@@ -169,7 +169,6 @@ namespace SchedulerWpfApp.ViewModel
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to load persons: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-
             }
         }
 

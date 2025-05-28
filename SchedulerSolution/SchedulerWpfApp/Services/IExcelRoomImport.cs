@@ -10,9 +10,6 @@ namespace SchedulerWpfApp.Services
 {
     public interface IExcelRoomImport
     {
-
         List<Room> ReadRoomListFromExcel(string filePath);
-
-
     }
 }
