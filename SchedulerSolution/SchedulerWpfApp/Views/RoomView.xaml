@@ -74,7 +74,7 @@
                 <Button Grid.Column="3" Style="{StaticResource SuccessButtonStyle}" Command="{Binding AddListRoomCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕" VerticalAlignment="Center" />
-                        <TextBlock Text=" Thêm Lớp Học" Margin="5,0,0,0" VerticalAlignment="Center" />
+                        <TextBlock Text=" Thêm Phòng Mới" Margin="5,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </Grid>
@@ -114,7 +114,7 @@
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:GridTextColumn HeaderText="ID" MappingName="RoomId" />
                         <syncfusion:GridTextColumn HeaderText="Tên Phòng" MappingName="RoomName" />
-                        <syncfusion:GridTextColumn HeaderText="SLSV" MappingName="TotalPersons" />
+                        <syncfusion:GridTextColumn HeaderText="Số lượng sinh viên" MappingName="TotalPersons" />
                         <syncfusion:GridTextColumn HeaderText="Loại phòng" MappingName="TypeOfRoom" />
                         <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False" MappingName="ActionPlaceholder">
 
@@ -151,7 +151,7 @@
 
         <!-- Lecturer Form Popup -->
         <Popup x:Name="LecturerFormPopup" StaysOpen="False" Placement="Center" IsOpen="{Binding IsRoomFormOpen}" AllowsTransparency="True">
-            <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="500">
+            <Border Background="#F0F4F8" BorderThickness="0" CornerRadius="8" Padding="25" Width="500">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="15" Opacity="0.2" Color="Black" />
                 </Border.Effect>
@@ -171,12 +171,12 @@
                     <!-- Form Fields -->
                     <StackPanel Grid.Row="1" Margin="0,0,0,20">
                         <!--<TextBlock Text="ID" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedRoomname.RoomId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" IsEnabled="{Binding IsClassIdEditable}" />-->
+                        <TextBox Text="{Binding SelectedRoomname.RoomId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" IsEnabled="{Binding IsGroupNameEditable}" />-->
 
                         <TextBlock Text="Tên Phòng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
                         <TextBox Text="{Binding SelectedRoomname.RoomName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
-                        <TextBlock Text="SLSV" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBlock Text="Số lượng sinh viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
                         <TextBox Text="{Binding SelectedRoomname.TotalPersons, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
                         <TextBlock Text="Loại Phòng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
@@ -203,7 +203,7 @@
 
         <!-- Confirmation Dialog -->
         <Popup x:Name="confirmationPopup" StaysOpen="False" Placement="Center" IsOpen="{Binding IsOpenDialog}" AllowsTransparency="True">
-            <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="400">
+            <Border Background="#F0F4F8" BorderBrush="White" CornerRadius="8" Padding="25" Width="400">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="15" Opacity="0.2" Color="Black" />
                 </Border.Effect>

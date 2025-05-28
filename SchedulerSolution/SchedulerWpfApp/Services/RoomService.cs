@@ -19,7 +19,7 @@ namespace SchedulerWpfApp.Services
         /// Imports a list of rooms from an Excel file into the database.
         /// This method iterates through the provided list of rooms and adds each room to the database context.
         /// </summary>
-        public async Task ImportPersonFromExcel(List<Room> listRoomFromExcel)
+        public async Task ImportRoomFromExcel(List<Room> listRoomFromExcel)
         {
             foreach (var room in listRoomFromExcel)
             {
@@ -52,6 +52,7 @@ namespace SchedulerWpfApp.Services
         /// This method takes a Room object as input and adds it to the database context, then saves the changes asynchronously.
         /// </summary>
         /// <param name="room"></param>
+         
         public async Task AddRoom(Room room)
         {
             _context.Rooms.Add(room);
@@ -59,20 +60,39 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
+        /// Retrieves a specific room by their ID
+        /// </summary>
+        /// <param name="id">The ID of the room to retrieve</param>
+        /// <returns>The subject with the specified ID, or null if not found</returns>
+        
+        public async Task<Room?> GetByRoomCodeAsync(int roomid)
+        {
+            return await _context.Rooms.FindAsync(roomid);
+        }
+
+        /// <summary>
         /// Updates an existing room in the database.
         /// This method takes a Room object as input, updates the corresponding record in the database, and saves the changes asynchronously.
         /// </summary>
         /// <param name="room"></param>
+         
         public async Task UpdateRoom(Room room)
         {
-            _context.Rooms.Update(room);
-            await _context.SaveChangesAsync();
+            var existingRoom = await GetByRoomCodeAsync(room.RoomId);
+            if (existingRoom != null)
+            {
+                existingRoom.RoomName = room.RoomName;
+                existingRoom.TotalPersons = room.TotalPersons;
+                existingRoom.TypeOfRoom = room.TypeOfRoom;
+                await _context.SaveChangesAsync();
+            }
         }
 
         /// <summary>
         /// Deletes a room from the database by its ID.
         /// This method retrieves the room by its ID, removes it from the database context, and saves the changes asynchronously.
         /// </summary>
+         
         public async Task DeleteRoom(int id)
         {
             var room = await GetByIdAsync(id);
@@ -87,6 +107,7 @@ namespace SchedulerWpfApp.Services
         /// Searches for rooms in the database based on a search term.
         /// This method filters the rooms whose names contain the specified search term, ignoring case.
         /// </summary>
+         
         public async Task<List<Room>> SearchRoomsAsync(string searchTerm)
         {
             return await _context.Rooms
@@ -99,6 +120,7 @@ namespace SchedulerWpfApp.Services
         /// This method checks if there is any room in the database with the specified room name.
         /// </summary>
         /// <param name="roomname"></param>
+         
         public async Task<bool> CheckRoomIdExistsAsync(string roomname)
         {
             return await _context.Rooms.AnyAsync(r => r.RoomName == roomname);

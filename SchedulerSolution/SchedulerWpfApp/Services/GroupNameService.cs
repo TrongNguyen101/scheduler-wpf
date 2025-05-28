@@ -24,6 +24,7 @@ namespace SchedulerWpfApp.Services
         /// It takes a GroupName object as input and saves it asynchronously.
         /// </summary>
         /// <param name="groupName"></param>
+        
         public async Task AddGroupName(GroupName groupName)
         {
             try
@@ -63,6 +64,7 @@ namespace SchedulerWpfApp.Services
         /// Retrieve all group names (classes) from the database.
         /// This method returns a list of all group names stored in the database.
         /// </summary>
+        
         public async Task<List<GroupName>> GetAllAsync()
         {
             try
@@ -106,15 +108,32 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
+        /// Retrieve a group name (class) by its class ID.
+        /// </summary>
+        /// <param name="classID"></param>
+        public async Task<GroupName?> GetByGroupNameCodeAsync(string classID)
+        {
+            return await _context.GroupName.FindAsync(classID);
+        }
+
+        /// <summary>
         /// Update an existing group name (class) in the database.
         /// This method takes a GroupName object as input, updates the corresponding record in the database, and saves the changes asynchronously.
         /// </summary>
-        public async Task UpdateGroupName(GroupName person)
+        public async Task UpdateGroupName(GroupName groupname)
         {
             try
             {
-                _context.GroupName.Update(person);
-                await _context.SaveChangesAsync();
+                var existinggroupname = await GetByGroupNameCodeAsync(groupname.ClassId);
+                if (existinggroupname != null)
+                {
+                    // Mark the entity as modified to avoid having to copy properties manually
+                    existinggroupname.Major = groupname.Major;
+                    existinggroupname.Category = groupname.Category;
+                    existinggroupname.NumberOfStudents = groupname.NumberOfStudents;
+                    existinggroupname.NumberOfScheduler = groupname.NumberOfScheduler;
+                    await _context.SaveChangesAsync();
+                }
             }
             catch (Exception ex)
             {

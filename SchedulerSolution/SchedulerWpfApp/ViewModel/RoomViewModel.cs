@@ -14,7 +14,7 @@ namespace SchedulerWpfApp.ViewModel
         private readonly IExcelRoomImport _excelRoomImport;
         private readonly IExcelRoomExporter _excelRoomExporter;
         private ObservableCollection<Room> _roomname;
-        private Room? _selectedGroupname;
+        private Room? _selectedRoom;
         public string FormTitle => SelectedRoomname?.RoomId == 0 ? "Thêm phòng mới" : "Chỉnh sửa thông tin phòng";
         // keyword search events
         private string _searchKeyword;
@@ -27,7 +27,7 @@ namespace SchedulerWpfApp.ViewModel
         // check if it is edit or add event
         private bool _isEditing;
         // check if ClassId is edited
-        private bool _isClassIdEditable = true;
+        private bool _isRoomIdEditable = true;
 
         /// <summary>
         /// Observable collection of Room objects representing the list of rooms.
@@ -45,10 +45,10 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         public Room SelectedRoomname
         {
-            get => _selectedGroupname;
+            get => _selectedRoom;
             set
             {
-                if (SetProperty(ref _selectedGroupname, value))
+                if (SetProperty(ref _selectedRoom, value))
                 {
                     OnPropertyChanged(nameof(FormTitle)); //Notify form title update
                 }
@@ -89,10 +89,10 @@ namespace SchedulerWpfApp.ViewModel
         /// Gets or sets a value indicating whether the ClassId field is editable.
         /// This property is used to control whether the ClassId can be modified in the room form.
         /// </summary>
-        public bool IsClassIdEditable
+        public bool IsRoomIdEditable
         {
-            get => _isClassIdEditable;
-            set => SetProperty(ref _isClassIdEditable, value);
+            get => _isRoomIdEditable;
+            set => SetProperty(ref _isRoomIdEditable, value);
         }
         public ICommand ImportRoomListCommand { get; }
         public ICommand ExportRoomListCommand { get; }
@@ -117,12 +117,11 @@ namespace SchedulerWpfApp.ViewModel
             _roomService = roomService;
             _excelRoomImport = excelroomImporter;
             _excelRoomExporter = excelroomExporter;
-
-
+            // Initialize commands for various actions related to room management
             ImportRoomListCommand = new RelayCommand(async () => await ImportRoomListAsync());
             ExportRoomListCommand = new RelayCommand(async () => await ExportRoomAsync());
             AddListRoomCommand = new RelayCommand(async () => await AddRoomAsync());
-            EditRoomListCommand = new RelayCommandGeneric<Room>(async (room) => await EditPersonAsync(room));
+            EditRoomListCommand = new RelayCommandGeneric<Room>(async (room) => await EditRoomAsync(room));
             CancelEditRoomCommand = new RelayCommand(CancelEdit);
             SaveRoomCommand = new RelayCommand(async () => await SaveRoomAsync());
             ConfirmDeleteRoomCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
@@ -148,7 +147,6 @@ namespace SchedulerWpfApp.ViewModel
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to load persons: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-
             }
         }
 
@@ -171,7 +169,7 @@ namespace SchedulerWpfApp.ViewModel
                     var data = _excelRoomImport.ReadRoomListFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
 
-                    await _roomService.ImportPersonFromExcel(data);
+                    await _roomService.ImportRoomFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadRoomAsync();
                 }
@@ -224,14 +222,12 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         public async Task AddRoomAsync()
         {
-
             SelectedRoomname = new Room();
             IsRoomFormOpen = true;
             // check if it is an edit event
             _isEditing = false;
             // allow adding new classid
-            IsClassIdEditable = true;
-
+            IsRoomIdEditable = true;
         }
 
         /// <summary>
@@ -240,15 +236,21 @@ namespace SchedulerWpfApp.ViewModel
         /// sets the editing state to true, and prevents the ClassId from being edited.
         /// </summary>
         /// <param name="room"></param>
-        private async Task EditPersonAsync(Room room)
+        private async Task EditRoomAsync(Room room)
         {
             if (room == null) return;
-            SelectedRoomname = room;
+            SelectedRoomname = new Room
+            {
+                RoomId = room.RoomId,
+                RoomName = room.RoomName,
+                TypeOfRoom = room.TypeOfRoom,
+                TotalPersons = room.TotalPersons
+            };
             IsRoomFormOpen = true;
             // check event edit 
             _isEditing = true;
             // do not allow to edit classid
-            IsClassIdEditable = false;
+            IsRoomIdEditable = false;
         }
 
         /// <summary>
@@ -259,7 +261,13 @@ namespace SchedulerWpfApp.ViewModel
         public async Task DeleteRoomAsync(Room room)
         {
             if (room == null) return;
-            SelectedRoomname = room;
+            SelectedRoomname = new Room
+            {
+                RoomId = room.RoomId,
+                RoomName = room.RoomName,
+                TypeOfRoom = room.TypeOfRoom,
+                TotalPersons = room.TotalPersons
+            };
             IsOpenDialog = true;
         }
 
@@ -270,10 +278,8 @@ namespace SchedulerWpfApp.ViewModel
         private void CancelDelete()
         {
             // set SelectedGroupname null 
-
             SelectedRoomname = null;
             IsOpenDialog = false;
-
         }
 
         /// <summary>
@@ -288,7 +294,7 @@ namespace SchedulerWpfApp.ViewModel
                 if (SelectedRoomname != null)
                 {
                     await _roomService.DeleteRoom(SelectedRoomname.RoomId);
-                    MessageBox.Show("Xóa Thành Công");
+                    MessageBox.Show("Xóa Thành Công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadRoomAsync();
                     IsOpenDialog = false;
                 }
@@ -300,7 +306,6 @@ namespace SchedulerWpfApp.ViewModel
             catch (Exception ex)
             {
                 MessageBox.Show($"Xóa thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-
             }
         }
 
@@ -324,31 +329,28 @@ namespace SchedulerWpfApp.ViewModel
         public async Task SaveRoomAsync()
         {
             if (SelectedRoomname == null) return;
-
             // ✅ Kiểm tra đầu vào trước khi lưu
-            if (string.IsNullOrWhiteSpace(SelectedRoomname.RoomName))
+            if (string.IsNullOrWhiteSpace(SelectedRoomname.RoomName) || string.IsNullOrWhiteSpace(SelectedRoomname.TypeOfRoom) || SelectedRoomname.TotalPersons == null)
             {
-                MessageBox.Show("Tên phòng không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
-            if (SelectedRoomname.TotalPersons <= 0)
+            else if (SelectedRoomname.TotalPersons < 0 || SelectedRoomname.TotalPersons > 50)
             {
-                MessageBox.Show("Sức chứa phải lớn hơn 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Số người trong phòng không vượt quá 50 người và không được nhỏ hơn 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             try
             {
                 if (_isEditing)
                 {
                     await _roomService.UpdateRoom(SelectedRoomname);
-                    MessageBox.Show("Cập nhật thông tin phòng thành công");
+                    MessageBox.Show("Cập nhật thông tin phòng thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
                     await _roomService.AddRoom(SelectedRoomname);
-                    MessageBox.Show("Thêm phòng mới thành công");
+                    MessageBox.Show("Thêm phòng mới thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
                 IsRoomFormOpen = false;

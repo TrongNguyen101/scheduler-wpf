@@ -12,8 +12,6 @@ using Syncfusion.Licensing;
 using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Services.ScheduleServices;
 using SchedulerWpfApp.Services.LecturerSubjectServices;
-using SchedulerWpfApp.Model;
-
 namespace SchedulerWpfApp
 {
     /// <summary>

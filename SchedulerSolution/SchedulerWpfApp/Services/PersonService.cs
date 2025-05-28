@@ -36,7 +36,7 @@ namespace SchedulerWpfApp.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task ImportPersonFromExcel(List<Person> listPersonFromExcel)
+        public async Task ImportRoomFromExcel(List<Person> listPersonFromExcel)
         {
             foreach (var person in listPersonFromExcel)
             {
