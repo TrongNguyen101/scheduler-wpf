@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
@@ -34,13 +29,20 @@ namespace SchedulerWpfApp.ViewModel
         // check if ClassId is edited
         private bool _isClassIdEditable = true;
 
-
+        /// <summary>
+        /// Observable collection of Room objects representing the list of rooms.
+        /// This collection is used to bind to the UI and update dynamically when rooms are added, edited, or deleted.
+        /// </summary>
         public ObservableCollection<Room> Rooms
         {
             get => _roomname;
             set => SetProperty(ref _roomname, value);
         }
 
+        /// <summary>
+        /// Gets or sets the selected Room object.
+        /// This property is used to bind the selected room in the UI, allowing for editing or deletion.
+        /// </summary>
         public Room SelectedRoomname
         {
             get => _selectedGroupname;
@@ -52,33 +54,48 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
-        // Open pop up when clicking edit or add
+
+        /// <summary>
+        /// Gets or sets the search keyword for filtering rooms.
+        /// This property is used to bind the search input in the UI, allowing users to filter the room list based on their input.
+        /// </summary>
         public bool IsRoomFormOpen
         {
             get => _isRoomOpen;
             set => SetProperty(ref _isRoomOpen, value);
         }
-        // Open dialog when click delete
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the dialog for adding or editing a room is open.
+        /// This property is used to control the visibility of the room form in the UI.
+        /// </summary>
         public bool IsOpenDialog
         {
             get => _isOpenDialog;
             set => SetProperty(ref _isOpenDialog, value);
         }
-        // Confirm delete 
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the confirmation dialog for deleting a room is open.
+        /// This property is used to control the visibility of the confirmation dialog in the UI.
+        /// </summary>
         public bool IsConfirmationOpen
         {
             get => _isConfirmationOpen;
             set => SetProperty(ref _isConfirmationOpen, value);
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the ClassId field is editable.
+        /// This property is used to control whether the ClassId can be modified in the room form.
+        /// </summary>
         public bool IsClassIdEditable
         {
             get => _isClassIdEditable;
             set => SetProperty(ref _isClassIdEditable, value);
         }
-
         public ICommand ImportRoomListCommand { get; }
         public ICommand ExportRoomListCommand { get; }
-
         public ICommand EditRoomListCommand { get; }
         public ICommand DeleteRoomListCommand { get; }
         public ICommand AddListRoomCommand { get; }
@@ -87,8 +104,14 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ConfirmDeleteRoomCommand { get; }
         public ICommand CancelDeleteRoomCommand { get; }
 
-
-
+        /// <summary>
+        /// ViewModel constructor that initializes the RoomViewModel with the necessary services.
+        /// This constructor sets up the commands for importing, exporting, adding, editing, and deleting rooms.
+        /// It also loads the initial list of rooms asynchronously.
+        /// </summary>
+        /// <param name="roomService"></param>
+        /// <param name="excelroomImporter"></param>
+        /// <param name="excelroomExporter"></param>
         public RoomViewModel(IRoomService roomService, IExcelRoomImport excelroomImporter, IExcelRoomExporter excelroomExporter)
         {
             _roomService = roomService;
@@ -107,6 +130,12 @@ namespace SchedulerWpfApp.ViewModel
             CancelDeleteRoomCommand = new RelayCommand(CancelDelete);
             _ = LoadRoomAsync(); // Load the room list asynchronously when the view model is created
         }
+
+        /// <summary>
+        /// Asynchronously loads the list of rooms from the room service.
+        /// This method retrieves all rooms and populates the Rooms collection, which is bound to the UI.
+        /// It also handles any exceptions that may occur during the loading process and displays an error message if necessary.
+        /// </summary>
         private async Task LoadRoomAsync()
         {
             try
@@ -123,6 +152,10 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
+        /// <summary>
+        /// Asynchronously imports a list of rooms from an Excel file.
+        /// This method opens a file dialog to select an Excel file, reads the room data from the file using the ExcelRoomImport service,
+        /// </summary>
         private async Task ImportRoomListAsync()
         {
             var dialog = new OpenFileDialog
@@ -149,6 +182,10 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
+        /// <summary>
+        /// Asynchronously exports the list of rooms to an Excel file.
+        /// This method opens a save file dialog to specify the file name and location for the exported Excel file,
+        /// </summary>
         private async Task ExportRoomAsync()
         {
             if (Rooms == null || Rooms.Count == 0)
@@ -180,7 +217,11 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
-
+        /// <summary>
+        /// Asynchronously adds a new room.
+        /// This method initializes a new Room object, opens the room form for input,
+        /// sets the editing state to false, and allows the ClassId to be editable.
+        /// </summary>
         public async Task AddRoomAsync()
         {
 
@@ -192,6 +233,13 @@ namespace SchedulerWpfApp.ViewModel
             IsClassIdEditable = true;
 
         }
+
+        /// <summary>
+        /// Asynchronously edits an existing room.
+        /// This method sets the selected room to the one being edited, opens the room form for input,
+        /// sets the editing state to true, and prevents the ClassId from being edited.
+        /// </summary>
+        /// <param name="room"></param>
         private async Task EditPersonAsync(Room room)
         {
             if (room == null) return;
@@ -203,14 +251,22 @@ namespace SchedulerWpfApp.ViewModel
             IsClassIdEditable = false;
         }
 
-
-
+        /// <summary>
+        /// Asynchronously deletes a room.
+        /// This method sets the selected room to the one being deleted, opens a confirmation dialog,
+        /// and allows the user to confirm or cancel the deletion.
+        /// </summary>
         public async Task DeleteRoomAsync(Room room)
         {
             if (room == null) return;
             SelectedRoomname = room;
             IsOpenDialog = true;
         }
+
+        /// <summary>
+        /// Cancels the deletion of a room.
+        /// This method sets the selected room to null and closes the confirmation dialog.
+        /// </summary>
         private void CancelDelete()
         {
             // set SelectedGroupname null 
@@ -219,6 +275,12 @@ namespace SchedulerWpfApp.ViewModel
             IsOpenDialog = false;
 
         }
+
+        /// <summary>
+        /// Confirms the deletion of a room.
+        /// This method checks if a room is selected, attempts to delete it using the room service,
+        /// displays a success message if the deletion is successful, and reloads the room list.
+        /// </summary>
         private async Task ConfirmDeleteAsync()
         {
             try
@@ -242,7 +304,11 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
-
+        /// <summary>
+        /// Cancels the edit operation for a room.
+        /// This method sets the selected room to null and closes the room form.
+        /// It is typically called when the user decides not to save changes made in the room form.
+        /// </summary>
         private void CancelEdit()
         {
             // set SelectedGroupname null 
@@ -250,6 +316,11 @@ namespace SchedulerWpfApp.ViewModel
             IsRoomFormOpen = false;
         }
 
+        /// <summary>
+        /// Asynchronously saves the current room.
+        /// This method checks if the room name and total persons are valid before saving.
+        /// If the room is being edited, it updates the existing room; otherwise, it adds a new room.
+        /// </summary>
         public async Task SaveRoomAsync()
         {
             if (SelectedRoomname == null) return;

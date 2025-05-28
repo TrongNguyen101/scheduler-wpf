@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Syncfusion.Windows.Shared;
-using System.Windows.Media;
 
 namespace SchedulerWpfApp.ViewModel
 {
     public class GroupNameViewModel : ViewBaseModel
     {
-
         private readonly IGroupNameService _groupnameService;
         private readonly IExcelPersonImporter _excelImporter;
         private readonly IExcelPersonExporter _excelExporter;
@@ -39,13 +34,17 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isClassIdEditable = true;
         // used to set the title for the header bar of the popup when editing or adding
         public string FormTitle => SelectedGroupname?.ClassId == "" ? "Thêm lớp mới" : "Chỉnh sửa thông tin lớp";
-        // Observable collection to hold list of rooms
+        /// <summary>
+        /// Observable collection to hold list of rooms
+        /// </summary>
         public ObservableCollection<GroupName> GroupNames
         {
             get => _groupname;
             set => SetProperty(ref _groupname, value);
         }
-        // search event
+        /// <summary>
+        /// Search keyword, triggers filtering when updated
+        /// </summary>
         public string SearchKeyword
         {
             get => _searchKeyword;
@@ -58,7 +57,10 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
-        // set tittle header 
+
+        /// <summary>
+        /// Selected group name, triggers form title update when changed
+        /// </summary>
         public GroupName SelectedGroupname
         {
             get => _selectedGroupname;
@@ -70,25 +72,33 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
-        // Open pop up when clicking edit or add
+        /// <summary>
+        /// Open pop up when clicking edit or add
+        /// </summary>
         public bool IsRoomFormOpen
         {
             get => _isRoomOpen;
             set => SetProperty(ref _isRoomOpen, value);
         }
-        // Open dialog when click delete
+        /// <summary>
+        /// Open dialog when click delete
+        /// </summary>
         public bool IsOpenDialog
         {
             get => _isOpenDialog;
             set => SetProperty(ref _isOpenDialog, value);
         }
-        // Confirm delete 
+        /// <summary>
+        /// Confirm delete 
+        /// </summary>
         public bool IsConfirmationOpen
         {
             get => _isConfirmationOpen;
             set => SetProperty(ref _isConfirmationOpen, value);
         }
-        // Cancel edit
+        /// <summary>
+        /// Cancel edit
+        /// </summary>
         public bool IsClassIdEditable
         {
             get => _isClassIdEditable;
@@ -106,7 +116,10 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ConfirmDeleteRoomCommand { get; }
         public ICommand CancelDeleteRoomCommand { get; }
         public ICommand EditRoomCommand { get; }
-
+        /// <summary>
+        ///  Constructor initializes dependencies and commands.
+        /// Initializes the GroupNameViewModel with services for managing group names and importing/exporting data.
+        /// </summary>
         public GroupNameViewModel(IGroupNameService groupnameService, IExcelPersonImporter excelImporter, IExcelPersonExporter excelExporter)
         {
             // assign variables to the corresponding Service object
@@ -139,7 +152,10 @@ namespace SchedulerWpfApp.ViewModel
             _ = LoadRoomAsync();
 
         }
-        // load data room list 
+        /// <summary>
+        /// Loads all group names asynchronously from the service and populates the GroupNames collection.
+        /// This method retrieves the list of group names from the service and assigns it to the _allGroupNames collection.
+        /// </summary>
         private async Task LoadRoomAsync()
         {
             try
@@ -156,7 +172,11 @@ namespace SchedulerWpfApp.ViewModel
 
             }
         }
-        // import excel file 
+
+        /// <summary>
+        /// Imports room data from an Excel file using a file dialog.
+        /// This method opens a file dialog to select an Excel file,
+        /// </summary>
         private async Task ImportRoomAsync()
         {
             var dialog = new OpenFileDialog
@@ -182,6 +202,12 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
+
+        /// <summary>
+        /// Exports the current list of rooms to an Excel file using a file dialog.
+        /// This method opens a file dialog to select the save location and file name,
+        /// then calls the export service to save the room data to an Excel file.
+        /// </summary>
         private async Task ExportRoomAsync()
         {
             if (GroupNames == null || GroupNames.Count == 0)
@@ -212,7 +238,11 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
-        // Call and assign the properties of SelectedGroupname with a new GroupName object 
+
+        /// <summary>
+        /// Opens a dialog to add a new room or edit an existing one.
+        /// This method initializes a new GroupName object, opens the room form,
+        /// </summary>
         private async Task AddRoomAsync()
         {
             SelectedGroupname = new GroupName();
@@ -223,7 +253,11 @@ namespace SchedulerWpfApp.ViewModel
             // allow adding new classid
             IsClassIdEditable = true;
         }
-        // add or edit room 
+
+        /// <summary>
+        /// Saves the current room data, either adding a new room or updating an existing one.
+        /// This method checks if the ClassId is not empty, verifies if the room already exists,
+        /// </summary>
         private async Task SavePersonAsync()
         {
             try
@@ -277,7 +311,12 @@ namespace SchedulerWpfApp.ViewModel
                 MessageBox.Show($"Lưu thất bại: {ex.Message}");
             }
         }
-        // open edit and set SelectedGroupname to the current object of the room
+
+        /// <summary>
+        /// Opens the edit form for a selected room.
+        /// This method sets the SelectedGroupname to the room being edited,
+        /// turns on the room form, and sets the editing state.
+        /// </summary>
         private async Task EditPersonAsync(GroupName groupname)
         {
             if (groupname == null) return;
@@ -288,7 +327,13 @@ namespace SchedulerWpfApp.ViewModel
             // do not allow to edit classid
             IsClassIdEditable = false;
         }
-        //open dialgo and set SelectedGroupname to the current object of the room
+
+        /// <summary>
+        /// Deletes a selected room after confirmation.
+        /// This method sets the SelectedGroupname to the room to be deleted,
+        /// opens the confirmation dialog, and waits for user confirmation.
+        /// </summary>
+        /// <param name="groupname"></param>
         private async Task DeletePersonAsync(GroupName groupname)
         {
 
@@ -296,7 +341,12 @@ namespace SchedulerWpfApp.ViewModel
             SelectedGroupname = groupname;
             IsOpenDialog = true;
         }
-        // confirm delete 
+
+        /// <summary>
+        /// Confirms the deletion of the selected room.
+        /// This method checks if a room is selected,
+        /// attempts to delete it using the service, and reloads the room list.
+        /// </summary>
         private async Task ConfirmDeleteAsync()
         {
             try
@@ -318,14 +368,22 @@ namespace SchedulerWpfApp.ViewModel
                 MessageBox.Show($"Xóa thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        // Cancel edit 
+        
+        /// <summary>
+        /// Cancels the current edit or add operation and closes the room form.
+        /// This method sets the SelectedGroupname to null,
+        /// </summary>
         private void CancelEdit()
         {
             // set SelectedGroupname null 
             SelectedGroupname = null;
             IsRoomFormOpen = false;
         }
-        // cancel delete 
+        /// <summary>
+        /// Cancels the delete operation and closes the confirmation dialog.
+        /// This method sets the SelectedGroupname to null and closes the dialog.
+        /// </summary>
+
         private void CancelDelete()
         {
             // set SelectedGroupname null 
@@ -333,12 +391,20 @@ namespace SchedulerWpfApp.ViewModel
             SelectedGroupname = null;
             IsOpenDialog = false;
         }
-        // When user enters keyword or deletes, it will render room list
+
+        /// <summary>
+        /// Resets the GroupNames collection to include all group names.
+        /// This method assigns the _allGroupNames collection to the GroupNames property,
+        /// </summary>
         private void ResetToAllGroupNames()
         {
             GroupNames = new ObservableCollection<GroupName>(_allGroupNames);
         }
-        // used to search data by keyword
+
+        /// <summary>
+        /// Filters the GroupNames collection based on the search keyword.
+        /// If the search keyword is empty, it resets to show all group names.
+        /// </summary>
         private void FilterRooms()
         {
             if (string.IsNullOrWhiteSpace(SearchKeyword))
