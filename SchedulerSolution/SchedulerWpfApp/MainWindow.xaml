@@ -130,7 +130,8 @@
                     </Border>
 
                     <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowTeacherCommand}">
+                        <Button Style="{StaticResource MenuButtonStyle}"
+                                Command="{Binding ShowLectureCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
