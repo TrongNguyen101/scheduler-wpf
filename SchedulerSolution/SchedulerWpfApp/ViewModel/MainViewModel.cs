@@ -54,18 +54,16 @@ namespace SchedulerWpfApp.ViewModel
             Func<PersonViewModel> personViewModelFactory,
             Func<RoomViewModel> roomViewModelFactory,
             Func<CreateScheduleViewModel> createScheduleViewModelFactory,
-            Func<LectureViewModel> lectureViewModelFactory)
-            Func<GroupNameViewModel> roomViewModelFactory,
-            Func<CreateScheduleViewModel> createScheduleViewModelFactory,
-            Func<RoomViewModel> roomListViewModelFactory)
+            Func<LectureViewModel> lectureViewModelFactory,
+            Func<GroupNameViewModel> groupNameViewModelFactory)
         {
             // Assign factory methods
             _subjectViewModelFactory = courseViewModelFactory;
             _personViewModelFactory = personViewModelFactory;
-            _GroupNameViewModelFactory = roomViewModelFactory;
+            _GroupNameViewModelFactory = groupNameViewModelFactory;
             _createScheduleViewModelFactory = createScheduleViewModelFactory;
             _lectureViewModelFactory = lectureViewModelFactory;
-            _roomViewModelFactory = roomListViewModelFactory;
+            _roomViewModelFactory = roomViewModelFactory;
 
             // Initialize commands for switching views
             ShowCourseCommand = new RelayCommand(ShowCourse);
