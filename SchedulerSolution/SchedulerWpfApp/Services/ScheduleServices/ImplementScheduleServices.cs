@@ -39,5 +39,17 @@ namespace SchedulerWpfApp.Services.ScheduleServices
             }
         }
 
+        public async Task<List<Schedule>> GetAllAsync()
+        {
+            try
+            {
+                return await _context.Schedules.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to add schedules due to an unexpected error.");
+                throw new Exception("Lỗi khi lấy danh sách lớp học", ex);
+            }
+        }
     }
 }

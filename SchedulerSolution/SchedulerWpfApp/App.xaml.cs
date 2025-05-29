@@ -133,8 +133,6 @@ namespace SchedulerWpfApp
             services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
             services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
 
-            services.AddScoped<InterfaceScheduleServices, ImplementScheduleServices>();
-
             services.AddScoped<IExcelSubjectImporter, ExcelSubjectImporter>();
             services.AddScoped<IExcelSubjectExporter, ExcelSubjectExporter>();
 
