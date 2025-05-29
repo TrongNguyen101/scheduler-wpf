@@ -48,7 +48,6 @@ namespace SchedulerWpfApp.Services
 
                 lectures.Add(lecture);
             }
-
             return lectures;
         }
     }

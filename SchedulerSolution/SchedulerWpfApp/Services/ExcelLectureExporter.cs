@@ -32,7 +32,6 @@ namespace SchedulerWpfApp.Services
                 sheet[row, 3].Text = lecture.Role ?? "";
                 row++;
             }
-
             workbook.SaveAs(filePath);
         }
     }

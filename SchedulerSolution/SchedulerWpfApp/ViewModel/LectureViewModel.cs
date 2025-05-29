@@ -188,7 +188,7 @@ namespace SchedulerWpfApp.ViewModel
 
             if (string.IsNullOrWhiteSpace(SelectedLecture.LecturerId) || string.IsNullOrWhiteSpace(SelectedLecture.LecturerName) || string.IsNullOrWhiteSpace(SelectedLecture.Role))
             {
-                MessageBox.Show("Mã lớp không được để trống", "Cảnh báo");
+                MessageBox.Show("Mã Giảng viên không được để trống", "Cảnh báo");
                 return;
             }
 
@@ -200,10 +200,13 @@ namespace SchedulerWpfApp.ViewModel
                     var existingLecture = Lectures.FirstOrDefault(s => s.LecturerId == SelectedLecture.LecturerId);
 
                     if (existingLecture == null)
+                    {
                         await _lectureService.AddLecture(SelectedLecture);
+                        MessageBox.Show("Thêm Giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
                     else
                         // Cảnh báo
-                        MessageBox.Show("Môn học đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show("Giảng viên đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
                 {
@@ -215,19 +218,19 @@ namespace SchedulerWpfApp.ViewModel
                         existingLecture.LecturerId = SelectedLecture.LecturerId;
                         existingLecture.LecturerName = SelectedLecture.LecturerName;
                         existingLecture.Role = SelectedLecture.Role;
-
                         await _lectureService.UpdateLecture(existingLecture);
+                        MessageBox.Show("Cập nhật Giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
                         // Cảnh báo
-                        MessageBox.Show("Môn học không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show("Giảng viên không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lưu môn học thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Lưu Giảng viên thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -246,13 +249,12 @@ namespace SchedulerWpfApp.ViewModel
         {
             IsOpenDialog = false;
         }
-
         // Delete lecture after confirmation
         private async Task ConfirmDeleteAsync()
         {
             if (SelectedLecture == null)
             {
-                MessageBox.Show("Không có môn học nào được chọn để xóa.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Không có Giảng viên nào được chọn để xóa.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsOpenDialog = false;
                 return;
             }
@@ -261,11 +263,11 @@ namespace SchedulerWpfApp.ViewModel
             {
                 await _lectureService.DeleteLecture(SelectedLecture.LecturerId);
 
-                MessageBox.Show("Xóa môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Xóa Giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Xóa môn học thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Xóa Giảng viên thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -282,7 +284,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (Lectures == null || Lectures.Count == 0)
             {
-                MessageBox.Show("No lecture to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("No Lectures to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
