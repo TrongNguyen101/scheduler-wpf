@@ -36,8 +36,7 @@ namespace SchedulerWpfApp.Data
         public DbSet<GroupName> GroupName { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<LecturerRequest> LecturerRequests { get; set; } = null!;
-
-
+        public DbSet<Room> Rooms { get; set; } = null!;
         /// <summary>
         /// Configures the database connection if not already configured.
         /// Creates the necessary directories for the SQLite database file if they don't exist.
@@ -110,33 +109,6 @@ namespace SchedulerWpfApp.Data
              );
 
             modelBuilder.Entity<Subject>().HasData(
-                new Subject
-                {
-                    SubjectCode = "WDP201",
-                    SubjectName = "Web development",
-                    Major = "SE",
-                    TotalSessions = 1,
-                    SlotsPerWeek = 20,
-                    SemesterId = "SU25"
-                },
-                new Subject
-                {
-                    SubjectCode = "SEP492",
-                    SubjectName = "Do an tot nghiep",
-                    Major = "SE",
-                    TotalSessions = 1,
-                    SlotsPerWeek = 20,
-                    SemesterId = "SU25"
-                },
-                new Subject
-                {
-                    SubjectCode = "HCM202",
-                    SubjectName = "Tw tuong Ho Chi Minh",
-                    Major = "SE",
-                    TotalSessions = 1,
-                    SlotsPerWeek = 20,
-                    SemesterId = "SU25"
-                },
                 new Subject
                 {
                     SubjectCode = "SWP391",

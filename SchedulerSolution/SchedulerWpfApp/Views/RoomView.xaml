@@ -8,7 +8,7 @@
         <!-- Header -->
         <Grid Grid.Row="0" Height="40" Margin="0,0,0,0">
             <Border Background="{StaticResource PrimaryColor}" CornerRadius="10, 10, 0 , 0">
-                <TextBlock Text="Quản Lí Phòng Học" FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
+                <TextBlock Text="Quản Lí Phòng" FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
             </Border>
         </Grid>
 
@@ -55,7 +55,7 @@
                     </Grid>
                 </Border>
 
-                <Button Grid.Column="1" Style="{StaticResource ExportButtonStyle}" Margin="0,0,10,0" Command="{Binding ExportRoomCommand}">
+                <Button Grid.Column="1" Style="{StaticResource ExportButtonStyle}" Margin="0,0,10,0" Command="{Binding ExportRoomListCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📤" VerticalAlignment="Center" />
                         <TextBlock Text=" Export Dữ Liệu" Margin="5,0,0,0" VerticalAlignment="Center" />
@@ -63,7 +63,7 @@
                 </Button>
 
                 <!-- Import Button -->
-                <Button Grid.Column="2" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0" Command="{Binding ImportRoomCommand}">
+                <Button Grid.Column="2" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0" Command="{Binding ImportRoomListCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📥" VerticalAlignment="Center" />
                         <TextBlock Text=" Import Dữ Liệu" Margin="5,0,0,0" VerticalAlignment="Center" />
@@ -71,10 +71,10 @@
                 </Button>
 
                 <!-- Add Lecturer Button -->
-                <Button Grid.Column="3" Style="{StaticResource SuccessButtonStyle}" Command="{Binding AddClassRoomCommand}">
+                <Button Grid.Column="3" Style="{StaticResource SuccessButtonStyle}" Command="{Binding AddListRoomCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕" VerticalAlignment="Center" />
-                        <TextBlock Text=" Thêm Lớp Học" Margin="5,0,0,0" VerticalAlignment="Center" />
+                        <TextBlock Text=" Thêm Phòng Mới" Margin="5,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </Grid>
@@ -85,7 +85,7 @@
                     <DropShadowEffect ShadowDepth="1" BlurRadius="10" Opacity="0.1" Color="Gray" />
                 </Border.Effect>
 
-                <syncfusion:SfDataGrid x:Name="ClassRoomDataGrid" ItemsSource="{Binding GroupNames}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
+                <syncfusion:SfDataGrid x:Name="ClassRoomDataGrid" ItemsSource="{Binding Rooms}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
                     <syncfusion:SfDataGrid.RowStyle>
                         <Style TargetType="syncfusion:VirtualizingCellsControl">
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -112,20 +112,19 @@
                         </Style>
                     </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Mã phòng" MappingName="ClassId" />
-                        <syncfusion:GridTextColumn HeaderText="Loại phòng" MappingName="Category" />
-                        <syncfusion:GridTextColumn HeaderText="Chuyên Ngành" MappingName="Major" />
-                        <syncfusion:GridTextColumn HeaderText="Số Học Sinh" MappingName="NumberOfStudents" />
-                        <syncfusion:GridTextColumn HeaderText="Số Môn" MappingName="NumberOfScheduler" />
+                        <syncfusion:GridTextColumn HeaderText="ID" MappingName="RoomId" />
+                        <syncfusion:GridTextColumn HeaderText="Tên Phòng" MappingName="RoomName" />
+                        <syncfusion:GridTextColumn HeaderText="Số lượng sinh viên" MappingName="TotalPersons" />
+                        <syncfusion:GridTextColumn HeaderText="Loại phòng" MappingName="TypeOfRoom" />
                         <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False" MappingName="ActionPlaceholder">
 
                             <syncfusion:GridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Button Style="{StaticResource EditButtonStyle}" Command="{Binding DataContext.EditRoomCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}" CommandParameter="{Binding}">
+                                        <Button Style="{StaticResource EditButtonStyle}" Command="{Binding DataContext.EditRoomListCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}" CommandParameter="{Binding}">
                                             <TextBlock Text="✏️" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Button>
-                                        <Button Style="{StaticResource DeleteButtonStyle}" Command="{Binding DataContext.DeleteRoomCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}" CommandParameter="{Binding}">
+                                        <Button Style="{StaticResource DeleteButtonStyle}" Command="{Binding DataContext.DeleteRoomListCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}" CommandParameter="{Binding}">
                                             <TextBlock Text="🗑️" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Button>
                                     </StackPanel>
@@ -152,7 +151,7 @@
 
         <!-- Lecturer Form Popup -->
         <Popup x:Name="LecturerFormPopup" StaysOpen="False" Placement="Center" IsOpen="{Binding IsRoomFormOpen}" AllowsTransparency="True">
-            <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="500">
+            <Border Background="#F0F4F8" BorderThickness="0" CornerRadius="8" Padding="25" Width="500">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="15" Opacity="0.2" Color="Black" />
                 </Border.Effect>
@@ -171,20 +170,19 @@
 
                     <!-- Form Fields -->
                     <StackPanel Grid.Row="1" Margin="0,0,0,20">
-                        <TextBlock Text="Mã phòng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedGroupname.ClassId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" IsEnabled="{Binding IsClassIdEditable}" />
+                        <!--<TextBlock Text="ID" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Text="{Binding SelectedRoomname.RoomId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" IsEnabled="{Binding IsGroupNameEditable}" />-->
+
+                        <TextBlock Text="Tên Phòng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Text="{Binding SelectedRoomname.RoomName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+
+                        <TextBlock Text="Số lượng sinh viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Text="{Binding SelectedRoomname.TotalPersons, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
                         <TextBlock Text="Loại Phòng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedGroupname.Category, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+                        <TextBox Text="{Binding SelectedRoomname.TypeOfRoom, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
-                        <TextBlock Text="Chuyên Ngành" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedGroupname.Major, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
-
-                        <TextBlock Text="Số Học Sinh" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedGroupname.NumberOfStudents, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
-
-                        <TextBlock Text="Số Môn" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedGroupname.NumberOfScheduler, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+                        
                     </StackPanel>
 
                     <!-- Form Actions -->
@@ -205,7 +203,7 @@
 
         <!-- Confirmation Dialog -->
         <Popup x:Name="confirmationPopup" StaysOpen="False" Placement="Center" IsOpen="{Binding IsOpenDialog}" AllowsTransparency="True">
-            <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="400">
+            <Border Background="#F0F4F8" BorderBrush="White" CornerRadius="8" Padding="25" Width="400">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="15" Opacity="0.2" Color="Black" />
                 </Border.Effect>
@@ -221,7 +219,7 @@
                     <TextBlock Grid.Row="0" Text="Xác nhận xóa" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextColor}" Margin="0,0,0,15" />
 
                     <!-- Dialog Content -->
-                    <TextBlock Grid.Row="1" Text="Bạn có chắc chắn muốn xóa sinh viên này không?" TextWrapping="Wrap" Foreground="{StaticResource TextColor}" Margin="0,0,0,20" />
+                    <TextBlock Grid.Row="1" Text="Bạn có chắc chắn muốn xóa phòng này không?" TextWrapping="Wrap" Foreground="{StaticResource TextColor}" Margin="0,0,0,20" />
 
                     <!-- Dialog Actions -->
                     <Grid Grid.Row="2">
