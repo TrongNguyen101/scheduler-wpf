@@ -64,57 +64,65 @@ namespace SchedulerWpfApp.Algorithm
             return root;
         }
 
-        // Thu thập lịch trình từ các node lá cho một ngày cụ thể
-        public void CollectSchedules(TreeForSchedule node, List<Schedule> schedules, string subject, DateTime date, string classId, string slotTime, string lecturerName, string slotTypeCode, string typeSlot, int sessionNo, string partOfDayFilter = null, string statusSlot = null)
+        public List<Schedule> CollectSchedules(TreeForSchedule node,
+                                                string subject,
+                                                DateTime date,
+                                                string classId,
+                                                string slotTime,
+                                                string lecturerName,
+                                                string slotTypeCode,
+                                                string typeSlot,
+                                                int sessionNo,
+                                                string partOfDayFilter = null,
+                                                string statusSlot = null)
         {
-            // Nếu node là null, trả về
-            // Nếu có bộ lọc phiên (AM hoặc PM), chỉ xử lý các node thuộc nhánh phù hợp
-            // Nếu là node lá (có SlotType, tức cấp 4), tạo mục lịch trình
-            // Duyệt đệ quy các nhánh trái và phải
+            var schedules = new List<Schedule>();
+
+            if (node == null)
+                return schedules;
+
+            // Bộ lọc buổi học
+            if (partOfDayFilter != null && node.PartOfDay != null && node.PartOfDay != partOfDayFilter)
+                return schedules;
+
+            // Bộ lọc trạng thái slot
+            if (statusSlot != null && node.StatusSlot != null && node.StatusSlot != statusSlot)
+                return schedules;
+
+            // Bộ lọc theo slot time
+            if (slotTime != null && node.SlotTime != null && node.SlotTime != slotTime)
+                return schedules;
+
+            // Nếu là node lá, tạo Schedule
+            if (node.Left == null && node.Right == null && node.StatusSlot != null)
             {
-                if (node == null) return;
-
-                // Nếu có bộ lọc phiên (AM hoặc PM), chỉ xử lý các node thuộc nhánh phù hợp
-                if (partOfDayFilter != null && node.PartOfDay != null && node.PartOfDay != partOfDayFilter)
+                schedules.Add(new Schedule
                 {
-                    return; // Bỏ qua node nếu không thuộc nhánh được yêu cầu
-                }
-
-                if (statusSlot != null && node.StatusSlot != null && node.StatusSlot != statusSlot)
-                {
-                    return; // Bỏ qua node nếu không thuộc nhánh được yêu cầu
-                }
-
-                if (slotTime != null && node.SlotTime != null && node.SlotTime != slotTime)
-                {
-                    return; // Bỏ qua node nếu không thuộc nhánh được yêu cầu
-                }
-
-                // Nếu là node lá (có SlotType, tức cấp 4), tạo mục lịch trình
-                if (node.Left == null && node.Right == null && node.StatusSlot != null)
-                {
-
-                    Schedule schedule = new Schedule
-                    {
-                        RoomNo = node.RoomNo,
-                        PartOfDay = node.PartOfDay,
-                        SlotTime = node.SlotTime,
-                        StatusSlot = node.StatusSlot,
-                        SubjectCode = subject,
-                        Date = date,
-                        GroupName = classId,
-                        LecturerId = lecturerName,
-                        SlotTypeCode = slotTypeCode,
-                        TypeSlot = typeSlot,
-                        SessionNo = sessionNo
-                    };
-                    schedules.Add(schedule);
-                }
-
-                // Duyệt đệ quy các nhánh trái và phải
-                CollectSchedules(node.Left, schedules, subject, date, classId, slotTime, lecturerName, slotTypeCode, typeSlot, sessionNo, partOfDayFilter, statusSlot);
-                CollectSchedules(node.Right, schedules, subject, date, classId, slotTime, lecturerName, slotTypeCode, typeSlot, sessionNo, partOfDayFilter, statusSlot);
+                    RoomNo = node.RoomNo,
+                    PartOfDay = node.PartOfDay,
+                    SlotTime = node.SlotTime,
+                    StatusSlot = node.StatusSlot,
+                    SubjectCode = subject,
+                    Date = date,
+                    GroupName = classId,
+                    LecturerId = lecturerName,
+                    SlotTypeCode = slotTypeCode,
+                    TypeSlot = typeSlot,
+                    SessionNo = sessionNo
+                });
             }
+
+            // Đệ quy các nhánh con và gộp kết quả
+            schedules.AddRange(CollectSchedules(node.Left, subject, date, classId,
+                slotTime, lecturerName, slotTypeCode, typeSlot, sessionNo,
+                partOfDayFilter, statusSlot));
+
+            schedules.AddRange(CollectSchedules(node.Right, subject, date, classId,
+                slotTime, lecturerName, slotTypeCode, typeSlot, sessionNo,
+                partOfDayFilter, statusSlot));
+
+            return schedules;
         }
+
     }
 }
