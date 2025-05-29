@@ -15,16 +15,13 @@ namespace SchedulerWpfApp.Services
             using ExcelEngine excelEngine = new();
             IApplication application = excelEngine.Excel;
             application.DefaultVersion = ExcelVersion.Xlsx;
-
             IWorkbook workbook = application.Workbooks.Create(1);
             IWorksheet sheet = workbook.Worksheets[0];
-
             // Header
             sheet[1, 1].Text = "LecturerId";
             sheet[1, 2].Text = "LecturerName";
             sheet[1, 3].Text = "SubjectCode";
             sheet[1, 4].Text = "NumberOfClasses";
-
             int row = 2;
             foreach (var lecturesubject in lecturesubjects)
             {
