@@ -164,7 +164,7 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     var data = _excelImporter.ReadPersonsFromExcel(dialog.FileName);
-                    await _personService.ImportPersonFromExcel(data);
+                    await _personService.ImportRoomFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadPeopleAsync();
                 }

@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Services
 {
+    /// <summary>
+    /// Service class for managing group names (classes)
+    /// This class provides methods to add, delete, update, import from Excel, and check existence of group names in the database.
+    ///  It also includes methods to retrieve all group names and check if a class ID exists.
+    /// </summary>
     public class GroupNameService : IGroupNameService
     {
         private readonly DataContext _context;
@@ -18,8 +19,12 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
-        /// Thêm lớp học mới vào database
+        /// Create a new instance of GroupNameService with the provided DataContext.
+        /// This method adds a new group name (class) to the database.
+        /// It takes a GroupName object as input and saves it asynchronously.
         /// </summary>
+        /// <param name="groupName"></param>
+        
         public async Task AddGroupName(GroupName groupName)
         {
             try
@@ -34,7 +39,9 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
-        /// Xóa lớp học theo mã lớp
+        /// Delete a group name (class) by its ID.
+        /// This method checks if the group name exists in the database and removes it if found.
+        /// It takes the class ID as input and performs the deletion asynchronously.
         /// </summary>
         public async Task DeleteGroupName(string classid)
         {
@@ -54,8 +61,10 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả lớp học
+        /// Retrieve all group names (classes) from the database.
+        /// This method returns a list of all group names stored in the database.
         /// </summary>
+        
         public async Task<List<GroupName>> GetAllAsync()
         {
             try
@@ -69,7 +78,9 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
-        /// Chưa triển khai - dùng để lấy lớp theo ID số nếu cần (không dùng nếu khóa là string)
+        /// Retrieve a group name (class) by its ID.
+        /// This method searches for a group name in the database using its unique identifier.
+        /// It takes the class ID as input and returns the corresponding GroupName object if found.
         /// </summary>
         public Task<GroupName?> GetByIdAsync(int id)
         {
@@ -77,7 +88,8 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
-        /// Nhập danh sách lớp học từ file Excel
+        /// Import group names (classes) from an Excel file.
+        /// This method takes a list of GroupName objects as input and adds them to the database.
         /// </summary>
         public async Task ImportGroupNameFromExcel(List<GroupName> listGroupNameFromExcel)
         {
@@ -96,14 +108,32 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
-        /// Cập nhật thông tin lớp học
+        /// Retrieve a group name (class) by its class ID.
         /// </summary>
-        public async Task UpdateGroupName(GroupName person)
+        /// <param name="classID"></param>
+        public async Task<GroupName?> GetByGroupNameCodeAsync(string classID)
+        {
+            return await _context.GroupName.FindAsync(classID);
+        }
+
+        /// <summary>
+        /// Update an existing group name (class) in the database.
+        /// This method takes a GroupName object as input, updates the corresponding record in the database, and saves the changes asynchronously.
+        /// </summary>
+        public async Task UpdateGroupName(GroupName groupname)
         {
             try
             {
-                _context.GroupName.Update(person);
-                await _context.SaveChangesAsync();
+                var existinggroupname = await GetByGroupNameCodeAsync(groupname.ClassId);
+                if (existinggroupname != null)
+                {
+                    // Mark the entity as modified to avoid having to copy properties manually
+                    existinggroupname.Major = groupname.Major;
+                    existinggroupname.Category = groupname.Category;
+                    existinggroupname.NumberOfStudents = groupname.NumberOfStudents;
+                    existinggroupname.NumberOfScheduler = groupname.NumberOfScheduler;
+                    await _context.SaveChangesAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -112,7 +142,8 @@ namespace SchedulerWpfApp.Services
         }
 
         /// <summary>
-        /// Kiểm tra xem mã lớp đã tồn tại hay chưa
+        /// Check if a class ID exists in the database.
+        /// This method takes a class ID as input and returns a boolean indicating whether the class ID exists.
         /// </summary>
         public async Task<bool> CheckClassIdExistsAsync(string classId)
         {

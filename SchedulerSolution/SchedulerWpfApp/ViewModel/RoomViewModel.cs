@@ -1,30 +1,21 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Syncfusion.Windows.Shared;
-using System.Windows.Media;
 
 namespace SchedulerWpfApp.ViewModel
 {
     public class RoomViewModel : ViewBaseModel
     {
-
-        private readonly IGroupNameService _groupnameService;
-        private readonly IExcelPersonImporter _excelImporter;
-        private readonly IExcelPersonExporter _excelExporter;
-
-        // declare to list the rooms
-        private ObservableCollection<GroupName> _groupname;
-        // declaration used to list the entire list and support search event when deleting keyword then the list will render again
-        private ObservableCollection<GroupName> _allGroupNames;
-        // properties when room data is displayed in popup
-        private GroupName? _selectedGroupname;
+        private readonly IRoomService _roomService;
+        private readonly IExcelRoomImport _excelRoomImport;
+        private readonly IExcelRoomExporter _excelRoomExporter;
+        private ObservableCollection<Room> _roomname;
+        private Room? _selectedRoom;
+        public string FormTitle => SelectedRoomname?.RoomId == 0 ? "Thêm phòng mới" : "Chỉnh sửa thông tin phòng";
         // keyword search events
         private string _searchKeyword;
         // Open popup when clicking add or edit
@@ -36,128 +27,134 @@ namespace SchedulerWpfApp.ViewModel
         // check if it is edit or add event
         private bool _isEditing;
         // check if ClassId is edited
-        private bool _isClassIdEditable = true;
-        // used to set the title for the header bar of the popup when editing or adding
-        public string FormTitle => SelectedGroupname?.ClassId == "" ? "Thêm lớp mới" : "Chỉnh sửa thông tin lớp";
-        // Observable collection to hold list of rooms
-        public ObservableCollection<GroupName> GroupNames
+        private bool _isRoomIdEditable = true;
+
+        /// <summary>
+        /// Observable collection of Room objects representing the list of rooms.
+        /// This collection is used to bind to the UI and update dynamically when rooms are added, edited, or deleted.
+        /// </summary>
+        public ObservableCollection<Room> Rooms
         {
-            get => _groupname;
-            set => SetProperty(ref _groupname, value);
+            get => _roomname;
+            set => SetProperty(ref _roomname, value);
         }
-        // search event
-        public string SearchKeyword
+
+        /// <summary>
+        /// Gets or sets the selected Room object.
+        /// This property is used to bind the selected room in the UI, allowing for editing or deletion.
+        /// </summary>
+        public Room SelectedRoomname
         {
-            get => _searchKeyword;
+            get => _selectedRoom;
             set
             {
-                if (SetProperty(ref _searchKeyword, value))
+                if (SetProperty(ref _selectedRoom, value))
                 {
-                    // use function fillter list by keyword
-                    FilterRooms();
+                    OnPropertyChanged(nameof(FormTitle)); //Notify form title update
                 }
             }
         }
-        // set tittle header 
-        public GroupName SelectedGroupname
-        {
-            get => _selectedGroupname;
-            set
-            {
-                if (SetProperty(ref _selectedGroupname, value))
-                {
-                    OnPropertyChanged(nameof(FormTitle)); // 🔥 Notify form title update
-                }
-            }
-        }
-        // Open pop up when clicking edit or add
+
+        /// <summary>
+        /// Gets or sets the search keyword for filtering rooms.
+        /// This property is used to bind the search input in the UI, allowing users to filter the room list based on their input.
+        /// </summary>
         public bool IsRoomFormOpen
         {
             get => _isRoomOpen;
             set => SetProperty(ref _isRoomOpen, value);
         }
-        // Open dialog when click delete
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the dialog for adding or editing a room is open.
+        /// This property is used to control the visibility of the room form in the UI.
+        /// </summary>
         public bool IsOpenDialog
         {
             get => _isOpenDialog;
             set => SetProperty(ref _isOpenDialog, value);
         }
-        // Confirm delete 
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the confirmation dialog for deleting a room is open.
+        /// This property is used to control the visibility of the confirmation dialog in the UI.
+        /// </summary>
         public bool IsConfirmationOpen
         {
             get => _isConfirmationOpen;
             set => SetProperty(ref _isConfirmationOpen, value);
         }
-        // Cancel edit
-        public bool IsClassIdEditable
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the ClassId field is editable.
+        /// This property is used to control whether the ClassId can be modified in the room form.
+        /// </summary>
+        public bool IsRoomIdEditable
         {
-            get => _isClassIdEditable;
-            set => SetProperty(ref _isClassIdEditable, value);
+            get => _isRoomIdEditable;
+            set => SetProperty(ref _isRoomIdEditable, value);
         }
-        // declare commands that are triggered by events or view titles
-        public ICommand AddClassRoomCommand { get; set; }
-        public ICommand RemoveRoomCommand { get; set; }
-        public ICommand LoadRoomCommand { get; }
-        public ICommand ExportRoomCommand { get; }
-        public ICommand ImportRoomCommand { get; }
-        public ICommand DeleteRoomCommand { get; }
+        public ICommand ImportRoomListCommand { get; }
+        public ICommand ExportRoomListCommand { get; }
+        public ICommand EditRoomListCommand { get; }
+        public ICommand DeleteRoomListCommand { get; }
+        public ICommand AddListRoomCommand { get; }
         public ICommand SaveRoomCommand { get; }
         public ICommand CancelEditRoomCommand { get; }
         public ICommand ConfirmDeleteRoomCommand { get; }
         public ICommand CancelDeleteRoomCommand { get; }
-        public ICommand EditRoomCommand { get; }
 
-        public RoomViewModel(IGroupNameService groupnameService, IExcelPersonImporter excelImporter, IExcelPersonExporter excelExporter)
+        /// <summary>
+        /// ViewModel constructor that initializes the RoomViewModel with the necessary services.
+        /// This constructor sets up the commands for importing, exporting, adding, editing, and deleting rooms.
+        /// It also loads the initial list of rooms asynchronously.
+        /// </summary>
+        /// <param name="roomService"></param>
+        /// <param name="excelroomImporter"></param>
+        /// <param name="excelroomExporter"></param>
+        public RoomViewModel(IRoomService roomService, IExcelRoomImport excelroomImporter, IExcelRoomExporter excelroomExporter)
         {
-            // assign variables to the corresponding Service object
-            _groupnameService = groupnameService;
-            _excelImporter = excelImporter;
-            _excelExporter = excelExporter;
-            // Execute command according to each event corresponding to the processing functions
-            GroupNames = new ObservableCollection<GroupName>();
-            // add room
-            AddClassRoomCommand = new RelayCommand(async () => await AddRoomAsync());
-            // load list room
-            LoadRoomCommand = new RelayCommand(async () => await LoadRoomAsync());
-            // import room by excel file 
-            ImportRoomCommand = new RelayCommand(async () => await ImportRoomAsync());
-            // export room by excel file 
-            ExportRoomCommand = new RelayCommand(async () => await ExportRoomAsync());
-            // edit room
-            EditRoomCommand = new RelayCommandGeneric<GroupName>(async (groupname) => await EditPersonAsync(groupname));
-            // delete room
-            DeleteRoomCommand = new RelayCommandGeneric<GroupName>(async (groupname) => await DeletePersonAsync(groupname));
-            // save add room or edit room
-            SaveRoomCommand = new RelayCommand(async () => await SavePersonAsync());
-            // cancel edit or add
+            _roomService = roomService;
+            _excelRoomImport = excelroomImporter;
+            _excelRoomExporter = excelroomExporter;
+            // Initialize commands for various actions related to room management
+            ImportRoomListCommand = new RelayCommand(async () => await ImportRoomListAsync());
+            ExportRoomListCommand = new RelayCommand(async () => await ExportRoomAsync());
+            AddListRoomCommand = new RelayCommand(async () => await AddRoomAsync());
+            EditRoomListCommand = new RelayCommandGeneric<Room>(async (room) => await EditRoomAsync(room));
             CancelEditRoomCommand = new RelayCommand(CancelEdit);
-            // confirm delete
+            SaveRoomCommand = new RelayCommand(async () => await SaveRoomAsync());
             ConfirmDeleteRoomCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
-            // cancel delete
+            DeleteRoomListCommand = new RelayCommandGeneric<Room>(async (room) => await DeleteRoomAsync(room));
             CancelDeleteRoomCommand = new RelayCommand(CancelDelete);
-            // asynchronous processing without async await
-            _ = LoadRoomAsync();
-
+            _ = LoadRoomAsync(); // Load the room list asynchronously when the view model is created
         }
-        // load data room list 
+
+        /// <summary>
+        /// Asynchronously loads the list of rooms from the room service.
+        /// This method retrieves all rooms and populates the Rooms collection, which is bound to the UI.
+        /// It also handles any exceptions that may occur during the loading process and displays an error message if necessary.
+        /// </summary>
         private async Task LoadRoomAsync()
         {
             try
             {
-                var roomlist = await _groupnameService.GetAllAsync();
+                var roomlist = await _roomService.GetAllAsync();
                 // assign _allGroupNames to search and when deleting keywords, re-render the list
-                _allGroupNames = new ObservableCollection<GroupName>(roomlist);
+                Rooms = new ObservableCollection<Room>(roomlist);
                 // call this function to render room list
-                ResetToAllGroupNames();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to load persons: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-
             }
         }
-        // import excel file 
-        private async Task ImportRoomAsync()
+
+        /// <summary>
+        /// Asynchronously imports a list of rooms from an Excel file.
+        /// This method opens a file dialog to select an Excel file, reads the room data from the file using the ExcelRoomImport service,
+        /// </summary>
+        private async Task ImportRoomListAsync()
         {
             var dialog = new OpenFileDialog
             {
@@ -169,10 +166,10 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     // call ReadRoomFromExcel function to process file and read file when importing
-                    var data = _excelImporter.ReadRoomFromExcel(dialog.FileName);
+                    var data = _excelRoomImport.ReadRoomListFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
 
-                    await _groupnameService.ImportGroupNameFromExcel(data);
+                    await _roomService.ImportRoomFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadRoomAsync();
                 }
@@ -182,9 +179,14 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
+
+        /// <summary>
+        /// Asynchronously exports the list of rooms to an Excel file.
+        /// This method opens a save file dialog to specify the file name and location for the exported Excel file,
+        /// </summary>
         private async Task ExportRoomAsync()
         {
-            if (GroupNames == null || GroupNames.Count == 0)
+            if (Rooms == null || Rooms.Count == 0)
             {
                 MessageBox.Show("No persons to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -201,9 +203,9 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     //Filter the GroupNames list to remove null elements
-                    var roomList = GroupNames.Where(p => p != null).ToList();
+                    var roomList = Rooms.Where(p => p != null).ToList();
                     // call ExportToExcelRoom function to export file
-                    _excelExporter.ExportToExcelRoom(roomList, dialog.FileName);
+                    _excelRoomExporter.ExportRoomToExcel(roomList, dialog.FileName);
                     MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -212,101 +214,87 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
-        // Call and assign the properties of SelectedGroupname with a new GroupName object 
-        private async Task AddRoomAsync()
+
+        /// <summary>
+        /// Asynchronously adds a new room.
+        /// This method initializes a new Room object, opens the room form for input,
+        /// sets the editing state to false, and allows the ClassId to be editable.
+        /// </summary>
+        public async Task AddRoomAsync()
         {
-            SelectedGroupname = new GroupName();
-            // turn on pop up
+            SelectedRoomname = new Room();
             IsRoomFormOpen = true;
             // check if it is an edit event
             _isEditing = false;
             // allow adding new classid
-            IsClassIdEditable = true;
+            IsRoomIdEditable = true;
         }
-        // add or edit room 
-        private async Task SavePersonAsync()
-        {
-            try
-            {
-                // check blank
-                if (string.IsNullOrWhiteSpace(SelectedGroupname?.ClassId))
-                {
-                    MessageBox.Show("Mã lớp không được để trống");
-                    return;
-                }
-                // check which event is edit or add
-                if (_isEditing)
-                {
-                    // check duplicate classid
-                    bool exists = await _groupnameService.CheckClassIdExistsAsync(SelectedGroupname.ClassId);
-                    if (exists)
-                    {
-                        // call UpdateGroupName to update information
-                        await _groupnameService.UpdateGroupName(SelectedGroupname);
-                        MessageBox.Show("Cập nhật lớp thành công");
-                        await LoadRoomAsync();
-                        _isEditing = false;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Room không tồn tại");
-                    }
 
-                }
-                // if it is an add event
-                else
-                {
-                    // check duplicate classid
-                    bool exists = await _groupnameService.CheckClassIdExistsAsync(SelectedGroupname.ClassId);
-                    if (!exists)
-                    {
-                        // If not duplicate, call function AddGroupName to add
-                        await _groupnameService.AddGroupName(SelectedGroupname);
-                        GroupNames.Add(SelectedGroupname);
-                        MessageBox.Show("Thêm lớp mới thành công");
-                        await LoadRoomAsync();
-                        _isEditing = false;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Lớp này đã tồn tại");
-
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lưu thất bại: {ex.Message}");
-            }
-        }
-        // open edit and set SelectedGroupname to the current object of the room
-        private async Task EditPersonAsync(GroupName groupname)
+        /// <summary>
+        /// Asynchronously edits an existing room.
+        /// This method sets the selected room to the one being edited, opens the room form for input,
+        /// sets the editing state to true, and prevents the ClassId from being edited.
+        /// </summary>
+        /// <param name="room"></param>
+        private async Task EditRoomAsync(Room room)
         {
-            if (groupname == null) return;
-            SelectedGroupname = groupname;
+            if (room == null) return;
+            SelectedRoomname = new Room
+            {
+                RoomId = room.RoomId,
+                RoomName = room.RoomName,
+                TypeOfRoom = room.TypeOfRoom,
+                TotalPersons = room.TotalPersons
+            };
             IsRoomFormOpen = true;
             // check event edit 
             _isEditing = true;
             // do not allow to edit classid
-            IsClassIdEditable = false;
+            IsRoomIdEditable = false;
         }
-        //open dialgo and set SelectedGroupname to the current object of the room
-        private async Task DeletePersonAsync(GroupName groupname)
-        {
 
-            if (groupname == null) return;
-            SelectedGroupname = groupname;
+        /// <summary>
+        /// Asynchronously deletes a room.
+        /// This method sets the selected room to the one being deleted, opens a confirmation dialog,
+        /// and allows the user to confirm or cancel the deletion.
+        /// </summary>
+        public async Task DeleteRoomAsync(Room room)
+        {
+            if (room == null) return;
+            SelectedRoomname = new Room
+            {
+                RoomId = room.RoomId,
+                RoomName = room.RoomName,
+                TypeOfRoom = room.TypeOfRoom,
+                TotalPersons = room.TotalPersons
+            };
             IsOpenDialog = true;
         }
-        // confirm delete 
+
+        /// <summary>
+        /// Cancels the deletion of a room.
+        /// This method sets the selected room to null and closes the confirmation dialog.
+        /// </summary>
+        private void CancelDelete()
+        {
+            // set SelectedGroupname null 
+            SelectedRoomname = null;
+            IsOpenDialog = false;
+        }
+
+        /// <summary>
+        /// Confirms the deletion of a room.
+        /// This method checks if a room is selected, attempts to delete it using the room service,
+        /// displays a success message if the deletion is successful, and reloads the room list.
+        /// </summary>
         private async Task ConfirmDeleteAsync()
         {
             try
             {
-                if (SelectedGroupname != null)
+                if (SelectedRoomname != null)
                 {
-                    await _groupnameService.DeleteGroupName(SelectedGroupname.ClassId);
-                    MessageBox.Show("Xóa Thành Công");
+                    await _roomService.DeleteRoom(SelectedRoomname.RoomId);
+                    MessageBox.Show("Xóa Thành Công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadRoomAsync();
                     IsOpenDialog = false;
                 }
@@ -318,49 +306,60 @@ namespace SchedulerWpfApp.ViewModel
             catch (Exception ex)
             {
                 MessageBox.Show($"Xóa thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-
             }
         }
-        // Cancel edit 
+
+        /// <summary>
+        /// Cancels the edit operation for a room.
+        /// This method sets the selected room to null and closes the room form.
+        /// It is typically called when the user decides not to save changes made in the room form.
+        /// </summary>
         private void CancelEdit()
         {
             // set SelectedGroupname null 
-            SelectedGroupname = null;
+            SelectedRoomname = null;
             IsRoomFormOpen = false;
         }
-        // cancel delete 
-        private void CancelDelete()
-        {
-            // set SelectedGroupname null 
 
-            SelectedGroupname = null;
-            IsOpenDialog = false;
-
-        }
-        // When user enters keyword or deletes, it will render room list
-        private void ResetToAllGroupNames()
+        /// <summary>
+        /// Asynchronously saves the current room.
+        /// This method checks if the room name and total persons are valid before saving.
+        /// If the room is being edited, it updates the existing room; otherwise, it adds a new room.
+        /// </summary>
+        public async Task SaveRoomAsync()
         {
-            GroupNames = new ObservableCollection<GroupName>(_allGroupNames);
-        }
-        // used to search data by keyword
-        private void FilterRooms()
-        {
-            if (string.IsNullOrWhiteSpace(SearchKeyword))
+            if (SelectedRoomname == null) return;
+            // ✅ Kiểm tra đầu vào trước khi lưu
+            if (string.IsNullOrWhiteSpace(SelectedRoomname.RoomName) || string.IsNullOrWhiteSpace(SelectedRoomname.TypeOfRoom) || SelectedRoomname.TotalPersons == null)
             {
-                ResetToAllGroupNames();
+                MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
-            else
+            else if (SelectedRoomname.TotalPersons < 0 || SelectedRoomname.TotalPersons > 50)
             {
-                // enter keyword from box
-                var lowerKeyword = SearchKeyword.ToLower();
-                // can search by ClassId, Category, Major
-                var filtered = _allGroupNames.Where(room =>
-                    (!string.IsNullOrEmpty(room.ClassId) && room.ClassId.ToLower().Contains(lowerKeyword)) ||
-                    (!string.IsNullOrEmpty(room.Category) && room.Category.ToLower().Contains(lowerKeyword)) ||
-                    (!string.IsNullOrEmpty(room.Major) && room.Major.ToLower().Contains(lowerKeyword))
-                ).ToList();
+                MessageBox.Show("Số người trong phòng không vượt quá 50 người và không được nhỏ hơn 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            try
+            {
+                if (_isEditing)
+                {
+                    await _roomService.UpdateRoom(SelectedRoomname);
+                    MessageBox.Show("Cập nhật thông tin phòng thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    await _roomService.AddRoom(SelectedRoomname);
+                    MessageBox.Show("Thêm phòng mới thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
 
-                GroupNames = new ObservableCollection<GroupName>(filtered);
+                IsRoomFormOpen = false;
+                SelectedRoomname = null;
+                await LoadRoomAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi lưu phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
