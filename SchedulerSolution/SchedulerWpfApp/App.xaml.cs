@@ -137,6 +137,9 @@ namespace SchedulerWpfApp
 
             services.AddScoped<IExcelSubjectImporter, ExcelSubjectImporter>();
             services.AddScoped<IExcelSubjectExporter, ExcelSubjectExporter>();
+
+            services.AddScoped<IExcelLectureExporter, ExcelLectureExporter>();
+            services.AddScoped<IExcelLectureImporter, ExcelLectureImporter>();
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IExcelRoomExporter, ExcelRoomExporter>();
             services.AddScoped<IExcelRoomImport, ExcelRoomImport>();
@@ -155,14 +158,16 @@ namespace SchedulerWpfApp
             services.AddTransient<LectureView>();
             services.AddTransient<GroupNameViewModel>();
             services.AddTransient<CreateScheduleViewModel>();
+            services.AddTransient<LectureViewModel>();
             services.AddTransient<RoomViewModel>();
             // Add factories
             services.AddSingleton<Func<SubjectViewModel>>(sp => () => sp.GetRequiredService<SubjectViewModel>());
             services.AddSingleton<Func<PersonViewModel>>(sp => () => sp.GetRequiredService<PersonViewModel>());
             services.AddSingleton<Func<GroupNameViewModel>>(sp => () => sp.GetRequiredService<GroupNameViewModel>());
             services.AddSingleton<Func<CreateScheduleViewModel>>(sp => () => sp.GetRequiredService<CreateScheduleViewModel>());
-            services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
+            services.AddSingleton<Func<LectureViewModel>>(sp => () => sp.GetRequiredService<LectureViewModel>());
 
+            services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
             services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime
             services.AddScoped<TreeForSchedule>(); // Register TreeNode with a scoped lifetime
             services.AddScoped<SortSubjectsOneSession>(); // Register SortSubjectsOneSession with a scoped lifetime

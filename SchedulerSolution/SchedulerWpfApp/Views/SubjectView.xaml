@@ -4,7 +4,6 @@
              xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
              xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
              Background="White">
-
     <Grid Background="#f8f9fa">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -158,9 +157,9 @@
                                        CellStyle="{StaticResource GridCellStyle}"
                                        CurrentCellBorderBrush="White">
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Mã Lớp Học"
+                        <syncfusion:GridTextColumn HeaderText="Mã Môn Học"
                                                    MappingName="SubjectCode" />
-                        <syncfusion:GridTextColumn HeaderText="Tên Lớp"
+                        <syncfusion:GridTextColumn HeaderText="Tên Môn Học"
                                                    MappingName="SubjectName" />
                         <syncfusion:GridTextColumn HeaderText="Chuyên Ngành"
                                                    MappingName="Major" />
@@ -258,7 +257,7 @@
                     <!-- Form Fields -->
                     <StackPanel Grid.Row="1"
                                 Margin="0,0,0,20">
-                        <TextBlock Text="Mã lớp học"
+                        <TextBlock Text="Mã Môn học"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
                         <TextBox Text="{Binding SelectedSubject.SubjectCode}"
@@ -266,7 +265,7 @@
                                  IsReadOnly="{Binding IsSubjectCodeEdit}"
                                  Margin="0,0,0,15" />
 
-                        <TextBlock Text="Tên lớp"
+                        <TextBlock Text="Tên Môn Học"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
                         <TextBox Text="{Binding SelectedSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}"
