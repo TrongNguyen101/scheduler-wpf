@@ -9,8 +9,12 @@ using SchedulerWpfApp.Services.LecturerSubjectServices;
 
 namespace SchedulerWpfApp.ViewModel
 {
+    /// <summary>
+    /// ViewModel responsible for managing lectures, including adding, editing, deleting, and exporting lectures.
+    /// </summary>
     public class LectureViewModel : ViewBaseModel
     {
+        #region Fields
         // Dependencies injected via constructor
         private readonly InterfaceLecturerServices _lectureService;
         private readonly IExcelLectureImporter _excelImporter;
@@ -26,21 +30,31 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isEdit;
         private bool _isLectureCodeEdit;
         private ObservableCollection<Lecturer> _allLectures;
-
         public string Title => SelectedLecture?.LecturerId != null ? "Chỉnh Sửa Giảng Viên" : "Thêm Mới Giảng Viên";
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// ViewModel for managing lectures, including adding, editing, deleting, and exporting lectures.
+        /// </summary>
         public bool IsLectureCodeEdit
         {
             get => _isLectureCodeEdit;
             set => SetProperty(ref _isLectureCodeEdit, value);
         }
 
-        // Observable collection to hold list of courses
+        /// <summary>
+        /// Collection of lectures to be displayed in the UI.
+        /// </summary>
         public ObservableCollection<Lecturer> Lectures
         {
             get => _lecture;
             set => SetProperty(ref _lecture, value);
         }
 
+        /// <summary>
+        /// Selected lecture for editing or viewing details.
+        /// </summary>
         public Lecturer SelectedLecture
         {
             get => _selectedLecture;
@@ -52,21 +66,37 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
+
+        /// <summary>
+        /// Indicates whether the form for adding or editing a lecture is open.
+        /// </summary>
         public bool IsLectureFormOpen
         {
             get => _isLectureFormOpen;
             set => SetProperty(ref _isLectureFormOpen, value);
         }
+
+        /// <summary>
+        /// Indicates whether the dialog for adding or editing a lecture is open.
+        /// </summary>
         public bool IsOpenDialog
         {
             get => _isOpenDialog;
             set => SetProperty(ref _isOpenDialog, value);
         }
+
+        /// <summary>
+        /// Indicates whether the confirmation dialog for deletion is open.
+        /// </summary>
         public bool IsConfirmationOpen
         {
             get => _isConfirmationOpen;
             set => SetProperty(ref _isConfirmationOpen, value);
         }
+
+        /// <summary>
+        /// Search keyword for filtering lectures.
+        /// </summary>
         public string SearchKeyword
         {
             get => _searchKeyword;
@@ -90,7 +120,9 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand CancelEditLectureCommand { get; }
         public ICommand ConfirmDeleteCommand { get; }
         public ICommand CancelDeleteLectureCommand { get; }
-
+        #endregion
+        
+        #region Methods
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
@@ -140,7 +172,10 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
-        // Add a new course to the list
+        /// <summary>
+        /// Adds a new lecture by initializing the SelectedLecture property and opening the form for input.
+        /// </summary>
+        /// <returns></returns>
         private async Task AddLectureAsync()
         {
             SelectedLecture = new Lecturer(); // Khởi tạo object trống cho form
@@ -149,7 +184,11 @@ namespace SchedulerWpfApp.ViewModel
             IsLectureCodeEdit = false;
         }
 
-        // Edit a course existed
+        /// <summary>
+        /// Edits the selected lecture by setting it to the SelectedLecture property and opening the form for editing.
+        /// </summary>
+        /// <param name="lecture"></param>
+        /// <returns></returns>
         private async Task EditLectureAsync(Lecturer lecture)
         {
             if (lecture == null) return;
@@ -166,7 +205,11 @@ namespace SchedulerWpfApp.ViewModel
             IsLectureCodeEdit = true;
         }
 
-        // Remove a course from the list
+        /// <summary>
+        /// Deletes the specified lecture after confirmation.
+        /// </summary>
+        /// <param name="lecture"></param>
+        /// <returns></returns>
         private async Task DeleteLectureAsync(Lecturer lecture)
         {
             if (lecture == null) return;
@@ -181,6 +224,10 @@ namespace SchedulerWpfApp.ViewModel
             IsOpenDialog = true;
         }
 
+        /// <summary>
+        /// Saves the selected lecture to the data source, either adding a new one or updating an existing one.
+        /// </summary>
+        /// <returns></returns>
         private async Task SaveLectureAsync()
         {
             if (SelectedLecture == null)
@@ -240,16 +287,27 @@ namespace SchedulerWpfApp.ViewModel
                 LoadLectureAsync();
             }
         }
+
+        /// <summary>
+        /// Cancels the edit operation, closes the lecture form, and resets the selected lecture.
+        /// </summary>
         public void CancelEdit()
         {
             IsLectureFormOpen = false;
             SelectedLecture = null;
         }
+
+        /// <summary>
+        /// Cancels the deletion of the selected lecture and closes the confirmation dialog.
+        /// </summary>
         public void CancelDelete()
         {
             IsOpenDialog = false;
         }
-        // Delete lecture after confirmation
+        /// <summary>
+        /// Confirms the deletion of the selected lecture and removes it from the data source.
+        /// </summary>
+        /// <returns></returns>
         private async Task ConfirmDeleteAsync()
         {
             if (SelectedLecture == null)
@@ -367,4 +425,5 @@ namespace SchedulerWpfApp.ViewModel
             Lectures = new ObservableCollection<Lecturer>(_allLectures);
         }
     }
+    #endregion
 }

@@ -8,8 +8,12 @@ using SchedulerWpfApp.Services;
 
 namespace SchedulerWpfApp.ViewModel
 {
+    /// <summary>
+    /// ViewModel responsible for managing subjects: loading, importing, exporting, adding, editing, and deleting subjects.
+    /// </summary>
     public class SubjectViewModel : ViewBaseModel
     {
+        #region Fields
         // Dependencies injected via constructor
         private readonly ISubjectServices _courseService;
         private readonly IExcelSubjectImporter _excelImporter;
@@ -25,21 +29,31 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isEdit;
         private bool _isSubjectCodeEdit;
         private ObservableCollection<Subject> _allSubjects;
-
         public string Title => SelectedSubject?.SubjectCode != null ? "Chỉnh Sửa Môn Học" : "Thêm Mới Môn Học";
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// Indicates whether the form is in edit mode or add mode.
+        /// </summary>
         public bool IsSubjectCodeEdit
         {
             get => _isSubjectCodeEdit;
             set => SetProperty(ref _isSubjectCodeEdit, value);
         }
 
-        // Observable collection to hold list of courses
+        /// <summary>
+        /// Collection of subjects to be displayed in the UI.
+        /// </summary>
         public ObservableCollection<Subject> Subjects
         {
             get => _subject;
             set => SetProperty(ref _subject, value);
         }
 
+        /// <summary>
+        /// Currently selected subject in the UI.
+        /// </summary>
         public Subject SelectedSubject
         {
             get => _selectedSubject;
@@ -51,21 +65,37 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
+
+        /// <summary>
+        /// Indicates whether the subject form is currently open for editing or adding a new subject.
+        /// </summary>
         public bool IsSubjectFormOpen
         {
             get => _isSubjectFormOpen;
             set => SetProperty(ref _isSubjectFormOpen, value);
         }
+
+        /// <summary>
+        /// Indicates whether the confirmation dialog for deletion is open.
+        /// </summary>
         public bool IsOpenDialog
         {
             get => _isOpenDialog;
             set => SetProperty(ref _isOpenDialog, value);
         }
+
+        /// <summary>
+        /// Indicates whether the confirmation dialog for deletion is open.
+        /// </summary>
         public bool IsConfirmationOpen
         {
             get => _isConfirmationOpen;
             set => SetProperty(ref _isConfirmationOpen, value);
         }
+
+        /// <summary>
+        /// Search keyword used to filter the subjects displayed in the UI.
+        /// </summary>
         public string SearchKeyword
         {
             get => _searchKeyword;
@@ -90,6 +120,9 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ConfirmDeleteCommand { get; }
         public ICommand CancelDeleteSubjectCommand { get; }
 
+        #endregion
+
+        #region Method
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
@@ -140,7 +173,10 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
-        // Add a new course to the list
+        /// <summary>
+        /// Opens the form to add a new subject.
+        /// </summary>
+        /// <returns></returns>
         private async Task AddSubjectAsync()
         {
             SelectedSubject = new Subject(); // Khởi tạo object trống cho form
@@ -149,7 +185,9 @@ namespace SchedulerWpfApp.ViewModel
             IsSubjectCodeEdit = false;
         }
 
-        // Edit a course existed
+        /// <summary>
+        /// Opens the form to edit an existing subject.
+        /// </summary>
         private async Task EditSubjectAsync(Subject subject)
         {
             if (subject == null) return;
@@ -169,7 +207,11 @@ namespace SchedulerWpfApp.ViewModel
             IsSubjectCodeEdit = true;
         }
 
-        // Remove a course from the list
+        /// <summary>
+        /// Opens the form to edit an existing subject.
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <returns></returns>
         private async Task DeleteSubjectAsync(Subject subject)
 
         {
@@ -189,6 +231,10 @@ namespace SchedulerWpfApp.ViewModel
 
         }
 
+        /// <summary>
+        /// Saves the current subject to the data source, either creating a new one or updating an existing one.
+        /// </summary>
+        /// <returns></returns>
         private async Task SaveSubjectAsync()
         {
             if (SelectedSubject == null)
@@ -258,17 +304,28 @@ namespace SchedulerWpfApp.ViewModel
                 LoadSubjectAsync();
             }
         }
+
+        /// <summary>
+        /// Cancels the current edit operation and closes the subject form.
+        /// </summary>
         public void CancelEdit()
         {
             IsSubjectFormOpen = false;
             SelectedSubject = null;
         }
+
+        /// <summary>
+        /// Cancels the delete operation and closes the confirmation dialog.
+        /// </summary>
         public void CancelDelete()
         {
             IsOpenDialog = false;
         }
 
-        // Delete subject after confirmation
+        /// <summary>
+        /// Confirms the deletion of the selected subject and removes it from the data source.
+        /// </summary>
+        /// <returns></returns>
         private async Task ConfirmDeleteAsync()
         {
             if (SelectedSubject == null)
@@ -387,4 +444,6 @@ namespace SchedulerWpfApp.ViewModel
             Subjects = new ObservableCollection<Subject>(_allSubjects);
         }
     }
+    #endregion
 }
+
