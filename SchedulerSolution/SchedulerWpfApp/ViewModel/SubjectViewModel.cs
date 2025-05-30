@@ -193,7 +193,20 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (SelectedSubject == null)
                 return;
-
+            if (string.IsNullOrWhiteSpace(SelectedSubject.SubjectCode) ||
+                string.IsNullOrWhiteSpace(SelectedSubject.SubjectName) ||
+                string.IsNullOrWhiteSpace(SelectedSubject.Major) ||
+                SelectedSubject.TotalSessions == 0 ||
+                SelectedSubject.SlotsPerWeek == 0)
+            {
+                MessageBox.Show("Vui lòng điền đầy đủ thông tin môn học.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (SelectedSubject.SlotsPerWeek <= 0 || SelectedSubject.TotalSessions <= 0)
+            {
+                MessageBox.Show("Số buổi học trong tuần và tổng số buổi học phải lớn hơn 0.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             try
             {
                 // Check if _isEdit is false will create new course. Otherwise, update course
@@ -202,7 +215,10 @@ namespace SchedulerWpfApp.ViewModel
                     var existingSubject = Subjects.FirstOrDefault(s => s.SubjectCode == SelectedSubject.SubjectCode);
 
                     if (existingSubject == null)
+                    {
                         await _courseService.AddSubject(SelectedSubject);
+                        MessageBox.Show("Thêm môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
                     else
                         // Cảnh báo
                         MessageBox.Show("Môn học đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -219,8 +235,8 @@ namespace SchedulerWpfApp.ViewModel
                         existingSubject.TotalSessions = SelectedSubject.TotalSessions;
                         existingSubject.SlotsPerWeek = SelectedSubject.SlotsPerWeek;
                         existingSubject.SemesterId = SelectedSubject.SemesterId;
-
                         await _courseService.UpdateSubject(existingSubject);
+                        MessageBox.Show("Update môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
