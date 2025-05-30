@@ -105,7 +105,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         /// <param name="year"></param>
         /// <param name="weekOfYear"></param>
-        /// <returns></returns>
+        /// <returns>First date of the specified week</returns>
         private DateTime FirstDateOfWeek(int year, int weekOfYear)
         {
             DateTime jan1 = new(year, 1, 1); // January 1st of the specified year
@@ -140,7 +140,7 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Parses the selected week string in "dd/MM - dd/MM" format to a tuple of start and end dates.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Start and end date</returns>
         private (DateTime start, DateTime end) ParseSelectedWeekToDates()
         {
             var parts = SelectedWeek.Split(" - "); // Split the selected week string into start and end parts
@@ -166,7 +166,6 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Generates a demo schedule starting from a specific date and exports it to an Excel file.
         /// </summary>
-        /// <returns></returns>
         private async Task CreateScheduleDemo()
         {
             DateTime startDate = new DateTime(2025, 04, 14);
@@ -374,7 +373,7 @@ namespace SchedulerWpfApp.ViewModel
         /// Calculates the start date of the week for a given date.
         /// </summary>
         /// <param name="date"></param>
-        /// <returns></returns>
+        /// <returns>Start date of week</returns>
         private static DateTime? GetWeekStartDate(DateTime? date)
         {
             if (!date.HasValue)
