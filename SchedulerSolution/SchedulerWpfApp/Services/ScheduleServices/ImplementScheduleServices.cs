@@ -39,6 +39,11 @@ namespace SchedulerWpfApp.Services.ScheduleServices
             }
         }
 
+        /// <summary>
+        /// Get all scheduler
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task<List<Schedule>> GetAllAsync()
         {
             try
