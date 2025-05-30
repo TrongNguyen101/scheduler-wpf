@@ -175,7 +175,6 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Adds a new lecture by initializing the SelectedLecture property and opening the form for input.
         /// </summary>
-        /// <returns></returns>
         private async Task AddLectureAsync()
         {
             SelectedLecture = new Lecturer(); // Khởi tạo object trống cho form
@@ -188,7 +187,6 @@ namespace SchedulerWpfApp.ViewModel
         /// Edits the selected lecture by setting it to the SelectedLecture property and opening the form for editing.
         /// </summary>
         /// <param name="lecture"></param>
-        /// <returns></returns>
         private async Task EditLectureAsync(Lecturer lecture)
         {
             if (lecture == null) return;
@@ -209,7 +207,6 @@ namespace SchedulerWpfApp.ViewModel
         /// Deletes the specified lecture after confirmation.
         /// </summary>
         /// <param name="lecture"></param>
-        /// <returns></returns>
         private async Task DeleteLectureAsync(Lecturer lecture)
         {
             if (lecture == null) return;
@@ -227,7 +224,6 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Saves the selected lecture to the data source, either adding a new one or updating an existing one.
         /// </summary>
-        /// <returns></returns>
         private async Task SaveLectureAsync()
         {
             if (SelectedLecture == null)
@@ -304,10 +300,10 @@ namespace SchedulerWpfApp.ViewModel
         {
             IsOpenDialog = false;
         }
+
         /// <summary>
         /// Confirms the deletion of the selected lecture and removes it from the data source.
         /// </summary>
-        /// <returns></returns>
         private async Task ConfirmDeleteAsync()
         {
             if (SelectedLecture == null)

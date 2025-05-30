@@ -176,7 +176,6 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Opens the form to add a new subject.
         /// </summary>
-        /// <returns></returns>
         private async Task AddSubjectAsync()
         {
             SelectedSubject = new Subject(); // Khởi tạo object trống cho form
@@ -211,7 +210,6 @@ namespace SchedulerWpfApp.ViewModel
         /// Opens the form to edit an existing subject.
         /// </summary>
         /// <param name="subject"></param>
-        /// <returns></returns>
         private async Task DeleteSubjectAsync(Subject subject)
 
         {
@@ -234,7 +232,6 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Saves the current subject to the data source, either creating a new one or updating an existing one.
         /// </summary>
-        /// <returns></returns>
         private async Task SaveSubjectAsync()
         {
             if (SelectedSubject == null)
@@ -325,7 +322,6 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Confirms the deletion of the selected subject and removes it from the data source.
         /// </summary>
-        /// <returns></returns>
         private async Task ConfirmDeleteAsync()
         {
             if (SelectedSubject == null)
