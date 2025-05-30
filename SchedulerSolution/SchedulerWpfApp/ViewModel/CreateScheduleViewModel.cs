@@ -1,12 +1,13 @@
 ﻿
-using Microsoft.Win32;
 using SchedulerWpfApp.Algorithm;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
+using SchedulerWpfApp.Services.ScheduleServices;
 using Syncfusion.XlsIO;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
-using System.Windows;
 using System.Windows.Input;
 
 namespace SchedulerWpfApp.ViewModel
@@ -14,43 +15,153 @@ namespace SchedulerWpfApp.ViewModel
     public class CreateScheduleViewModel : ViewBaseModel
     {
         private readonly CreateScheduleTree _createScheduleTree;
+        private readonly InterfaceScheduleServices _implementScheduleServices;
+
+        public ObservableCollection<DateTime> WeekDays { get; set; } = new();
+        public ObservableCollection<int> Slots { get; set; } = new() { 1, 2, 3, 4 };
+        public ObservableCollection<int> Years { get; set; } = new(Enumerable.Range(2020, 10));
+        public ObservableCollection<string> Weeks { get; set; } = new();
+        public ObservableCollection<string> GroupNames { get; set; } = new();
+        public ObservableCollection<SlotRowViewModel> SlotRows { get; set; } = new();
+        public ObservableCollection<TimetableCellViewModel> TimetableCells { get; set; } = new();
+        private ObservableCollection<Schedule> AllSchedules { get; set; } = new();
+
+        private int _selectedYear;
+        public int SelectedYear
+        {
+            get => _selectedYear;
+            set { _selectedYear = value; OnPropertyChanged(); GenerateWeeks(); }
+        }
+
+        private string _selectedWeek;
+        public string SelectedWeek
+        {
+            get => _selectedWeek;
+            set { _selectedWeek = value; OnPropertyChanged(); FilterSchedules(); }
+        }
+
+        private string _selectedGroupName;
+        public string SelectedGroupName
+        {
+            get => _selectedGroupName;
+            set { _selectedGroupName = value; OnPropertyChanged(); FilterSchedules(); }
+        }
 
         public ICommand CreateScheduleCommand { get; }
 
-
-        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree)
+        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, InterfaceScheduleServices implementScheduleServices)
         {
             _createScheduleTree = createScheduleTree;
+            _implementScheduleServices = implementScheduleServices;
 
+            SelectedYear = DateTime.Now.Year;
             CreateScheduleCommand = new RelayCommand(async () => await CreateScheduleDemo());
 
+            LoadMockSchedules();
+            InitCurrentWeekDays();
+            FilterSchedules();
+        }
+
+        private void InitCurrentWeekDays()
+        {
+            WeekDays.Clear();
+            DateTime today = DateTime.Today;
+            int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+            DateTime monday = today.AddDays(-diff);
+
+            for (int i = 0; i < 7; i++)
+            {
+                WeekDays.Add(monday.AddDays(i));
+            }
+        }
+
+        private void GenerateWeeks()
+        {
+            Weeks.Clear();
+            for (int i = 1; i <= 52; i++)
+            {
+                DateTime start = FirstDateOfWeek(SelectedYear, i);
+                DateTime end = start.AddDays(6);
+                Weeks.Add($"{start:dd/MM} - {end:dd/MM}");
+            }
+        }
+
+        private DateTime FirstDateOfWeek(int year, int weekOfYear)
+        {
+            DateTime jan1 = new(year, 1, 1);
+            int daysOffset = DayOfWeek.Monday - jan1.DayOfWeek;
+            DateTime firstMonday = jan1.AddDays(daysOffset);
+            return firstMonday.AddDays((weekOfYear - 1) * 7);
+        }
+
+        private void FilterSchedules()
+        {
+            TimetableCells.Clear();
+            SlotRows.Clear();
+
+            if (string.IsNullOrEmpty(SelectedGroupName) || string.IsNullOrEmpty(SelectedWeek))
+            {
+                GenerateTimetableCellsAndSlotRows(new List<Schedule>());
+                return;
+            }
+
+            var (start, end) = ParseSelectedWeekToDates();
+
+            WeekDays.Clear();
+            for (int i = 0; i < 7; i++) WeekDays.Add(start.AddDays(i));
+
+            var filtered = AllSchedules.Where(s => s.GroupName == SelectedGroupName && s.Date >= start && s.Date <= end).ToList();
+            GenerateTimetableCellsAndSlotRows(filtered);
+        }
+
+        private (DateTime start, DateTime end) ParseSelectedWeekToDates()
+        {
+            var parts = SelectedWeek.Split(" - ");
+            DateTime start = DateTime.ParseExact(parts[0], "dd/MM", CultureInfo.InvariantCulture).AddYears(SelectedYear - DateTime.Now.Year);
+            DateTime end = DateTime.ParseExact(parts[1], "dd/MM", CultureInfo.InvariantCulture).AddYears(SelectedYear - DateTime.Now.Year);
+            return (start, end);
+        }
+
+        private async void LoadMockSchedules()
+        {
+            var schedules = await _implementScheduleServices.GetAllAsync();
+            AllSchedules = new ObservableCollection<Schedule>(schedules);
+            SetupDataSchedule(schedules);
+        }
+
+        private void SetupDataSchedule(List<Schedule> schedules)
+        {
+            if (schedules?.Any() == true)
+            {
+                GroupNames = new ObservableCollection<string>(schedules.Select(s => s.GroupName).Distinct().OrderBy(name => name));
+            }
         }
 
         private async Task CreateScheduleDemo()
-        {           
+        {
             DateTime startDate = new DateTime(2025, 04, 14);
             var schedules = await _createScheduleTree.GenerateSchedules(startDate);
 
             PrintTimetableGroupByWeek(schedules);
 
-            var dialog = new SaveFileDialog
-            {
-                Filter = "Excel Files (*.xlsx)|*.xlsx",
-                FileName = "ScheduleDemo.xlsx"
-            };
+            //var dialog = new SaveFileDialog
+            //{
+            //    Filter = "Excel Files (*.xlsx)|*.xlsx",
+            //    FileName = "ScheduleDemo.xlsx"
+            //};
 
-            if (dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    // Export only non-null list
-                    ExportSchedulesToExcel(schedules, dialog.FileName);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Export failed: {ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            //if (dialog.ShowDialog() == true)
+            //{
+            //    try
+            //    {
+            //        // Export only non-null list
+            //        ExportSchedulesToExcel(schedules, dialog.FileName);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        MessageBox.Show($"Export failed: {ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    }
+            //}
         }
 
         private void ExportSchedulesToExcel(List<Schedule> schedules, string filePath)
@@ -220,12 +331,6 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
-        public static DateTime GetWeekStartDate(DateTime date)
-        {
-            int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
-            return date.AddDays(-1 * diff).Date;
-        }
-
         private static DateTime? GetWeekStartDate(DateTime? date)
         {
             if (!date.HasValue)
@@ -233,6 +338,75 @@ namespace SchedulerWpfApp.ViewModel
 
             int diff = (7 + (date.Value.DayOfWeek - DayOfWeek.Monday)) % 7;
             return date.Value.AddDays(-diff).Date;
+        }
+
+        private void GenerateTimetableCellsAndSlotRows(List<Schedule> filtered)
+        {
+            TimetableCells.Clear();
+            SlotRows.Clear();
+
+            foreach (var slot in Slots)
+            {
+                string slotStr = $"slot {slot}";
+                var cells = new ObservableCollection<TimetableCellViewModel>();
+
+                foreach (var day in WeekDays)
+                {
+                    var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slotStr);
+
+                    cells.Add(new TimetableCellViewModel
+                    {
+                        DayOfWeek = day,
+                        SlotNumber = slotStr,
+                        Schedule = match
+                    });
+
+                    TimetableCells.Add(new TimetableCellViewModel
+                    {
+                        DayOfWeek = day,
+                        SlotNumber = slotStr,
+                        Schedule = match
+                    });
+                }
+
+                SlotRows.Add(new SlotRowViewModel
+                {
+                    SlotNumber = slot,
+                    Cells = cells
+                });
+            }
+        }
+
+        public static string GetSlotTimeRange(int slotNumber)
+        {
+            DateTime startTime = new DateTime(1, 1, 1, 7, 0, 0); // 7:00 AM
+            TimeSpan duration = TimeSpan.FromMinutes(135);
+            DateTime slotStart = startTime.AddMinutes((slotNumber - 1) * duration.TotalMinutes);
+            DateTime slotEnd = slotStart.Add(duration);
+
+            return $"{slotStart:HH\\:mm} - {slotEnd:HH\\:mm}";
+        }
+
+    }
+
+    public class TimetableCellViewModel
+    {
+        public DateTime DayOfWeek { get; set; }
+        public string SlotNumber { get; set; }
+        public Schedule? Schedule { get; set; }
+    }
+
+    public class SlotRowViewModel
+    {
+        public int SlotNumber { get; set; }
+        public ObservableCollection<TimetableCellViewModel> Cells { get; set; } = new();
+
+        public string SlotTimeRange
+        {
+            get
+            {
+                return CreateScheduleViewModel.GetSlotTimeRange(SlotNumber);
+            }
         }
     }
 }
