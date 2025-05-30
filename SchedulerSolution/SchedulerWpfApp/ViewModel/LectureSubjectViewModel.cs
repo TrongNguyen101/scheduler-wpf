@@ -8,20 +8,25 @@ using System.Windows;
 
 namespace SchedulerWpfApp.ViewModel
 {
+    /// <summary>
+    /// ViewModel for managing lecture subjects, including adding, editing, deleting, importing, and exporting subjects.
+    /// </summary>
     public class LectureSubjectViewModel : ViewBaseModel
     {
+        #region Fields
         private readonly ILectureSubjectService _lecturesubjectService;
         private readonly IExcelLectureSubjectImporter _excelImporter;
         private readonly IExcelLectureSubjectExporter _excelExporter;
         private ObservableCollection<LecturerSubject> _lecturesubject;
         private LecturerSubject? _selectedSubject;
-
         public string FormTitle => SelectedLectureSubject?.Id == 0 ? "Thêm môn mới cho giảng viên" : "Chỉnh sửa môn cho giảng viên";
         private bool _isOpenDialog;
         private bool _isConfirmationOpen;
         private bool _isEditing;
         private bool _isLectureSubjectOpen;
+        #endregion
 
+        #region Construsctor
         /// <summary>
         /// Gets or sets the collection of lecture subjects displayed in the UI.
         /// </summary>
@@ -78,7 +83,9 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand CancelEditLectureSubjectCommand { get; }
         public ICommand ConfirmDeleteLectureSubjectCommand { get; }
         public ICommand CancelDeleteLectureSubjectCommand { get; }
+        #endregion
 
+        #region Methods
         /// <summary>
         /// Initializes a new instance of the LectureSubjectViewModel class, setting up commands and loading initial data.
         /// </summary>
@@ -303,4 +310,5 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
     }
+    #endregion
 }

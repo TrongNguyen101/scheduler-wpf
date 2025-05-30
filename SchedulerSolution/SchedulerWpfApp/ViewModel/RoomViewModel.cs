@@ -8,8 +8,12 @@ using SchedulerWpfApp.Services;
 
 namespace SchedulerWpfApp.ViewModel
 {
+    /// <summary>
+    /// ViewModel responsible for managing rooms: loading, importing, exporting, adding, editing, and deleting rooms.
+    /// </summary>
     public class RoomViewModel : ViewBaseModel
     {
+        #region Fields
         private readonly IRoomService _roomService;
         private readonly IExcelRoomImport _excelRoomImport;
         private readonly IExcelRoomExporter _excelRoomExporter;
@@ -28,7 +32,9 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isEditing;
         // check if ClassId is edited
         private bool _isRoomIdEditable = true;
+        #endregion
 
+        #region Contrucstor
         /// <summary>
         /// Observable collection of Room objects representing the list of rooms.
         /// This collection is used to bind to the UI and update dynamically when rooms are added, edited, or deleted.
@@ -103,7 +109,9 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand CancelEditRoomCommand { get; }
         public ICommand ConfirmDeleteRoomCommand { get; }
         public ICommand CancelDeleteRoomCommand { get; }
+        #endregion
 
+        #region Methods
         /// <summary>
         /// ViewModel constructor that initializes the RoomViewModel with the necessary services.
         /// This constructor sets up the commands for importing, exporting, adding, editing, and deleting rooms.
@@ -364,4 +372,5 @@ namespace SchedulerWpfApp.ViewModel
         }
 
     }
+    #endregion
 }
