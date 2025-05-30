@@ -27,6 +27,7 @@ namespace SchedulerWpfApp.ViewModel
         private readonly Func<CreateScheduleViewModel> _createScheduleViewModelFactory;
         private readonly Func<LectureViewModel> _lectureViewModelFactory;
         private readonly Func<RoomViewModel> _roomViewModelFactory;
+        private readonly Func<LectureSubjectViewModel> _lectureSubjectViewModelFactory;
 
         /// <summary>
         /// The current view model being shown in the main content area.
@@ -45,6 +46,7 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ShowCreateScheduleCommand { get; }
         public ICommand ShowLectureCommand { get; }
         public ICommand ShowRoomlistCommand { get; }
+        public ICommand ShowLectureSubjectCommand { get; }
 
         /// <summary>
         /// Initializes the MainViewModel with view model factories.
@@ -55,7 +57,8 @@ namespace SchedulerWpfApp.ViewModel
             Func<RoomViewModel> roomViewModelFactory,
             Func<CreateScheduleViewModel> createScheduleViewModelFactory,
             Func<LectureViewModel> lectureViewModelFactory,
-            Func<GroupNameViewModel> groupNameViewModelFactory)
+            Func<GroupNameViewModel> groupNameViewModelFactory,
+            Func<LectureSubjectViewModel> lectureSubjectViewModelFactory)
         {
             // Assign factory methods
             _subjectViewModelFactory = courseViewModelFactory;
@@ -64,6 +67,7 @@ namespace SchedulerWpfApp.ViewModel
             _createScheduleViewModelFactory = createScheduleViewModelFactory;
             _lectureViewModelFactory = lectureViewModelFactory;
             _roomViewModelFactory = roomViewModelFactory;
+            _lectureSubjectViewModelFactory = lectureSubjectViewModelFactory;
 
             // Initialize commands for switching views
             ShowCourseCommand = new RelayCommand(ShowCourse);
@@ -72,6 +76,7 @@ namespace SchedulerWpfApp.ViewModel
             ShowCreateScheduleCommand = new RelayCommand(ShowCreateSchedule);
             ShowLectureCommand = new RelayCommand(ShowLecture);
             ShowRoomlistCommand = new RelayCommand(ShowRoomlist);
+            ShowLectureSubjectCommand = new RelayCommand(ShowLectureSubject);
             // Set default view to PersonViewModel
             CurrentViewModel = _personViewModelFactory();
         }
@@ -92,6 +97,8 @@ namespace SchedulerWpfApp.ViewModel
         private void ShowRoom() => CurrentViewModel = _GroupNameViewModelFactory();
         private void ShowCreateSchedule() => CurrentViewModel = _createScheduleViewModelFactory();
         private void ShowLecture() => CurrentViewModel = _lectureViewModelFactory();
+        private void ShowLectureSubject () =>
+            CurrentViewModel = _lectureSubjectViewModelFactory();
         private void ShowRoomlist() =>
             CurrentViewModel = _roomViewModelFactory();
     }
