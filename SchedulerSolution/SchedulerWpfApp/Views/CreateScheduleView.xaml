@@ -239,9 +239,6 @@
                                                    VerticalAlignment="Center"
                                                    FontWeight="Bold"
                                                    Padding="5" />
-                                        <!--<TextBlock Text="{Binding SlotTimeRange}"
-                                                   FontSize="11"
-                                                   Foreground="Gray" />-->
                                     </Border>
 
                                     <!-- 7 Cells -->
@@ -272,11 +269,13 @@
 
                                                         <TextBlock Text="{Binding Schedule.StatusSlot}"
                                                                    FontSize="14"
+                                                                   FontWeight="Bold"
                                                                    Foreground="DarkGreen"
                                                                    Margin="0,2,0,0" />
 
                                                         <TextBlock Text="{Binding Schedule.GroupName }"
-                                                                   FontSize="14"
+                                                                   FontSize="12"
+                                                                   FontWeight="Bold"
                                                                    Foreground="Gray"
                                                                    Margin="0,2,0,0" />
                                                     </StackPanel>
