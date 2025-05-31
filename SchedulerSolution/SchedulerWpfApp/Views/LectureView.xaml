@@ -167,6 +167,8 @@
                                                    MappingName="LecturerId" />
                         <syncfusion:GridTextColumn HeaderText="Họ và Tên"
                                                    MappingName="LecturerName" />
+                        <syncfusion:GridTextColumn HeaderText="Chuyên ngành"
+                                                   MappingName="Major" />
                         <syncfusion:GridTextColumn HeaderText="Loại giáo viên"
                                                    MappingName="Role" />
                         <syncfusion:GridTemplateColumn HeaderText="Action"

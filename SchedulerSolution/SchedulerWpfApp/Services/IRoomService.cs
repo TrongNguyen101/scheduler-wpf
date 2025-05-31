@@ -6,6 +6,7 @@ namespace SchedulerWpfApp.Services
     {
         Task ImportRoomFromExcel(List<Room> listRoomFromExcel);
         Task<List<Room>> GetAllAsync();
+        Task<List<Room>> GetNumberOfRoom(int numberOfRoom);
         Task<Room?> GetByIdAsync(int id);
         Task AddRoom(Room room);
         Task UpdateRoom(Room room);
