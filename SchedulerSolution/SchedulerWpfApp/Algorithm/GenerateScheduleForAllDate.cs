@@ -41,8 +41,6 @@ namespace SchedulerWpfApp.Algorithm
         {
             List<Schedule> allSchedules = new List<Schedule>();
 
-            List<Subject> subjectSE = subjects.Where(s => s.Major == "SE").ToList();
-            List<Subject> subjectMC = subjects.Where(s => s.Major == "MC").ToList();
 
             var (listGroupNameAm, listGroupNamePm) = BalancedSplitWithGreedySwap(listGroupName);
 
@@ -53,11 +51,11 @@ namespace SchedulerWpfApp.Algorithm
             var lecturersPM = _getLecturerForSubject.FilterLecturerInSession(lecturersTeachSubject, lecturerRequests, "PM");
 
             // Tạo lịch cho tuần đầu và tuần cuối - buổi sáng (AM)
-            var firstAndLastWeekSchedulesAM = await CreateSchedulesForFirstAndFinalWeek(subjectSE, lecturersAM, listGroupNameAm, startDate, lecturerRequests, "A", "G");
+            var firstAndLastWeekSchedulesAM = await CreateSchedulesForFirstAndFinalWeek(subjects, lecturersAM, listGroupNameAm, startDate, lecturerRequests, "A", "G");
             allSchedules.AddRange(firstAndLastWeekSchedulesAM);
 
             // Tạo lịch cho tuần đầu và tuần cuối - buổi chiều (PM)
-            var firstAndLastWeekSchedulesPM = await CreateSchedulesForFirstAndFinalWeek(subjectSE, lecturersPM, listGroupNamePm, startDate, lecturerRequests, "P", "G");
+            var firstAndLastWeekSchedulesPM = await CreateSchedulesForFirstAndFinalWeek(subjects, lecturersPM, listGroupNamePm, startDate, lecturerRequests, "P", "G");
             allSchedules.AddRange(firstAndLastWeekSchedulesPM);
 
             // Tạo lịch cho tuần từ 2 đến 9 - buổi sáng (AM)
@@ -105,9 +103,6 @@ namespace SchedulerWpfApp.Algorithm
         {
             List<Schedule> allSchedules = new List<Schedule>();
 
-            var subjectSchedule = _sortSubjectsOneSession.SortSubjectFourClass(subjects);
-
-
             // Dictionary dùng để tạo thứ tự từng slot học trong kỳ
             var subjectAppearanceOrder = new Dictionary<string, int>();
 
@@ -120,19 +115,18 @@ namespace SchedulerWpfApp.Algorithm
             // Tạo kiểu onl hay off cho tuần đó
             string slotType = "offline";
 
-            // Calculate the number of rooms needed based on the number of classes for first and final week
-            int numberOfRoomForFirstAndFinalWeek = CalculateNumberOfRoomsForFirstAndFinalWeek(listGroupName.Count);
-
-            List<Room> listRooms = await _roomService.GetNumberOfRoom(numberOfRoomForFirstAndFinalWeek);
-
-            int groupNameIndex = sessionFilter == "A" ? 0 : listRooms.Count;
+            List<Room> listRooms = await _roomService.GetNumberOfRoom(listGroupName.Count);
 
             for (int indexRoom = 0; indexRoom < listRooms.Count; indexRoom++)
             {
                 TreeForSchedule roomNode = _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomName);
 
                 /* Cần hàm tạo group name (mã lơp) ở đây*/
-                string classId = listGroupName[indexRoom + groupNameIndex].ClassId;
+                string classId = listGroupName[indexRoom].ClassId;
+
+                var subjectOfClass = subjects.Where(s => s.Major == listGroupName[indexRoom].Major).ToList();
+
+                var scheduleSubjectForClass = _sortSubjectsOneSession.SortSubjectFourClass(subjectOfClass);
 
                 // tìm thầy cho mỗi 4 lớp
                 var (classIndex, cycleLevel) = MapToCycle(indexRoom + 1);
@@ -150,7 +144,7 @@ namespace SchedulerWpfApp.Algorithm
                         for (int slotIndex = 0; slotIndex < slotsPerSession; slotIndex++)
                         {
                             // Lấy môn học đã được xếp vào ngày slot hiện tại
-                            var subject = subjectSchedule[dayOfWeek, classIndex, slotIndex];
+                            var subject = scheduleSubjectForClass[dayOfWeek, classIndex, slotIndex];
                             if (subject == null) continue;
 
                             // Lấy mã loại slot dựa trên ngày, slot và buổi
@@ -268,8 +262,7 @@ namespace SchedulerWpfApp.Algorithm
         /// - morningGroups: danh sách lớp học buổi sáng.
         /// - afternoonGroups: danh sách lớp học buổi chiều.
         /// </returns>
-        public (List<GroupName> morningGroups, List<GroupName> afternoonGroups)
-        BalancedSplitWithGreedySwap(List<GroupName> allGroupNames)
+        public (List<GroupName> morningGroups, List<GroupName> afternoonGroups) BalancedSplitWithGreedySwap(List<GroupName> allGroupNames)
         {
             var morningGroups = new List<GroupName>();
             var afternoonGroups = new List<GroupName>();
