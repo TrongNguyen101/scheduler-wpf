@@ -71,7 +71,7 @@ namespace SchedulerWpfApp.Services
                     headerMap[header] = c;
             }
 
-            string[] requiredHeaders = { "Major", "Category", "NumberOfStudents", "NumberOfScheduler" };
+            string[] requiredHeaders = { "Groupname", "Course", "Term", "Department", "Major" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");
@@ -80,11 +80,11 @@ namespace SchedulerWpfApp.Services
             {
                 var room = new GroupName
                 {
-                    ClassId = sheet[r, headerMap["ClassId"]].Value,
+                    ClassId = sheet[r, headerMap["Groupname"]].Value,
+                    Course = sheet[r, headerMap["Course"]].Value,
+                    Department = sheet[r, headerMap["Department"]].Value,
                     Major = sheet[r, headerMap["Major"]].Value,
-                    Category = sheet[r, headerMap["Category"]].Value,
-                    NumberOfStudents = int.TryParse(sheet[r, headerMap["NumberOfStudents"]]?.Value?.ToString(), out int students) ? students : 0,
-                    NumberOfScheduler = int.TryParse(sheet[r, headerMap["NumberOfScheduler"]]?.Value?.ToString(), out int scheduler) ? scheduler : 0,
+                    Term = int.TryParse(sheet[r, headerMap["Term"]]?.Value?.ToString(), out int students) ? students : 0
                 };
 
                 rooms.Add(room);

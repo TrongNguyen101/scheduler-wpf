@@ -265,10 +265,10 @@ namespace SchedulerWpfApp.ViewModel
             SelectedGroupname = new GroupName
             {
                 ClassId = groupname.ClassId,
-                Category = groupname.Category,
+                Course = groupname.Course,
                 Major = groupname.Major,
-                NumberOfScheduler = groupname.NumberOfScheduler,
-                NumberOfStudents = groupname.NumberOfStudents,
+                Term = groupname.Term,
+                Department = groupname.Department,
             };
             IsGroupNameFormOpen = true;
             // check event edit 
@@ -293,16 +293,16 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 // check blank - Kiểm tra dữ liệu trống TRƯỚC KHI làm gì khác
                 if (string.IsNullOrWhiteSpace(SelectedGroupname?.ClassId) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.Category) ||
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.Course) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
-                    SelectedGroupname?.NumberOfStudents == null ||
-                    SelectedGroupname?.NumberOfScheduler == null)
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department) ||
+                    SelectedGroupname?.Term == null)
                 {
                     MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 // Kiểm tra số lượng âm
-                if (SelectedGroupname?.NumberOfStudents < 0 || SelectedGroupname?.NumberOfScheduler < 0)
+                if (SelectedGroupname?.Term < 0)
                 {
                     MessageBox.Show("Số lượng học viên và số lượng lịch học phải lớn hơn hoặc bằng 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -444,7 +444,7 @@ namespace SchedulerWpfApp.ViewModel
                 // can search by ClassId, Category, Major
                 var filtered = _allGroupNames.Where(room =>
                     (!string.IsNullOrEmpty(room.ClassId) && room.ClassId.ToLower().Contains(lowerKeyword)) ||
-                    (!string.IsNullOrEmpty(room.Category) && room.Category.ToLower().Contains(lowerKeyword)) ||
+                    (!string.IsNullOrEmpty(room.Course) && room.Course.ToLower().Contains(lowerKeyword)) ||
                     (!string.IsNullOrEmpty(room.Major) && room.Major.ToLower().Contains(lowerKeyword))
                 ).ToList();
 
