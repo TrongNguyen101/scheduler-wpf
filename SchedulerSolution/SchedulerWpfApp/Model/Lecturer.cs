@@ -16,9 +16,11 @@ namespace SchedulerWpfApp.Model
         [Column("Role")]
         public string? Role { get; set; }
 
-        [Column("Major")]
-        public string? Major { get; set; }
+        [Column("Department")]
+        public string? Department { get; set; }
 
         public virtual List<LecturerSubject>? LecturerSubjects { get; set; }
+
+        public virtual List<Schedule>? Schedules { get; set; }
     }
 }

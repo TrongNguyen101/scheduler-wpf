@@ -41,7 +41,7 @@ namespace SchedulerWpfApp.Model
         public string? TypeSlot { get; set; } // Type of the slot (New Slot - Old Slot)
 
         [Column("SessionNo")]
-        public int SessionNo { get; set; } // Order of slot (1, 2, 3, 4, 5, 6, 7, 8, 9,...)
+        public int? SessionNo { get; set; } // Order of slot (1, 2, 3, 4, 5, 6, 7, 8, 9,...)
 
         // Slot type code of the schedule
         // (A24 meaning: A: session in day(AM -PM), 2: slot 1 Monday, 4: slot 2 Wednesday)
@@ -50,5 +50,9 @@ namespace SchedulerWpfApp.Model
         // (P46 meaning: P: session in day(AM -PM), 4: slot 3 Wednesday, 6: slot 4 Friday)
         [Column("SlotTypeCode")]
         public string? SlotTypeCode { get; set; }
+
+        public Subject? Subject { get; set; } // Navigation property to Subject
+
+        public Lecturer? Lecturer { get; set; } // Navigation property to Lecturer
     }
 }

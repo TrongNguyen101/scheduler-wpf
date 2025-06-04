@@ -73,5 +73,36 @@ namespace SchedulerWpfApp.Data
                 throw new Exception("Error configuring database connection", ex);
             }
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Schedule>(entity =>
+            {
+                // Relation: Schedule → Subject (Many-to-One)
+                entity.HasOne(ss => ss.Subject)
+                      .WithMany(s => s.Schedules)
+                      .HasForeignKey(ss => ss.SubjectCode)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relation: Schedule → Lecturer (Many-to-One)
+                entity.HasOne(ss => ss.Lecturer)
+                      .WithMany(l => l.Schedules)
+                      .HasForeignKey(ss => ss.LecturerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relation: Schedule → Room (Many-to-One)
+                entity.HasOne(ss => ss.Room)
+                      .WithMany(r => r.Schedules)
+                      .HasForeignKey(ss => ss.RoomId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relation: Schedule → StudentClass (Many-to-One)
+                entity.HasOne(ss => ss.StudentClass)
+                      .WithMany(sc => sc.Schedules)
+                      .HasForeignKey(ss => ss.StudentClassId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+        }
+
     }
 }
