@@ -41,7 +41,7 @@ namespace SchedulerWpfApp.Services
                 {
                     LecturerId = sheet[r, headerMap["MaNV"]].Value,
                     LecturerName = sheet[r, headerMap["Fullname"]].Value,
-                    Major = sheet[r, headerMap["Bomon"]].Value,
+                    //Major = sheet[r, headerMap["Bomon"]].Value,
                     Role = sheet[r, headerMap["LoaiGV"]].Value
                 };
 

@@ -19,8 +19,10 @@ namespace SchedulerWpfApp.Model
         [Column("Department")]
         public string? Department { get; set; }
 
-        public virtual List<LecturerSubject>? LecturerSubjects { get; set; }
+        public ICollection<LecturerSubject>? LecturerSubjects { get; set; }
 
-        public virtual List<Schedule>? Schedules { get; set; }
+        public ICollection<Schedule>? Schedules { get; set; }
+
+        public ICollection<LecturerRequest>? LecturerRequests { get; set; }
     }
 }

@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace SchedulerWpfApp.Model
 {
     [Table("Room")]
-
     public class Room
     {
         [Key]
         [Column("RoomId")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RoomId { get; set; } // Id of schedule 
 
         [Column("RoomName")]
@@ -21,12 +21,14 @@ namespace SchedulerWpfApp.Model
         public string TypeOfRoom { get; set; }
 
         [Column("Status")]
-        public string Status { get; set; } // Status of the room (Available - Unavailable)
+        public string Status { get; set; } = "available";// Status of the room (Available - Unavailable)
 
         [Column("Building")]
         public string Building { get; set; } // Building of the room
 
         [Column("Floor")]
         public int Floor { get; set; } // Floor of the room
+
+        public ICollection<Schedule>? Schedules { get; set; } // Navigation property to Schedule
     }
 }

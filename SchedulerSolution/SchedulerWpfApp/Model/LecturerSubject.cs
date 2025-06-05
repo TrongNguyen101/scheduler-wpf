@@ -17,7 +17,7 @@ namespace SchedulerWpfApp.Model
         public string? LecturerName { get; set; }
         [Column("NumberOfClasses")]
         public int NumberOfClasses { get; set; }
-        public virtual Subject? Subject { get; set; }
-        public virtual Lecturer? Lecturer { get; set; }
+        public Subject? Subject { get; set; }
+        public Lecturer? Lecturer { get; set; }
     }
 }

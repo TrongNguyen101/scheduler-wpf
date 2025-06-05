@@ -28,7 +28,7 @@ namespace SchedulerWpfApp.Algorithm
 
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate)
         {
-            List<GroupName> listGroupName = await _groupNameService.GetAllAsync();
+            List<GroupClass> listGroupName = await _groupNameService.GetAllAsync();
             List<Schedule> allSchedules = new List<Schedule>();
             List<Lecturer> lecturers = await _implementLecturerServices.GetAllLecturerAsync();
             List<Subject> subjects = await _subjectServices.GetAllAsync();

@@ -36,8 +36,8 @@ namespace SchedulerWpfApp.Services
             {
                 var room = new Room
                 {
-                    RoomName = sheet[r, headerMap["Room"]].Value,
-                    TotalPersons = int.TryParse(sheet[r, headerMap["SLSV"]].Value, out var persons) ? persons : null,
+                    //RoomName = sheet[r, headerMap["Room"]].Value,
+                    //TotalPersons = int.TryParse(sheet[r, headerMap["SLSV"]].Value, out var persons) ? persons : null,
                     TypeOfRoom = sheet[r, headerMap["TypeOfRoom"]].Value,
                 };
 

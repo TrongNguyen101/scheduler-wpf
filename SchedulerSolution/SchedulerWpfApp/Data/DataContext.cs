@@ -33,7 +33,7 @@ namespace SchedulerWpfApp.Data
         public DbSet<Subject> Subjects { get; set; } = null!;
         public DbSet<Lecturer> Lecturers { get; set; } = null!;
         public DbSet<LecturerSubject> LecturerSubjects { get; set; } = null!;
-        public DbSet<GroupName> GroupName { get; set; }
+        public DbSet<GroupClass> GroupName { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<LecturerRequest> LecturerRequests { get; set; } = null!;
         public DbSet<Room> Rooms { get; set; } = null!;
@@ -97,9 +97,23 @@ namespace SchedulerWpfApp.Data
                       .OnDelete(DeleteBehavior.Restrict);
 
                 // Relation: Schedule → StudentClass (Many-to-One)
-                entity.HasOne(ss => ss.StudentClass)
+                entity.HasOne(ss => ss.GroupClass)
                       .WithMany(sc => sc.Schedules)
-                      .HasForeignKey(ss => ss.StudentClassId)
+                      .HasForeignKey(ss => ss.GroupName)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<LecturerSubject>(entity =>
+            {
+                // Relation: LecturerSubject → Subject (Many-to-One)
+                entity.HasOne(ls => ls.Subject)
+                      .WithMany(s => s.LecturerSubjects)
+                      .HasForeignKey(ls => ls.SubjectCode)
+                      .OnDelete(DeleteBehavior.Restrict);
+                // Relation: LecturerSubject → Lecturer (Many-to-One)
+                entity.HasOne(ls => ls.Lecturer)
+                      .WithMany(l => l.LecturerSubjects)
+                      .HasForeignKey(ls => ls.LecturerId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }

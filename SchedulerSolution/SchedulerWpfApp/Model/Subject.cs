@@ -22,14 +22,8 @@ namespace SchedulerWpfApp.Model
         [Column("TotalCredits")]
         public int TotalCredits { get; set; }
 
-        [Column("TotalSessions")]
-        public int TotalSessions { get; set; }
+        public ICollection<LecturerSubject>? LecturerSubjects { get; set; }
 
-        [Column("SlotsPerWeek")]
-        public int SlotsPerWeek { get; set; }
-
-        public virtual List<LecturerSubject>? LecturerSubjects { get; set; }
-
-        public virtual List<Schedule>? Schedules { get; set; }
+        public ICollection<Schedule>? Schedules { get; set; }
     }
 }

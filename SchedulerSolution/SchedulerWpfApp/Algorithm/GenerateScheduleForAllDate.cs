@@ -21,7 +21,7 @@ namespace SchedulerWpfApp.Algorithm
             _roomService = roomService;
             _createSlotTypeCode = createSlotTypeCode;
         }
-        public async Task<List<Schedule>> CreateSchedules(List<Subject> subjects, List<GroupName> listGroupName, List<LecturerSubject> lecturerSubject, DateTime startDate, List<LecturerRequest> lecturerRequests)
+        public async Task<List<Schedule>> CreateSchedules(List<Subject> subjects, List<GroupClass> listGroupName, List<LecturerSubject> lecturerSubject, DateTime startDate, List<LecturerRequest> lecturerRequests)
         {
                 List<Schedule> allSchedules = new List<Schedule>();
 
@@ -73,7 +73,7 @@ namespace SchedulerWpfApp.Algorithm
         /// <param name="classIdStartIndex">Chỉ số bắt đầu để sinh mã lớp.</param>
         private async Task<List<Schedule>> CreateSchedulesForFirstAndFinalWeek(List<Subject> subjects,
                                       Dictionary<string, List<LecturerSubject>> lecturersTeachSubjectSession,
-                                      List<GroupName> listGroupName,
+                                      List<GroupClass> listGroupName,
                                       DateTime startDate,
                                       List<LecturerRequest> lecturerRequests,
                                       string sessionFilter,
@@ -97,12 +97,12 @@ namespace SchedulerWpfApp.Algorithm
 
             for (int indexRoom = 0; indexRoom < listRooms.Count; indexRoom++)
             {
-                TreeForSchedule roomNode = _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomName);
+                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomId, "NewSlot");
 
                 /* Cần hàm tạo group name (mã lơp) ở đây*/
-                string classId = listGroupName[indexRoom].ClassId;
+                string classId = listGroupName[indexRoom].GroupName;
 
-                var subjectOfClass = subjects.Where(s => s.Major == listGroupName[indexRoom].Major).ToList();
+                var subjectOfClass = subjects.Where(s => s.SubjectNameEnglish == listGroupName[indexRoom].Major).ToList();
 
                 var scheduleSubjectForClass = _sortSubjectsOneSession.SortSubjectFourClass(subjectOfClass);
 
@@ -149,7 +149,7 @@ namespace SchedulerWpfApp.Algorithm
 
         private async Task<List<Schedule>> CreateSchedulesForWeek(List<Subject> subjects,
                                       Dictionary<string, List<LecturerSubject>> lecturersTeachSubjectSession,
-                                      List<GroupName> listGroupName,
+                                      List<GroupClass> listGroupName,
                                       DateTime startDate,
                                       List<LecturerRequest> lecturerRequests,
                                       string sessionFilter,
@@ -180,10 +180,10 @@ namespace SchedulerWpfApp.Algorithm
 
             for (int indexRoom = 0; indexRoom < listRooms.Count; indexRoom++)
             {
-                TreeForSchedule roomNode = _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomName);
+                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomId, "NewSlot");
 
                 /* Cần hàm tạo group name (mã lơp) ở đây*/
-                string classId = listGroupName[indexRoom + groupNameIndex].ClassId;
+                string classId = listGroupName[indexRoom + groupNameIndex].GroupName;
 
                 // tìm thầy cho mỗi 4 lớp
                 var (classIndex, cycleLevel) = MapToCycle(indexRoom + 1);
@@ -240,10 +240,10 @@ namespace SchedulerWpfApp.Algorithm
         /// - morningGroups: danh sách lớp học buổi sáng.
         /// - afternoonGroups: danh sách lớp học buổi chiều.
         /// </returns>
-        public (List<GroupName> morningGroups, List<GroupName> afternoonGroups) BalancedSplitWithGreedySwap(List<GroupName> allGroupNames)
+        public (List<GroupClass> morningGroups, List<GroupClass> afternoonGroups) BalancedSplitWithGreedySwap(List<GroupClass> allGroupNames)
         {
-            var morningGroups = new List<GroupName>();
-            var afternoonGroups = new List<GroupName>();
+            var morningGroups = new List<GroupClass>();
+            var afternoonGroups = new List<GroupClass>();
 
             var groupedByMajor = allGroupNames
                 .GroupBy(g => g.Major)
@@ -254,7 +254,7 @@ namespace SchedulerWpfApp.Algorithm
                 }).ToList();
 
             // Tạo danh sách các cặp (nửa sáng, nửa chiều)
-            var splitPairs = new List<(List<GroupName> MorningHalf, List<GroupName> AfternoonHalf)>();
+            var splitPairs = new List<(List<GroupClass> MorningHalf, List<GroupClass> AfternoonHalf)>();
 
             foreach (var item in groupedByMajor)
             {
@@ -317,7 +317,8 @@ namespace SchedulerWpfApp.Algorithm
             }
             else
             {
-                currentSession = currentSession >= subject.TotalSessions ? 1 : currentSession + 1;
+                // Hãy sửa lại chỗ này nó bị gán cứng số slot
+                currentSession = currentSession >= 20 ? 1 : currentSession + 1;
             }
 
             subjectAppearanceOrder[subject.SubjectCode] = currentSession;

@@ -27,5 +27,13 @@ namespace SchedulerWpfApp.Model
 
         [Column("SlotType")]
         public string? SlotType { get; set; }
+
+        [Column("DistanceNote ")]
+        public bool DistanceNote { get; set; } = false;
+
+        [Column("HasHealthIssue")]
+        public bool HasHealthIssue { get; set; } = false;
+
+        public Lecturer? Lecturer { get; set; }
     }
 }

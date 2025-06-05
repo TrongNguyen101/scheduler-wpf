@@ -11,7 +11,7 @@ namespace SchedulerWpfApp.Services
     {
         List<Person> ReadPersonsFromExcel(string filePath);
 
-        List<GroupName> ReadRoomFromExcel(string filePath);
+        List<GroupClass> ReadRoomFromExcel(string filePath);
 
     }
 }

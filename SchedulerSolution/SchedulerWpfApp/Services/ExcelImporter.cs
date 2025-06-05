@@ -49,9 +49,9 @@ namespace SchedulerWpfApp.Services
         }
 
 
-        public List<GroupName> ReadRoomFromExcel(string filePath)
+        public List<GroupClass> ReadRoomFromExcel(string filePath)
         {
-            var rooms = new List<GroupName>();
+            var rooms = new List<GroupClass>();
 
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
@@ -78,13 +78,13 @@ namespace SchedulerWpfApp.Services
 
             for (int r = 2; r <= rowCount; r++)
             {
-                var room = new GroupName
+                var room = new GroupClass
                 {
-                    ClassId = sheet[r, headerMap["Groupname"]].Value,
+                    GroupName = sheet[r, headerMap["Groupname"]].Value,
                     Course = sheet[r, headerMap["Course"]].Value,
                     Department = sheet[r, headerMap["Department"]].Value,
                     Major = sheet[r, headerMap["Major"]].Value,
-                    Term = int.TryParse(sheet[r, headerMap["Term"]]?.Value?.ToString(), out int students) ? students : 0
+                    //Term = int.TryParse(sheet[r, headerMap["Term"]]?.Value?.ToString(), out int students) ? students : 0
                 };
 
                 rooms.Add(room);

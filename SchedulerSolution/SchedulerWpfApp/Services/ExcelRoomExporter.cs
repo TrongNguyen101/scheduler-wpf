@@ -22,8 +22,8 @@ namespace SchedulerWpfApp.Services
             int row = 2;
             foreach (var rooms in room)
             {
-                sheet[row, 1].Text = rooms.RoomName ?? "";
-                sheet[row, 2].Number = rooms.TotalPersons ?? 0;
+                //sheet[row, 1].Text = rooms.RoomName ?? "";
+                //sheet[row, 2].Number = rooms.TotalPersons ?? 0;
                 sheet[row, 3].Text = rooms.TypeOfRoom ?? "";
                 row++;
             }

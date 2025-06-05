@@ -3,11 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SchedulerWpfApp.Model
 {
-    [Table("GroupName")]
-    public class GroupName
+    [Table("GroupClass")]
+    public class GroupClass
     {
         [Key]
-        public string ClassId { get; set; } = string.Empty;
+        public string GroupName { get; set; } = string.Empty;
 
         [Column("Course")]
         public string? Course { get; set; }
@@ -15,10 +15,9 @@ namespace SchedulerWpfApp.Model
         [Column("Major")]
         public string? Major { get; set; }
 
-        [Column("Term")]
-        public int Term { get; set; }
-
         [Column("Department")]
         public string? Department { get; set; }
+
+        public ICollection<Schedule>? Schedules { get; set; }
     }
 }

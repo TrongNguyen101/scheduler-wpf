@@ -94,7 +94,7 @@ namespace SchedulerWpfApp.Services
             var existingRoom = await GetByRoomCodeAsync(room.RoomId);
             if (existingRoom != null)
             {
-                existingRoom.RoomName = room.RoomName;
+                //existingRoom.RoomName = room.RoomName;
                 existingRoom.TotalPersons = room.TotalPersons;
                 existingRoom.TypeOfRoom = room.TypeOfRoom;
                 await _context.SaveChangesAsync();

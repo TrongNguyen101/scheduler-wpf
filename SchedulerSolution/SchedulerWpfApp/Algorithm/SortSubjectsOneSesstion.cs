@@ -10,8 +10,10 @@ namespace SchedulerWpfApp.Algorithm
             // trong một tuần, trong 1 buổi, một thầy dạy được tối đa 4 lớp mỗi lớp 2 slot cho 1 môn
 
             //  get all subjects with 2 slots per week
-            var subjects = allSubjects.Where(subject => subject.SlotsPerWeek == 2).ToList();
-            var subjectOneSlot = allSubjects.Where(subject => subject.SlotsPerWeek == 1).ToList();
+
+            //Hãy sửa lại chỗ này để chọn đúng môn
+            var subjects = allSubjects.Where(subject => subject.TotalCredits == 2).ToList();
+            var subjectOneSlot = allSubjects.Where(subject => subject.TotalCredits == 1).ToList();
 
 
             // Kiểm tra đầu vào
@@ -94,7 +96,7 @@ namespace SchedulerWpfApp.Algorithm
             // trong một tuần, trong 1 buổi, một thầy dạy được tối đa 4 lớp mỗi lớp 2 slot cho 1 môn
 
             //  get all subjects with 2 slots per week
-            var subjects = allSubjects.Where(subject => subject.SlotsPerWeek == 2).ToList();
+            var subjects = allSubjects.Where(subject => subject.TotalCredits == 2).ToList();
 
             // Kiểm tra đầu vào
             if (subjects == null || subjects.Count != 5)

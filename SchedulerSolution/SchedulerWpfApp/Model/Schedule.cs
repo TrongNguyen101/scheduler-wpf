@@ -11,7 +11,7 @@ namespace SchedulerWpfApp.Model
         public int ScheduleId { get; set; } // Id of schedule 
 
         [Column("RoomNo")]
-        public string? RoomNo { get; set; } // Room number
+        public int? RoomId { get; set; } // Room number
 
         [Column("PartOfDay")]
         public string? PartOfDay { get; set; } // Session of the schedule in a day (AM - PM)
@@ -54,5 +54,9 @@ namespace SchedulerWpfApp.Model
         public Subject? Subject { get; set; } // Navigation property to Subject
 
         public Lecturer? Lecturer { get; set; } // Navigation property to Lecturer
+
+        public Room? Room { get; set; } // Navigation property to Room
+
+        public GroupClass? GroupClass { get; set; } // Navigation property to GroupClass
     }
 }

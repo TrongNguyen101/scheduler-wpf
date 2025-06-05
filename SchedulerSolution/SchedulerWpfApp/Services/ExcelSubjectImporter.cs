@@ -45,11 +45,11 @@ namespace SchedulerWpfApp.Services
                 var subject = new Subject
                 {
                     SubjectCode = sheet[r, headerMap["SubjectCode"]].Value,
-                    SubjectName = sheet[r, headerMap["SubjectName"]].Value,
-                    Major = sheet[r, headerMap["Major"]].Value,
-                    TotalSessions = int.TryParse(sheet[r, headerMap["TotalSessions"]].Value, out int totalSessions) ? totalSessions : 0,
-                    SlotsPerWeek = int.TryParse(sheet[r, headerMap["SlotsPerWeek"]].Value, out int SlotsPerWeek) ? SlotsPerWeek : 0,
-                    SemesterId = sheet[r, headerMap["SemesterId"]].Value
+                    //SubjectName = sheet[r, headerMap["SubjectName"]].Value,
+                    //Major = sheet[r, headerMap["Major"]].Value,
+                    //TotalSessions = int.TryParse(sheet[r, headerMap["TotalSessions"]].Value, out int totalSessions) ? totalSessions : 0,
+                    //SlotsPerWeek = int.TryParse(sheet[r, headerMap["SlotsPerWeek"]].Value, out int SlotsPerWeek) ? SlotsPerWeek : 0,
+                    //SemesterId = sheet[r, headerMap["SemesterId"]].Value
                 };
 
                 subjects.Add(subject);
