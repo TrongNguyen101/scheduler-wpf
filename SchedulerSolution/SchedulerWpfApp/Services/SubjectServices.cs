@@ -96,8 +96,11 @@ namespace SchedulerWpfApp.Services
             var existingSubject = await GetBySubjectCodeAsync(subject.SubjectCode);
             if (existingSubject != null)
             {
-                // Mark the entity as modified to avoid having to copy properties manually
-                _context.Entry(subject).State = EntityState.Modified;
+                existingSubject.SubjectNameEnglish = subject.SubjectNameEnglish;
+                existingSubject.SubjectNameVietnamese = subject.SubjectNameVietnamese;
+                existingSubject.TotalCredits = subject.TotalCredits;
+                existingSubject.TotalTime = subject.TotalTime;
+
                 await _context.SaveChangesAsync();
             }
         }
