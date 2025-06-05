@@ -25,7 +25,7 @@ namespace SchedulerWpfApp.Services
         /// </summary>
         /// <param name="groupName"></param>
         
-        public async Task AddGroupName(GroupName groupName)
+        public async Task AddGroupName(GroupClass groupName)
         {
             try
             {
@@ -65,7 +65,7 @@ namespace SchedulerWpfApp.Services
         /// This method returns a list of all group names stored in the database.
         /// </summary>
         
-        public async Task<List<GroupName>> GetAllAsync()
+        public async Task<List<GroupClass>> GetAllAsync()
         {
             try
             {
@@ -82,7 +82,7 @@ namespace SchedulerWpfApp.Services
         /// This method searches for a group name in the database using its unique identifier.
         /// It takes the class ID as input and returns the corresponding GroupName object if found.
         /// </summary>
-        public Task<GroupName?> GetByIdAsync(int id)
+        public Task<GroupClass?> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
@@ -91,7 +91,7 @@ namespace SchedulerWpfApp.Services
         /// Import group names (classes) from an Excel file.
         /// This method takes a list of GroupName objects as input and adds them to the database.
         /// </summary>
-        public async Task ImportGroupNameFromExcel(List<GroupName> listGroupNameFromExcel)
+        public async Task ImportGroupNameFromExcel(List<GroupClass> listGroupNameFromExcel)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace SchedulerWpfApp.Services
         /// Retrieve a group name (class) by its class ID.
         /// </summary>
         /// <param name="classID"></param>
-        public async Task<GroupName?> GetByGroupNameCodeAsync(string classID)
+        public async Task<GroupClass?> GetByGroupNameCodeAsync(string classID)
         {
             return await _context.GroupName.FindAsync(classID);
         }
@@ -120,18 +120,18 @@ namespace SchedulerWpfApp.Services
         /// Update an existing group name (class) in the database.
         /// This method takes a GroupName object as input, updates the corresponding record in the database, and saves the changes asynchronously.
         /// </summary>
-        public async Task UpdateGroupName(GroupName groupname)
+        public async Task UpdateGroupName(GroupClass groupname)
         {
             try
             {
-                var existinggroupname = await GetByGroupNameCodeAsync(groupname.ClassId);
+                var existinggroupname = await GetByGroupNameCodeAsync(groupname.GroupName);
                 if (existinggroupname != null)
                 {
                     // Mark the entity as modified to avoid having to copy properties manually
                     existinggroupname.Major = groupname.Major;
-                    existinggroupname.Category = groupname.Category;
-                    existinggroupname.NumberOfStudents = groupname.NumberOfStudents;
-                    existinggroupname.NumberOfScheduler = groupname.NumberOfScheduler;
+                    existinggroupname.Course = groupname.Course;
+                    //existinggroupname.Term = groupname.Term;
+                    existinggroupname.Major = groupname.Major;
                     await _context.SaveChangesAsync();
                 }
             }
@@ -149,7 +149,7 @@ namespace SchedulerWpfApp.Services
         {
             try
             {
-                return await _context.GroupName.AnyAsync(g => g.ClassId == classId);
+                return await _context.GroupName.AnyAsync(g => g.GroupName == classId);
             }
             catch (Exception ex)
             {

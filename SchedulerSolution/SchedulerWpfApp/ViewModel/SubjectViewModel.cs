@@ -194,11 +194,11 @@ namespace SchedulerWpfApp.ViewModel
             SelectedSubject = new Subject
             {
                 SubjectCode = subject.SubjectCode,
-                SubjectName = subject.SubjectName,
-                Major = subject.Major,
-                TotalSessions = subject.TotalSessions,
-                SlotsPerWeek = subject.SlotsPerWeek,
-                SemesterId = subject.SemesterId,
+                //SubjectName = subject.SubjectName,
+                //Major = subject.Major,
+                //TotalSessions = subject.TotalSessions,
+                //SlotsPerWeek = subject.SlotsPerWeek,
+                //SemesterId = subject.SemesterId,
             };
 
             IsSubjectFormOpen = true;
@@ -218,11 +218,11 @@ namespace SchedulerWpfApp.ViewModel
             SelectedSubject = new Subject
             {
                 SubjectCode = subject.SubjectCode,
-                SubjectName = subject.SubjectName,
-                Major = subject.Major,
-                TotalSessions = subject.TotalSessions,
-                SlotsPerWeek = subject.SlotsPerWeek,
-                SemesterId = subject.SemesterId,
+                //SubjectName = subject.SubjectName,
+                //Major = subject.Major,
+                //TotalSessions = subject.TotalSessions,
+                //SlotsPerWeek = subject.SlotsPerWeek,
+                //SemesterId = subject.SemesterId,
             };
 
             IsOpenDialog = true;
@@ -273,11 +273,13 @@ namespace SchedulerWpfApp.ViewModel
                     if (existingSubject != null)
                     {
                         // Cập nhật thông tin
-                        existingSubject.SubjectName = SelectedSubject.SubjectName;
-                        existingSubject.Major = SelectedSubject.Major;
-                        existingSubject.TotalSessions = SelectedSubject.TotalSessions;
-                        existingSubject.SlotsPerWeek = SelectedSubject.SlotsPerWeek;
-                        existingSubject.SemesterId = SelectedSubject.SemesterId;
+                        //existingSubject.SubjectName = SelectedSubject.SubjectName;
+                        //existingSubject.Major = SelectedSubject.Major;
+                        //existingSubject.TotalSessions = SelectedSubject.TotalSessions;
+                        //existingSubject.SlotsPerWeek = SelectedSubject.SlotsPerWeek;
+                        //existingSubject.SemesterId = SelectedSubject.SemesterId;
+
+
                         await _courseService.UpdateSubject(existingSubject);
                         MessageBox.Show("Update môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
@@ -423,9 +425,9 @@ namespace SchedulerWpfApp.ViewModel
                 var lowerKeyword = SearchKeyword.ToLower();
                 // can search by ClassId, Category, Major
                 var filtered = _allSubjects.Where(subject =>
-                    (!string.IsNullOrEmpty(subject.SubjectCode) && subject.SubjectCode.ToLower().Contains(lowerKeyword)) ||
-                    (!string.IsNullOrEmpty(subject.SubjectName) && subject.SubjectName.ToLower().Contains(lowerKeyword)) ||
-                    (!string.IsNullOrEmpty(subject.Major) && subject.Major.ToLower().Contains(lowerKeyword))
+                    (!string.IsNullOrEmpty(subject.SubjectCode) && subject.SubjectCode.ToLower().Contains(lowerKeyword))
+                    //(!string.IsNullOrEmpty(subject.SubjectName) && subject.SubjectName.ToLower().Contains(lowerKeyword)) ||
+                    //(!string.IsNullOrEmpty(subject.Major) && subject.Major.ToLower().Contains(lowerKeyword))
                 ).ToList();
 
                 Subjects = new ObservableCollection<Subject>(filtered);

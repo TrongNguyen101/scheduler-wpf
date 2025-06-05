@@ -33,7 +33,7 @@ namespace SchedulerWpfApp.Data
         public DbSet<Subject> Subjects { get; set; } = null!;
         public DbSet<Lecturer> Lecturers { get; set; } = null!;
         public DbSet<LecturerSubject> LecturerSubjects { get; set; } = null!;
-        public DbSet<GroupName> GroupName { get; set; }
+        public DbSet<GroupClass> GroupName { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<LecturerRequest> LecturerRequests { get; set; } = null!;
         public DbSet<Room> Rooms { get; set; } = null!;
@@ -74,183 +74,58 @@ namespace SchedulerWpfApp.Data
             }
         }
 
-        /// <summary>
-        /// Configures the database model creating relationships, constraints, and other configurations.
-        /// Currently empty, but can be extended to define entity relationships and configurations.
-        /// </summary>
-        /// <param name="modelBuilder">The builder used to configure the model.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Person>().HasData(
-                new Person
-                {
-                    Id = 1,
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Email = "john.doe@example.com",
-                    Phone = "123-456-7890",
-                },
-                new Person
-                {
-                    Id = 2,
-                    FirstName = "Jane",
-                    LastName = "Smith",
-                    Email = "Jane.smith@example.com",
-                    Phone = "987-654-3210",
-                },
-                new Person
-                {
-                    Id = 3,
-                    FirstName = "Alice",
-                    LastName = "Johnson",
-                    Email = "Alice.johnson@example.com",
-                    Phone = "555-123-4567",
-                }
-             );
+            modelBuilder.Entity<Schedule>(entity =>
+            {
+                // Relation: Schedule → Subject (Many-to-One)
+                entity.HasOne(ss => ss.Subject)
+                      .WithMany(s => s.Schedules)
+                      .HasForeignKey(ss => ss.SubjectCode)
+                      .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Subject>().HasData(
-                new Subject
-                {
-                    SubjectCode = "SWP391",
-                    SubjectName = "Software Engineering",
-                    Major = "SE",
-                    TotalSessions = 20,
-                    SlotsPerWeek = 2,
-                    SemesterId = ""
-                },
-                new Subject
-                {
-                    SubjectCode = "SWT301",
-                    SubjectName = "Software Testing",
-                    Major = "SE",
-                    TotalSessions = 20,
-                    SlotsPerWeek = 2,
-                    SemesterId = ""
-                },
-                new Subject
-                {
-                    SubjectCode = "SWR302",
-                    SubjectName = "Software Requirement",
-                    Major = "SE",
-                    TotalSessions = 20,
-                    SlotsPerWeek = 2,
-                    SemesterId = ""
-                },
-                new Subject
-                {
-                    SubjectCode = "PRN211",
-                    SubjectName = "Programming",
-                    Major = "SE",
-                    TotalSessions = 20,
-                    SlotsPerWeek = 2,
-                    SemesterId = ""
-                },
-                new Subject
-                {
-                    SubjectCode = "ENW11",
-                    SubjectName = "English",
-                    Major = "SE",
-                    TotalSessions = 10,
-                    SlotsPerWeek = 1,
-                    SemesterId = ""
-                }
-             );
+                // Relation: Schedule → Lecturer (Many-to-One)
+                entity.HasOne(ss => ss.Lecturer)
+                      .WithMany(l => l.Schedules)
+                      .HasForeignKey(ss => ss.LecturerId)
+                      .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<LecturerRequest>().HasData(
-                new LecturerRequest
-                {
-                    Id = 1,
-                    LecturerId = "L1",
-                    DayName = "Monday",
-                    Session = "A",
-                    SlotTime = null,
-                    SlotType = null
-                },
-                new LecturerRequest
-                {
-                    Id = 2,
-                    LecturerId = "L1",
-                    DayName = "Wednesday",
-                    Session = "A",
-                    SlotTime = null,
-                    SlotType = null
-                }
-            );
+                // Relation: Schedule → Room (Many-to-One)
+                entity.HasOne(ss => ss.Room)
+                      .WithMany(r => r.Schedules)
+                      .HasForeignKey(ss => ss.RoomId)
+                      .OnDelete(DeleteBehavior.Restrict);
 
+                // Relation: Schedule → StudentClass (Many-to-One)
+                entity.HasOne(ss => ss.GroupClass)
+                      .WithMany(sc => sc.Schedules)
+                      .HasForeignKey(ss => ss.GroupName)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
 
-            modelBuilder.Entity<Lecturer>().HasData(
-                new Lecturer { LecturerId = "1", LecturerName = "Nguyễn Văn A", Role = null },
-                new Lecturer { LecturerId = "2", LecturerName = "Trần Thị B", Role = null },
-                new Lecturer { LecturerId = "L1", LecturerName = "Nguyen Van Xoai", Role = null },
-                new Lecturer { LecturerId = "L2", LecturerName = "Sờ Mai", Role = null },
-                new Lecturer { LecturerId = "L3", LecturerName = "Nguyen Mang Gồ", Role = null },
-                new Lecturer { LecturerId = "L4", LecturerName = "Nguyen Vỉa Hè", Role = null },
-                new Lecturer { LecturerId = "L5", LecturerName = "Nguyen Hoa Hong", Role = null },
-                new Lecturer { LecturerId = "L6", LecturerName = "Nguyen Thi Hoa", Role = null },
-                new Lecturer { LecturerId = "L7", LecturerName = "Nguyen Thi Bưởi", Role = null },
-                new Lecturer { LecturerId = "L8", LecturerName = "Nguyen Thi Đào", Role = null },
-                new Lecturer { LecturerId = "L9", LecturerName = "Nguyen Thi Oi", Role = null },
-                new Lecturer { LecturerId = "L10", LecturerName = "Nguyen Thi Cam", Role = null },
-                new Lecturer { LecturerId = "L11", LecturerName = "Nguyen Thi Mit", Role = null },
-                new Lecturer { LecturerId = "L12", LecturerName = "Nguyen Thi Leo", Role = null },
-                new Lecturer { LecturerId = "L13", LecturerName = "Nguyen Thi Man", Role = null },
-                new Lecturer { LecturerId = "L14", LecturerName = "Nguyen Teo Em", Role = null },
-                new Lecturer { LecturerId = "L15", LecturerName = "Nguyen Thi Cam", Role = null },
-                new Lecturer { LecturerId = "L16", LecturerName = "Nguyen Thi Chuoi", Role = null },
-                new Lecturer { LecturerId = "L17", LecturerName = "Nguyen Thi Hoa", Role = null }
+            modelBuilder.Entity<LecturerSubject>(entity =>
+            {
+                // Relation: LecturerSubject → Subject (Many-to-One)
+                entity.HasOne(ls => ls.Subject)
+                      .WithMany(s => s.LecturerSubjects)
+                      .HasForeignKey(ls => ls.SubjectCode)
+                      .OnDelete(DeleteBehavior.Restrict);
+                // Relation: LecturerSubject → Lecturer (Many-to-One)
+                entity.HasOne(ls => ls.Lecturer)
+                      .WithMany(l => l.LecturerSubjects)
+                      .HasForeignKey(ls => ls.LecturerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
 
-            );
-
-            modelBuilder.Entity<LecturerSubject>().HasData(
-                new LecturerSubject { Id = 1, LecturerId = "L2", SubjectCode = "SWP391", LecturerName = "Sờ Mai", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 2, LecturerId = "L3", SubjectCode = "SWP391", LecturerName = "Nguyen Mang Gồ", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 3, LecturerId = "L4", SubjectCode = "SWP391", LecturerName = "Nguyen Vỉa Hè", NumberOfClasses = 1 },
-
-                new LecturerSubject { Id = 4, LecturerId = "L5", SubjectCode = "SWT301", LecturerName = "Nguyen Hoa Hong", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 5, LecturerId = "L6", SubjectCode = "SWT301", LecturerName = "Nguyen Thi Hoa", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 6, LecturerId = "L7", SubjectCode = "SWT301", LecturerName = "Nguyen Thi Bưởi", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 7, LecturerId = "L8", SubjectCode = "SWT301", LecturerName = "Nguyen Thi Đào", NumberOfClasses = 1 },
-
-                new LecturerSubject { Id = 8, LecturerId = "L9", SubjectCode = "SWR302", LecturerName = "Nguyen Thi Oi", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 9, LecturerId = "L10", SubjectCode = "SWR302", LecturerName = "Nguyen Thi Cam", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 10, LecturerId = "L11", SubjectCode = "SWR302", LecturerName = "Nguyen Thi Mit", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 11, LecturerId = "L12", SubjectCode = "SWR302", LecturerName = "Nguyen Thi Leo", NumberOfClasses = 1 },
-
-                new LecturerSubject { Id = 12, LecturerId = "L13", SubjectCode = "PRN211", LecturerName = "Nguyen Thi Man", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 13, LecturerId = "L14", SubjectCode = "PRN211", LecturerName = "Nguyen Teo Em", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 14, LecturerId = "L15", SubjectCode = "PRN211", LecturerName = "Nguyen Thi Cam", NumberOfClasses = 1 },
-                new LecturerSubject { Id = 15, LecturerId = "L16", SubjectCode = "PRN211", LecturerName = "Nguyen Thi Chuoi", NumberOfClasses = 1 },
-
-                new LecturerSubject { Id = 16, LecturerId = "L17", SubjectCode = "ENW11", LecturerName = "Nguyen Thi Hoa", NumberOfClasses = 1 }
-
-            );
-
-            modelBuilder.Entity<GroupName>().HasData(
-              new GroupName
-              {
-                  ClassId = "CL01",
-                  Category = "Class room",
-                  Major = "SE",
-                  NumberOfScheduler = 5,
-                  NumberOfStudents = 35
-              },
-              new GroupName
-              {
-                  ClassId = "CL02",
-                  Category = "Class room",
-                  Major = "MC",
-                  NumberOfScheduler = 5,
-                  NumberOfStudents = 35
-              },
-              new GroupName
-              {
-                  ClassId = "CL03",
-                  Category = "Computer lab",
-                  Major = "SE",
-                  NumberOfScheduler = 5,
-                  NumberOfStudents = 35
-              }
-           );
+            modelBuilder.Entity<LecturerRequest>(LecturerRequest =>
+            {
+                // Relation: LecturerRequest → Lecturer (Many-to-One)
+                LecturerRequest.HasOne(lr => lr.Lecturer)
+                               .WithMany(l => l.LecturerRequests)
+                               .HasForeignKey(lr => lr.LecturerId)
+                               .OnDelete(DeleteBehavior.Restrict);
+            });
         }
+
     }
 }

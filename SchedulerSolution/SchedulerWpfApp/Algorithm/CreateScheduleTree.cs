@@ -14,28 +14,28 @@ namespace SchedulerWpfApp.Algorithm
         private readonly InterfaceLecturerSubjectServices _implementLecturerSubjectServices;
         private readonly InterfaceLecturerServices _implementLecturerServices;
         private readonly ISubjectServices _subjectServices;
+        private readonly IGroupNameService _groupNameService;
 
-        public CreateScheduleTree(GenerateScheduleForAllDate generateScheduleForAllDate, InterfaceScheduleServices implementSchedule, InterfaceLecturerSubjectServices implementLecturerSubjectServices, ISubjectServices subjectServices, InterfaceLecturerServices implementLecturerServices)
+        public CreateScheduleTree(GenerateScheduleForAllDate generateScheduleForAllDate, InterfaceScheduleServices implementSchedule, InterfaceLecturerSubjectServices implementLecturerSubjectServices, ISubjectServices subjectServices, InterfaceLecturerServices implementLecturerServices, IGroupNameService groupNameService)
         {
             _generateScheduleForAllDate = generateScheduleForAllDate;
             _implementScheduleServices = implementSchedule;
             _implementLecturerSubjectServices = implementLecturerSubjectServices;
             _implementLecturerServices = implementLecturerServices;
             _subjectServices = subjectServices;
+            _groupNameService = groupNameService;
         }
 
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate)
         {
-            /*Cần hàm đọc số lượng lớp ở đây*/
-            int numberOfClasss = 4; // Total number of classes
-
+            List<GroupClass> listGroupName = await _groupNameService.GetAllAsync();
             List<Schedule> allSchedules = new List<Schedule>();
             List<Lecturer> lecturers = await _implementLecturerServices.GetAllLecturerAsync();
             List<Subject> subjects = await _subjectServices.GetAllAsync();
             List<LecturerSubject> lecturerSubjects = await _implementLecturerSubjectServices.GetAllLecturerSubjectAsync();
             List<LecturerRequest> lecturerRequests = new List<LecturerRequest>();
 
-            _generateScheduleForAllDate.CreateSchedules(allSchedules, subjects, numberOfClasss, lecturerSubjects, startDate, lecturerRequests);
+            allSchedules = await _generateScheduleForAllDate.CreateSchedules(subjects, listGroupName, lecturerSubjects, startDate, lecturerRequests);
             //_implementScheduleServices.AddScheduleAsync(allSchedules);
 
             return allSchedules;

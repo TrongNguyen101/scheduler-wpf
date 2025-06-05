@@ -49,9 +49,9 @@ namespace SchedulerWpfApp.Services
         }
 
 
-        public List<GroupName> ReadRoomFromExcel(string filePath)
+        public List<GroupClass> ReadRoomFromExcel(string filePath)
         {
-            var rooms = new List<GroupName>();
+            var rooms = new List<GroupClass>();
 
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
@@ -71,20 +71,20 @@ namespace SchedulerWpfApp.Services
                     headerMap[header] = c;
             }
 
-            string[] requiredHeaders = { "Major", "Category", "NumberOfStudents", "NumberOfScheduler" };
+            string[] requiredHeaders = { "Groupname", "Course", "Term", "Department", "Major" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");
 
             for (int r = 2; r <= rowCount; r++)
             {
-                var room = new GroupName
+                var room = new GroupClass
                 {
-                    ClassId = sheet[r, headerMap["ClassId"]].Value,
+                    GroupName = sheet[r, headerMap["Groupname"]].Value,
+                    Course = sheet[r, headerMap["Course"]].Value,
+                    Department = sheet[r, headerMap["Department"]].Value,
                     Major = sheet[r, headerMap["Major"]].Value,
-                    Category = sheet[r, headerMap["Category"]].Value,
-                    NumberOfStudents = int.TryParse(sheet[r, headerMap["NumberOfStudents"]]?.Value?.ToString(), out int students) ? students : 0,
-                    NumberOfScheduler = int.TryParse(sheet[r, headerMap["NumberOfScheduler"]]?.Value?.ToString(), out int scheduler) ? scheduler : 0,
+                    //Term = int.TryParse(sheet[r, headerMap["Term"]]?.Value?.ToString(), out int students) ? students : 0
                 };
 
                 rooms.Add(room);

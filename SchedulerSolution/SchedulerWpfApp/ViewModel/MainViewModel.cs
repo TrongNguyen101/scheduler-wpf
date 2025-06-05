@@ -1,11 +1,5 @@
-﻿using System.Text;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using SchedulerWpfApp.Helper;
-using SchedulerWpfApp.Model;
-using System.Diagnostics;
-using Syncfusion.XlsIO;
-using Microsoft.Win32;
-using System.Windows;
 using SchedulerWpfApp.Algorithm;
 
 namespace SchedulerWpfApp.ViewModel

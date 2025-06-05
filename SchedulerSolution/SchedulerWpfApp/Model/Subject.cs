@@ -11,20 +11,19 @@ namespace SchedulerWpfApp.Model
         public string SubjectCode { get; set; }
 
         [Column("SubjectName")]
-        public string? SubjectName { get; set; }
+        public string? SubjectNameEnglish { get; set; }
 
-        [Column("Major")]
-        public string? Major { get; set; }
+        [Column("SubjectNameVietnamese")]
+        public string? SubjectNameVietnamese { get; set; }
 
-        [Column("TotalSessions")]
-        public int TotalSessions { get; set; }
+        [Column("TotalTime")]
+        public int TotalTime { get; set; }
 
-        [Column("SlotsPerWeek")]
-        public int SlotsPerWeek { get; set; }
+        [Column("TotalCredits")]
+        public int TotalCredits { get; set; }
 
-        [Column("SemesterId")]
-        public string? SemesterId { get; set; }
+        public ICollection<LecturerSubject>? LecturerSubjects { get; set; }
 
-        public virtual List<LecturerSubject>? LecturerSubjects { get; set; }
+        public ICollection<Schedule>? Schedules { get; set; }
     }
 }

@@ -162,6 +162,7 @@ namespace SchedulerWpfApp
             services.AddTransient<LectureViewModel>();
             services.AddTransient<RoomViewModel>();
             services.AddTransient<LectureSubjectViewModel>();
+
             // Add factories
             services.AddSingleton<Func<SubjectViewModel>>(sp => () => sp.GetRequiredService<SubjectViewModel>());
             services.AddSingleton<Func<PersonViewModel>>(sp => () => sp.GetRequiredService<PersonViewModel>());
@@ -170,11 +171,13 @@ namespace SchedulerWpfApp
             services.AddSingleton<Func<LectureViewModel>>(sp => () => sp.GetRequiredService<LectureViewModel>());
             services.AddSingleton<Func<LectureSubjectViewModel>>(sp => () => sp.GetRequiredService<LectureSubjectViewModel>());
             services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
+
             services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime
             services.AddScoped<TreeForSchedule>(); // Register TreeNode with a scoped lifetime
             services.AddScoped<SortSubjectsOneSession>(); // Register SortSubjectsOneSession with a scoped lifetime
             services.AddScoped<GetLecturerForSubject>(); // Register GetLecturerForSubject with a scoped lifetime
             services.AddScoped<GenerateScheduleForAllDate>(); // Register GenerateScheduleForAllDate with a scoped lifetime
+            services.AddScoped<CreateSlotTypeCode>(); // Register CreateSlotTypeCode with a scoped lifetime
         }
 
         /// <summary>

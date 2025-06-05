@@ -31,11 +31,11 @@ namespace SchedulerWpfApp.Services
             foreach (var subject in subjects)
             {
                 sheet[row, 1].Text = subject.SubjectCode ?? "";
-                sheet[row, 2].Text = subject.SubjectName ?? "";
-                sheet[row, 3].Text = subject.Major ?? "";
-                sheet[row, 4].Text = subject.TotalSessions.ToString() ?? "";
-                sheet[row, 5].Text = subject.SlotsPerWeek.ToString() ?? "";
-                sheet[row, 6].Text = subject.SemesterId ?? "";
+                //sheet[row, 2].Text = subject.SubjectName ?? "";
+                //sheet[row, 3].Text = subject.Major ?? "";
+                //sheet[row, 4].Text = subject.TotalSessions.ToString() ?? "";
+                //sheet[row, 5].Text = subject.SlotsPerWeek.ToString() ?? "";
+                //sheet[row, 6].Text = subject.SemesterId ?? "";
                 row++;
             }
 

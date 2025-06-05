@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchedulerWpfApp.Data;
 
@@ -10,33 +11,39 @@ using SchedulerWpfApp.Data;
 namespace SchedulerWpfApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250529072452_EditPropertyLecturer")]
+    partial class EditPropertyLecturer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
-            modelBuilder.Entity("SchedulerWpfApp.Model.GroupClass", b =>
+            modelBuilder.Entity("SchedulerWpfApp.Model.GroupName", b =>
                 {
-                    b.Property<string>("GroupName")
+                    b.Property<string>("ClassId")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Course")
+                    b.Property<string>("Category")
                         .HasColumnType("TEXT")
-                        .HasColumnName("Course");
-
-                    b.Property<string>("Department")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("Department");
+                        .HasColumnName("Category");
 
                     b.Property<string>("Major")
                         .HasColumnType("TEXT")
                         .HasColumnName("Major");
 
-                    b.HasKey("GroupName");
+                    b.Property<int>("NumberOfScheduler")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("NumberOfScheduler");
 
-                    b.ToTable("GroupClass");
+                    b.Property<int>("NumberOfStudents")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("NumberOfStudents");
+
+                    b.HasKey("ClassId");
+
+                    b.ToTable("GroupName");
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Lecturer", b =>
@@ -45,13 +52,13 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("LecturerId");
 
-                    b.Property<string>("Department")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("Department");
-
                     b.Property<string>("LecturerName")
                         .HasColumnType("TEXT")
                         .HasColumnName("LecturerName");
+
+                    b.Property<string>("Major")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("Major");
 
                     b.Property<string>("Role")
                         .HasColumnType("TEXT")
@@ -73,14 +80,6 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("DayName");
 
-                    b.Property<bool>("DistanceNote")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("DistanceNote ");
-
-                    b.Property<bool>("HasHealthIssue")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("HasHealthIssue");
-
                     b.Property<string>("LecturerId")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -100,8 +99,6 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnName("SlotType");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("LecturerId");
 
                     b.ToTable("LecturerRequests");
                 });
@@ -128,11 +125,14 @@ namespace SchedulerWpfApp.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("SubjectCode1")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LecturerId");
 
-                    b.HasIndex("SubjectCode");
+                    b.HasIndex("SubjectCode1");
 
                     b.ToTable("LecturerSubject");
                 });
@@ -171,31 +171,15 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("RoomId");
 
-                    b.Property<string>("Building")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("Building");
-
-                    b.Property<int>("Floor")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("Floor");
-
                     b.Property<string>("RoomName")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("RoomName");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("Status");
-
-                    b.Property<int>("TotalPersons")
+                    b.Property<int?>("TotalPersons")
                         .HasColumnType("INTEGER")
                         .HasColumnName("TotalPersons");
 
                     b.Property<string>("TypeOfRoom")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("TypeOfRoom");
 
@@ -230,11 +214,11 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("PartOfDay");
 
-                    b.Property<int?>("RoomId")
-                        .HasColumnType("INTEGER")
+                    b.Property<string>("RoomNo")
+                        .HasColumnType("TEXT")
                         .HasColumnName("RoomNo");
 
-                    b.Property<int?>("SessionNo")
+                    b.Property<int>("SessionNo")
                         .HasColumnType("INTEGER")
                         .HasColumnName("SessionNo");
 
@@ -260,14 +244,6 @@ namespace SchedulerWpfApp.Migrations
 
                     b.HasKey("ScheduleId");
 
-                    b.HasIndex("GroupName");
-
-                    b.HasIndex("LecturerId");
-
-                    b.HasIndex("RoomId");
-
-                    b.HasIndex("SubjectCode");
-
                     b.ToTable("Schedules");
                 });
 
@@ -277,36 +253,29 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("SubjectCode");
 
-                    b.Property<string>("SubjectNameEnglish")
+                    b.Property<string>("Major")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("Major");
+
+                    b.Property<string>("SemesterId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("SemesterId");
+
+                    b.Property<int>("SlotsPerWeek")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("SlotsPerWeek");
+
+                    b.Property<string>("SubjectName")
                         .HasColumnType("TEXT")
                         .HasColumnName("SubjectName");
 
-                    b.Property<string>("SubjectNameVietnamese")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("SubjectNameVietnamese");
-
-                    b.Property<int>("TotalCredits")
+                    b.Property<int>("TotalSessions")
                         .HasColumnType("INTEGER")
-                        .HasColumnName("TotalCredits");
-
-                    b.Property<int>("TotalTime")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("TotalTime");
+                        .HasColumnName("TotalSessions");
 
                     b.HasKey("SubjectCode");
 
                     b.ToTable("Subject");
-                });
-
-            modelBuilder.Entity("SchedulerWpfApp.Model.LecturerRequest", b =>
-                {
-                    b.HasOne("SchedulerWpfApp.Model.Lecturer", "Lecturer")
-                        .WithMany("LecturerRequests")
-                        .HasForeignKey("LecturerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Lecturer");
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.LecturerSubject", b =>
@@ -314,75 +283,26 @@ namespace SchedulerWpfApp.Migrations
                     b.HasOne("SchedulerWpfApp.Model.Lecturer", "Lecturer")
                         .WithMany("LecturerSubjects")
                         .HasForeignKey("LecturerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SchedulerWpfApp.Model.Subject", "Subject")
                         .WithMany("LecturerSubjects")
-                        .HasForeignKey("SubjectCode")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("SubjectCode1");
 
                     b.Navigation("Lecturer");
 
                     b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("SchedulerWpfApp.Model.Schedule", b =>
-                {
-                    b.HasOne("SchedulerWpfApp.Model.GroupClass", "GroupClass")
-                        .WithMany("Schedules")
-                        .HasForeignKey("GroupName")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SchedulerWpfApp.Model.Lecturer", "Lecturer")
-                        .WithMany("Schedules")
-                        .HasForeignKey("LecturerId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SchedulerWpfApp.Model.Room", "Room")
-                        .WithMany("Schedules")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SchedulerWpfApp.Model.Subject", "Subject")
-                        .WithMany("Schedules")
-                        .HasForeignKey("SubjectCode")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("GroupClass");
-
-                    b.Navigation("Lecturer");
-
-                    b.Navigation("Room");
-
-                    b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("SchedulerWpfApp.Model.GroupClass", b =>
-                {
-                    b.Navigation("Schedules");
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Lecturer", b =>
                 {
-                    b.Navigation("LecturerRequests");
-
                     b.Navigation("LecturerSubjects");
-
-                    b.Navigation("Schedules");
-                });
-
-            modelBuilder.Entity("SchedulerWpfApp.Model.Room", b =>
-                {
-                    b.Navigation("Schedules");
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Subject", b =>
                 {
                     b.Navigation("LecturerSubjects");
-
-                    b.Navigation("Schedules");
                 });
 #pragma warning restore 612, 618
         }

@@ -167,8 +167,9 @@ namespace SchedulerWpfApp.ViewModel
         /// Generates a demo schedule starting from a specific date and exports it to an Excel file.
         /// </summary>
         private async Task CreateScheduleDemo()
-        {
-            DateTime startDate = new DateTime(2025, 04, 14);
+        {           
+            DateTime startDate = new DateTime(2025, 01, 06);
+
             var schedules = await _createScheduleTree.GenerateSchedules(startDate);
 
             PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
@@ -225,7 +226,7 @@ namespace SchedulerWpfApp.ViewModel
             foreach (var s in schedules)
             {
                 sheet[row, 1].Number = s.ScheduleId;
-                sheet[row, 2].Text = s.RoomNo ?? "";
+                //sheet[row, 2].Text = s.RoomId ?? "";
                 sheet[row, 3].Text = s.PartOfDay ?? "";
                 sheet[row, 4].Text = s.SlotTime ?? "";
                 sheet[row, 5].Text = s.StatusSlot ?? "";
@@ -236,7 +237,7 @@ namespace SchedulerWpfApp.ViewModel
                 sheet[row, 10].Text = s.LecturerId ?? "";
                 sheet[row, 11].Text = s.SlotTypeCode ?? "";
                 sheet[row, 12].Text = s.TypeSlot ?? "";
-                sheet[row, 13].Number = s.SessionNo;
+                //sheet[row, 13].Number = s.SessionNo;
 
                 row++;
             }
@@ -262,7 +263,7 @@ namespace SchedulerWpfApp.ViewModel
             foreach (var classGroup in groupedByClass)
             {
                 Debug.WriteLine($"TIMETABLE FOR CLASS: {classGroup.Key}");
-                Debug.WriteLine($"Room: {classGroup.First().RoomNo} | Session: {classGroup.First().PartOfDay}");
+                Debug.WriteLine($"Room: {classGroup.First().RoomId} | Session: {classGroup.First().PartOfDay}");
                 Debug.WriteLine("=============================================================");
 
                 // Nhóm theo tuần (dựa trên ngày bắt đầu tuần)
@@ -279,9 +280,14 @@ namespace SchedulerWpfApp.ViewModel
                     Debug.WriteLine($"Week {weekCount}: {weekStart:dd/MM/yyyy} - {weekEnd:dd/MM/yyyy}");
 
                     // Lấy danh sách ngày trong tuần này
-                    var dates = weekGroup.Select(s => s.Date)
-                        .Distinct()
-                        .OrderBy(d => d)
+                    //var dates = weekGroup.Select(s => s.Date)
+                    //    .Distinct()
+                    //    .OrderBy(d => d)
+                    //    .ToList();
+
+                    // MỚI: Lấy đủ 7 ngày từ thứ Hai đến Chủ nhật
+                    var dates = Enumerable.Range(0, 7)
+                        .Select(offset => weekStart.AddDays(offset))
                         .ToList();
 
                     // Danh sách slot duy nhất
@@ -304,7 +310,7 @@ namespace SchedulerWpfApp.ViewModel
                     foreach (var slot in slots)
                     {
                         // Mỗi slot có 3 dòng (Subject, Lecturer, Status)
-                        string[] rowLines = new string[7];
+                        string[] rowLines = new string[8];
                         rowLines[0] = slot.PadRight(10) + "| "; // Dòng đầu tiên bắt đầu bằng slot
                         rowLines[1] = "".PadRight(10) + "| ";   // Dòng thứ hai và ba để trống ở cột slot
                         rowLines[2] = "".PadRight(10) + "| ";
@@ -312,6 +318,7 @@ namespace SchedulerWpfApp.ViewModel
                         rowLines[4] = "".PadRight(10) + "| ";
                         rowLines[5] = "".PadRight(10) + "| ";
                         rowLines[6] = "".PadRight(10) + "| ";
+                        rowLines[7] = "".PadRight(10) + "| ";
 
                         foreach (var date in dates)
                         {
@@ -327,6 +334,7 @@ namespace SchedulerWpfApp.ViewModel
                                     rowLines[4] += "".PadRight(columnWidth) + "| ";
                                     rowLines[5] += "".PadRight(columnWidth) + "| ";
                                     rowLines[6] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[7] += "".PadRight(columnWidth) + "| ";
                                 }
                                 else
                                 {
@@ -334,10 +342,10 @@ namespace SchedulerWpfApp.ViewModel
                                     rowLines[1] += $"Lecturer: {schedule.LecturerId}".PadRight(columnWidth) + "| ";
                                     rowLines[2] += $"Slot type: {schedule.StatusSlot}".PadRight(columnWidth) + "| ";
                                     rowLines[3] += $"Session: {schedule.PartOfDay}".PadRight(columnWidth) + "| ";
-                                    rowLines[4] += $"Room: {schedule.RoomNo}".PadRight(columnWidth) + "| ";
+                                    rowLines[4] += $"Room: {schedule.RoomId}".PadRight(columnWidth) + "| ";
                                     rowLines[5] += $"Slot code: {schedule.SlotTypeCode}".PadRight(columnWidth) + "| ";
                                     rowLines[6] += $"Session No: {schedule.SessionNo}".PadRight(columnWidth) + "| ";
-
+                                    rowLines[7] += $"Class: {schedule.GroupName}".PadRight(columnWidth) + "| ";
                                 }
                             }
                             else
@@ -345,6 +353,11 @@ namespace SchedulerWpfApp.ViewModel
                                 rowLines[0] += "".PadRight(columnWidth) + "| ";
                                 rowLines[1] += "".PadRight(columnWidth) + "| ";
                                 rowLines[2] += "".PadRight(columnWidth) + "| ";
+                                rowLines[3] += "".PadRight(columnWidth) + "| ";
+                                rowLines[4] += "".PadRight(columnWidth) + "| ";
+                                rowLines[5] += "".PadRight(columnWidth) + "| ";
+                                rowLines[6] += "".PadRight(columnWidth) + "| ";
+                                rowLines[7] += "".PadRight(columnWidth) + "| ";
                             }
                         }
 
@@ -356,8 +369,7 @@ namespace SchedulerWpfApp.ViewModel
                         Debug.WriteLine(rowLines[4]);
                         Debug.WriteLine(rowLines[5]);
                         Debug.WriteLine(rowLines[6]);
-
-
+                        Debug.WriteLine(rowLines[7]);
 
                         Debug.WriteLine(new string('-', header.Length));
                     }
@@ -374,6 +386,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         /// <param name="date"></param>
         /// <returns>Start date of week</returns>
+
         private static DateTime? GetWeekStartDate(DateTime? date)
         {
             if (!date.HasValue)
@@ -381,6 +394,12 @@ namespace SchedulerWpfApp.ViewModel
 
             int diff = (7 + (date.Value.DayOfWeek - DayOfWeek.Monday)) % 7;
             return date.Value.AddDays(-diff).Date;
+        }
+
+        public static DateTime GetWeekStartDate(DateTime date)
+        {
+            int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+            return date.AddDays(-1 * diff).Date;
         }
 
         /// <summary>
