@@ -112,10 +112,13 @@
                         </Style>
                     </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="ID" MappingName="RoomId" />
-                        <syncfusion:GridTextColumn HeaderText="Tên Phòng" MappingName="RoomName" />
-                        <syncfusion:GridTextColumn HeaderText="Số lượng sinh viên" MappingName="TotalPersons" />
-                        <syncfusion:GridTextColumn HeaderText="Loại phòng" MappingName="TypeOfRoom" />
+                        <syncfusion:GridTextColumn HeaderText="Mã phòng" MappingName="RoomId" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Tên Phòng" MappingName="RoomName" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Loại phòng" MappingName="TypeOfRoom" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Tầng" MappingName="Floor" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Tòa nhà" MappingName="Building" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="SLSV" MappingName="TotalPersons" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Trạng thái" MappingName="Status" AllowResizing="True" />
                         <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False" MappingName="ActionPlaceholder">
 
                             <syncfusion:GridTemplateColumn.CellTemplate>
@@ -176,13 +179,21 @@
                         <TextBlock Text="Tên Phòng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
                         <TextBox Text="{Binding SelectedRoomname.RoomName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
-                        <TextBlock Text="Số lượng sinh viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedRoomname.TotalPersons, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
-
-                        <TextBlock Text="Loại Phòng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBlock Text="Loại phòng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
                         <TextBox Text="{Binding SelectedRoomname.TypeOfRoom, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
-                        
+                        <TextBlock Text="Tầng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Text="{Binding SelectedRoomname.Floor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+
+                        <TextBlock Text="Tòa nhà" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Text="{Binding SelectedRoomname.Building, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+
+                        <TextBlock Text="SLSV" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Text="{Binding SelectedRoomname.TotalPersons, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+
+                        <TextBlock Text="Trạng thái" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Text="{Binding SelectedRoomname.Status, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+
                     </StackPanel>
 
                     <!-- Form Actions -->

@@ -252,7 +252,10 @@ namespace SchedulerWpfApp.ViewModel
                 RoomId = room.RoomId,
                 RoomName = room.RoomName,
                 TypeOfRoom = room.TypeOfRoom,
-                TotalPersons = room.TotalPersons
+                TotalPersons = room.TotalPersons,
+                Floor = room.Floor,
+                Building = room.Building,
+                Status = room.Status
             };
             IsRoomFormOpen = true;
             // check event edit 
@@ -338,7 +341,12 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (SelectedRoomname == null) return;
             // ✅ Kiểm tra đầu vào trước khi lưu
-            if (string.IsNullOrWhiteSpace(SelectedRoomname.RoomName) || string.IsNullOrWhiteSpace(SelectedRoomname.TypeOfRoom) || SelectedRoomname.TotalPersons == null)
+            if (string.IsNullOrWhiteSpace(SelectedRoomname.RoomName) || 
+                string.IsNullOrWhiteSpace(SelectedRoomname.TypeOfRoom) ||
+                string.IsNullOrWhiteSpace(SelectedRoomname.Building) ||
+                string.IsNullOrWhiteSpace(SelectedRoomname.Status) ||
+                SelectedRoomname.Floor == 0 ||
+                SelectedRoomname.TotalPersons == 0)
             {
                 MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -346,6 +354,11 @@ namespace SchedulerWpfApp.ViewModel
             else if (SelectedRoomname.TotalPersons < 0 || SelectedRoomname.TotalPersons > 50)
             {
                 MessageBox.Show("Số người trong phòng không vượt quá 50 người và không được nhỏ hơn 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else if (SelectedRoomname.Floor < 0 || SelectedRoomname.Floor > 5)
+            {
+                MessageBox.Show("Số tầng không được vượt quá 5 và không được nhỏ hơn 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             try

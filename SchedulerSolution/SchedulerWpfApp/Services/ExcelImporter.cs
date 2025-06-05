@@ -71,7 +71,7 @@ namespace SchedulerWpfApp.Services
                     headerMap[header] = c;
             }
 
-            string[] requiredHeaders = { "Groupname", "Course", "Term", "Department", "Major" };
+            string[] requiredHeaders = { "Groupname", "Course", "Department", "Major" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");

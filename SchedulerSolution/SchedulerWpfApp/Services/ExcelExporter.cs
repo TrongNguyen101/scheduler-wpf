@@ -43,11 +43,10 @@ public class ExcelPersonExporter : IExcelPersonExporter
         IWorksheet sheet = workbook.Worksheets[0];
 
         // Header
-        sheet[1, 1].Text = "ClassId";
-        sheet[1, 2].Text = "Major";
-        sheet[1, 3].Text = "Category";
-        sheet[1, 4].Text = "NumberOfStudents";
-        sheet[1, 5].Text = "NumberOfScheduler";
+        sheet[1, 1].Text = "GroupName";
+        sheet[1, 2].Text = "Course";
+        sheet[1, 3].Text = "Major";
+        sheet[1, 4].Text = "Department";
         int row = 2;
         foreach (var groupnames in groupname)
         {

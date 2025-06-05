@@ -26,8 +26,7 @@ namespace SchedulerWpfApp.Services
                 if (!string.IsNullOrWhiteSpace(header))
                     headerMap[header] = c;
             }
-
-            string[] requiredHeaders = { "Room", "SLSV", "TypeOfRoom"};
+            string[] requiredHeaders = { "RoomId", "RoomName", "TypeOfRoom", "Floor", "Building", "TotalPersons", "Status" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");
@@ -36,11 +35,14 @@ namespace SchedulerWpfApp.Services
             {
                 var room = new Room
                 {
-                    //RoomName = sheet[r, headerMap["Room"]].Value,
-                    //TotalPersons = int.TryParse(sheet[r, headerMap["SLSV"]].Value, out var persons) ? persons : null,
+                    RoomId = int.TryParse(sheet[r, headerMap["RoomId"]].Value, out var roomId) ? roomId : 0,
+                    Building = sheet[r, headerMap["Building"]].Value?.Trim(),
+                    Floor = int.TryParse(sheet[r, headerMap["Floor"]].Value, out var floor) ? floor : 0,
+                    RoomName = sheet[r, headerMap["RoomName"]].Value?.Trim(),
+                    Status = sheet[r, headerMap["Status"]].Value?.Trim() ?? "available", // Default to "available" if not specified
+                    TotalPersons = int.TryParse(sheet[r, headerMap["TotalPersons"]].Value, out var totalPersons) ? totalPersons : 0,
                     TypeOfRoom = sheet[r, headerMap["TypeOfRoom"]].Value,
                 };
-
                 rooms.Add(room);
             }
             return rooms;

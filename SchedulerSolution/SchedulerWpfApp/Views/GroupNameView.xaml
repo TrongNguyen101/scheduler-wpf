@@ -194,16 +194,10 @@
                         </Style>
                     </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Mã Lớp"
-                                MappingName="ClassId"/>
-                        <syncfusion:GridTextColumn HeaderText="Loại Lớp"
-                                MappingName="Category"/>
-                        <syncfusion:GridTextColumn HeaderText="Chuyên Ngành"
-                                MappingName="Major"/>
-                        <syncfusion:GridTextColumn HeaderText="Số Học Sinh"
-                                MappingName="NumberOfStudents"/>
-                        <syncfusion:GridTextColumn HeaderText="Số Môn"
-                                MappingName="NumberOfScheduler"/>
+                        <syncfusion:GridTextColumn HeaderText="Mã Lớp" MappingName="GroupName" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Môn học" MappingName="Course" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Chuyên ngành" MappingName="Major" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Bộ môn" MappingName="Department" AllowResizing="True"/>
                         <syncfusion:GridTemplateColumn HeaderText="Action"
                                 Width="90"
                                 AllowFiltering="False"
