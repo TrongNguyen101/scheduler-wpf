@@ -236,18 +236,9 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (SelectedSubject == null)
                 return;
-            if (string.IsNullOrWhiteSpace(SelectedSubject.SubjectCode) ||
-                string.IsNullOrWhiteSpace(SelectedSubject.SubjectName) ||
-                string.IsNullOrWhiteSpace(SelectedSubject.Major) ||
-                SelectedSubject.TotalSessions == 0 ||
-                SelectedSubject.SlotsPerWeek == 0)
+            if (string.IsNullOrWhiteSpace(SelectedSubject.SubjectCode))
             {
                 MessageBox.Show("Vui lòng điền đầy đủ thông tin môn học.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            if (SelectedSubject.SlotsPerWeek <= 0 || SelectedSubject.TotalSessions <= 0)
-            {
-                MessageBox.Show("Số buổi học trong tuần và tổng số buổi học phải lớn hơn 0.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             try
@@ -426,8 +417,8 @@ namespace SchedulerWpfApp.ViewModel
                 // can search by ClassId, Category, Major
                 var filtered = _allSubjects.Where(subject =>
                     (!string.IsNullOrEmpty(subject.SubjectCode) && subject.SubjectCode.ToLower().Contains(lowerKeyword))
-                    //(!string.IsNullOrEmpty(subject.SubjectName) && subject.SubjectName.ToLower().Contains(lowerKeyword)) ||
-                    //(!string.IsNullOrEmpty(subject.Major) && subject.Major.ToLower().Contains(lowerKeyword))
+                //(!string.IsNullOrEmpty(subject.SubjectName) && subject.SubjectName.ToLower().Contains(lowerKeyword)) ||
+                //(!string.IsNullOrEmpty(subject.Major) && subject.Major.ToLower().Contains(lowerKeyword))
                 ).ToList();
 
                 Subjects = new ObservableCollection<Subject>(filtered);
