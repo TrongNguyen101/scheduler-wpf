@@ -121,7 +121,7 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ConfirmDeleteCommand { get; }
         public ICommand CancelDeleteLectureCommand { get; }
         #endregion
-        
+
         #region Methods
         /// <summary>
         /// Constructor initializes dependencies and commands.
@@ -196,6 +196,7 @@ namespace SchedulerWpfApp.ViewModel
                 LecturerId = lecture.LecturerId,
                 LecturerName = lecture.LecturerName,
                 Role = lecture.Role,
+                Department = lecture.Department,
             };
 
             IsLectureFormOpen = true;
@@ -216,6 +217,7 @@ namespace SchedulerWpfApp.ViewModel
                 LecturerId = lecture.LecturerId,
                 LecturerName = lecture.LecturerName,
                 Role = lecture.Role,
+                Department = lecture.Department,
             };
 
             IsOpenDialog = true;
@@ -229,9 +231,10 @@ namespace SchedulerWpfApp.ViewModel
             if (SelectedLecture == null)
                 return;
 
-            if (string.IsNullOrWhiteSpace(SelectedLecture.LecturerId) || string.IsNullOrWhiteSpace(SelectedLecture.LecturerName) || string.IsNullOrWhiteSpace(SelectedLecture.Role))
+            if (string.IsNullOrWhiteSpace(SelectedLecture.LecturerId) || string.IsNullOrWhiteSpace(SelectedLecture.LecturerName) || string.IsNullOrWhiteSpace(SelectedLecture.Role) || string.IsNullOrWhiteSpace(SelectedLecture.Role))
             {
-                MessageBox.Show("Mã Giảng viên không được để trống", "Cảnh báo");
+                MessageBox.Show("Thông tin giảng viên không được để trống", "Cảnh báo");
+                IsLectureFormOpen = true;
                 return;
             }
 
@@ -240,40 +243,46 @@ namespace SchedulerWpfApp.ViewModel
                 // Check if _isEdit is false will create new course. Otherwise, update course
                 if (!_isEdit)
                 {
+                    // Check if the lecture already exists in the collection
                     var existingLecture = Lectures.FirstOrDefault(s => s.LecturerId == SelectedLecture.LecturerId);
 
                     if (existingLecture == null)
                     {
+                        // Add new lecture
                         await _lectureService.AddLecture(SelectedLecture);
-                        MessageBox.Show("Thêm Giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show("Thêm giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
-                        // Cảnh báo
+                        // Warning if lecture already exists
                         MessageBox.Show("Giảng viên đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
                 {
+                    // Check if the lecture exists in the collection
                     var existingLecture = Lectures.FirstOrDefault(s => s.LecturerId == SelectedLecture.LecturerId);
 
                     if (existingLecture != null)
                     {
-                        // Cập nhật thông tin
+                        // Update existing lecture
                         existingLecture.LecturerId = SelectedLecture.LecturerId;
                         existingLecture.LecturerName = SelectedLecture.LecturerName;
                         existingLecture.Role = SelectedLecture.Role;
+                        existingLecture.Department = SelectedLecture.Department;
+
+                        // Update other properties as needed
                         await _lectureService.UpdateLecture(existingLecture);
-                        MessageBox.Show("Cập nhật Giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show("Cập nhật giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
-                        // Cảnh báo
+                        // Warning if lecture does not exist
                         MessageBox.Show("Giảng viên không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lưu Giảng viên thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Lưu giảng viên thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -315,6 +324,7 @@ namespace SchedulerWpfApp.ViewModel
 
             try
             {
+                // Call the service to delete the lecture
                 await _lectureService.DeleteLecture(SelectedLecture.LecturerId);
 
                 MessageBox.Show("Xóa Giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);

@@ -27,7 +27,7 @@ namespace SchedulerWpfApp.Services
                     headerMap[header] = c;
             }
 
-            string[] requiredHeaders = { "MaNV", "Fullname", "Bomon", "LoaiGV" };
+            string[] requiredHeaders = { "LecturerId", "LecturerName", "Role", "Department" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");
@@ -39,10 +39,10 @@ namespace SchedulerWpfApp.Services
                     continue;
                 var lecture = new Lecturer
                 {
-                    LecturerId = sheet[r, headerMap["MaNV"]].Value,
-                    LecturerName = sheet[r, headerMap["Fullname"]].Value,
-                    //Major = sheet[r, headerMap["Bomon"]].Value,
-                    Role = sheet[r, headerMap["LoaiGV"]].Value
+                    LecturerId = sheet[r, headerMap["LecturerId"]].Value,
+                    LecturerName = sheet[r, headerMap["LecturerName"]].Value,
+                    Role = sheet[r, headerMap["Role"]].Value,
+                    Department = sheet[r, headerMap["Department"]].Value
                 };
 
                 lectures.Add(lecture);

@@ -164,16 +164,21 @@
 
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:GridTextColumn HeaderText="Mã số giảng viên"
-                                                   MappingName="LecturerId" />
+                                                   MappingName="LecturerId"
+                                                   AllowResizing="True" />
                         <syncfusion:GridTextColumn HeaderText="Họ và Tên"
-                                                   MappingName="LecturerName" />
-                        <syncfusion:GridTextColumn HeaderText="Chuyên ngành"
-                                                   MappingName="Major" />
-                        <syncfusion:GridTextColumn HeaderText="Loại giáo viên"
-                                                   MappingName="Role" />
+                                                   MappingName="LecturerName"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Chức Vụ"
+                                                   MappingName="Role"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Bộ Môn"
+                                                   MappingName="Department"
+                                                   AllowResizing="True" />
                         <syncfusion:GridTemplateColumn HeaderText="Action"
                                                        Width="90"
-                                                       AllowFiltering="False" MappingName="ActionPlaceHolder">
+                                                       AllowFiltering="False"
+                                                       MappingName="ActionPlaceHolder">
                             <syncfusion:GridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal"
@@ -275,12 +280,18 @@
                                  Margin="0,0,0,15"
                                  Text="{Binding SelectedLecture.LecturerName, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <TextBlock Text="Loại giáo viên"
+                        <TextBlock Text="Chức Vụ"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
                         <TextBox Style="{StaticResource ModernTextBoxStyle}"
                                  Margin="0,0,0,15"
                                  Text="{Binding SelectedLecture.Role, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="Bộ Môn"
+                                   Margin="0,0,0,5"
+                                   Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}"
+                                 Margin="0,0,0,15"
+                                 Text="{Binding SelectedLecture.Department, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
 
                     <!-- Form Actions -->
