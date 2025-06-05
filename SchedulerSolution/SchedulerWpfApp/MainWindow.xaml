@@ -119,14 +119,16 @@
                     </Border>
 
                     <Border Style="{StaticResource MenuItemStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="👨‍🎓" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
-                            <TextBlock Text="Quản lý học viên" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
-                        </Grid>
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowLectureSubjectCommand}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="📅" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                                <TextBlock Text="Phân công giảng dạy" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                            </Grid>
+                        </Button>
                     </Border>
 
                     <Border Style="{StaticResource MenuItemStyle}">

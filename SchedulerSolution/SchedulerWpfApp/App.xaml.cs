@@ -133,8 +133,6 @@ namespace SchedulerWpfApp
             services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
             services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
 
-            services.AddScoped<InterfaceScheduleServices, ImplementScheduleServices>();
-
             services.AddScoped<IExcelSubjectImporter, ExcelSubjectImporter>();
             services.AddScoped<IExcelSubjectExporter, ExcelSubjectExporter>();
 
@@ -143,6 +141,9 @@ namespace SchedulerWpfApp
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IExcelRoomExporter, ExcelRoomExporter>();
             services.AddScoped<IExcelRoomImport, ExcelRoomImport>();
+            services.AddScoped<ILectureSubjectService, LectureSubjectService>();
+            services.AddScoped<IExcelLectureSubjectImporter, ExcelLectureSubjectImporter>();
+            services.AddScoped<IExcelLectureSubjectExporter, ExcelLectureSubjectExporter>();
             // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();
 
@@ -160,6 +161,7 @@ namespace SchedulerWpfApp
             services.AddTransient<CreateScheduleViewModel>();
             services.AddTransient<LectureViewModel>();
             services.AddTransient<RoomViewModel>();
+            services.AddTransient<LectureSubjectViewModel>();
 
             // Add factories
             services.AddSingleton<Func<SubjectViewModel>>(sp => () => sp.GetRequiredService<SubjectViewModel>());
@@ -167,7 +169,7 @@ namespace SchedulerWpfApp
             services.AddSingleton<Func<GroupNameViewModel>>(sp => () => sp.GetRequiredService<GroupNameViewModel>());
             services.AddSingleton<Func<CreateScheduleViewModel>>(sp => () => sp.GetRequiredService<CreateScheduleViewModel>());
             services.AddSingleton<Func<LectureViewModel>>(sp => () => sp.GetRequiredService<LectureViewModel>());
-
+            services.AddSingleton<Func<LectureSubjectViewModel>>(sp => () => sp.GetRequiredService<LectureSubjectViewModel>());
             services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
 
             services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime

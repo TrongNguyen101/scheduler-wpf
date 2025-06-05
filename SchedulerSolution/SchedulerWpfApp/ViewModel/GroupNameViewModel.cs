@@ -8,8 +8,12 @@ using SchedulerWpfApp.Services;
 
 namespace SchedulerWpfApp.ViewModel
 {
+    /// <summary>
+    /// ViewModel responsible for managing group names: loading, importing, exporting, adding, editing, and deleting.
+    /// </summary>
     public class GroupNameViewModel : ViewBaseModel
     {
+        #region Fields
         private readonly IGroupNameService _groupnameService;
         private readonly IExcelPersonImporter _excelImporter;
         private readonly IExcelPersonExporter _excelExporter;
@@ -34,6 +38,11 @@ namespace SchedulerWpfApp.ViewModel
         private bool _IsGroupNameIdEditable = true;
         // used to set the title for the header bar of the popup when editing or adding
         public string FormTitle => SelectedGroupname?.GroupName == "" ? "Thêm lớp mới" : "Chỉnh sửa thông tin lớp";
+
+
+        #endregion
+
+        #region Constructor
         /// <summary>
         /// Observable collection to hold list of rooms
         /// </summary>
@@ -116,6 +125,10 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ConfirmDeleteGroupNameCommand { get; }
         public ICommand CancelDeleteGroupNameCommand { get; }
         public ICommand EditGroupNameCommand { get; }
+
+        #endregion
+
+        #region Methods
         /// <summary>
         ///  Constructor initializes dependencies and commands.
         /// Initializes the GroupNameViewModel with services for managing group names and importing/exporting data.
@@ -451,4 +464,5 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
     }
+    #endregion
 }

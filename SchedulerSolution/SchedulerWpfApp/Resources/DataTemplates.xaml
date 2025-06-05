@@ -33,4 +33,8 @@
         <views:LectureView />
     </DataTemplate>
 
+    <!-- DataTemplate for LectureSubjectView -->
+    <DataTemplate DataType="{x:Type vm:LectureSubjectViewModel}">
+        <views:LectureSubjectView/>
+    </DataTemplate>
 </ResourceDictionary>
