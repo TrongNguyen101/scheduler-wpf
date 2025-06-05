@@ -116,6 +116,15 @@ namespace SchedulerWpfApp.Data
                       .HasForeignKey(ls => ls.LecturerId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
+            modelBuilder.Entity<LecturerRequest>(LecturerRequest =>
+            {
+                // Relation: LecturerRequest → Lecturer (Many-to-One)
+                LecturerRequest.HasOne(lr => lr.Lecturer)
+                               .WithMany(l => l.LecturerRequests)
+                               .HasForeignKey(lr => lr.LecturerId)
+                               .OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
     }
