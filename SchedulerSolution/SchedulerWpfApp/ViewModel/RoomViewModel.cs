@@ -383,7 +383,6 @@ namespace SchedulerWpfApp.ViewModel
                 MessageBox.Show($"Lỗi khi lưu phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
     }
     #endregion
 }
