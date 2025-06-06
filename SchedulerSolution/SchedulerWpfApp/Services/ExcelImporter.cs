@@ -70,7 +70,6 @@ namespace SchedulerWpfApp.Services
                 if (!string.IsNullOrWhiteSpace(header))
                     headerMap[header] = c;
             }
-
             string[] requiredHeaders = { "Groupname", "CurriculumCode", "Term", "Department", "Major" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
@@ -86,10 +85,8 @@ namespace SchedulerWpfApp.Services
                     Major = sheet[r, headerMap["Major"]].Value,
                     Term = sheet[r, headerMap["Term"]].Value,
                 };
-
                 rooms.Add(room);
             }
-
             return rooms;
         }
     }

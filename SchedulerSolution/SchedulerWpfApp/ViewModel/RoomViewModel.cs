@@ -157,7 +157,6 @@ namespace SchedulerWpfApp.ViewModel
                 MessageBox.Show($"Failed to load persons: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         /// <summary>
         /// Asynchronously imports a list of rooms from an Excel file.
         /// This method opens a file dialog to select an Excel file, reads the room data from the file using the ExcelRoomImport service,
