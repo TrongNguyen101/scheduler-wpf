@@ -12,6 +12,7 @@ using Syncfusion.Licensing;
 using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Services.ScheduleServices;
 using SchedulerWpfApp.Services.LecturerSubjectServices;
+using SchedulerWpfApp.Helper;
 namespace SchedulerWpfApp
 {
     /// <summary>
@@ -118,6 +119,9 @@ namespace SchedulerWpfApp
                 config.AddConsole();     // Show log in Console output
                 config.AddDebug();       // Show log in Debug output
             });
+
+            // Register the AutoMapper configuration
+            services.AddAutoMapper(typeof(AutoMappingProfiles));
 
             // Register the database context
             services.AddDbContext<DataContext>();
