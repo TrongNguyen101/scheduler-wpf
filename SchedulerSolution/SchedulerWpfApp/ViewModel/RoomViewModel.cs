@@ -176,7 +176,6 @@ namespace SchedulerWpfApp.ViewModel
                     // call ReadRoomFromExcel function to process file and read file when importing
                     var data = _excelRoomImport.ReadRoomListFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
-
                     await _roomService.ImportRoomFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadRoomAsync();
@@ -349,16 +348,19 @@ namespace SchedulerWpfApp.ViewModel
                 SelectedRoomname.TotalPersons == 0)
             {
                 MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsRoomFormOpen = true;
                 return;
             }
             else if (SelectedRoomname.TotalPersons < 0 || SelectedRoomname.TotalPersons > 50)
             {
                 MessageBox.Show("Số người trong phòng không vượt quá 50 người và không được nhỏ hơn 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsRoomFormOpen = true;
                 return;
             }
             else if (SelectedRoomname.Floor < 0 || SelectedRoomname.Floor > 5)
             {
                 MessageBox.Show("Số tầng không được vượt quá 5 và không được nhỏ hơn 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsRoomFormOpen = true;
                 return;
             }
             try
@@ -373,7 +375,6 @@ namespace SchedulerWpfApp.ViewModel
                     await _roomService.AddRoom(SelectedRoomname);
                     MessageBox.Show("Thêm phòng mới thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
-
                 IsRoomFormOpen = false;
                 SelectedRoomname = null;
                 await LoadRoomAsync();

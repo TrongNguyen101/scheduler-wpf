@@ -44,16 +44,18 @@ public class ExcelPersonExporter : IExcelPersonExporter
 
         // Header
         sheet[1, 1].Text = "GroupName";
-        sheet[1, 2].Text = "Course";
+        sheet[1, 2].Text = "CurriculumCode";
         sheet[1, 3].Text = "Major";
         sheet[1, 4].Text = "Department";
+        sheet[1, 5].Text = "Tern";
         int row = 2;
         foreach (var groupnames in groupname)
         {
             sheet[row, 1].Text = groupnames.GroupName ?? "";
-            sheet[row, 2].Text = groupnames.Major ?? "";
-            sheet[row, 3].Text = groupnames.Course ?? "";
+            sheet[row, 2].Text = groupnames.CurriculumCode ?? "";
+            sheet[row, 3].Text = groupnames.Major ?? "";
             sheet[row, 4].Text = groupnames.Department ?? "";
+            sheet[row, 5].Text = groupnames.Term ?? "";
             //sheet[row, 5].Text = groupnames.Term.ToString();
 
             row++;

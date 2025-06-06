@@ -195,9 +195,11 @@
                     </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:GridTextColumn HeaderText="Mã Lớp" MappingName="GroupName" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Môn học" MappingName="Course" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Khóa học" MappingName="CurriculumCode" AllowResizing="True"/>
                         <syncfusion:GridTextColumn HeaderText="Chuyên ngành" MappingName="Major" AllowResizing="True" />
                         <syncfusion:GridTextColumn HeaderText="Bộ môn" MappingName="Department" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Kỳ học" MappingName="Term" AllowResizing="True" />
+
                         <syncfusion:GridTemplateColumn HeaderText="Action"
                                 Width="90"
                                 AllowFiltering="False"
@@ -293,14 +295,14 @@
                         <TextBlock Text="Mã Lớp"
                                 Margin="0,0,0,5"
                                 Foreground="{StaticResource TextColor}"/>
-                        <TextBox Text="{Binding SelectedGroupname.ClassId, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SelectedGroupname.GroupName, UpdateSourceTrigger=PropertyChanged}"
                                 Style="{StaticResource ModernTextBoxStyle}"
                                 Margin="0,0,0,15" IsEnabled="{Binding IsGroupNameIdEditable}"/>
 
-                        <TextBlock Text="Loại Lớp"
+                        <TextBlock Text="Khóa học"
                                 Margin="0,0,0,5"
                                 Foreground="{StaticResource TextColor}"/>
-                        <TextBox Text="{Binding SelectedGroupname.Category, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SelectedGroupname.CurriculumCode, UpdateSourceTrigger=PropertyChanged}"
                                 Style="{StaticResource ModernTextBoxStyle}"
                                 Margin="0,0,0,15"/>
 
@@ -311,17 +313,17 @@
                                 Style="{StaticResource ModernTextBoxStyle}"
                                 Margin="0,0,0,15"/>
 
-                        <TextBlock Text="Số Học Sinh"
+                        <TextBlock Text="Bộ môn"
                                 Margin="0,0,0,5"
                                 Foreground="{StaticResource TextColor}"/>
-                        <TextBox Text="{Binding SelectedGroupname.NumberOfStudents, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SelectedGroupname.Department, UpdateSourceTrigger=PropertyChanged}"
                                 Style="{StaticResource ModernTextBoxStyle}"
                                 Margin="0,0,0,15"/>
 
-                        <TextBlock Text="Số Môn"
+                        <TextBlock Text="Kỳ học"
                                 Margin="0,0,0,5"
                                 Foreground="{StaticResource TextColor}"/>
-                        <TextBox Text="{Binding SelectedGroupname.NumberOfScheduler, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SelectedGroupname.Term, UpdateSourceTrigger=PropertyChanged}"
                                 Style="{StaticResource ModernTextBoxStyle}"
                                 Margin="0,0,0,15"/>
                     </StackPanel>

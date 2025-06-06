@@ -278,9 +278,9 @@ namespace SchedulerWpfApp.ViewModel
             SelectedGroupname = new GroupClass
             {
                 GroupName = groupname.GroupName,
-                Course = groupname.Course,
+                CurriculumCode = groupname.CurriculumCode,
                 Major = groupname.Major,
-                //Term = groupname.Term,
+                Term = groupname.Term,
                 Department = groupname.Department,
             };
             IsGroupNameFormOpen = true;
@@ -302,15 +302,18 @@ namespace SchedulerWpfApp.ViewModel
                 if (SelectedGroupname == null)
                 {
                     MessageBox.Show("Vui lòng nhập thông tin lớp học.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    IsGroupNameFormOpen = true; // Đóng form nếu không có dữ liệu
                     return;
                 }
                 // check blank - Kiểm tra dữ liệu trống TRƯỚC KHI làm gì khác
                 if (string.IsNullOrWhiteSpace(SelectedGroupname?.GroupName) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.Course) ||
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.CurriculumCode) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department))
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department)||
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.Term))
                 {
                     MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    IsGroupNameFormOpen = true; // Mở lại form nếu có dữ liệu trống
                     return;
                 }
                 // Kiểm tra số lượng âm
@@ -456,7 +459,7 @@ namespace SchedulerWpfApp.ViewModel
                 // can search by ClassId, Category, Major
                 var filtered = _allGroupNames.Where(room =>
                     (!string.IsNullOrEmpty(room.GroupName) && room.GroupName.ToLower().Contains(lowerKeyword)) ||
-                    (!string.IsNullOrEmpty(room.Course) && room.Course.ToLower().Contains(lowerKeyword)) ||
+                    (!string.IsNullOrEmpty(room.CurriculumCode) && room.CurriculumCode.ToLower().Contains(lowerKeyword)) ||
                     (!string.IsNullOrEmpty(room.Major) && room.Major.ToLower().Contains(lowerKeyword))
                 ).ToList();
 

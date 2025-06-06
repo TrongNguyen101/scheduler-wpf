@@ -129,9 +129,9 @@ namespace SchedulerWpfApp.Services
                 {
                     // Mark the entity as modified to avoid having to copy properties manually
                     existinggroupname.Major = groupname.Major;
-                    existinggroupname.Course = groupname.Course;
-                    //existinggroupname.Term = groupname.Term;
+                    existinggroupname.CurriculumCode = groupname.CurriculumCode;
                     existinggroupname.Major = groupname.Major;
+                    existinggroupname.Term = groupname.Term;
                     await _context.SaveChangesAsync();
                 }
             }
