@@ -38,10 +38,8 @@ public class ExcelPersonExporter : IExcelPersonExporter
         using ExcelEngine excelEngine = new();
         IApplication application = excelEngine.Excel;
         application.DefaultVersion = ExcelVersion.Xlsx;
-
         IWorkbook workbook = application.Workbooks.Create(1);
         IWorksheet sheet = workbook.Worksheets[0];
-
         // Header
         sheet[1, 1].Text = "GroupName";
         sheet[1, 2].Text = "CurriculumCode";
@@ -57,10 +55,8 @@ public class ExcelPersonExporter : IExcelPersonExporter
             sheet[row, 4].Text = groupnames.Department ?? "";
             sheet[row, 5].Text = groupnames.Term ?? "";
             //sheet[row, 5].Text = groupnames.Term.ToString();
-
             row++;
         }
-
         workbook.SaveAs(filePath);
     }
 }
