@@ -81,7 +81,7 @@ namespace SchedulerWpfApp.Services
                 var room = new GroupClass
                 {
                     GroupName = sheet[r, headerMap["Groupname"]].Value,
-                    Course = sheet[r, headerMap["Course"]].Value,
+                    //Course = sheet[r, headerMap["Course"]].Value,
                     Department = sheet[r, headerMap["Department"]].Value,
                     Major = sheet[r, headerMap["Major"]].Value,
                     //Term = int.TryParse(sheet[r, headerMap["Term"]]?.Value?.ToString(), out int students) ? students : 0

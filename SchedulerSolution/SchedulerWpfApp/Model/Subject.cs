@@ -25,5 +25,7 @@ namespace SchedulerWpfApp.Model
         public ICollection<LecturerSubject>? LecturerSubjects { get; set; }
 
         public ICollection<Schedule>? Schedules { get; set; }
+
+        public ICollection<CurriculumSubject>? CurriculumSubjects { get; set; }
     }
 }

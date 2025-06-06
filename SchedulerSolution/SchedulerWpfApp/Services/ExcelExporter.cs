@@ -53,7 +53,7 @@ public class ExcelPersonExporter : IExcelPersonExporter
         {
             sheet[row, 1].Text = groupnames.GroupName ?? "";
             sheet[row, 2].Text = groupnames.Major ?? "";
-            sheet[row, 3].Text = groupnames.Course ?? "";
+            //sheet[row, 3].Text = groupnames.Course ?? "";
             sheet[row, 4].Text = groupnames.Department ?? "";
             //sheet[row, 5].Text = groupnames.Term.ToString();
 

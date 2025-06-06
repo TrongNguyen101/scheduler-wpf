@@ -278,7 +278,7 @@ namespace SchedulerWpfApp.ViewModel
             SelectedGroupname = new GroupClass
             {
                 GroupName = groupname.GroupName,
-                Course = groupname.Course,
+                //Course = groupname.Course,
                 Major = groupname.Major,
                 //Term = groupname.Term,
                 Department = groupname.Department,
@@ -306,7 +306,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 // check blank - Kiểm tra dữ liệu trống TRƯỚC KHI làm gì khác
                 if (string.IsNullOrWhiteSpace(SelectedGroupname?.GroupName) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.Course) ||
+                    //string.IsNullOrWhiteSpace(SelectedGroupname?.Course) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Department))
                 {
@@ -456,7 +456,7 @@ namespace SchedulerWpfApp.ViewModel
                 // can search by ClassId, Category, Major
                 var filtered = _allGroupNames.Where(room =>
                     (!string.IsNullOrEmpty(room.GroupName) && room.GroupName.ToLower().Contains(lowerKeyword)) ||
-                    (!string.IsNullOrEmpty(room.Course) && room.Course.ToLower().Contains(lowerKeyword)) ||
+                    //(!string.IsNullOrEmpty(room.Course) && room.Course.ToLower().Contains(lowerKeyword)) ||
                     (!string.IsNullOrEmpty(room.Major) && room.Major.ToLower().Contains(lowerKeyword))
                 ).ToList();
 
