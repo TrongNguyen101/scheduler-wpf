@@ -316,13 +316,6 @@ namespace SchedulerWpfApp.ViewModel
                     IsGroupNameFormOpen = true; // Mở lại form nếu có dữ liệu trống
                     return;
                 }
-                // Kiểm tra số lượng âm
-                //if (SelectedGroupname?.Term < 0)
-                //{
-                //    MessageBox.Show("Số lượng học viên và số lượng lịch học phải lớn hơn hoặc bằng 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //    return;
-                //}
-                // check which event is edit or add
                 if (_isEditing)
                 {
                     // Khi edit, chỉ cần kiểm tra ClassId có tồn tại không

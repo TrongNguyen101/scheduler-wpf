@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
-
+using AutoMapper;
 namespace SchedulerWpfApp.Services
 {
     /// <summary>
@@ -12,10 +12,11 @@ namespace SchedulerWpfApp.Services
     public class GroupNameService : IGroupNameService
     {
         private readonly DataContext _context;
-
-        public GroupNameService(DataContext context)
+        private readonly IMapper _mapper;
+        public GroupNameService(DataContext context,IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -127,11 +128,7 @@ namespace SchedulerWpfApp.Services
                 var existinggroupname = await GetByGroupNameCodeAsync(groupname.GroupName);
                 if (existinggroupname != null)
                 {
-                    // Mark the entity as modified to avoid having to copy properties manually
-                    existinggroupname.Major = groupname.Major;
-                    existinggroupname.CurriculumCode = groupname.CurriculumCode;
-                    existinggroupname.Major = groupname.Major;
-                    existinggroupname.Term = groupname.Term;
+                    _mapper.Map(groupname, existinggroupname);
                     await _context.SaveChangesAsync();
                 }
             }

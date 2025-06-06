@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
+using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Helper
 {
-    public class AutoMappingProfiles
+    public class AutoMappingProfiles : Profile
     {
         /// <summary>
         /// Initializes a new instance of the AutoMappingProfiles class.
@@ -14,6 +16,9 @@ namespace SchedulerWpfApp.Helper
         /// </summary>
         public AutoMappingProfiles()
         {
+            CreateMap<Room, Room>()
+           .ForMember(dest => dest.RoomId, opt => opt.Ignore()); // Không map RoomId
+            CreateMap<GroupClass, GroupClass>();
             // Initialize AutoMapper profiles here if needed
             // For example, you can create mappings between different models
             // Mapper.Initialize(cfg => cfg.CreateMap<SourceModel, DestinationModel>());
