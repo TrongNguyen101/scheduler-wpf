@@ -115,7 +115,6 @@ namespace SchedulerWpfApp.ViewModel
         }
         // declare commands that are triggered by events or view titles
         public ICommand AddGroupNameCommand { get; set; }
-        public ICommand RemoveRoomCommand { get; set; }
         public ICommand LoadGroupNameCommand { get; }
         public ICommand ExportGroupNameCommand { get; }
         public ICommand ImportGroupNameCommand { get; }
@@ -150,11 +149,11 @@ namespace SchedulerWpfApp.ViewModel
             // export room by excel file 
             ExportGroupNameCommand = new RelayCommand(async () => await ExportRoomAsync());
             // edit room
-            EditGroupNameCommand = new RelayCommandGeneric<GroupClass>(async (groupname) => await EditPersonAsync(groupname));
+            EditGroupNameCommand = new RelayCommandGeneric<GroupClass>(async (groupname) => await EditGroupNameAsync(groupname));
             // delete room
-            DeleteGroupNameCommand = new RelayCommandGeneric<GroupClass>(async (groupname) => await DeletePersonAsync(groupname));
+            DeleteGroupNameCommand = new RelayCommandGeneric<GroupClass>(async (groupname) => await DeleteGroupNameAsync(groupname));
             // save add room or edit room
-            SaveGroupNameCommand = new RelayCommand(async () => await SavePersonAsync());
+            SaveGroupNameCommand = new RelayCommand(async () => await SaveGroupNameAsync());
             // cancel edit or add
             CancelEditGroupNameCommand = new RelayCommand(CancelEdit);
             // confirm delete
@@ -182,7 +181,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load persons: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Failed to load class: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -225,7 +224,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (GroupNames == null || GroupNames.Count == 0)
             {
-                MessageBox.Show("No persons to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("No class to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -272,7 +271,7 @@ namespace SchedulerWpfApp.ViewModel
         /// turns on the room form, and sets the editing state.
         /// </summary>
          
-        private async Task EditPersonAsync(GroupClass groupname)
+        private async Task EditGroupNameAsync(GroupClass groupname)
         {
             if (groupname == null) return;
             SelectedGroupname = new GroupClass
@@ -295,7 +294,7 @@ namespace SchedulerWpfApp.ViewModel
         /// This method checks if the ClassId is not empty, verifies if the room already exists,
         /// </summary>
         
-        private async Task SavePersonAsync()
+        private async Task SaveGroupNameAsync()
         {
             try
             {
@@ -366,7 +365,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         /// <param name="groupname"></param>
          
-        private async Task DeletePersonAsync(GroupClass groupname)
+        private async Task DeleteGroupNameAsync(GroupClass groupname)
         {
 
             if (groupname == null) return;
