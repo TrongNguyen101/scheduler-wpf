@@ -33,7 +33,7 @@ public class ExcelPersonExporter : IExcelPersonExporter
     }
 
 
-    public void ExportToExcelRoom(List<GroupClass> groupname, string filePath)
+    public void ExportToExcelGroupName(List<GroupClass> groupname, string filePath)
     {
         using ExcelEngine excelEngine = new();
         IApplication application = excelEngine.Excel;
@@ -42,10 +42,10 @@ public class ExcelPersonExporter : IExcelPersonExporter
         IWorksheet sheet = workbook.Worksheets[0];
         // Header
         sheet[1, 1].Text = "GroupName";
-        sheet[1, 2].Text = "CurriculumCode";
-        sheet[1, 3].Text = "Major";
-        sheet[1, 4].Text = "Department";
-        sheet[1, 5].Text = "Tern";
+        sheet[1, 2].Text = "Khóa";
+        sheet[1, 3].Text = "Ngành";
+        sheet[1, 4].Text = "BM";
+        sheet[1, 5].Text = "Kỳ";
         int row = 2;
         foreach (var groupnames in groupname)
         {

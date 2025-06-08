@@ -49,7 +49,7 @@ namespace SchedulerWpfApp.Services
         }
 
 
-        public List<GroupClass> ReadRoomFromExcel(string filePath)
+        public List<GroupClass> ReadGroupNameFromExcel(string filePath)
         {
             var rooms = new List<GroupClass>();
 
@@ -70,7 +70,7 @@ namespace SchedulerWpfApp.Services
                 if (!string.IsNullOrWhiteSpace(header))
                     headerMap[header] = c;
             }
-            string[] requiredHeaders = { "Groupname", "CurriculumCode", "Term", "Department", "Major" };
+            string[] requiredHeaders = { "Groupname", "Khóa", "Kỳ", "BM", "Ngành" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");
@@ -80,10 +80,10 @@ namespace SchedulerWpfApp.Services
                 var room = new GroupClass
                 {
                     GroupName = sheet[r, headerMap["Groupname"]].Value,
-                    CurriculumCode = sheet[r, headerMap["CurriculumCode"]].Value,
-                    Department = sheet[r, headerMap["Department"]].Value,
-                    Major = sheet[r, headerMap["Major"]].Value,
-                    Term = sheet[r, headerMap["Term"]].Value,
+                    CurriculumCode = sheet[r, headerMap["Khóa"]].Value,
+                    Department = sheet[r, headerMap["BM"]].Value,
+                    Major = sheet[r, headerMap["Ngành"]].Value,
+                    Term = sheet[r, headerMap["Kỳ"]].Value,
                 };
                 rooms.Add(room);
             }

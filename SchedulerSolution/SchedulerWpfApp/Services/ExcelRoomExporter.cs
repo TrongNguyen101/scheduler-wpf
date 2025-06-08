@@ -14,12 +14,12 @@ namespace SchedulerWpfApp.Services
             IWorkbook workbook = application.Workbooks.Create(1);
             IWorksheet sheet = workbook.Worksheets[0];
             // Header
-            sheet[1, 1].Text = "RoomId";
+            sheet[1, 1].Text = "Phòng học";
             sheet[1, 2].Text = "RoomName";
-            sheet[1, 3].Text = "TypeOfRoom";
-            sheet[1, 4].Text = "Floor";
-            sheet[1, 5].Text = "Building";
-            sheet[1, 6].Text = "TotalPersons";
+            sheet[1, 3].Text = "Loại phòng";
+            sheet[1, 4].Text = "Tầng";
+            sheet[1, 5].Text = "Tòa";
+            sheet[1, 6].Text = "SLSV";
             sheet[1, 7].Text = "Status";
             int row = 2;
             foreach (var rooms in room)
