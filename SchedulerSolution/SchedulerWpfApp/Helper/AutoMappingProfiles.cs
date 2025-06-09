@@ -17,7 +17,7 @@ namespace SchedulerWpfApp.Helper
         public AutoMappingProfiles()
         {
             CreateMap<Room, Room>()
-           .ForMember(dest => dest.RoomId, opt => opt.Ignore()); // Không map RoomId
+           .ForMember(dest => dest.RoomId, opt => opt.Ignore()); // No RoomId map
             CreateMap<GroupClass, GroupClass>();
             // Initialize AutoMapper profiles here if needed
             // For example, you can create mappings between different models

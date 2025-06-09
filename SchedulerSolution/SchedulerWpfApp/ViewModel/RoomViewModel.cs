@@ -17,9 +17,9 @@ namespace SchedulerWpfApp.ViewModel
         private readonly IRoomService _roomService;
         private readonly IExcelRoomImport _excelRoomImport;
         private readonly IExcelRoomExporter _excelRoomExporter;
-        private ObservableCollection<Room> _roomname;
+        private ObservableCollection<Room> _roomlist;
         private Room? _selectedRoom;
-        public string FormTitle => SelectedRoomname?.RoomId == 0 ? "Thêm phòng mới" : "Chỉnh sửa thông tin phòng";
+        public string FormTitle => SelectedRoom?.RoomId == 0 ? "Thêm phòng mới" : "Chỉnh sửa thông tin phòng";
         // keyword search events
         private string _searchKeyword;
         // Open popup when clicking add or edit
@@ -41,15 +41,15 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         public ObservableCollection<Room> Rooms
         {
-            get => _roomname;
-            set => SetProperty(ref _roomname, value);
+            get => _roomlist;
+            set => SetProperty(ref _roomlist, value);
         }
 
         /// <summary>
         /// Gets or sets the selected Room object.
         /// This property is used to bind the selected room in the UI, allowing for editing or deletion.
         /// </summary>
-        public Room SelectedRoomname
+        public Room SelectedRoom
         {
             get => _selectedRoom;
             set
@@ -154,7 +154,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load persons: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Không tải được phòng: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         /// <summary>
@@ -176,12 +176,12 @@ namespace SchedulerWpfApp.ViewModel
                     var data = _excelRoomImport.ReadRoomListFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
                     await _roomService.ImportRoomFromExcel(data);
-                    MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Nhập thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadRoomAsync();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Import failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Nhập thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -194,7 +194,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (Rooms == null || Rooms.Count == 0)
             {
-                MessageBox.Show("No persons to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Không có chỗ để xuất.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -212,11 +212,11 @@ namespace SchedulerWpfApp.ViewModel
                     var roomList = Rooms.Where(p => p != null).ToList();
                     // call ExportToExcelRoom function to export file
                     _excelRoomExporter.ExportRoomToExcel(roomList, dialog.FileName);
-                    MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Xuất thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Export failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Xuất thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -228,7 +228,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         public async Task AddRoomAsync()
         {
-            SelectedRoomname = new Room();
+            SelectedRoom= new Room();
             IsRoomFormOpen = true;
             // check if it is an edit event
             _isEditing = false;
@@ -245,7 +245,7 @@ namespace SchedulerWpfApp.ViewModel
         private async Task EditRoomAsync(Room room)
         {
             if (room == null) return;
-            SelectedRoomname = new Room
+            SelectedRoom= new Room
             {
                 RoomId = room.RoomId,
                 RoomName = room.RoomName,
@@ -270,7 +270,7 @@ namespace SchedulerWpfApp.ViewModel
         public async Task DeleteRoomAsync(Room room)
         {
             if (room == null) return;
-            SelectedRoomname = new Room
+            SelectedRoom= new Room
             {
                 RoomId = room.RoomId,
                 RoomName = room.RoomName,
@@ -287,7 +287,7 @@ namespace SchedulerWpfApp.ViewModel
         private void CancelDelete()
         {
             // set SelectedGroupname null 
-            SelectedRoomname = null;
+            SelectedRoom= null;
             IsOpenDialog = false;
         }
 
@@ -300,9 +300,9 @@ namespace SchedulerWpfApp.ViewModel
         {
             try
             {
-                if (SelectedRoomname != null)
+                if (SelectedRoom!= null)
                 {
-                    await _roomService.DeleteRoom(SelectedRoomname.RoomId);
+                    await _roomService.DeleteRoom(SelectedRoom.RoomId);
                     MessageBox.Show("Xóa Thành Công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadRoomAsync();
                     IsOpenDialog = false;
@@ -326,37 +326,37 @@ namespace SchedulerWpfApp.ViewModel
         private void CancelEdit()
         {
             // set SelectedGroupname null 
-            SelectedRoomname = null;
+            SelectedRoom= null;
             IsRoomFormOpen = false;
         }
 
         /// <summary>
         /// Asynchronously saves the current room.
-        /// This method checks if the room name and total persons are valid before saving.
+        /// This method checks if the room name and total room are valid before saving.
         /// If the room is being edited, it updates the existing room; otherwise, it adds a new room.
         /// </summary>
         public async Task SaveRoomAsync()
         {
-            if (SelectedRoomname == null) return;
+            if (SelectedRoom== null) return;
             // ✅ Kiểm tra đầu vào trước khi lưu
-            if (string.IsNullOrWhiteSpace(SelectedRoomname.RoomName) || 
-                string.IsNullOrWhiteSpace(SelectedRoomname.TypeOfRoom) ||
-                string.IsNullOrWhiteSpace(SelectedRoomname.Building) ||
-                string.IsNullOrWhiteSpace(SelectedRoomname.Status) ||
-                SelectedRoomname.Floor == 0 ||
-                SelectedRoomname.TotalPersons == 0)
+            if (string.IsNullOrWhiteSpace(SelectedRoom.RoomName) || 
+                string.IsNullOrWhiteSpace(SelectedRoom.TypeOfRoom) ||
+                string.IsNullOrWhiteSpace(SelectedRoom.Building) ||
+                string.IsNullOrWhiteSpace(SelectedRoom.Status) ||
+                SelectedRoom.Floor == 0 ||
+                SelectedRoom.TotalPersons == 0)
             {
                 MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsRoomFormOpen = true;
                 return;
             }
-            else if (SelectedRoomname.TotalPersons < 0 || SelectedRoomname.TotalPersons > 50)
+            else if (SelectedRoom.TotalPersons < 0 || SelectedRoom.TotalPersons > 50)
             {
                 MessageBox.Show("Số người trong phòng không vượt quá 50 người và không được nhỏ hơn 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsRoomFormOpen = true;
                 return;
             }
-            else if (SelectedRoomname.Floor < 0 || SelectedRoomname.Floor > 5)
+            else if (SelectedRoom.Floor < 0 || SelectedRoom.Floor > 5)
             {
                 MessageBox.Show("Số tầng không được vượt quá 5 và không được nhỏ hơn 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsRoomFormOpen = true;
@@ -366,16 +366,16 @@ namespace SchedulerWpfApp.ViewModel
             {
                 if (_isEditing)
                 {
-                    await _roomService.UpdateRoom(SelectedRoomname);
+                    await _roomService.UpdateRoom(SelectedRoom);
                     MessageBox.Show("Cập nhật thông tin phòng thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    await _roomService.AddRoom(SelectedRoomname);
+                    await _roomService.AddRoom(SelectedRoom);
                     MessageBox.Show("Thêm phòng mới thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 IsRoomFormOpen = false;
-                SelectedRoomname = null;
+                SelectedRoom= null;
                 await LoadRoomAsync();
             }
             catch (Exception ex)

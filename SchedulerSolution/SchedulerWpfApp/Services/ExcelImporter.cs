@@ -44,10 +44,8 @@ namespace SchedulerWpfApp.Services
 
                 persons.Add(person);
             }
-
             return persons;
         }
-
 
         public List<GroupClass> ReadGroupNameFromExcel(string filePath)
         {

@@ -28,10 +28,8 @@ public class ExcelPersonExporter : IExcelPersonExporter
             sheet[row, 4].Text = person.Phone ?? "";
             row++;
         }
-
         workbook.SaveAs(filePath);
     }
-
 
     public void ExportToExcelGroupName(List<GroupClass> groupname, string filePath)
     {
@@ -54,7 +52,6 @@ public class ExcelPersonExporter : IExcelPersonExporter
             sheet[row, 3].Text = groupnames.Major ?? "";
             sheet[row, 4].Text = groupnames.Department ?? "";
             sheet[row, 5].Text = groupnames.Term ?? "";
-            //sheet[row, 5].Text = groupnames.Term.ToString();
             row++;
         }
         workbook.SaveAs(filePath);
