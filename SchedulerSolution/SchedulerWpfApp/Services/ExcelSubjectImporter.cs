@@ -32,7 +32,7 @@ namespace SchedulerWpfApp.Services
                     headerMap[header] = c;
             }
 
-            string[] requiredHeaders = { "SubjectCode", "SubjectName", "Major", "TotalSessions", "SlotsPerWeek", "SemesterId" };
+            string[] requiredHeaders = { "SubjectCode", "SubjectNameEnglish", "SubjectNameVietnamese", "TotalTime", "TotalCredits" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");
@@ -45,11 +45,10 @@ namespace SchedulerWpfApp.Services
                 var subject = new Subject
                 {
                     SubjectCode = sheet[r, headerMap["SubjectCode"]].Value,
-                    //SubjectName = sheet[r, headerMap["SubjectName"]].Value,
-                    //Major = sheet[r, headerMap["Major"]].Value,
-                    //TotalSessions = int.TryParse(sheet[r, headerMap["TotalSessions"]].Value, out int totalSessions) ? totalSessions : 0,
-                    //SlotsPerWeek = int.TryParse(sheet[r, headerMap["SlotsPerWeek"]].Value, out int SlotsPerWeek) ? SlotsPerWeek : 0,
-                    //SemesterId = sheet[r, headerMap["SemesterId"]].Value
+                    SubjectNameEnglish = sheet[r, headerMap["SubjectNameEnglish"]].Value,
+                    SubjectNameVietnamese = sheet[r, headerMap["SubjectNameVietnamese"]].Value,
+                    TotalTime = int.TryParse(sheet[r, headerMap["TotalTime"]].Value, out int totalSessions) ? totalSessions : 0,
+                    TotalCredits = int.TryParse(sheet[r, headerMap["TotalCredits"]].Value, out int SlotsPerWeek) ? SlotsPerWeek : 0
                 };
 
                 subjects.Add(subject);
