@@ -14,12 +14,12 @@ namespace SchedulerWpfApp.ViewModel
     public class GroupNameViewModel : ViewBaseModel
     {
         #region Fields
-        private readonly IGroupNameService _groupnameService;
+        private readonly IGroupNameService _groupnamelistService;
         private readonly IExcelPersonImporter _excelImporter;
         private readonly IExcelPersonExporter _excelExporter;
 
-        // declare to list the rooms
-        private ObservableCollection<GroupClass> _groupname;
+        // declare to list the groupnames
+        private ObservableCollection<GroupClass> _groupnamelist;
         // declaration used to list the entire list and support search event when deleting keyword then the list will render again
         private ObservableCollection<GroupClass> _allGroupNames;
         // properties when groupName data is displayed in popup
@@ -44,12 +44,12 @@ namespace SchedulerWpfApp.ViewModel
 
         #region Constructor
         /// <summary>
-        /// Observable collection to hold list of rooms
+        /// Observable collection to hold list of groupnames
         /// </summary>
         public ObservableCollection<GroupClass> GroupNames
         {
-            get => _groupname;
-            set => SetProperty(ref _groupname, value);
+            get => _groupnamelist;
+            set => SetProperty(ref _groupnamelist, value);
         }
         /// <summary>
         /// Search keyword, triggers filtering when updated
@@ -62,11 +62,10 @@ namespace SchedulerWpfApp.ViewModel
                 if (SetProperty(ref _searchKeyword, value))
                 {
                     // use function fillter list by keyword
-                    FilterRooms();
+                    Filtergroupname();
                 }
             }
         }
-
         /// <summary>
         /// Selected group name, triggers form title update when changed
         /// </summary>
@@ -115,7 +114,6 @@ namespace SchedulerWpfApp.ViewModel
         }
         // declare commands that are triggered by events or view titles
         public ICommand AddGroupNameCommand { get; set; }
-        public ICommand RemoveRoomCommand { get; set; }
         public ICommand LoadGroupNameCommand { get; }
         public ICommand ExportGroupNameCommand { get; }
         public ICommand ImportGroupNameCommand { get; }
@@ -136,25 +134,25 @@ namespace SchedulerWpfApp.ViewModel
         public GroupNameViewModel(IGroupNameService groupnameService, IExcelPersonImporter excelImporter, IExcelPersonExporter excelExporter)
         {
             // assign variables to the corresponding Service object
-            _groupnameService = groupnameService;
+            _groupnamelistService = groupnameService;
             _excelImporter = excelImporter;
             _excelExporter = excelExporter;
             // Execute command according to each event corresponding to the processing functions
             GroupNames = new ObservableCollection<GroupClass>();
-            // add room
-            AddGroupNameCommand = new RelayCommand(async () => await AddRoomAsync());
-            // load list room
-            LoadGroupNameCommand = new RelayCommand(async () => await LoadRoomAsync());
-            // import room by excel file 
-            ImportGroupNameCommand = new RelayCommand(async () => await ImportRoomAsync());
-            // export room by excel file 
-            ExportGroupNameCommand = new RelayCommand(async () => await ExportRoomAsync());
-            // edit room
-            EditGroupNameCommand = new RelayCommandGeneric<GroupClass>(async (groupname) => await EditPersonAsync(groupname));
-            // delete room
-            DeleteGroupNameCommand = new RelayCommandGeneric<GroupClass>(async (groupname) => await DeletePersonAsync(groupname));
-            // save add room or edit room
-            SaveGroupNameCommand = new RelayCommand(async () => await SavePersonAsync());
+            // add groupname
+            AddGroupNameCommand = new RelayCommand(async () => await AddGroupNameAsync());
+            // load list groupname
+            LoadGroupNameCommand = new RelayCommand(async () => await LoadGroupNameAsync());
+            // import groupname by excel file 
+            ImportGroupNameCommand = new RelayCommand(async () => await ImportGroupNamelistAsync());
+            // export groupname by excel file 
+            ExportGroupNameCommand = new RelayCommand(async () => await ExportGroupNameAsync());
+            // edit groupname
+            EditGroupNameCommand = new RelayCommandGeneric<GroupClass>(async (groupname) => await EditGroupNameAsync(groupname));
+            // delete groupname
+            DeleteGroupNameCommand = new RelayCommandGeneric<GroupClass>(async (groupname) => await DeleteGroupNameAsync(groupname));
+            // save add groupname or edit groupname
+            SaveGroupNameCommand = new RelayCommand(async () => await SaveGroupNameAsync());
             // cancel edit or add
             CancelEditGroupNameCommand = new RelayCommand(CancelEdit);
             // confirm delete
@@ -162,7 +160,7 @@ namespace SchedulerWpfApp.ViewModel
             // cancel delete
             CancelDeleteGroupNameCommand = new RelayCommand(CancelDelete);
             // asynchronous processing without async await
-            _ = LoadRoomAsync();
+            _ = LoadGroupNameAsync();
 
         }
         /// <summary>
@@ -170,27 +168,27 @@ namespace SchedulerWpfApp.ViewModel
         /// This method retrieves the list of group names from the service and assigns it to the _allGroupNames collection.
         /// </summary>
         /// 
-        private async Task LoadRoomAsync()
+        private async Task LoadGroupNameAsync()
         {
             try
             {
-                var roomlist = await _groupnameService.GetAllAsync();
+                var groupnamelist = await _groupnamelistService.GetAllAsync();
                 // assign _allGroupNames to search and when deleting keywords, re-render the list
-                _allGroupNames = new ObservableCollection<GroupClass>(roomlist);
-                // call this function to render room list
+                _allGroupNames = new ObservableCollection<GroupClass>(groupnamelist);
+                // call this function to render groupname list
                 ResetToAllGroupNames();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load persons: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Failed to load class: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         /// <summary>
-        /// Imports room data from an Excel file using a file dialog.
+        /// Imports groupnamelist data from an Excel file using a file dialog.
         /// This method opens a file dialog to select an Excel file,
         /// </summary>
-        private async Task ImportRoomAsync()
+        private async Task ImportGroupNamelistAsync()
         {
             var dialog = new OpenFileDialog
             {
@@ -201,13 +199,13 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
-                    // call ReadRoomFromExcel function to process file and read file when importing
-                    var data = _excelImporter.ReadRoomFromExcel(dialog.FileName);
+                    // call ReadgroupnameFromExcel function to process file and read file when importing
+                    var data = _excelImporter.ReadGroupNameFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
 
-                    await _groupnameService.ImportGroupNameFromExcel(data);
+                    await _groupnamelistService.ImportGroupNameFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                    await LoadRoomAsync();
+                    await LoadGroupNameAsync();
                 }
                 catch (Exception ex)
                 {
@@ -217,15 +215,15 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Exports the current list of rooms to an Excel file using a file dialog.
+        /// Exports the current list of groupnames to an Excel file using a file dialog.
         /// This method opens a file dialog to select the save location and file name,
-        /// then calls the export service to save the room data to an Excel file.
+        /// then calls the export service to save the groupname data to an Excel file.
         /// </summary>
-        private async Task ExportRoomAsync()
+        private async Task ExportGroupNameAsync()
         {
             if (GroupNames == null || GroupNames.Count == 0)
             {
-                MessageBox.Show("No persons to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Không có lớp nào để xuất.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -239,23 +237,23 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     //Filter the GroupNames list to remove null elements
-                    var roomList = GroupNames.Where(p => p != null).ToList();
-                    // call ExportToExcelRoom function to export file
-                    _excelExporter.ExportToExcelRoom(roomList, dialog.FileName);
-                    MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    var groupnameList = GroupNames.Where(groupname => groupname != null).ToList();
+                    // call ExportToExcelgroupname function to export file
+                    _excelExporter.ExportToExcelGroupName(groupnameList, dialog.FileName);
+                    MessageBox.Show("Xuất thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Export failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Xuất thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
         /// <summary>
-        /// Opens a dialog to add a new room or edit an existing one.
-        /// This method initializes a new GroupName object, opens the room form,
+        /// Opens a dialog to add a new groupname or edit an existing one.
+        /// This method initializes a new GroupName object, opens the groupname form,
         /// </summary>
-        private async Task AddRoomAsync()
+        private async Task AddGroupNameAsync()
         {
             SelectedGroupname = new GroupClass();
             // turn on pop up
@@ -267,20 +265,20 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Opens the edit form for a selected room.
-        /// This method sets the SelectedGroupname to the room being edited,
-        /// turns on the room form, and sets the editing state.
+        /// Opens the edit form for a selected groupname.
+        /// This method sets the SelectedGroupname to the groupname being edited,
+        /// turns on the groupname form, and sets the editing state.
         /// </summary>
          
-        private async Task EditPersonAsync(GroupClass groupname)
+        private async Task EditGroupNameAsync(GroupClass groupname)
         {
             if (groupname == null) return;
             SelectedGroupname = new GroupClass
             {
                 GroupName = groupname.GroupName,
-                Course = groupname.Course,
+                CurriculumCode = groupname.CurriculumCode,
                 Major = groupname.Major,
-                //Term = groupname.Term,
+                Term = groupname.Term,
                 Department = groupname.Department,
             };
             IsGroupNameFormOpen = true;
@@ -291,46 +289,42 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Saves the current room data, either adding a new room or updating an existing one.
-        /// This method checks if the ClassId is not empty, verifies if the room already exists,
+        /// Saves the current groupname data, either adding a new groupname or updating an existing one.
+        /// This method checks if the ClassId is not empty, verifies if the groupname already exists,
         /// </summary>
         
-        private async Task SavePersonAsync()
+        private async Task SaveGroupNameAsync()
         {
             try
             {
                 if (SelectedGroupname == null)
                 {
                     MessageBox.Show("Vui lòng nhập thông tin lớp học.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    IsGroupNameFormOpen = true; // Đóng form nếu không có dữ liệu
                     return;
                 }
                 // check blank - Kiểm tra dữ liệu trống TRƯỚC KHI làm gì khác
                 if (string.IsNullOrWhiteSpace(SelectedGroupname?.GroupName) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.Course) ||
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.CurriculumCode) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department))
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department)||
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.Term))
                 {
                     MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    IsGroupNameFormOpen = true; // Mở lại form nếu có dữ liệu trống
                     return;
                 }
-                // Kiểm tra số lượng âm
-                //if (SelectedGroupname?.Term < 0)
-                //{
-                //    MessageBox.Show("Số lượng học viên và số lượng lịch học phải lớn hơn hoặc bằng 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //    return;
-                //}
-                // check which event is edit or add
                 if (_isEditing)
                 {
                     // Khi edit, chỉ cần kiểm tra ClassId có tồn tại không
-                    bool exists = await _groupnameService.CheckClassIdExistsAsync(SelectedGroupname.GroupName);
+                    bool exists = await _groupnamelistService.CheckClassIdExistsAsync(SelectedGroupname.GroupName);
                     if (exists)
                     {
                         // Dữ liệu đã được validate ở trên rồi, an toàn để update
-                        await _groupnameService.UpdateGroupName(SelectedGroupname);
+                        await _groupnamelistService.UpdateGroupName(SelectedGroupname);
                         MessageBox.Show("Cập nhật lớp thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                        await LoadRoomAsync();
+                        await LoadGroupNameAsync();
                         IsGroupNameFormOpen = false; // Đóng form sau khi save thành công
                         _isEditing = false;
                     }
@@ -342,12 +336,12 @@ namespace SchedulerWpfApp.ViewModel
                 else // Add mode
                 {
                     // Kiểm tra trùng ClassId
-                    bool exists = await _groupnameService.CheckClassIdExistsAsync(SelectedGroupname.GroupName);
+                    bool exists = await _groupnamelistService.CheckClassIdExistsAsync(SelectedGroupname.GroupName);
                     if (!exists)
                     {
-                        await _groupnameService.AddGroupName(SelectedGroupname);
+                        await _groupnamelistService.AddGroupName(SelectedGroupname);
                         MessageBox.Show("Thêm lớp mới thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                        await LoadRoomAsync();
+                        await LoadGroupNameAsync();
                         IsGroupNameFormOpen = false; // Đóng form sau khi save thành công
                         _isEditing = false;
                     }
@@ -364,13 +358,13 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Deletes a selected room after confirmation.
-        /// This method sets the SelectedGroupname to the room to be deleted,
+        /// Deletes a selected groupname after confirmation.
+        /// This method sets the SelectedGroupname to the groupname to be deleted,
         /// opens the confirmation dialog, and waits for user confirmation.
         /// </summary>
         /// <param name="groupname"></param>
          
-        private async Task DeletePersonAsync(GroupClass groupname)
+        private async Task DeleteGroupNameAsync(GroupClass groupname)
         {
 
             if (groupname == null) return;
@@ -379,9 +373,9 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Confirms the deletion of the selected room.
-        /// This method checks if a room is selected,
-        /// attempts to delete it using the service, and reloads the room list.
+        /// Confirms the deletion of the selected groupname.
+        /// This method checks if a groupname is selected,
+        /// attempts to delete it using the service, and reloads the groupname list.
         /// </summary>
          
         private async Task ConfirmDeleteAsync()
@@ -390,9 +384,9 @@ namespace SchedulerWpfApp.ViewModel
             {
                 if (SelectedGroupname != null)
                 {
-                    await _groupnameService.DeleteGroupName(SelectedGroupname.GroupName);
+                    await _groupnamelistService.DeleteGroupName(SelectedGroupname.GroupName);
                     MessageBox.Show("Xóa Thành Công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                    await LoadRoomAsync();
+                    await LoadGroupNameAsync();
                     IsOpenDialog = false;
                 }
                 else
@@ -407,7 +401,7 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Cancels the current edit or add operation and closes the room form.
+        /// Cancels the current edit or add operation and closes the groupname form.
         /// This method sets the SelectedGroupname to null,
         /// </summary>
        
@@ -443,7 +437,7 @@ namespace SchedulerWpfApp.ViewModel
         /// Filters the GroupNames collection based on the search keyword.
         /// If the search keyword is empty, it resets to show all group names.
         /// </summary>
-        private void FilterRooms()
+        private void Filtergroupname()
         {
             if (string.IsNullOrWhiteSpace(SearchKeyword))
             {
@@ -454,10 +448,10 @@ namespace SchedulerWpfApp.ViewModel
                 // enter keyword from box
                 var lowerKeyword = SearchKeyword.ToLower();
                 // can search by ClassId, Category, Major
-                var filtered = _allGroupNames.Where(room =>
-                    (!string.IsNullOrEmpty(room.GroupName) && room.GroupName.ToLower().Contains(lowerKeyword)) ||
-                    (!string.IsNullOrEmpty(room.Course) && room.Course.ToLower().Contains(lowerKeyword)) ||
-                    (!string.IsNullOrEmpty(room.Major) && room.Major.ToLower().Contains(lowerKeyword))
+                var filtered = _allGroupNames.Where(groupname =>
+                    (!string.IsNullOrEmpty(groupname.GroupName) && groupname.GroupName.ToLower().Contains(lowerKeyword)) ||
+                    (!string.IsNullOrEmpty(groupname.CurriculumCode) && groupname.CurriculumCode.ToLower().Contains(lowerKeyword)) ||
+                    (!string.IsNullOrEmpty(groupname.Major) && groupname.Major.ToLower().Contains(lowerKeyword))
                 ).ToList();
 
                 GroupNames = new ObservableCollection<GroupClass>(filtered);

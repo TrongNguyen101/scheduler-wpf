@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
 namespace SchedulerWpfApp.Services
@@ -10,9 +11,11 @@ namespace SchedulerWpfApp.Services
     public class RoomService : IRoomService
     {
         private readonly DataContext _context;
-        public RoomService(DataContext context)
+        private readonly IMapper _mapper;
+        public RoomService(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -94,9 +97,7 @@ namespace SchedulerWpfApp.Services
             var existingRoom = await GetByRoomCodeAsync(room.RoomId);
             if (existingRoom != null)
             {
-                //existingRoom.RoomName = room.RoomName;
-                existingRoom.TotalPersons = room.TotalPersons;
-                existingRoom.TypeOfRoom = room.TypeOfRoom;
+                _mapper.Map(room, existingRoom);
                 await _context.SaveChangesAsync();
             }
         }
