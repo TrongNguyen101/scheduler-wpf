@@ -224,6 +224,7 @@ namespace SchedulerWpfApp.ViewModel
             if (SelectedSubject == null)
                 return;
 
+
             // Validate the subject before saving
             if (string.IsNullOrWhiteSpace(SelectedSubject.SubjectCode) ||
             string.IsNullOrWhiteSpace(SelectedSubject.SubjectNameVietnamese) ||
@@ -243,7 +244,7 @@ namespace SchedulerWpfApp.ViewModel
                 IsSubjectFormOpen = true;
                 return;
             }
-
+            
             try
             {
                 // Check if _isEdit is false will create new course. Otherwise, update course
@@ -420,7 +421,7 @@ namespace SchedulerWpfApp.ViewModel
                 var lowerKeyword = SearchKeyword.ToLower();
                 // can search by SubjectCode, SubjectNameEnglish, SubjectNameVietnamese
                 var filtered = _allSubjects.Where(subject =>
-                    (!string.IsNullOrEmpty(subject.SubjectCode) && subject.SubjectCode.ToLower().Contains(lowerKeyword)) ||
+                (!string.IsNullOrEmpty(subject.SubjectCode) && subject.SubjectCode.ToLower().Contains(lowerKeyword)) ||
                 (!string.IsNullOrEmpty(subject.SubjectNameEnglish) && subject.SubjectNameEnglish.ToLower().Contains(lowerKeyword)) ||
                 (!string.IsNullOrEmpty(subject.SubjectNameVietnamese) && subject.SubjectNameVietnamese.ToLower().Contains(lowerKeyword))
                 ).ToList();
