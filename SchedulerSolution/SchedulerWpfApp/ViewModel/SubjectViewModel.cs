@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using AutoMapper;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
@@ -18,9 +19,9 @@ namespace SchedulerWpfApp.ViewModel
         private readonly ISubjectServices _courseService;
         private readonly IExcelSubjectImporter _excelImporter;
         private readonly IExcelSubjectExporter _excelExporter;
-
+        
         // Internal data fields
-        private ObservableCollection<Subject> _subject;
+        private ObservableCollection<Subject> _subjects;
         private Subject? _selectedSubject;
         private string _searchKeyword;
         private bool _isSubjectFormOpen;
@@ -47,8 +48,8 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         public ObservableCollection<Subject> Subjects
         {
-            get => _subject;
-            set => SetProperty(ref _subject, value);
+            get => _subjects;
+            set => SetProperty(ref _subjects, value);
         }
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
         // Commands exposed to the View
-        public ICommand LoadPeopleCommand { get; }
+        public ICommand LoadSubjectCommand { get; }
         public ICommand ExportSubjectCommand { get; }
         public ICommand ImportSubjectCommand { get; }
         public ICommand AddSubjectCommand { get; }
@@ -135,7 +136,7 @@ namespace SchedulerWpfApp.ViewModel
             Subjects = new ObservableCollection<Subject>();
 
             // Initialize commands with async methods
-            LoadPeopleCommand = new RelayCommand(async () => await LoadSubjectAsync());
+            LoadSubjectCommand = new RelayCommand(async () => await LoadSubjectAsync());
 
             ImportSubjectCommand = new RelayCommand(async () => await ImportSubjectAsync());
             ExportSubjectCommand = new RelayCommand(async () => await ExportSubjectAsync());
@@ -177,7 +178,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddSubjectAsync()
         {
-            SelectedSubject = new Subject(); // Khởi tạo object trống cho form
+            SelectedSubject = new Subject(); // Initialize a new Subject object
             IsSubjectFormOpen = true;
             _isEdit = false;
             IsSubjectCodeEdit = false;
@@ -245,7 +246,6 @@ namespace SchedulerWpfApp.ViewModel
 
             try
             {
-
                 // Check if _isEdit is false will create new course. Otherwise, update course
                 if (!_isEdit)
                 {
@@ -259,7 +259,7 @@ namespace SchedulerWpfApp.ViewModel
                         MessageBox.Show("Thêm môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
-                        // Cảnh báo
+                        // Warning
                         MessageBox.Show("Môn học đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
@@ -277,7 +277,7 @@ namespace SchedulerWpfApp.ViewModel
                     }
                     else
                     {
-                        // Cảnh báo
+                        // Warning
                         MessageBox.Show("Môn học không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
@@ -288,7 +288,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             finally
             {
-                // Đóng form và reset
+                // Close form  reset
                 IsSubjectFormOpen = false;
                 SelectedSubject = null;
                 LoadSubjectAsync();
@@ -348,7 +348,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task ExportSubjectAsync()
         {
-            if (Subjects == null || Subjects.Count == 0)
+            if (_allSubjects == null || _allSubjects.Count == 0)
             {
                 MessageBox.Show("No subject to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -365,7 +365,7 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     // Export only non-null list
-                    var subjectList = Subjects.Where(p => p != null).ToList();
+                    var subjectList = _allSubjects.Where(p => p != null).ToList();
                     // Use the Excel exporter service to export the subjects to the selected file
                     _excelExporter.ExportToExcel(subjectList, dialog.FileName);
                     MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);

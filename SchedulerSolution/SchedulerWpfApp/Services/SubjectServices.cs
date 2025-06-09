@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
@@ -16,6 +17,8 @@ namespace SchedulerWpfApp.Services
     {
         #region Fields
         private readonly DataContext _context;
+        private readonly IMapper _mapper;
+
         #endregion
 
         #region Contructor
@@ -23,9 +26,10 @@ namespace SchedulerWpfApp.Services
         /// Initializes a new instance of the PersonService class
         /// </summary>
         /// <param name="context">The database context used for data operations</param>
-        public SubjectServices(DataContext context)
+        public SubjectServices(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         #endregion
 
@@ -100,6 +104,7 @@ namespace SchedulerWpfApp.Services
                 existingSubject.SubjectNameVietnamese = subject.SubjectNameVietnamese;
                 existingSubject.TotalCredits = subject.TotalCredits;
                 existingSubject.TotalTime = subject.TotalTime;
+                //_mapper.Map(subject, existingSubject);
 
                 await _context.SaveChangesAsync();
             }
