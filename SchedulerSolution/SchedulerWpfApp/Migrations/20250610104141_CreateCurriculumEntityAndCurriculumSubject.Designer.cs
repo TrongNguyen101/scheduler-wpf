@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchedulerWpfApp.Data;
 
@@ -10,9 +11,11 @@ using SchedulerWpfApp.Data;
 namespace SchedulerWpfApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250610104141_CreateCurriculumEntityAndCurriculumSubject")]
+    partial class CreateCurriculumEntityAndCurriculumSubject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
@@ -28,9 +31,6 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnName("IsActive");
 
                     b.HasKey("CurriculumCode");
-
-                    b.HasIndex("CurriculumCode")
-                        .IsUnique();
 
                     b.ToTable("Curriculum");
                 });
@@ -82,10 +82,9 @@ namespace SchedulerWpfApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubjectCode");
+                    b.HasIndex("CurriculumCode");
 
-                    b.HasIndex("CurriculumCode", "SubjectCode")
-                        .HasDatabaseName("IX_CurriculumCode_SubjectCode");
+                    b.HasIndex("SubjectCode");
 
                     b.ToTable("CurriculumSubject");
                 });
@@ -112,9 +111,6 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnName("Term");
 
                     b.HasKey("GroupName");
-
-                    b.HasIndex("CurriculumCode")
-                        .HasDatabaseName("IX_CurriculumCode");
 
                     b.ToTable("GroupClass");
                 });
@@ -226,10 +222,9 @@ namespace SchedulerWpfApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubjectCode");
+                    b.HasIndex("LecturerId");
 
-                    b.HasIndex("LecturerId", "SubjectCode")
-                        .HasDatabaseName("IX_LecturerId_SubjectCode");
+                    b.HasIndex("SubjectCode");
 
                     b.ToTable("LecturerSubject");
                 });
@@ -297,9 +292,6 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnName("TypeOfRoom");
 
                     b.HasKey("RoomId");
-
-                    b.HasIndex("RoomName")
-                        .HasDatabaseName("IX_RoomName");
 
                     b.ToTable("Room");
                 });

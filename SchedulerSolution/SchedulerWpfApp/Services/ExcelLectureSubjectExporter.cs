@@ -28,7 +28,7 @@ namespace SchedulerWpfApp.Services
                 sheet[row, 1].Text = lecturesubject.LecturerId ?? "";
                 sheet[row, 2].Text = lecturesubject.LecturerName ?? "";
                 sheet[row, 3].Text = lecturesubject.SubjectCode ?? "";
-                sheet[row, 4].Number = lecturesubject.NumberOfClasses;
+                //sheet[row, 4].Number = lecturesubject.NumberOfClasses;
                 row++;
             }
             workbook.SaveAs(filePath);
