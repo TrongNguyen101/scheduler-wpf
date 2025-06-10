@@ -8,6 +8,7 @@ namespace SchedulerWpfApp.Model
     {
         [Key]
         [Column("Id")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Column("CurriculumCode")]

@@ -76,6 +76,26 @@ namespace SchedulerWpfApp.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Configure the index for CurriculumCode and SubjectCode in the CurriculumSubject entity
+            modelBuilder.Entity<CurriculumSubject>()
+                   .HasIndex(c => new { c.CurriculumCode, c.SubjectCode })
+                   .HasDatabaseName("IX_CurriculumCode_SubjectCode");
+
+            // Configure the index of CurriculumCode in the GroupClass entity
+            modelBuilder.Entity<GroupClass>()
+                    .HasIndex(g => new { g.CurriculumCode })
+                    .HasDatabaseName("IX_CurriculumCode");
+
+            // Create a composite index for LecturerId and SubjectCode
+            modelBuilder.Entity<LecturerSubject>()
+                    .HasIndex(ls => new { ls.LecturerId, ls.SubjectCode })  // Composite index for LecturerId and SubjectCode
+                    .HasDatabaseName("IX_LecturerId_SubjectCode");  // Name of the index
+
+            // Configure the index for RoomName in the Room entity
+            modelBuilder.Entity<Room>()
+                    .HasIndex(r => r.RoomName)
+                    .HasDatabaseName("IX_RoomName");
+
             modelBuilder.Entity<Schedule>(entity =>
             {
                 // Relation: Schedule → Subject (Many-to-One)
@@ -140,6 +160,5 @@ namespace SchedulerWpfApp.Data
                             .OnDelete(DeleteBehavior.Restrict);
             });
         }
-
     }
 }
