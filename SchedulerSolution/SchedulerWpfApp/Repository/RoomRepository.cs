@@ -4,10 +4,27 @@ using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Repository
 {
+    /// <summary>
+    /// Repository for handling Room entity database operations.
+    /// Implements the IRoomRepository interface.
+    /// </summary>
     public class RoomRepository : BaseRepository<Room>, IRoomRepository
     {
+        #region Constructors
+        /// <summary>
+        /// Initializes a new instance of the RoomRepository class.
+        /// </summary>
+        /// <param name="context">The database context.</param>
         public RoomRepository(DataContext context) : base(context) { }
+        #endregion
 
+        #region Methods
+        /// <summary>
+        /// Checks if a room with the specified name exists in the database.
+        /// </summary>
+        /// <param name="roomName">The name of the room to check.</param>
+        /// <returns>True if the room exists, otherwise false.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while checking room existence.</exception>
         public async Task<bool> CheckRoomIdExistsAsync(string roomName)
         {
             try
@@ -26,6 +43,12 @@ namespace SchedulerWpfApp.Repository
             }
         }
 
+        /// <summary>
+        /// Retrieves a specific number of rooms of type "Phòng học" (classroom).
+        /// </summary>
+        /// <param name="numberOfRoom">The number of rooms to retrieve.</param>
+        /// <returns>A list of rooms ordered by RoomId.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while retrieving rooms.</exception>
         public async Task<List<Room>> GetNumberOfRoom(int numberOfRoom)
         {
             try
@@ -42,12 +65,24 @@ namespace SchedulerWpfApp.Repository
             }
         }
 
+        /// <summary>
+        /// Imports a list of rooms from Excel data.
+        /// </summary>
+        /// <param name="listRoomFromExcel">The list of Room objects imported from Excel.</param>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        /// <remarks>This method is not yet implemented.</remarks>
         public Task ImportRoomFromExcel(List<Room> listRoomFromExcel)
         {
             // Todo: Implement the method to import rooms from Excel
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Searches for rooms whose names contain the specified search term.
+        /// </summary>
+        /// <param name="searchTerm">The search term to look for in room names.</param>
+        /// <returns>A list of rooms matching the search criteria.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while searching for rooms.</exception>
         public async Task<List<Room>> SearchRoomsAsync(string searchTerm)
         {
             try
@@ -61,5 +96,6 @@ namespace SchedulerWpfApp.Repository
                 throw new Exception("An error occurred while searching for rooms.", ex);
             }
         }
+        #endregion
     }
 }
