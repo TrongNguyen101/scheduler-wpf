@@ -11,7 +11,7 @@ namespace SchedulerWpfApp.Model
         public int Id { get; set; }
 
         [Column("CurriculumCode")]
-        public int CurriculumCode { get; set; }
+        public string CurriculumCode { get; set; }
 
         [Column("SubjectCode")]
         [StringLength(50)]
@@ -33,6 +33,9 @@ namespace SchedulerWpfApp.Model
 
         [Column("Credit")]
         public int Credit { get; set; }
+
+        [Column("TotalSLots")]
+        public int? TotalSlots { get; set; }
 
         // === Navigation properties ===
 
