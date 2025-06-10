@@ -40,7 +40,7 @@ namespace SchedulerWpfApp.Services
         /// </summary>
         public async Task<List<Room>> GetAllAsync()
         {
-            var rooms = await _unitOfWork.RoomRepository.GetAllAsync();
+            var rooms = await _unitOfWork.Repository<Room>().GetAllAsync();
             return rooms;
         }
 

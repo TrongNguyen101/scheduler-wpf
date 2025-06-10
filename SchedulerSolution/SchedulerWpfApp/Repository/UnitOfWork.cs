@@ -7,6 +7,7 @@ namespace SchedulerWpfApp.Repository
     {
         private readonly DataContext _context;
         private IDbContextTransaction? _transaction;
+        private readonly Dictionary<Type, object> _repositories = new();
 
         public IRoomRepository RoomRepository { get; }
 
@@ -14,6 +15,17 @@ namespace SchedulerWpfApp.Repository
         {
             _context = context;
             RoomRepository = roomRepository;
+        }
+
+        public IBaseRepository<T> Repository<T>() where T : class
+        {
+            var type = typeof(T);
+            if (!_repositories.ContainsKey(type))
+            {
+                var repo = new BaseRepository<T>(_context);
+                _repositories.Add(type, repo);
+            }
+            return (IBaseRepository<T>)_repositories[type];
         }
 
         public async Task BeginTransactionAsync()
