@@ -10,18 +10,18 @@ using SchedulerWpfApp.Services.LecturerSubjectServices;
 namespace SchedulerWpfApp.ViewModel
 {
     /// <summary>
-    /// ViewModel responsible for managing lectures, including adding, editing, deleting, and exporting lectures.
+    /// ViewModel responsible for managing lecturers, including adding, editing, deleting, and exporting lecturers.
     /// </summary>
     public class LectureViewModel : ViewBaseModel
     {
         #region Fields
         // Dependencies injected via constructor
-        private readonly InterfaceLecturerServices _lectureService;
+        private readonly InterfaceLecturerServices _lecturerService;
         private readonly IExcelLectureImporter _excelImporter;
         private readonly IExcelLectureExporter _excelExporter;
 
         // Internal data fields
-        private ObservableCollection<Lecturer> _lecture;
+        private ObservableCollection<Lecturer> _lecturers;
         private Lecturer? _selectedLecture;
         private string _searchKeyword;
         private bool _isLectureFormOpen;
@@ -35,7 +35,7 @@ namespace SchedulerWpfApp.ViewModel
 
         #region Constructor
         /// <summary>
-        /// ViewModel for managing lectures, including adding, editing, deleting, and exporting lectures.
+        /// ViewModel for managing lecturers, including adding, editing, deleting, and exporting lecturers.
         /// </summary>
         public bool IsLectureCodeEdit
         {
@@ -44,16 +44,16 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Collection of lectures to be displayed in the UI.
+        /// Collection of lecturers to be displayed in the UI.
         /// </summary>
         public ObservableCollection<Lecturer> Lectures
         {
-            get => _lecture;
-            set => SetProperty(ref _lecture, value);
+            get => _lecturers;
+            set => SetProperty(ref _lecturers, value);
         }
 
         /// <summary>
-        /// Selected lecture for editing or viewing details.
+        /// Selected lecturer for editing or viewing details.
         /// </summary>
         public Lecturer SelectedLecture
         {
@@ -68,7 +68,7 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Indicates whether the form for adding or editing a lecture is open.
+        /// Indicates whether the form for adding or editing a lecturer is open.
         /// </summary>
         public bool IsLectureFormOpen
         {
@@ -77,7 +77,7 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Indicates whether the dialog for adding or editing a lecture is open.
+        /// Indicates whether the dialog for adding or editing a lecturer is open.
         /// </summary>
         public bool IsOpenDialog
         {
@@ -110,7 +110,7 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
         // Commands exposed to the View
-        public ICommand LoadPeopleCommand { get; }
+        public ICommand LoadLecturerCommand { get; }
         public ICommand ExportLectureCommand { get; }
         public ICommand ImportLectureCommand { get; }
         public ICommand AddLectureCommand { get; }
@@ -121,30 +121,30 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ConfirmDeleteCommand { get; }
         public ICommand CancelDeleteLectureCommand { get; }
         #endregion
-        
+
         #region Methods
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
         public LectureViewModel(InterfaceLecturerServices courseService, IExcelLectureExporter excelExporter, IExcelLectureImporter excelImporter)
         {
-            _lectureService = courseService;
+            _lecturerService = courseService;
             _excelExporter = excelExporter;
             _excelImporter = excelImporter;
 
             Lectures = new ObservableCollection<Lecturer>();
 
             // Initialize commands with async methods
-            LoadPeopleCommand = new RelayCommand(async () => await LoadLectureAsync());
+            LoadLecturerCommand = new RelayCommand(async () => await LoadLectureAsync());
 
             ImportLectureCommand = new RelayCommand(async () => await ImportLectureAsync());
             ExportLectureCommand = new RelayCommand(async () => await ExportLectureAsync());
 
             AddLectureCommand = new RelayCommand(async () => await AddLectureAsync());
-            EditLectureCommand = new RelayCommandGeneric<Lecturer>(async (lecture) => await EditLectureAsync(lecture), (lecture) => lecture != null);
+            EditLectureCommand = new RelayCommandGeneric<Lecturer>(async (lecturer) => await EditLectureAsync(lecturer), (lecturer) => lecturer != null);
 
             // Generic command with parameter (used for deletion)
-            DeleteLectureCommand = new RelayCommandGeneric<Lecturer>(async (lecture) => await DeleteLectureAsync(lecture), (lecture) => lecture != null);
+            DeleteLectureCommand = new RelayCommandGeneric<Lecturer>(async (lecturer) => await DeleteLectureAsync(lecturer), (lecturer) => lecturer != null);
 
             SaveLectureCommand = new RelayCommand(async () => await SaveLectureAsync());
             CancelEditLectureCommand = new RelayCommand(CancelEdit);
@@ -156,13 +156,13 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Loads lecture from the data service and populates the Lecture collection.
+        /// Loads lecturer from the data service and populates the Lecture collection.
         /// </summary>
         private async Task LoadLectureAsync()
         {
             try
             {
-                var lectureList = await _lectureService.GetAllLecturerAsync();
+                var lectureList = await _lecturerService.GetAllLecturerAsync();
                 _allLectures = new ObservableCollection<Lecturer>(lectureList);
                 ResetToAllLectures();
             }
@@ -173,29 +173,30 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Adds a new lecture by initializing the SelectedLecture property and opening the form for input.
+        /// Adds a new lecturer by initializing the SelectedLecture property and opening the form for input.
         /// </summary>
         private async Task AddLectureAsync()
         {
-            SelectedLecture = new Lecturer(); // Khởi tạo object trống cho form
+            SelectedLecture = new Lecturer(); // Initialize a new Lecturer object
             IsLectureFormOpen = true;
             _isEdit = false;
             IsLectureCodeEdit = false;
         }
 
         /// <summary>
-        /// Edits the selected lecture by setting it to the SelectedLecture property and opening the form for editing.
+        /// Edits the selected lecturer by setting it to the SelectedLecture property and opening the form for editing.
         /// </summary>
-        /// <param name="lecture"></param>
-        private async Task EditLectureAsync(Lecturer lecture)
+        /// <param name="lecturer"></param>
+        private async Task EditLectureAsync(Lecturer lecturer)
         {
-            if (lecture == null) return;
+            if (lecturer == null) return;
 
             SelectedLecture = new Lecturer
             {
-                LecturerId = lecture.LecturerId,
-                LecturerName = lecture.LecturerName,
-                Role = lecture.Role,
+                LecturerId = lecturer.LecturerId,
+                LecturerName = lecturer.LecturerName,
+                Role = lecturer.Role,
+                Department = lecturer.Department,
             };
 
             IsLectureFormOpen = true;
@@ -204,34 +205,36 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Deletes the specified lecture after confirmation.
+        /// Deletes the specified lecturer after confirmation.
         /// </summary>
-        /// <param name="lecture"></param>
-        private async Task DeleteLectureAsync(Lecturer lecture)
+        /// <param name="lecturer"></param>
+        private async Task DeleteLectureAsync(Lecturer lecturer)
         {
-            if (lecture == null) return;
+            if (lecturer == null) return;
 
             SelectedLecture = new Lecturer
             {
-                LecturerId = lecture.LecturerId,
-                LecturerName = lecture.LecturerName,
-                Role = lecture.Role,
+                LecturerId = lecturer.LecturerId,
+                LecturerName = lecturer.LecturerName,
+                Role = lecturer.Role,
+                Department = lecturer.Department,
             };
 
             IsOpenDialog = true;
         }
 
         /// <summary>
-        /// Saves the selected lecture to the data source, either adding a new one or updating an existing one.
+        /// Saves the selected lecturer to the data source, either adding a new one or updating an existing one.
         /// </summary>
         private async Task SaveLectureAsync()
         {
             if (SelectedLecture == null)
                 return;
 
-            if (string.IsNullOrWhiteSpace(SelectedLecture.LecturerId) || string.IsNullOrWhiteSpace(SelectedLecture.LecturerName) || string.IsNullOrWhiteSpace(SelectedLecture.Role))
+            if (string.IsNullOrWhiteSpace(SelectedLecture.LecturerId) || string.IsNullOrWhiteSpace(SelectedLecture.LecturerName) || string.IsNullOrWhiteSpace(SelectedLecture.Role) || string.IsNullOrWhiteSpace(SelectedLecture.Department))
             {
-                MessageBox.Show("Mã Giảng viên không được để trống", "Cảnh báo");
+                MessageBox.Show("Thông tin giảng viên không được để trống", "Cảnh báo");
+                IsLectureFormOpen = true;
                 return;
             }
 
@@ -240,44 +243,50 @@ namespace SchedulerWpfApp.ViewModel
                 // Check if _isEdit is false will create new course. Otherwise, update course
                 if (!_isEdit)
                 {
-                    var existingLecture = Lectures.FirstOrDefault(s => s.LecturerId == SelectedLecture.LecturerId);
+                    // Check if the lecturer already exists in the collection
+                    var existingLecture = _allLectures.FirstOrDefault(s => s.LecturerId == SelectedLecture.LecturerId);
 
                     if (existingLecture == null)
                     {
-                        await _lectureService.AddLecture(SelectedLecture);
-                        MessageBox.Show("Thêm Giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                        // Add new lecturer
+                        await _lecturerService.AddLecture(SelectedLecture);
+                        MessageBox.Show("Thêm giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
-                        // Cảnh báo
+                        // Warning if lecturer already exists
                         MessageBox.Show("Giảng viên đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
                 {
-                    var existingLecture = Lectures.FirstOrDefault(s => s.LecturerId == SelectedLecture.LecturerId);
+                    // Check if the lecturer exists in the collection
+                    var existingLecture = _allLectures.FirstOrDefault(s => s.LecturerId == SelectedLecture.LecturerId);
 
                     if (existingLecture != null)
                     {
-                        // Cập nhật thông tin
+                        // Update existing lecturer
                         existingLecture.LecturerId = SelectedLecture.LecturerId;
                         existingLecture.LecturerName = SelectedLecture.LecturerName;
                         existingLecture.Role = SelectedLecture.Role;
-                        await _lectureService.UpdateLecture(existingLecture);
-                        MessageBox.Show("Cập nhật Giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                        existingLecture.Department = SelectedLecture.Department;
+
+                        // Update other properties as needed
+                        await _lecturerService.UpdateLecture(existingLecture);
+                        MessageBox.Show("Cập nhật giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
-                        // Cảnh báo
+                        // Warning if lecturer does not exist
                         MessageBox.Show("Giảng viên không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lưu Giảng viên thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Lưu giảng viên thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
-                // Đóng form và reset
+                // Close form and reset
                 IsLectureFormOpen = false;
                 SelectedLecture = null;
                 LoadLectureAsync();
@@ -285,7 +294,7 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Cancels the edit operation, closes the lecture form, and resets the selected lecture.
+        /// Cancels the edit operation, closes the lecturer form, and resets the selected lecturer.
         /// </summary>
         public void CancelEdit()
         {
@@ -294,7 +303,7 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Cancels the deletion of the selected lecture and closes the confirmation dialog.
+        /// Cancels the deletion of the selected lecturer and closes the confirmation dialog.
         /// </summary>
         public void CancelDelete()
         {
@@ -302,7 +311,7 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Confirms the deletion of the selected lecture and removes it from the data source.
+        /// Confirms the deletion of the selected lecturer and removes it from the data source.
         /// </summary>
         private async Task ConfirmDeleteAsync()
         {
@@ -315,7 +324,8 @@ namespace SchedulerWpfApp.ViewModel
 
             try
             {
-                await _lectureService.DeleteLecture(SelectedLecture.LecturerId);
+                // Call the service to delete the lecturer
+                await _lecturerService.DeleteLecture(SelectedLecture.LecturerId);
 
                 MessageBox.Show("Xóa Giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -336,7 +346,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task ExportLectureAsync()
         {
-            if (Lectures == null || Lectures.Count == 0)
+            if (_allLectures == null || _allLectures.Count == 0)
             {
                 MessageBox.Show("No Lectures to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -353,7 +363,7 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     // Export only non-null list
-                    var lectureList = Lectures.Where(p => p != null).ToList();
+                    var lectureList = _allLectures.Where(p => p != null).ToList();
                     _excelExporter.ExportToExcel(lectureList, dialog.FileName);
                     MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -379,7 +389,7 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     var data = _excelImporter.ReadLecturesFromExcel(dialog.FileName);
-                    await _lectureService.ImportLectureFromExcel(data);
+                    await _lecturerService.ImportLectureFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadLectureAsync();
                 }
@@ -391,7 +401,7 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
-        /// Filter lecture with 3 column LectureCode, LectureName, Major
+        /// Filter lecturer with 3 column LectureCode, LectureName, Major
         /// </summary>
         private void FilterLectures()
         {
@@ -403,10 +413,10 @@ namespace SchedulerWpfApp.ViewModel
             {
                 // enter keyword from box
                 var lowerKeyword = SearchKeyword.ToLower();
-                // can search by ClassId, Category, Major
-                var filtered = _allLectures.Where(lecture =>
-                    (!string.IsNullOrEmpty(lecture.LecturerId) && lecture.LecturerId.ToLower().Contains(lowerKeyword)) ||
-                    (!string.IsNullOrEmpty(lecture.LecturerName) && lecture.LecturerName.ToLower().Contains(lowerKeyword))
+                // can search by LecturerId, LecturerName
+                var filtered = _allLectures.Where(lecturer =>
+                    (!string.IsNullOrEmpty(lecturer.LecturerId) && lecturer.LecturerId.ToLower().Contains(lowerKeyword)) ||
+                    (!string.IsNullOrEmpty(lecturer.LecturerName) && lecturer.LecturerName.ToLower().Contains(lowerKeyword))
                 ).ToList();
 
                 Lectures = new ObservableCollection<Lecturer>(filtered);

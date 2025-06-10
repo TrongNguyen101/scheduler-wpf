@@ -158,15 +158,20 @@
                                        CurrentCellBorderBrush="White">
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:GridTextColumn HeaderText="Mã Môn Học"
-                                                   MappingName="SubjectCode" />
-                        <syncfusion:GridTextColumn HeaderText="Tên Môn Học"
-                                                   MappingName="SubjectName" />
-                        <syncfusion:GridTextColumn HeaderText="Chuyên Ngành"
-                                                   MappingName="Major" />
-                        <syncfusion:GridTextColumn HeaderText="Số Buổi"
-                                                   MappingName="TotalSessions" />
-                        <syncfusion:GridTextColumn HeaderText="Số Slot Mỗi Tuần"
-                                                   MappingName="SlotsPerWeek" />
+                                                   MappingName="SubjectCode"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Tên Tiếng Anh"
+                                                   MappingName="SubjectNameEnglish"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Tên Tiếng Việt"
+                                                   MappingName="SubjectNameVietnamese"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Thời Gian Học"
+                                                   MappingName="TotalTime"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Tổng Tín Chỉ"
+                                                   MappingName="TotalCredits"
+                                                   AllowResizing="True" />
                         <syncfusion:GridTemplateColumn HeaderText="Actions"
                                                        Width="90"
                                                        AllowFiltering="False"
@@ -219,7 +224,7 @@
             </Grid>
         </Grid>
 
-        <!-- Student Form Popup -->
+        <!-- Subject Form Popup -->
         <Popup x:Name="SubjectFormPopup"
                StaysOpen="False"
                Placement="Center"
@@ -265,30 +270,30 @@
                                  IsReadOnly="{Binding IsSubjectCodeEdit}"
                                  Margin="0,0,0,15" />
 
-                        <TextBlock Text="Tên Môn Học"
+                        <TextBlock Text="Tên Tiếng Anh"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SelectedSubject.SubjectNameEnglish, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModernTextBoxStyle}"
                                  Margin="0,0,0,15" />
 
-                        <TextBlock Text="Chuyên ngành"
+                        <TextBlock Text="Tên Tiếng Việt"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedSubject.Major, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SelectedSubject.SubjectNameVietnamese, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModernTextBoxStyle}"
                                  Margin="0,0,0,15" />
 
-                        <TextBlock Text="Số buổi"
+                        <TextBlock Text="Thời Gian Học"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedSubject.TotalSessions, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SelectedSubject.TotalTime, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModernTextBoxStyle}" />
 
-                        <TextBlock Text="Số slot mỗi tuần"
+                        <TextBlock Text="Tổng Tín Chỉ"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedSubject.SlotsPerWeek, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SelectedSubject.TotalCredits, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModernTextBoxStyle}" />
                     </StackPanel>
 
