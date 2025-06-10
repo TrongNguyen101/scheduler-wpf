@@ -5,16 +5,11 @@
 namespace SchedulerWpfApp.Migrations
 {
     /// <inheritdoc />
-    public partial class CurriculumAndCurriculumSubjectProperty : Migration
+    public partial class CreateCurriculumEntityAndCurriculumSubject : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Course",
-                table: "GroupClass",
-                newName: "Term");
-
             migrationBuilder.AlterColumn<int>(
                 name: "NumberOfClasses",
                 table: "LecturerSubject",
@@ -45,12 +40,6 @@ namespace SchedulerWpfApp.Migrations
                 name: "TotalSLots",
                 table: "LecturerSubject",
                 type: "INTEGER",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "CurriculumCode",
-                table: "GroupClass",
-                type: "TEXT",
                 nullable: true);
 
             migrationBuilder.CreateTable(
@@ -132,15 +121,6 @@ namespace SchedulerWpfApp.Migrations
             migrationBuilder.DropColumn(
                 name: "TotalSLots",
                 table: "LecturerSubject");
-
-            migrationBuilder.DropColumn(
-                name: "CurriculumCode",
-                table: "GroupClass");
-
-            migrationBuilder.RenameColumn(
-                name: "Term",
-                table: "GroupClass",
-                newName: "Course");
 
             migrationBuilder.AlterColumn<int>(
                 name: "NumberOfClasses",

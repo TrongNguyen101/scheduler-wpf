@@ -11,8 +11,8 @@ using SchedulerWpfApp.Data;
 namespace SchedulerWpfApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250609151808_CurriculumAndCurriculumSubjectProperty")]
-    partial class CurriculumAndCurriculumSubjectProperty
+    [Migration("20250610104141_CreateCurriculumEntityAndCurriculumSubject")]
+    partial class CreateCurriculumEntityAndCurriculumSubject
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
