@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Services.ScheduleServices;
 using SchedulerWpfApp.Services.LecturerSubjectServices;
 using SchedulerWpfApp.Helper;
+using SchedulerWpfApp.Repository;
 namespace SchedulerWpfApp
 {
     /// <summary>
@@ -127,6 +128,7 @@ namespace SchedulerWpfApp
             services.AddDbContext<DataContext>();
 
             // Register person service with scoped lifetime (one instance per scope)
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IPersonService, PersonService>();
             services.AddScoped<ISubjectServices, SubjectServices>();
             services.AddScoped<IGroupNameService, GroupNameService>();

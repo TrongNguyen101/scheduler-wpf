@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
+using SchedulerWpfApp.Repository;
 namespace SchedulerWpfApp.Services
 {
     /// <summary>
@@ -10,12 +11,14 @@ namespace SchedulerWpfApp.Services
     /// </summary>
     public class RoomService : IRoomService
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-        public RoomService(DataContext context, IMapper mapper)
+        public RoomService(DataContext context, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _context = context;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -37,7 +40,8 @@ namespace SchedulerWpfApp.Services
         /// </summary>
         public async Task<List<Room>> GetAllAsync()
         {
-            return await _context.Rooms.ToListAsync();
+            var rooms = await _unitOfWork.Repository<Room>().GetAllAsync();
+            return rooms;
         }
 
         /// <summary>
