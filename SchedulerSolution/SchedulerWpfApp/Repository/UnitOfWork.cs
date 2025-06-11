@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using SchedulerWpfApp.Data;
 
 namespace SchedulerWpfApp.Repository
@@ -9,6 +10,7 @@ namespace SchedulerWpfApp.Repository
     public class UnitOfWork : IUnitOfWork
     {
         #region Fields
+        private readonly IServiceProvider _serviceProvider;
         private readonly DataContext _context;
         private IDbContextTransaction? _transaction;
         private readonly Dictionary<Type, object> _repositories = new();
@@ -25,10 +27,11 @@ namespace SchedulerWpfApp.Repository
         /// </summary>
         /// <param name="context">The database context</param>
         /// <param name="roomRepository">The room repository implementation</param>
-        public UnitOfWork(DataContext context, IRoomRepository roomRepository)
+        public UnitOfWork(DataContext context, IRoomRepository roomRepository, IServiceProvider serviceProvider)
         {
             _context = context;
             RoomRepository = roomRepository;
+            _serviceProvider = serviceProvider;
         }
         #endregion
 
@@ -43,7 +46,8 @@ namespace SchedulerWpfApp.Repository
             var type = typeof(T);
             if (!_repositories.ContainsKey(type))
             {
-                var repo = new BaseRepository<T>(_context);
+                // Resolve repository từ DI container
+                var repo = _serviceProvider.GetRequiredService<IBaseRepository<T>>();
                 _repositories.Add(type, repo);
             }
             return (IBaseRepository<T>)_repositories[type];
