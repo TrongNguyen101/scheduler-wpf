@@ -404,7 +404,8 @@ namespace SchedulerWpfApp.ViewModel
                     {
                         DayOfWeek = day,
                         SlotNumber = slotStr,
-                        Schedule = match
+                        Schedule = match,
+                        ParentViewModel = this
                     });
                 }
 
@@ -415,25 +416,116 @@ namespace SchedulerWpfApp.ViewModel
                 });
             }
         }
+
+        /// <summary>
+        /// Handles the drag and drop operation between timetable cells
+        /// </summary>
+        /// <param name="sourceCell">Source cell where drag started</param>
+        /// <param name="targetCell">Target cell where item was dropped</param>
+        /// <param name="droppedSchedule">The schedule being moved</param>
+        public async Task HandleScheduleDrop(TimetableCellViewModel sourceCell, TimetableCellViewModel targetCell, Schedule droppedSchedule)
+        {
+            try
+            {
+                // Validate the drop operation
+                if (!ValidateScheduleMove(sourceCell, targetCell, droppedSchedule))
+                {
+                    MessageBox.Show("Cannot move schedule to this slot. Check for conflicts.",
+                                  "Move Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Store the target cell's current schedule (for swapping)
+                var targetSchedule = targetCell.Schedule;
+
+                // Update the schedule dates and times
+                var updatedSourceSchedule = CreateUpdatedSchedule(droppedSchedule, targetCell.DayOfWeek, targetCell.SlotNumber);
+
+                // Update UI
+                targetCell.Schedule = updatedSourceSchedule;
+                sourceCell.Schedule = targetSchedule; // This might be null (empty slot) or another schedule
+
+                // Update the schedule in the underlying data if targetSchedule is not null
+                if (targetSchedule != null)
+                {
+                    var updatedTargetSchedule = CreateUpdatedSchedule(targetSchedule, sourceCell.DayOfWeek, sourceCell.SlotNumber);
+                    sourceCell.Schedule = updatedTargetSchedule;
+
+                    // Update in AllSchedules collection
+                    var targetIndex = AllSchedules.IndexOf(targetSchedule);
+                    if (targetIndex >= 0)
+                    {
+                        AllSchedules[targetIndex] = updatedTargetSchedule;
+                    }
+
+                    // Optionally save changes to database/service
+                    await _implementScheduleServices.UpdateScheduleAsync(updatedTargetSchedule);
+                }
+
+                // Update the moved schedule in AllSchedules collection
+                var sourceIndex = AllSchedules.IndexOf(droppedSchedule);
+                if (sourceIndex >= 0)
+                {
+                    AllSchedules[sourceIndex] = updatedSourceSchedule;
+                }
+
+                // Optionally save changes to database/service
+                await _implementScheduleServices.UpdateScheduleAsync(updatedSourceSchedule);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error moving schedule: {ex.Message}", "Error",
+                               MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Validates if a schedule can be moved to the target cell
+        /// </summary>
+        private bool ValidateScheduleMove(TimetableCellViewModel sourceCell, TimetableCellViewModel targetCell, Schedule schedule)
+        {
+            // Basic validation
+            if (sourceCell == targetCell)
+                return false;
+
+            // Check for lecturer conflicts (same lecturer can't be in two places at same time)
+            var conflictingSchedule = AllSchedules.FirstOrDefault(s =>
+                s.LecturerId == schedule.LecturerId &&
+                s.Date == targetCell.DayOfWeek.Date &&
+                s.SlotTime == targetCell.SlotNumber &&
+                s.ScheduleId != schedule.ScheduleId);
+
+            if (conflictingSchedule != null && targetCell.Schedule == null)
+            {
+                return false; // Lecturer conflict
+            }
+
+            // Add more validation rules as needed:
+            return true;
+        }
+
+        /// <summary>
+        /// Creates a new schedule with updated date and slot time
+        /// </summary>
+        private Schedule CreateUpdatedSchedule(Schedule originalSchedule, DateTime newDate, string newSlotTime)
+        {
+            return new Schedule
+            {
+                ScheduleId = originalSchedule.ScheduleId,
+                RoomNo = originalSchedule.RoomNo,
+                PartOfDay = originalSchedule.PartOfDay,
+                SlotTime = newSlotTime,
+                StatusSlot = originalSchedule.StatusSlot,
+                Date = newDate,
+                Major = originalSchedule.Major,
+                SubjectCode = originalSchedule.SubjectCode,
+                GroupName = originalSchedule.GroupName,
+                LecturerId = originalSchedule.LecturerId,
+                SlotTypeCode = originalSchedule.SlotTypeCode,
+                TypeSlot = originalSchedule.TypeSlot,
+                SessionNo = originalSchedule.SessionNo
+            };
+        }
         #endregion
-    }
-
-    /// <summary>
-    /// Represents a cell in the timetable, containing information about the day, slot number, and associated schedule.
-    /// </summary>
-    public class TimetableCellViewModel
-    {
-        public DateTime DayOfWeek { get; set; }
-        public string SlotNumber { get; set; }
-        public Schedule? Schedule { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a row in the timetable, containing a slot number and a collection of timetable cells for that slot.
-    /// </summary>
-    public class SlotRowViewModel
-    {
-        public int SlotNumber { get; set; }
-        public ObservableCollection<TimetableCellViewModel> Cells { get; set; } = new();
     }
 }

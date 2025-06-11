@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.IO;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Data;
+using SchedulerWpfApp.Migrations;
 using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Services.ScheduleServices
@@ -53,6 +55,51 @@ namespace SchedulerWpfApp.Services.ScheduleServices
             {
                 _logger?.LogError(ex, "Failed to add schedules due to an unexpected error.");
                 throw new Exception("Lỗi khi lấy danh sách lớp học", ex);
+            }
+        }
+
+        /// <summary>
+        /// Update schedule in database
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task<bool> UpdateScheduleAsync(Schedule schedule)
+        {
+            if (schedule == null)
+                throw new ArgumentNullException(nameof(schedule));
+            try
+            {
+                var existingScheduler = await _context.Schedules.FindAsync(schedule.ScheduleId);
+
+                if (existingScheduler != null)
+                {
+                    existingScheduler.ScheduleId = schedule.ScheduleId;
+                    existingScheduler.RoomNo = schedule.RoomNo;
+                    existingScheduler.PartOfDay = schedule.PartOfDay;
+                    existingScheduler.SlotTime = schedule.SlotTime;
+                    existingScheduler.StatusSlot = schedule.StatusSlot;
+                    existingScheduler.Date = schedule.Date;
+                    existingScheduler.Major = schedule.Major;
+                    existingScheduler.SubjectCode = schedule.SubjectCode;
+                    existingScheduler.GroupName = schedule.GroupName;
+                    existingScheduler.LecturerId = schedule.LecturerId;
+                    existingScheduler.SlotTypeCode = schedule.SlotTypeCode;
+                    existingScheduler.TypeSlot = schedule.TypeSlot;
+                    existingScheduler.SessionNo = schedule.SessionNo;
+
+                    await _context.SaveChangesAsync();
+                }
+                return true;
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger?.LogError(ex, "Failed to update schedule due to DB update error.");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to update schedule due to an unexpected error.");
+                return false;
             }
         }
     }

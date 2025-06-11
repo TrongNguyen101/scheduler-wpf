@@ -4,7 +4,177 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:SchedulerWpfApp.Views"
-             mc:Ignorable="d">
+             mc:Ignorable="d"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:helper="clr-namespace:SchedulerWpfApp.Helper">
+
+    <UserControl.Resources>
+        <helper:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <Style x:Key="ScheduleContentStyle"
+               TargetType="StackPanel">
+            <Setter Property="Visibility"
+                    Value="Visible" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Schedule}"
+                             Value="{x:Null}">
+                    <Setter Property="Visibility"
+                            Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="EmptySlotStyle"
+               TargetType="TextBlock">
+            <Setter Property="Visibility"
+                    Value="Collapsed" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Schedule}"
+                             Value="{x:Null}">
+                    <Setter Property="Visibility"
+                            Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Style cho cell khi được drag over -->
+        <Style x:Key="DragOverCellStyle"
+               TargetType="Border">
+            <Setter Property="Background"
+                    Value="LightBlue" />
+            <Setter Property="BorderBrush"
+                    Value="Blue" />
+            <Setter Property="BorderThickness"
+                    Value="0.5" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsDragOver}"
+                             Value="True">
+                    <Setter Property="Background"
+                            Value="LightGreen" />
+                    <Setter Property="BorderBrush"
+                            Value="Green" />
+                    <Setter Property="BorderThickness"
+                            Value="3" />
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding IsDragSource}"
+                             Value="True">
+                    <Setter Property="Background"
+                            Value="OrangeRed" />
+                    <Setter Property="BorderBrush"
+                            Value="Brown" />
+                    <Setter Property="BorderThickness"
+                            Value="3" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DataTemplate cho TimetableCell -->
+        <DataTemplate x:Key="TimetableCellTemplate">
+            <Border Style="{StaticResource DragOverCellStyle}"
+                    MinHeight="60"
+                    Margin="1"
+                    AllowDrop="True">
+
+                <!-- Drag & Drop Event Handlers -->
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
+                                               PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseMove">
+                        <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
+                                               PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="DragEnter">
+                        <i:InvokeCommandAction Command="{Binding DragEnterCommand}"
+                                               PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="DragLeave">
+                        <i:InvokeCommandAction Command="{Binding DragLeaveCommand}"
+                                               PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="DragOver">
+                        <i:InvokeCommandAction Command="{Binding DragOverCommand}"
+                                               PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="Drop">
+                        <i:InvokeCommandAction Command="{Binding DropCommand}"
+                                               PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+
+                <!-- Content hiển thị schedule -->
+                <Grid>
+                    <!-- Empty slot text -->
+                    <TextBlock HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="Gray"
+                               FontStyle="Italic"
+                               Style="{StaticResource EmptySlotStyle}" />
+
+                    <!-- Schedule content -->
+                    <StackPanel Margin="5"
+                                Style="{StaticResource ScheduleContentStyle}">
+                        <TextBlock Text="{Binding Schedule.SubjectCode}"
+                                   FontWeight="Bold"
+                                   FontSize="12" />
+                        <TextBlock Text="{Binding Schedule.LecturerId}"
+                                   FontSize="10" />
+                        <TextBlock Text="{Binding Schedule.RoomId}"
+                                   FontSize="10"
+                                   Foreground="Gray" />
+                        <TextBlock Text="{Binding Schedule.StatusSlot}"
+                                   FontSize="9"
+                                   Foreground="DarkBlue" />
+                    </StackPanel>
+
+                    <!-- Visual indicator khi đang drag -->
+                    <Rectangle Fill="Yellow"
+                               Opacity="0.3"
+                               Visibility="{Binding IsDragOver, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <Rectangle Fill="Red"
+                               Opacity="0.3"
+                               Visibility="{Binding IsDragSource, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- DataTemplate cho SlotRow -->
+        <DataTemplate x:Key="SlotRowTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Slot number -->
+                <Border Grid.Column="0"
+                        Background="LightGray"
+                        BorderBrush="Gray"
+                        BorderThickness="1"
+                        Margin="1">
+                    <TextBlock Text="{Binding SlotNumber}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontWeight="Bold" />
+                </Border>
+
+                <!-- Cells for each day -->
+                <ItemsControl Grid.Column="1"
+                              ItemsSource="{Binding Cells}"
+                              ItemTemplate="{StaticResource TimetableCellTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
     <Grid Background="#f8f9fa">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -168,117 +338,302 @@
             <!-- Timetable Grid -->
             <ScrollViewer Grid.Row="2"
                           HorizontalScrollBarVisibility="Disabled"
-                          VerticalScrollBarVisibility="Auto">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <!-- Header Row -->
-                    <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Cột Slot Label -->
-                        <Border Grid.Column="0"
-                                Background="#4A90E2"
-                                BorderBrush="White"
-                                BorderThickness="0,0,1,1"
-                                Width="80">
-                            <TextBlock Text=""
-                                       Padding="5" />
-                        </Border>
-
-                        <!-- Các ngày trong tuần chia đều -->
-                        <ItemsControl Grid.Column="1"
-                                      ItemsSource="{Binding WeekDays}">
+                          VerticalScrollBarVisibility="Auto"
+                          Background="#FAFBFC">
+                <StackPanel>
+                    <!-- Day headers with enhanced styling -->
+                    <Grid Margin="61,0,0,0"
+                          Effect="{x:Null}">
+                        <ItemsControl ItemsSource="{Binding WeekDays}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Columns="7" />
+                                    <UniformGrid Rows="1" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#4A90E2"
-                                            BorderBrush="White"
-                                            BorderThickness="0.5,0,0.5,1">
-                                        <TextBlock Text="{Binding StringFormat='{}{0:ddd (dd/MM)}'}"
-                                                   Foreground="White"
-                                                   FontWeight="Bold"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Padding="5" />
+                                    <Border Background="DarkBlue"
+                                            BorderBrush="#E3E8ED"
+                                            BorderThickness="1"
+                                            Margin="1"
+                                            CornerRadius="8,8,0,0">
+                                        <StackPanel HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Margin="8,10">
+                                            <TextBlock Text="{Binding Path=., StringFormat='{}{0:ddd}'}"
+                                                       Foreground="White"
+                                                       FontWeight="Bold"
+                                                       FontSize="14"
+                                                       HorizontalAlignment="Center" />
+                                            <TextBlock Text="{Binding Path=., StringFormat='{}{0:dd/MM}'}"
+                                                       Foreground="White"
+                                                       FontSize="12"
+                                                       FontWeight="Bold"
+                                                       HorizontalAlignment="Center"
+                                                       Margin="0,2,0,0" />
+                                        </StackPanel>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </Grid>
 
-                    <!-- Body Rows -->
-                    <ItemsControl Grid.Row="1"
-                                  ItemsSource="{Binding SlotRows}">
+                    <!-- Slot rows with enhanced styling -->
+                    <ItemsControl ItemsSource="{Binding SlotRows}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid>
+                                <Grid Margin="0,0,0,2">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="60" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- Slot Label -->
+                                    <!-- Enhanced Slot number styling -->
                                     <Border Grid.Column="0"
-                                            Background="#f0f0f0"
-                                            BorderBrush="LightGray"
-                                            BorderThickness="0,0,1,1"
-                                            Width="80">
-                                        <TextBlock Text="{Binding SlotNumber, StringFormat=Slot {0}}"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   FontWeight="Bold"
-                                                   Padding="5" />
+                                            Background="#4A90E2"
+                                            BorderBrush="#DEE2E6"
+                                            BorderThickness="1"
+                                            Margin="1"
+                                            CornerRadius="6,0,0,6">
+                                        <StackPanel HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding SlotNumber, StringFormat=Slot {0}}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       FontWeight="Bold"
+                                                       Foreground="White"
+                                                       Padding="5" />
+                                        </StackPanel>
                                     </Border>
 
-                                    <!-- 7 Cells -->
+                                    <!-- Enhanced Cells for each day -->
                                     <ItemsControl Grid.Column="1"
                                                   ItemsSource="{Binding Cells}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <UniformGrid Columns="7" />
+                                                <UniformGrid Rows="1" />
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border BorderBrush="LightGray"
-                                                        BorderThickness="0.5"
+                                                <Border BorderBrush="#E3E8ED"
+                                                        BorderThickness="1"
                                                         Background="White"
-                                                        MinHeight="80">
-                                                    <StackPanel Margin="4">
-                                                        <TextBlock Text="{Binding Schedule.SubjectCode}"
-                                                                   FontWeight="Bold"
-                                                                   FontSize="15"
-                                                                   Foreground="Black"
-                                                                   TextWrapping="Wrap" />
+                                                        MinHeight="70"
+                                                        Margin="1"
+                                                        CornerRadius="0,6,6,0"
+                                                        AllowDrop="True">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Effect">
+                                                                <Setter.Value>
+                                                                    <DropShadowEffect Color="#000000"
+                                                                                      Direction="270"
+                                                                                      ShadowDepth="1"
+                                                                                      BlurRadius="3"
+                                                                                      Opacity="0.08" />
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Schedule}"
+                                                                             Value="{x:Null}">
+                                                                    <Setter Property="Background"
+                                                                            Value="#F8F9FA" />
+                                                                    <Setter Property="BorderBrush"
+                                                                            Value="#DEE2E6" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsDragOver}"
+                                                                             Value="True">
+                                                                    <Setter Property="Background"
+                                                                            Value="#D4EDDA" />
+                                                                    <Setter Property="BorderBrush"
+                                                                            Value="#28A745" />
+                                                                    <Setter Property="BorderThickness"
+                                                                            Value="2" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsDragSource}"
+                                                                             Value="True">
+                                                                    <Setter Property="Background"
+                                                                            Value="#F8D7DA" />
+                                                                    <Setter Property="BorderBrush"
+                                                                            Value="#DC3545" />
+                                                                    <Setter Property="BorderThickness"
+                                                                            Value="2" />
+                                                                </DataTrigger>
+                                                                <Trigger Property="IsMouseOver"
+                                                                         Value="True">
+                                                                    <Setter Property="Background"
+                                                                            Value="#E7F3FF" />
+                                                                    <Setter Property="BorderBrush"
+                                                                            Value="#0066CC" />
+                                                                    <Setter Property="Cursor"
+                                                                            Value="Hand" />
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
 
-                                                        <TextBlock Text="{Binding Schedule.RoomNo, StringFormat=at {0}}"
-                                                                   FontSize="14"
-                                                                   Foreground="DarkSlateGray"
-                                                                   Margin="0,2,0,0" />
+                                                    <!-- Drag & Drop Event Handlers -->
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="MouseDown">
+                                                            <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
+                                                                                   PassEventArgsToCommand="True" />
+                                                        </i:EventTrigger>
+                                                        <i:EventTrigger EventName="MouseMove">
+                                                            <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
+                                                                                   PassEventArgsToCommand="True" />
+                                                        </i:EventTrigger>
+                                                        <i:EventTrigger EventName="DragEnter">
+                                                            <i:InvokeCommandAction Command="{Binding DragEnterCommand}"
+                                                                                   PassEventArgsToCommand="True" />
+                                                        </i:EventTrigger>
+                                                        <i:EventTrigger EventName="DragLeave">
+                                                            <i:InvokeCommandAction Command="{Binding DragLeaveCommand}"
+                                                                                   PassEventArgsToCommand="True" />
+                                                        </i:EventTrigger>
+                                                        <i:EventTrigger EventName="DragOver">
+                                                            <i:InvokeCommandAction Command="{Binding DragOverCommand}"
+                                                                                   PassEventArgsToCommand="True" />
+                                                        </i:EventTrigger>
+                                                        <i:EventTrigger EventName="Drop">
+                                                            <i:InvokeCommandAction Command="{Binding DropCommand}"
+                                                                                   PassEventArgsToCommand="True" />
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
 
-                                                        <TextBlock Text="{Binding Schedule.StatusSlot}"
-                                                                   FontSize="14"
-                                                                   FontWeight="Bold"
-                                                                   Foreground="DarkGreen"
-                                                                   Margin="0,2,0,0" />
+                                                    <!-- Content Grid -->
+                                                    <Grid>
+                                                        <!-- Empty slot indicator -->
+                                                        <StackPanel HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center">
+                                                            <StackPanel.Style>
+                                                                <Style TargetType="StackPanel">
+                                                                    <Setter Property="Visibility"
+                                                                            Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Schedule}"
+                                                                                     Value="{x:Null}">
+                                                                            <Setter Property="Visibility"
+                                                                                    Value="Visible" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </StackPanel.Style>
+                                                            <TextBlock Text="-"
+                                                                       FontSize="16"
+                                                                       HorizontalAlignment="Center"
+                                                                       Opacity="0.4" />
+                                                        </StackPanel>
 
-                                                        <TextBlock Text="{Binding Schedule.GroupName }"
-                                                                   FontSize="12"
-                                                                   FontWeight="Bold"
-                                                                   Foreground="Gray"
-                                                                   Margin="0,2,0,0" />
-                                                    </StackPanel>
+                                                        <!-- Schedule content with enhanced styling -->
+                                                        <StackPanel Margin="8,6">
+                                                            <StackPanel.Style>
+                                                                <Style TargetType="StackPanel">
+                                                                    <Setter Property="Visibility"
+                                                                            Value="Visible" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Schedule}"
+                                                                                     Value="{x:Null}">
+                                                                            <Setter Property="Visibility"
+                                                                                    Value="Collapsed" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </StackPanel.Style>
+
+                                                            <TextBlock Text="{Binding Schedule.SubjectCode}"
+                                                                       HorizontalAlignment="Center"
+                                                                       FontWeight="Bold"
+                                                                       FontSize="14"
+                                                                       Foreground="#1A1A1A"
+                                                                       TextWrapping="Wrap"
+                                                                       LineHeight="16" />
+
+                                                            <StackPanel HorizontalAlignment="Center"
+                                                                        Orientation="Horizontal"
+                                                                        Margin="0,3,0,0">
+                                                                <TextBlock Text="👨‍🏫"
+                                                                           FontSize="10"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="0,0,3,0" />
+                                                                <TextBlock Text="{Binding Schedule.LecturerId}"
+                                                                           FontSize="12"
+                                                                           Foreground="#495057"
+                                                                           VerticalAlignment="Center" />
+                                                            </StackPanel>
+
+                                                            <StackPanel HorizontalAlignment="Center"
+                                                                        Orientation="Horizontal"
+                                                                        Margin="0,2,0,0">
+                                                                <TextBlock Text="🏫"
+                                                                           FontSize="11"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="0,0,3,0" />
+                                                                <TextBlock Text="{Binding Schedule.RoomNo}"
+                                                                           FontSize="13"
+                                                                           Foreground="#6C757D"
+                                                                           VerticalAlignment="Center" />
+                                                            </StackPanel>
+
+                                                            <Border Background="#E8F5E8"
+                                                                    CornerRadius="3"
+                                                                    Padding="4,2"
+                                                                    Margin="0,4,0,0"
+                                                                    HorizontalAlignment="Center">
+                                                                <TextBlock Text="{Binding Schedule.StatusSlot}"
+                                                                           FontSize="15"
+                                                                           FontWeight="Medium"
+                                                                           Foreground="#155724" />
+                                                            </Border>
+                                                        </StackPanel>
+
+                                                        <!-- Drag indicators with smooth animations -->
+                                                        <Border Background="#FFF3CD"
+                                                                BorderBrush="#FFEAA7"
+                                                                BorderThickness="2"
+                                                                CornerRadius="4"
+                                                                Opacity="0.9">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Visibility"
+                                                                            Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsDragOver}"
+                                                                                     Value="True">
+                                                                            <Setter Property="Visibility"
+                                                                                    Value="Visible" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <TextBlock FontWeight="Bold"
+                                                                       FontSize="12"
+                                                                       Foreground="#856404" />
+                                                        </Border>
+
+                                                        <Border Background="#F5C6CB"
+                                                                BorderBrush="#F1B0B7"
+                                                                BorderThickness="2"
+                                                                CornerRadius="4"
+                                                                Opacity="0.8">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Visibility"
+                                                                            Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsDragSource}"
+                                                                                     Value="True">
+                                                                            <Setter Property="Visibility"
+                                                                                    Value="Visible" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <TextBlock FontWeight="Bold"
+                                                                       FontSize="12"
+                                                                       Foreground="#721C24" />
+                                                        </Border>
+                                                    </Grid>
                                                 </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -287,7 +642,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </Grid>
+                </StackPanel>
             </ScrollViewer>
         </Grid>
     </Grid>
