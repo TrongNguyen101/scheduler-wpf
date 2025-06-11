@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using SchedulerWpfApp.Data;
+using SchedulerWpfApp.Repository.GroupName;
+using SchedulerWpfApp.Repository.RoomRepo;
 
 namespace SchedulerWpfApp.Repository
 {
@@ -19,6 +21,8 @@ namespace SchedulerWpfApp.Repository
         /// Gets the room repository instance
         /// </summary>
         public IRoomRepository RoomRepository { get; }
+        public IGroupNameRepository GroupNameRepository { get; }
+
         #endregion
 
         #region Constructors
@@ -27,11 +31,12 @@ namespace SchedulerWpfApp.Repository
         /// </summary>
         /// <param name="context">The database context</param>
         /// <param name="roomRepository">The room repository implementation</param>
-        public UnitOfWork(DataContext context, IRoomRepository roomRepository, IServiceProvider serviceProvider)
+        public UnitOfWork(DataContext context, IRoomRepository roomRepository, IGroupNameRepository groupNameRepository,IServiceProvider serviceProvider)
         {
             _context = context;
             RoomRepository = roomRepository;
             _serviceProvider = serviceProvider;
+            GroupNameRepository = groupNameRepository;
         }
         #endregion
 

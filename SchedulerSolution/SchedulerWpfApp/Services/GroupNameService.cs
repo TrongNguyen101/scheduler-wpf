@@ -2,6 +2,7 @@
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
 using AutoMapper;
+using SchedulerWpfApp.Repository;
 namespace SchedulerWpfApp.Services
 {
     /// <summary>
@@ -13,10 +14,13 @@ namespace SchedulerWpfApp.Services
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-        public GroupNameService(DataContext context,IMapper mapper)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public GroupNameService(DataContext context,IMapper mapper,IUnitOfWork unitOfWork)
         {
             _context = context;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -70,7 +74,8 @@ namespace SchedulerWpfApp.Services
         {
             try
             {
-                return await _context.GroupName.ToListAsync();
+                var groupClass =await _unitOfWork.Repository<GroupClass>().GetAllAsync();
+                return groupClass;
             }
             catch (Exception ex)
             {

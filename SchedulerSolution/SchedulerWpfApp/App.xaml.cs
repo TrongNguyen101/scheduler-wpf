@@ -14,6 +14,8 @@ using SchedulerWpfApp.Services.ScheduleServices;
 using SchedulerWpfApp.Services.LecturerSubjectServices;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Repository;
+using SchedulerWpfApp.Repository.GroupName;
+using SchedulerWpfApp.Repository.RoomRepo;
 namespace SchedulerWpfApp
 {
     /// <summary>
@@ -130,6 +132,8 @@ namespace SchedulerWpfApp
             // Register repositories with scoped lifetime (one instance per request)
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IRoomRepository, RoomRepository>();
+            services.AddScoped<IGroupNameRepository, GroupNameRepository>();
+
 
             // Register the unit of work with scoped lifetime (one instance per request)
             services.AddScoped<IUnitOfWork, UnitOfWork>();

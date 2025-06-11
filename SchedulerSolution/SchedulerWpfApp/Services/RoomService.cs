@@ -75,8 +75,9 @@ namespace SchedulerWpfApp.Services
 
         public async Task AddRoom(Room room)
         {
+            await _unitOfWork.BeginTransactionAsync();
             _context.Rooms.Add(room);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.CommitAsync();
         }
 
         /// <summary>
@@ -98,11 +99,12 @@ namespace SchedulerWpfApp.Services
 
         public async Task UpdateRoom(Room room)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var existingRoom = await GetByRoomCodeAsync(room.RoomId);
             if (existingRoom != null)
             {
                 _mapper.Map(room, existingRoom);
-                await _context.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
         }
 
@@ -113,11 +115,12 @@ namespace SchedulerWpfApp.Services
 
         public async Task DeleteRoom(int id)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var room = await GetByIdAsync(id);
             if (room != null)
             {
                 _context.Rooms.Remove(room);
-                await _context.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
         }
 
