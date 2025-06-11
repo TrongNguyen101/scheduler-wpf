@@ -7,7 +7,8 @@ namespace SchedulerWpfApp.Repository
     {
         IBaseRepository<T> Repository<T>() where T : class;
         IRoomRepository RoomRepository { get; }
-        IGroupNameRepository GroupNameRepository { get; }
+         // cmt dòng này lại
+       IGroupNameRepository GroupNameRepository { get; }
 
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();

@@ -21,6 +21,7 @@ namespace SchedulerWpfApp.Repository
         /// Gets the room repository instance
         /// </summary>
         public IRoomRepository RoomRepository { get; }
+        // cmt dòng này lại
         public IGroupNameRepository GroupNameRepository { get; }
 
         #endregion
@@ -36,6 +37,7 @@ namespace SchedulerWpfApp.Repository
             _context = context;
             RoomRepository = roomRepository;
             _serviceProvider = serviceProvider;
+             // cmt dòng này lại
             GroupNameRepository = groupNameRepository;
         }
         #endregion

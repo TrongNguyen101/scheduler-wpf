@@ -29,7 +29,10 @@ namespace SchedulerWpfApp.Migrations
 
                     b.HasKey("CurriculumCode");
 
-                    b.ToTable("Curriculum");
+                    b.HasIndex("CurriculumCode")
+                        .IsUnique();
+
+                    b.ToTable("Curriculum", (string)null);
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.CurriculumSubject", b =>
@@ -84,7 +87,7 @@ namespace SchedulerWpfApp.Migrations
                     b.HasIndex("CurriculumCode", "SubjectCode")
                         .HasDatabaseName("IX_CurriculumCode_SubjectCode");
 
-                    b.ToTable("CurriculumSubject");
+                    b.ToTable("CurriculumSubject", (string)null);
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.GroupClass", b =>
@@ -113,7 +116,7 @@ namespace SchedulerWpfApp.Migrations
                     b.HasIndex("CurriculumCode")
                         .HasDatabaseName("IX_CurriculumCode");
 
-                    b.ToTable("GroupClass");
+                    b.ToTable("GroupClass", (string)null);
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Lecturer", b =>
@@ -136,7 +139,7 @@ namespace SchedulerWpfApp.Migrations
 
                     b.HasKey("LecturerId");
 
-                    b.ToTable("Lecturer");
+                    b.ToTable("Lecturer", (string)null);
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.LecturerRequest", b =>
@@ -180,7 +183,7 @@ namespace SchedulerWpfApp.Migrations
 
                     b.HasIndex("LecturerId");
 
-                    b.ToTable("LecturerRequests");
+                    b.ToTable("LecturerRequests", (string)null);
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.LecturerSubject", b =>
@@ -228,7 +231,7 @@ namespace SchedulerWpfApp.Migrations
                     b.HasIndex("LecturerId", "SubjectCode")
                         .HasDatabaseName("IX_LecturerId_SubjectCode");
 
-                    b.ToTable("LecturerSubject");
+                    b.ToTable("LecturerSubject", (string)null);
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Person", b =>
@@ -255,7 +258,7 @@ namespace SchedulerWpfApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Person");
+                    b.ToTable("Person", (string)null);
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Room", b =>
@@ -298,7 +301,7 @@ namespace SchedulerWpfApp.Migrations
                     b.HasIndex("RoomName")
                         .HasDatabaseName("IX_RoomName");
 
-                    b.ToTable("Room");
+                    b.ToTable("Room", (string)null);
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Schedule", b =>
@@ -365,7 +368,7 @@ namespace SchedulerWpfApp.Migrations
 
                     b.HasIndex("SubjectCode");
 
-                    b.ToTable("Schedules");
+                    b.ToTable("Schedules", (string)null);
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Subject", b =>
@@ -392,7 +395,7 @@ namespace SchedulerWpfApp.Migrations
 
                     b.HasKey("SubjectCode");
 
-                    b.ToTable("Subject");
+                    b.ToTable("Subject", (string)null);
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.CurriculumSubject", b =>
