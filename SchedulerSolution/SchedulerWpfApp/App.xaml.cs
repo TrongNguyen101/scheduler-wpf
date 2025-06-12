@@ -14,6 +14,15 @@ using SchedulerWpfApp.Services.ScheduleServices;
 using SchedulerWpfApp.Services.LecturerSubjectServices;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Repository;
+using SchedulerWpfApp.Repository.RoomRepo;
+using SchedulerWpfApp.Repository.CurriculumRepo;
+using SchedulerWpfApp.Repository.CurriculumSubjectsRepo;
+using SchedulerWpfApp.Repository.GroupName;
+using SchedulerWpfApp.Repository.LectureSubjectRepo;
+using SchedulerWpfApp.Repository.LecturerRequestRepository;
+using SchedulerWpfApp.Repository.LecturerRepository;
+using SchedulerWpfApp.Repository.ScheduleRepository;
+using SchedulerWpfApp.Repository.SubjectRepository;
 namespace SchedulerWpfApp
 {
     /// <summary>
@@ -130,6 +139,14 @@ namespace SchedulerWpfApp
             // Register repositories with scoped lifetime (one instance per request)
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IRoomRepository, RoomRepository>();
+            services.AddScoped<ICurriculumRepository, CurriculumRepository>();
+            services.AddScoped<ICurriculumSubjectsRepository, CurriculumSubjectsRepository>();
+            services.AddScoped<IGroupNameRepository, GroupNameRepository>();
+            services.AddScoped<ILectureSubjectRepository, LectureSubjectRepository>();
+            services.AddScoped<ILecturerRequestRepository, LecturerRequestRepository>();
+            services.AddScoped<ILecturerRepository, LecturerRepository>();
+            services.AddScoped<IScheduleRepository, ScheduleRepository>();
+            services.AddScoped<ISubjectRepository, SubjectRepository>();
 
             // Register the unit of work with scoped lifetime (one instance per request)
             services.AddScoped<IUnitOfWork, UnitOfWork>();

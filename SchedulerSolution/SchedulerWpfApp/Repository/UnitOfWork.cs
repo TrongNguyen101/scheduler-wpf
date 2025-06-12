@@ -1,7 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using SchedulerWpfApp.Data;
-
+using SchedulerWpfApp.Repository.CurriculumRepo;
+using SchedulerWpfApp.Repository.CurriculumSubjectsRepo;
+using SchedulerWpfApp.Repository.GroupName;
+using SchedulerWpfApp.Repository.LecturerRepository;
+using SchedulerWpfApp.Repository.LecturerRequestRepository;
+using SchedulerWpfApp.Repository.LectureSubjectRepo;
+using SchedulerWpfApp.Repository.RoomRepo;
+using SchedulerWpfApp.Repository.ScheduleRepository;
+using SchedulerWpfApp.Repository.SubjectRepository;
 namespace SchedulerWpfApp.Repository
 {
     /// <summary>
@@ -19,6 +27,46 @@ namespace SchedulerWpfApp.Repository
         /// Gets the room repository instance
         /// </summary>
         public IRoomRepository RoomRepository { get; }
+
+        /// <summary>
+        /// Gets the Lecturer repository instance
+        /// </summary>
+        public ILecturerRepository LecturerRepository { get; }
+
+        /// <summary>
+        /// Gets the LectureSubject repository instance
+        /// </summary>
+        public ILectureSubjectRepository LectureSubjectRepository { get; }
+
+        /// <summary>
+        /// Gets the LecturerRequest repository instance
+        /// </summary>
+        public ILecturerRequestRepository LecturerRequestRepository { get; }
+
+        /// <summary>
+        /// Gets the GroupName repository instance
+        /// </summary>
+        public IGroupNameRepository GroupNameRepository { get; }
+
+        /// <summary>
+        /// Gets the Curriculum repository instance
+        /// </summary>
+        public ICurriculumRepository CurriculumRepository { get; }
+
+        /// <summary>
+        /// Gets the CurriculumSubjects repository instance
+        /// </summary>
+        public ICurriculumSubjectsRepository CurriculumSubjectsRepository { get; }
+
+        /// <summary>
+        /// Gets the Schedule repository instance
+        /// </summary>
+        public IScheduleRepository ScheduleRepository { get; }
+
+        /// <summary>
+        /// Gets the Subject repository instance
+        /// </summary>
+        public ISubjectRepository SubjectRepository { get; }
         #endregion
 
         #region Constructors
@@ -27,11 +75,19 @@ namespace SchedulerWpfApp.Repository
         /// </summary>
         /// <param name="context">The database context</param>
         /// <param name="roomRepository">The room repository implementation</param>
-        public UnitOfWork(DataContext context, IRoomRepository roomRepository, IServiceProvider serviceProvider)
+        public UnitOfWork(DataContext context, IRoomRepository roomRepository, IGroupNameRepository groupNameRepository, ILectureSubjectRepository lectureSubjectRepository, ICurriculumSubjectsRepository curriculumSubjectsRepository, ICurriculumRepository curriculumRepository, ILecturerRepository lecturerRepository, ILecturerRequestRepository lecturerRequestRepository, IScheduleRepository scheduleRepository, ISubjectRepository subjectRepository,IServiceProvider serviceProvider)
         {
             _context = context;
             RoomRepository = roomRepository;
             _serviceProvider = serviceProvider;
+            CurriculumSubjectsRepository = curriculumSubjectsRepository;
+            CurriculumRepository = curriculumRepository;
+            GroupNameRepository = groupNameRepository;
+            LecturerRepository = lecturerRepository;
+            LecturerRequestRepository = lecturerRequestRepository;
+            LectureSubjectRepository = lectureSubjectRepository;
+            ScheduleRepository = scheduleRepository;
+            SubjectRepository = subjectRepository;
         }
         #endregion
 
