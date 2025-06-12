@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
-
-namespace SchedulerWpfApp.Repository
+namespace SchedulerWpfApp.Repository.RoomRepo
 {
     /// <summary>
     /// Repository for handling Room entity database operations.
@@ -66,18 +65,6 @@ namespace SchedulerWpfApp.Repository
         }
 
         /// <summary>
-        /// Imports a list of rooms from Excel data.
-        /// </summary>
-        /// <param name="listRoomFromExcel">The list of Room objects imported from Excel.</param>
-        /// <returns>A Task representing the asynchronous operation.</returns>
-        /// <remarks>This method is not yet implemented.</remarks>
-        public Task ImportRoomFromExcel(List<Room> listRoomFromExcel)
-        {
-            // Todo: Implement the method to import rooms from Excel
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Searches for rooms whose names contain the specified search term.
         /// </summary>
         /// <param name="searchTerm">The search term to look for in room names.</param>
@@ -95,6 +82,16 @@ namespace SchedulerWpfApp.Repository
             {
                 throw new Exception("An error occurred while searching for rooms.", ex);
             }
+        }
+
+        /// <summary>
+        /// Retrieves a room based on its unique RoomId.
+        /// </summary>
+        /// <param name="roomid"></param>
+        /// <returns></returns>
+        public async Task<Room?> GetRoomByCodeAsync(int roomid)
+        {
+            return await _context.Rooms.FirstOrDefaultAsync(s => s.RoomId == roomid);
         }
         #endregion
     }

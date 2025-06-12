@@ -2,6 +2,7 @@
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
 using AutoMapper;
+using SchedulerWpfApp.Repository;
 namespace SchedulerWpfApp.Services
 {
     /// <summary>
@@ -13,10 +14,13 @@ namespace SchedulerWpfApp.Services
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-        public GroupNameService(DataContext context,IMapper mapper)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public GroupNameService(DataContext context, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _context = context;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -25,13 +29,14 @@ namespace SchedulerWpfApp.Services
         /// It takes a GroupName object as input and saves it asynchronously.
         /// </summary>
         /// <param name="groupName"></param>
-        
+
         public async Task AddGroupName(GroupClass groupName)
         {
             try
             {
-                _context.GroupName.Add(groupName);
-                await _context.SaveChangesAsync();
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.Repository<GroupClass>().AddAsync(groupName);
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
@@ -48,12 +53,9 @@ namespace SchedulerWpfApp.Services
         {
             try
             {
-                var existing = await _context.GroupName.FindAsync(classid);
-                if (existing != null)
-                {
-                    _context.GroupName.Remove(existing);
-                    await _context.SaveChangesAsync();
-                }
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.GroupNameRepository.DeleteAsync(classid);
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
@@ -65,12 +67,13 @@ namespace SchedulerWpfApp.Services
         /// Retrieve all group names (classes) from the database.
         /// This method returns a list of all group names stored in the database.
         /// </summary>
-        
+
         public async Task<List<GroupClass>> GetAllAsync()
         {
             try
             {
-                return await _context.GroupName.ToListAsync();
+                var groupClass = await _unitOfWork.Repository<GroupClass>().GetAllAsync();
+                return groupClass;
             }
             catch (Exception ex)
             {
@@ -114,7 +117,7 @@ namespace SchedulerWpfApp.Services
         /// <param name="classID"></param>
         public async Task<GroupClass?> GetByGroupNameCodeAsync(string classID)
         {
-            return await _context.GroupName.FindAsync(classID);
+            return await _unitOfWork.GroupNameRepository.GetGroupClassByCodeAsync(classID);
         }
 
         /// <summary>
@@ -129,7 +132,9 @@ namespace SchedulerWpfApp.Services
                 if (existinggroupname != null)
                 {
                     _mapper.Map(groupname, existinggroupname);
-                    await _context.SaveChangesAsync();
+                    await _unitOfWork.BeginTransactionAsync();
+                    await _unitOfWork.Repository<GroupClass>().UpdateAsync(existinggroupname);
+                    await _unitOfWork.CommitAsync();
                 }
             }
             catch (Exception ex)
@@ -146,7 +151,7 @@ namespace SchedulerWpfApp.Services
         {
             try
             {
-                return await _context.GroupName.AnyAsync(g => g.GroupName == classId);
+                return await _unitOfWork.GroupNameRepository.CheckRoomIdExistsAsync(classId);
             }
             catch (Exception ex)
             {
