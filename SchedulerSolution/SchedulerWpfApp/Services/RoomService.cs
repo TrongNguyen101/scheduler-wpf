@@ -50,11 +50,7 @@ namespace SchedulerWpfApp.Services
         /// </summary>
         public async Task<List<Room>> GetNumberOfRoom(int numberOfRoom)
         {
-            return await _context.Rooms
-                     .Where(r => r.TypeOfRoom == "Phòng học")
-                     .OrderBy(r => r.RoomId) // hoặc bất kỳ cột nào bạn muốn sắp xếp
-                     .Take(numberOfRoom)
-                     .ToListAsync();
+            return await _unitOfWork.RoomRepository.GetNumberOfRoom(numberOfRoom);
         }
 
         /// <summary>
@@ -64,7 +60,7 @@ namespace SchedulerWpfApp.Services
         /// <param name="id"></param>
         public async Task<Room?> GetByIdAsync(int id)
         {
-            return await _context.Rooms.FindAsync(id);
+            return await _unitOfWork.Repository<Room>().GetByIdAsync(id);
         }
 
         /// <summary>
@@ -75,8 +71,9 @@ namespace SchedulerWpfApp.Services
 
         public async Task AddRoom(Room room)
         {
-            _context.Rooms.Add(room);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.Repository<Room>().AddAsync(room);
+            await _unitOfWork.CommitAsync();
         }
 
         /// <summary>
@@ -87,7 +84,7 @@ namespace SchedulerWpfApp.Services
 
         public async Task<Room?> GetByRoomCodeAsync(int roomid)
         {
-            return await _context.Rooms.FindAsync(roomid);
+            return await _unitOfWork.Repository<Room>().GetByIdAsync(roomid);
         }
 
         /// <summary>
@@ -102,7 +99,9 @@ namespace SchedulerWpfApp.Services
             if (existingRoom != null)
             {
                 _mapper.Map(room, existingRoom);
-                await _context.SaveChangesAsync();
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.Repository<Room>().UpdateAsync(existingRoom);
+                await _unitOfWork.CommitAsync();
             }
         }
 
@@ -113,11 +112,13 @@ namespace SchedulerWpfApp.Services
 
         public async Task DeleteRoom(int id)
         {
+            
             var room = await GetByIdAsync(id);
             if (room != null)
             {
-                _context.Rooms.Remove(room);
-                await _context.SaveChangesAsync();
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.Repository<Room>().DeleteAsync(id);
+                await _unitOfWork.CommitAsync();
             }
         }
 
@@ -128,9 +129,7 @@ namespace SchedulerWpfApp.Services
 
         public async Task<List<Room>> SearchRoomsAsync(string searchTerm)
         {
-            return await _context.Rooms
-                .Where(r => r.RoomName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-                .ToListAsync();
+            return await _unitOfWork.RoomRepository.SearchRoomsAsync(searchTerm);
         }
 
         /// <summary>
@@ -141,8 +140,7 @@ namespace SchedulerWpfApp.Services
 
         public async Task<bool> CheckRoomIdExistsAsync(string roomname)
         {
-            return await _context.Rooms.AnyAsync(r => r.RoomName == roomname);
+            return await _unitOfWork.RoomRepository.CheckRoomIdExistsAsync(roomname);
         }
-
     }
 }
