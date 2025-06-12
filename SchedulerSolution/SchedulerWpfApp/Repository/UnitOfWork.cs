@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Repository.GroupName;
+using SchedulerWpfApp.Repository.LectureSubjectRepo;
 using SchedulerWpfApp.Repository.RoomRepo;
 
 namespace SchedulerWpfApp.Repository
@@ -23,6 +24,7 @@ namespace SchedulerWpfApp.Repository
         public IRoomRepository RoomRepository { get; }
         // cmt dòng này lại
         public IGroupNameRepository GroupNameRepository { get; }
+        public ILectureSubjectRepository LectureSubjectRepository { get; } 
 
         #endregion
 
@@ -32,13 +34,14 @@ namespace SchedulerWpfApp.Repository
         /// </summary>
         /// <param name="context">The database context</param>
         /// <param name="roomRepository">The room repository implementation</param>
-        public UnitOfWork(DataContext context, IRoomRepository roomRepository, IGroupNameRepository groupNameRepository,IServiceProvider serviceProvider)
+        public UnitOfWork(DataContext context, IRoomRepository roomRepository, IGroupNameRepository groupNameRepository, ILectureSubjectRepository lectureSubjectRepository, IServiceProvider serviceProvider)
         {
             _context = context;
             RoomRepository = roomRepository;
             _serviceProvider = serviceProvider;
              // cmt dòng này lại
             GroupNameRepository = groupNameRepository;
+            LectureSubjectRepository = lectureSubjectRepository;
         }
         #endregion
 

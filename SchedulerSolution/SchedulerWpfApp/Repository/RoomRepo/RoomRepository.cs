@@ -95,6 +95,11 @@ namespace SchedulerWpfApp.Repository.RoomRepo
                 throw new Exception("An error occurred while searching for rooms.", ex);
             }
         }
+
+        public async Task<Room?> GetRoomByCodeAsync(int roomid)
+        {
+            return await _context.Rooms.FirstOrDefaultAsync(s => s.RoomId == roomid);
+        }
         #endregion
     }
 }

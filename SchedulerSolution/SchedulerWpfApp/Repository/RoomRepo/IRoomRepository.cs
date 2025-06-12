@@ -8,5 +8,6 @@ namespace SchedulerWpfApp.Repository.RoomRepo
         Task ImportRoomFromExcel(List<Room> listRoomFromExcel);
         Task<List<Room>> SearchRoomsAsync(string searchTerm);
         Task<bool> CheckRoomIdExistsAsync(string roomName);
+        Task<Room> GetRoomByCodeAsync(int roomid);
     }
 }
