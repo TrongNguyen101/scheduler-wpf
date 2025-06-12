@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
+using SchedulerWpfApp.Repository;
 
 namespace SchedulerWpfApp.Services.LecturerSubjectServices
 {
@@ -8,6 +9,7 @@ namespace SchedulerWpfApp.Services.LecturerSubjectServices
     {
         #region Fields
         private readonly DataContext _context;
+        private IUnitOfWork _unitOfWork;
         #endregion
 
         #region Constructor
@@ -15,9 +17,10 @@ namespace SchedulerWpfApp.Services.LecturerSubjectServices
         /// Initializes a new instance of the ImplementLecturerServices class
         /// </summary>
         /// <param name="context">The database context used for data operations</param>
-        public ImplementLecturerServices(DataContext context)
+        public ImplementLecturerServices(DataContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
+            _unitOfWork = unitOfWork;
         }
         #endregion
 
@@ -29,8 +32,9 @@ namespace SchedulerWpfApp.Services.LecturerSubjectServices
         /// <returns>A task representing the asynchronous operation</returns>
         public async Task AddLecture(Lecturer lecture)
         {
-            _context.Lecturers.Add(lecture);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.Repository<Lecturer>().AddAsync(lecture);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task ImportLectureFromExcel(List<Lecturer> listLectureFromExcel)
@@ -50,11 +54,11 @@ namespace SchedulerWpfApp.Services.LecturerSubjectServices
         /// <remarks>If no lecture with the specified ID exists, no action is taken</remarks>
         public async Task DeleteLecture(string LecturerId)
         {
-            var existingLecture = await GetByLectureCodeAsync(LecturerId);
+            var existingLecture = await _unitOfWork.LecturerRepository.GetByLectureCodeAsync(LecturerId);
             if (existingLecture != null)
             {
-                _context.Lecturers.Remove(existingLecture);
-                await _context.SaveChangesAsync();
+                await _unitOfWork.LecturerRepository.DeleteLecture(LecturerId);
+                await _unitOfWork.SaveChangesAsync();
             }
         }
 
@@ -65,7 +69,7 @@ namespace SchedulerWpfApp.Services.LecturerSubjectServices
         /// <returns>The lecture with the specified ID, or null if not found</returns>
         public async Task<Lecturer?> GetByLectureCodeAsync(string LecturerId)
         {
-            return await _context.Lecturers.FindAsync(LecturerId);
+            return await _unitOfWork.LecturerRepository.GetByLectureCodeAsync(LecturerId);
         }
 
         /// <summary>
@@ -74,7 +78,7 @@ namespace SchedulerWpfApp.Services.LecturerSubjectServices
         /// <returns>A list of all lectures in the database</returns>
         public async Task<List<Lecturer>> GetAllLecturerAsync()
         {
-            return await _context.Lecturers.ToListAsync();
+            return await _unitOfWork.Repository<Lecturer>().GetAllAsync();
         }
 
         /// <summary>
@@ -85,12 +89,16 @@ namespace SchedulerWpfApp.Services.LecturerSubjectServices
         /// <remarks>If no lecture with the specified ID exists, no action is taken</remarks>
         public async Task UpdateLecture(Lecturer lecture)
         {
-            var existingLecture = await GetByLectureCodeAsync(lecture.LecturerId);
+            var existingLecture = await _unitOfWork.LecturerRepository.GetByLectureCodeAsync(lecture.LecturerId);
             if (existingLecture != null)
             {
-                // Mark the entity as modified to avoid having to copy properties manually
-                _context.Entry(lecture).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
+                existingLecture.LecturerName = lecture.LecturerName;
+                existingLecture.Role = lecture.Role;
+                existingLecture.Department = lecture.Department;
+
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.Repository<Lecturer>().UpdateAsync(existingLecture);
+                await _unitOfWork.CommitAsync();
             }
         }
         #endregion

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
+using SchedulerWpfApp.Repository;
 
 namespace SchedulerWpfApp.Services
 {
@@ -16,9 +11,9 @@ namespace SchedulerWpfApp.Services
     public class SubjectServices : ISubjectServices
     {
         #region Fields
+        private readonly IUnitOfWork _unitOfWork;
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-
         #endregion
 
         #region Contructor
@@ -26,10 +21,11 @@ namespace SchedulerWpfApp.Services
         /// Initializes a new instance of the PersonService class
         /// </summary>
         /// <param name="context">The database context used for data operations</param>
-        public SubjectServices(DataContext context, IMapper mapper)
+        public SubjectServices(DataContext context, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _context = context;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
         #endregion
 
@@ -41,8 +37,9 @@ namespace SchedulerWpfApp.Services
         /// <returns>A task representing the asynchronous operation</returns>
         public async Task AddSubject(Subject subject)
         {
-            _context.Subjects.Add(subject);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.Repository<Subject>().AddAsync(subject);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task ImportSubjectFromExcel(List<Subject> listSubjectFromExcel)
@@ -65,8 +62,8 @@ namespace SchedulerWpfApp.Services
             var existingSubject = await GetBySubjectCodeAsync(subjectCode);
             if (existingSubject != null)
             {
-                _context.Subjects.Remove(existingSubject);
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SubjectRepository.DeleteAsync(subjectCode);
+                await _unitOfWork.SaveChangesAsync();
             }
         }
 
@@ -76,7 +73,7 @@ namespace SchedulerWpfApp.Services
         /// <returns>A list of all subjects in the database</returns>
         public async Task<List<Subject>> GetAllAsync()
         {
-            return await _context.Subjects.ToListAsync();
+            return await _unitOfWork.Repository<Subject>().GetAllAsync();
         }
 
         /// <summary>
@@ -86,7 +83,7 @@ namespace SchedulerWpfApp.Services
         /// <returns>The subject with the specified ID, or null if not found</returns>
         public async Task<Subject?> GetBySubjectCodeAsync(string subjectCode)
         {
-            return await _context.Subjects.FindAsync(subjectCode);
+            return await _unitOfWork.SubjectRepository.GetSubjectByCodeAsync(subjectCode);
         }
 
         /// <summary>
@@ -106,7 +103,9 @@ namespace SchedulerWpfApp.Services
                 existingSubject.TotalTime = subject.TotalTime;
                 //_mapper.Map(subject, existingSubject);
 
-                await _context.SaveChangesAsync();
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.Repository<Subject>().UpdateAsync(existingSubject);
+                await _unitOfWork.CommitAsync();
             }
         }
         #endregion
