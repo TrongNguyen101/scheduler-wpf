@@ -45,8 +45,7 @@ namespace SchedulerWpfApp.Repository.GroupName
         {
             try
             {
-                var room = await _context.GroupName
-                    .FirstOrDefaultAsync(r => r.GroupName.Equals(groupName, StringComparison.OrdinalIgnoreCase));
+                var room = await _context.GroupName.FirstOrDefaultAsync(r => r.GroupName.ToLower() == groupName.ToLower());
                 if (room == null)
                 {
                     return false;
