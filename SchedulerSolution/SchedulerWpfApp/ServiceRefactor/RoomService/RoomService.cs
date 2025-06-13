@@ -4,6 +4,9 @@ using SchedulerWpfApp.Repository;
 using Syncfusion.XlsIO;
 namespace SchedulerWpfApp.ServiceRefactor.RoomService
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class RoomService : IRoomService
     {
         #region Fields
