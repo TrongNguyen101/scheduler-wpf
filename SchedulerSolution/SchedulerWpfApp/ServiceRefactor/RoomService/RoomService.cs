@@ -1,24 +1,110 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
-namespace SchedulerWpfApp.Services
+using Syncfusion.XlsIO;
+namespace SchedulerWpfApp.ServiceRefactor.RoomService
 {
-    /// <summary>
-    /// Service class for managing room-related operations.
-    /// This class provides methods to import rooms from Excel, retrieve all rooms, get a room by ID, add, update, delete rooms, search for rooms, and check if a room ID exists.
-    /// </summary>
     public class RoomService : IRoomService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly DataContext _context;
+        #region Fields
         private readonly IMapper _mapper;
-        public RoomService(DataContext context, IMapper mapper, IUnitOfWork unitOfWork)
+        private readonly IUnitOfWork _unitOfWork;
+        #endregion
+        #region Contracstor
+        public RoomService(IMapper mapper, IUnitOfWork unitOfWork)
         {
-            _context = context;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+        }
+        #endregion
+        #region Method
+        /// <summary>
+        /// Reads a list of rooms from an Excel file.
+        /// This method opens the specified Excel file, reads the header row to map columns, 
+        /// validates required headers, and then iterates through each row to create Room objects.
+        /// Returns a list of Room objects populated from the Excel data.
+        /// </summary>
+        /// <param name="filePath">The path to the Excel file to read.</param>
+        /// <returns>A list of Room objects read from the Excel file.</returns>
+        public List<Room> ReadRoomListFromExcel(string filePath)
+        {
+            var rooms = new List<Room>();
+
+            using ExcelEngine excelEngine = new();
+            var app = excelEngine.Excel;
+            app.DefaultVersion = ExcelVersion.Xlsx;
+
+            var workbook = app.Workbooks.Open(filePath);
+            var sheet = workbook.Worksheets[0];
+
+            int rowCount = sheet.UsedRange.LastRow;
+            int colCount = sheet.UsedRange.LastColumn;
+
+            Dictionary<string, int> headerMap = new();
+            for (int c = 1; c <= colCount; c++)
+            {
+                string header = sheet[1, c].Value?.Trim() ?? "";
+                if (!string.IsNullOrWhiteSpace(header))
+                    headerMap[header] = c;
+            }
+            string[] requiredHeaders = { "Phòng học", "RoomName", "Loại phòng", "Tầng", "Tòa", "SLSV", "Status" };
+            foreach (var h in requiredHeaders)
+                if (!headerMap.ContainsKey(h))
+                    throw new Exception($"Missing required column: {h}");
+
+            for (int r = 2; r <= rowCount; r++)
+            {
+                var room = new Room
+                {
+                    RoomId = int.TryParse(sheet[r, headerMap["Phòng học"]].Value, out var roomId) ? roomId : 0,
+                    Building = sheet[r, headerMap["Tòa"]].Value?.Trim(),
+                    Floor = int.TryParse(sheet[r, headerMap["Tầng"]].Value, out var floor) ? floor : 0,
+                    RoomName = sheet[r, headerMap["RoomName"]].Value?.Trim(),
+                    Status = sheet[r, headerMap["Status"]].Value?.Trim() ?? "available", // Default to "available" if not specified
+                    TotalPersons = int.TryParse(sheet[r, headerMap["SLSV"]].Value, out var totalPersons) ? totalPersons : 0,
+                    TypeOfRoom = sheet[r, headerMap["Loại phòng"]].Value,
+                };
+                rooms.Add(room);
+            }
+            return rooms;
+        }
+
+        /// <summary>
+        /// Exports a list of Room objects to an Excel file.
+        /// This method creates a new Excel workbook, writes the header row, and populates each row with room data.
+        /// The resulting Excel file is saved to the specified file path.
+        /// </summary>
+        /// <param name="room">The list of Room objects to export.</param>
+        /// <param name="filePath">The file path where the Excel file will be saved.</param>
+        public void ExportRoomToExcel(List<Room> room, string filePath)
+        {
+            using ExcelEngine excelEngine = new();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Xlsx;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet sheet = workbook.Worksheets[0];
+            // Header
+            sheet[1, 1].Text = "Phòng học";
+            sheet[1, 2].Text = "RoomName";
+            sheet[1, 3].Text = "Loại phòng";
+            sheet[1, 4].Text = "Tầng";
+            sheet[1, 5].Text = "Tòa";
+            sheet[1, 6].Text = "SLSV";
+            sheet[1, 7].Text = "Status";
+            int row = 2;
+            foreach (var rooms in room)
+            {
+                sheet[row, 1].Number = rooms.RoomId;
+                sheet[row, 2].Text = rooms.RoomName ?? "";
+                sheet[row, 3].Text = rooms.TypeOfRoom ?? "";
+                sheet[row, 4].Number = rooms.Floor;
+                sheet[row, 5].Text = rooms.Building ?? "";
+                sheet[row, 6].Number = rooms.TotalPersons;
+                sheet[row, 7].Text = rooms.Status ?? "";
+                row++;
+            }
+            workbook.SaveAs(filePath);
         }
 
         /// <summary>
@@ -29,9 +115,9 @@ namespace SchedulerWpfApp.Services
         {
             foreach (var room in listRoomFromExcel)
             {
-                _context.Rooms.Add(room);
+                await _unitOfWork.RoomRepository.AddAsync(room);
             }
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         /// <summary>
@@ -68,7 +154,6 @@ namespace SchedulerWpfApp.Services
         /// This method takes a Room object as input and adds it to the database context, then saves the changes asynchronously.
         /// </summary>
         /// <param name="room"></param>
-
         public async Task AddRoom(Room room)
         {
             await _unitOfWork.BeginTransactionAsync();
@@ -81,7 +166,6 @@ namespace SchedulerWpfApp.Services
         /// </summary>
         /// <param name="id">The ID of the room to retrieve</param>
         /// <returns>The subject with the specified ID, or null if not found</returns>
-
         public async Task<Room?> GetByRoomCodeAsync(int roomid)
         {
             return await _unitOfWork.Repository<Room>().GetByIdAsync(roomid);
@@ -92,7 +176,6 @@ namespace SchedulerWpfApp.Services
         /// This method takes a Room object as input, updates the corresponding record in the database, and saves the changes asynchronously.
         /// </summary>
         /// <param name="room"></param>
-
         public async Task UpdateRoom(Room room)
         {
             var existingRoom = await GetByRoomCodeAsync(room.RoomId);
@@ -109,10 +192,9 @@ namespace SchedulerWpfApp.Services
         /// Deletes a room from the database by its ID.
         /// This method retrieves the room by its ID, removes it from the database context, and saves the changes asynchronously.
         /// </summary>
-
         public async Task DeleteRoom(int id)
         {
-            
+
             var room = await GetByIdAsync(id);
             if (room != null)
             {
@@ -126,7 +208,6 @@ namespace SchedulerWpfApp.Services
         /// Searches for rooms in the database based on a search term.
         /// This method filters the rooms whose names contain the specified search term, ignoring case.
         /// </summary>
-
         public async Task<List<Room>> SearchRoomsAsync(string searchTerm)
         {
             return await _unitOfWork.RoomRepository.SearchRoomsAsync(searchTerm);
@@ -137,10 +218,10 @@ namespace SchedulerWpfApp.Services
         /// This method checks if there is any room in the database with the specified room name.
         /// </summary>
         /// <param name="roomname"></param>
-
         public async Task<bool> CheckRoomIdExistsAsync(string roomname)
         {
             return await _unitOfWork.RoomRepository.CheckRoomIdExistsAsync(roomname);
         }
+        #endregion
     }
 }

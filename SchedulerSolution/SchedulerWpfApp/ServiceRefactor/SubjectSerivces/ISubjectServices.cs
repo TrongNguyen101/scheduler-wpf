@@ -7,7 +7,7 @@ using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
 {
-    public interface ISubjectServices : IBaseService<Subject>
+    public interface ISubjectServices 
     {
         //Task<Subject?> GetSubjectByCodeAsync(string code);
     }

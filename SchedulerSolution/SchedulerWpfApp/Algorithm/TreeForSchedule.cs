@@ -7,7 +7,7 @@ namespace SchedulerWpfApp.Algorithm
 {
     public class TreeForSchedule
     {
-        private readonly IRoomService _roomService;
+        private readonly IRoomServiceOld _roomService;
 
         public string Value { get; set; }
         public TreeForSchedule Left { get; set; }
@@ -17,7 +17,7 @@ namespace SchedulerWpfApp.Algorithm
         public string? SlotTime { get; set; }
         public string? StatusSlot { get; set; }
 
-        public TreeForSchedule(IRoomService roomService)
+        public TreeForSchedule(IRoomServiceOld roomService)
         {
             _roomService = roomService;
         }

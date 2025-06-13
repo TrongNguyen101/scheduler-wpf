@@ -5,10 +5,10 @@ using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 
 namespace SchedulerWpfApp.ServiceRefactor.SubjectSerivces
 {
-    public class SubjectServices : BaseService<Subject>, ISubjectServices
+    public class SubjectServices :ISubjectServices
     {
         private readonly IMapper _mapper;
-        public SubjectServices(IMapper mapper, IUnitOfWork unitOfWork) : base(unitOfWork)
+        public SubjectServices(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
         }

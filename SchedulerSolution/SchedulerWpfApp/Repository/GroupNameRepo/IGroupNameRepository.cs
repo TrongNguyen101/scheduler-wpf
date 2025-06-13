@@ -1,6 +1,6 @@
 ﻿using SchedulerWpfApp.Model;
 
-namespace SchedulerWpfApp.Repository.GroupName
+namespace SchedulerWpfApp.Repository.GroupNameRepo
 {
     public interface IGroupNameRepository : IBaseRepository<GroupClass>
     {

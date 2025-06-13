@@ -1,46 +1,41 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SchedulerWpfApp.Data;
+﻿using SchedulerWpfApp.Repository;
 using SchedulerWpfApp.Model;
 using AutoMapper;
-using SchedulerWpfApp.Repository;
-namespace SchedulerWpfApp.Services
+using Syncfusion.XlsIO;
+namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
 {
-    /// <summary>
-    /// Service class for managing group names (classes)
-    /// This class provides methods to add, delete, update, import from Excel, and check existence of group names in the database.
-    ///  It also includes methods to retrieve all group names and check if a class ID exists.
-    /// </summary>
     public class GroupNameService : IGroupNameService
     {
-        private readonly DataContext _context;
+        #region Fields
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-
-        public GroupNameService(DataContext context, IMapper mapper, IUnitOfWork unitOfWork)
+        #endregion
+        #region Contracstor
+        public GroupNameService(IMapper mapper, IUnitOfWork unitOfWork)
         {
-            _context = context;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
-
+        #endregion
+        #region Method 
         /// <summary>
         /// Create a new instance of GroupNameService with the provided DataContext.
         /// This method adds a new group name (class) to the database.
         /// It takes a GroupName object as input and saves it asynchronously.
         /// </summary>
         /// <param name="groupName"></param>
-
         public async Task AddGroupName(GroupClass groupName)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.Repository<GroupClass>().AddAsync(groupName);
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi thêm lớp học", ex);
+                await _unitOfWork.RollbackAsync();
+                throw;
             }
         }
 
@@ -51,15 +46,16 @@ namespace SchedulerWpfApp.Services
         /// </summary>
         public async Task DeleteGroupName(string classid)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.GroupNameRepository.DeleteAsync(classid);
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa lớp học", ex);
+                await _unitOfWork.RollbackAsync();
+                throw;
             }
         }
 
@@ -67,7 +63,6 @@ namespace SchedulerWpfApp.Services
         /// Retrieve all group names (classes) from the database.
         /// This method returns a list of all group names stored in the database.
         /// </summary>
-
         public async Task<List<GroupClass>> GetAllAsync()
         {
             try
@@ -101,9 +96,9 @@ namespace SchedulerWpfApp.Services
             {
                 foreach (var room in listGroupNameFromExcel)
                 {
-                    _context.GroupName.Add(room);
+                    await _unitOfWork.GroupNameRepository.AddAsync(room);
                 }
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -128,18 +123,19 @@ namespace SchedulerWpfApp.Services
         {
             try
             {
+                await _unitOfWork.BeginTransactionAsync();
                 var existinggroupname = await GetByGroupNameCodeAsync(groupname.GroupName);
                 if (existinggroupname != null)
                 {
                     _mapper.Map(groupname, existinggroupname);
-                    await _unitOfWork.BeginTransactionAsync();
                     await _unitOfWork.Repository<GroupClass>().UpdateAsync(existinggroupname);
                     await _unitOfWork.CommitAsync();
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi cập nhật lớp học", ex);
+                await _unitOfWork.RollbackAsync();
+                throw;
             }
         }
 
@@ -158,5 +154,84 @@ namespace SchedulerWpfApp.Services
                 throw new Exception("Lỗi khi kiểm tra mã lớp", ex);
             }
         }
+
+        /// <summary>
+        ///  
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public List<GroupClass> ReadGroupNameFromExcel(string filePath)
+        {
+            var rooms = new List<GroupClass>();
+
+            using ExcelEngine excelEngine = new();
+            var app = excelEngine.Excel;
+            app.DefaultVersion = ExcelVersion.Xlsx;
+
+            var workbook = app.Workbooks.Open(filePath);
+            var sheet = workbook.Worksheets[0];
+
+            int rowCount = sheet.UsedRange.LastRow;
+            int colCount = sheet.UsedRange.LastColumn;
+
+            Dictionary<string, int> headerMap = new();
+            for (int c = 1; c <= colCount; c++)
+            {
+                string header = sheet[1, c].Value?.Trim() ?? "";
+                if (!string.IsNullOrWhiteSpace(header))
+                    headerMap[header] = c;
+            }
+            string[] requiredHeaders = { "Groupname", "Khóa", "Kỳ", "BM", "Ngành" };
+            foreach (var h in requiredHeaders)
+                if (!headerMap.ContainsKey(h))
+                    throw new Exception($"Missing required column: {h}");
+
+            for (int r = 2; r <= rowCount; r++)
+            {
+                var room = new GroupClass
+                {
+                    GroupName = sheet[r, headerMap["Groupname"]].Value,
+                    CurriculumCode = sheet[r, headerMap["Khóa"]].Value,
+                    Department = sheet[r, headerMap["BM"]].Value,
+                    Major = sheet[r, headerMap["Ngành"]].Value,
+                    Term = sheet[r, headerMap["Kỳ"]].Value,
+                };
+                rooms.Add(room);
+            }
+            return rooms;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupname"></param>
+        /// <param name="filePath"></param>
+        public void ExportToExcelGroupName(List<GroupClass> groupname, string filePath)
+        {
+            using ExcelEngine excelEngine = new();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Xlsx;
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet sheet = workbook.Worksheets[0];
+            // Header
+            sheet[1, 1].Text = "GroupName";
+            sheet[1, 2].Text = "Khóa";
+            sheet[1, 3].Text = "Ngành";
+            sheet[1, 4].Text = "BM";
+            sheet[1, 5].Text = "Kỳ";
+            int row = 2;
+            foreach (var groupnames in groupname)
+            {
+                sheet[row, 1].Text = groupnames.GroupName ?? "";
+                sheet[row, 2].Text = groupnames.CurriculumCode ?? "";
+                sheet[row, 3].Text = groupnames.Major ?? "";
+                sheet[row, 4].Text = groupnames.Department ?? "";
+                sheet[row, 5].Text = groupnames.Term ?? "";
+                row++;
+            }
+            workbook.SaveAs(filePath);
+        }
+        #endregion
     }
 }

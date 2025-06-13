@@ -14,9 +14,9 @@ namespace SchedulerWpfApp.Algorithm
         private readonly InterfaceLecturerSubjectServices _implementLecturerSubjectServices;
         private readonly InterfaceLecturerServices _implementLecturerServices;
         private readonly ISubjectServices _subjectServices;
-        private readonly IGroupNameService _groupNameService;
+        private readonly IGroupNameServiceOld _groupNameService;
 
-        public CreateScheduleTree(GenerateScheduleForAllDate generateScheduleForAllDate, InterfaceScheduleServices implementSchedule, InterfaceLecturerSubjectServices implementLecturerSubjectServices, ISubjectServices subjectServices, InterfaceLecturerServices implementLecturerServices, IGroupNameService groupNameService)
+        public CreateScheduleTree(GenerateScheduleForAllDate generateScheduleForAllDate, InterfaceScheduleServices implementSchedule, InterfaceLecturerSubjectServices implementLecturerSubjectServices, ISubjectServices subjectServices, InterfaceLecturerServices implementLecturerServices, IGroupNameServiceOld groupNameService)
         {
             _generateScheduleForAllDate = generateScheduleForAllDate;
             _implementScheduleServices = implementSchedule;

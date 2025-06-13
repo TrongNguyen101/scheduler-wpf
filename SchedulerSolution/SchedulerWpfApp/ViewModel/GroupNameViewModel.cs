@@ -4,8 +4,7 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
-using SchedulerWpfApp.Services;
-
+using SchedulerWpfApp.ServiceRefactor.GroupNameService;
 namespace SchedulerWpfApp.ViewModel
 {
     /// <summary>
@@ -15,8 +14,6 @@ namespace SchedulerWpfApp.ViewModel
     {
         #region Fields
         private readonly IGroupNameService _groupnamelistService;
-        private readonly IExcelPersonImporter _excelImporter;
-        private readonly IExcelPersonExporter _excelExporter;
 
         // declare to list the groupnames
         private ObservableCollection<GroupClass> _groupnamelist;
@@ -131,19 +128,17 @@ namespace SchedulerWpfApp.ViewModel
         ///  Constructor initializes dependencies and commands.
         /// Initializes the GroupNameViewModel with services for managing group names and importing/exporting data.
         /// </summary>
-        public GroupNameViewModel(IGroupNameService groupnameService, IExcelPersonImporter excelImporter, IExcelPersonExporter excelExporter)
+        public GroupNameViewModel(IGroupNameService groupnameService)
         {
             // assign variables to the corresponding Service object
             _groupnamelistService = groupnameService;
-            _excelImporter = excelImporter;
-            _excelExporter = excelExporter;
             // Execute command according to each event corresponding to the processing functions
             GroupNames = new ObservableCollection<GroupClass>();
             // add groupname
             AddGroupNameCommand = new RelayCommand(async () => await AddGroupNameAsync());
             // load list groupname
             LoadGroupNameCommand = new RelayCommand(async () => await LoadGroupNameAsync());
-            // import groupname by excel file 
+            //import groupname by excel file
             ImportGroupNameCommand = new RelayCommand(async () => await ImportGroupNamelistAsync());
             // export groupname by excel file 
             ExportGroupNameCommand = new RelayCommand(async () => await ExportGroupNameAsync());
@@ -200,7 +195,7 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     // call ReadgroupnameFromExcel function to process file and read file when importing
-                    var data = _excelImporter.ReadGroupNameFromExcel(dialog.FileName);
+                    var data = _groupnamelistService.ReadGroupNameFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
 
                     await _groupnamelistService.ImportGroupNameFromExcel(data);
@@ -239,7 +234,7 @@ namespace SchedulerWpfApp.ViewModel
                     //Filter the GroupNames list to remove null elements
                     var groupnameList = GroupNames.Where(groupname => groupname != null).ToList();
                     // call ExportToExcelgroupname function to export file
-                    _excelExporter.ExportToExcelGroupName(groupnameList, dialog.FileName);
+                    _groupnamelistService.ExportToExcelGroupName(groupnameList, dialog.FileName);
                     MessageBox.Show("Xuất thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -269,7 +264,7 @@ namespace SchedulerWpfApp.ViewModel
         /// This method sets the SelectedGroupname to the groupname being edited,
         /// turns on the groupname form, and sets the editing state.
         /// </summary>
-         
+
         private async Task EditGroupNameAsync(GroupClass groupname)
         {
             if (groupname == null) return;
@@ -292,7 +287,7 @@ namespace SchedulerWpfApp.ViewModel
         /// Saves the current groupname data, either adding a new groupname or updating an existing one.
         /// This method checks if the ClassId is not empty, verifies if the groupname already exists,
         /// </summary>
-        
+
         private async Task SaveGroupNameAsync()
         {
             try
@@ -307,7 +302,7 @@ namespace SchedulerWpfApp.ViewModel
                 if (string.IsNullOrWhiteSpace(SelectedGroupname?.GroupName) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.CurriculumCode) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department)||
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Term))
                 {
                     MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -318,12 +313,17 @@ namespace SchedulerWpfApp.ViewModel
                 {
                     // Khi edit, chỉ cần kiểm tra ClassId có tồn tại không
                     bool exists = await _groupnamelistService.CheckClassIdExistsAsync(SelectedGroupname.GroupName);
+                    var existingLecture = _allGroupNames.FirstOrDefault(s => s.GroupName == SelectedGroupname.GroupName);
+
                     if (exists)
                     {
+                        existingLecture.CurriculumCode = SelectedGroupname.CurriculumCode;
+                        existingLecture.Major = SelectedGroupname.Major;
+                        existingLecture.Department = SelectedGroupname.Department;
+                        existingLecture.Term = SelectedGroupname.Term;
                         // Dữ liệu đã được validate ở trên rồi, an toàn để update
-                        await _groupnamelistService.UpdateGroupName(SelectedGroupname);
+                        await _groupnamelistService.UpdateGroupName(existingLecture);
                         MessageBox.Show("Cập nhật lớp thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-
                         await LoadGroupNameAsync();
                         IsGroupNameFormOpen = false; // Đóng form sau khi save thành công
                         _isEditing = false;
@@ -363,7 +363,7 @@ namespace SchedulerWpfApp.ViewModel
         /// opens the confirmation dialog, and waits for user confirmation.
         /// </summary>
         /// <param name="groupname"></param>
-         
+
         private async Task DeleteGroupNameAsync(GroupClass groupname)
         {
 
@@ -377,7 +377,7 @@ namespace SchedulerWpfApp.ViewModel
         /// This method checks if a groupname is selected,
         /// attempts to delete it using the service, and reloads the groupname list.
         /// </summary>
-         
+
         private async Task ConfirmDeleteAsync()
         {
             try
@@ -404,7 +404,7 @@ namespace SchedulerWpfApp.ViewModel
         /// Cancels the current edit or add operation and closes the groupname form.
         /// This method sets the SelectedGroupname to null,
         /// </summary>
-       
+
         private void CancelEdit()
         {
             // set SelectedGroupname null 
