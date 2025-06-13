@@ -17,7 +17,7 @@ namespace SchedulerWpfApp.Algorithm
         public string? SlotTime { get; set; }
         public string? StatusSlot { get; set; }
 
-        public TreeForSchedule(IRoomService roomService)
+        public TreeForSchedule(IRoomServiceOld roomService)
         {
             _roomService = roomService;
         }
