@@ -1,4 +1,5 @@
 ﻿using SchedulerWpfApp.Model;
+using SchedulerWpfApp.ServiceRefactor.GroupNameService;
 using SchedulerWpfApp.Services;
 using SchedulerWpfApp.Services.LecturerSubjectServices;
 using SchedulerWpfApp.Services.ScheduleServices;
@@ -14,9 +15,9 @@ namespace SchedulerWpfApp.Algorithm
         private readonly InterfaceLecturerSubjectServices _implementLecturerSubjectServices;
         private readonly InterfaceLecturerServices _implementLecturerServices;
         private readonly ISubjectServices _subjectServices;
-        private readonly IGroupNameServiceOld _groupNameService;
+        private readonly IGroupNameService _groupNameService;
 
-        public CreateScheduleTree(GenerateScheduleForAllDate generateScheduleForAllDate, InterfaceScheduleServices implementSchedule, InterfaceLecturerSubjectServices implementLecturerSubjectServices, ISubjectServices subjectServices, InterfaceLecturerServices implementLecturerServices, IGroupNameServiceOld groupNameService)
+        public CreateScheduleTree(GenerateScheduleForAllDate generateScheduleForAllDate, InterfaceScheduleServices implementSchedule, InterfaceLecturerSubjectServices implementLecturerSubjectServices, ISubjectServices subjectServices, InterfaceLecturerServices implementLecturerServices, IGroupNameService groupNameService)
         {
             _generateScheduleForAllDate = generateScheduleForAllDate;
             _implementScheduleServices = implementSchedule;
