@@ -1,9 +1,8 @@
-﻿
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using SchedulerWpfApp.Algorithm;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
-using SchedulerWpfApp.Services.ScheduleServices;
+using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
 using Syncfusion.XlsIO;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -18,7 +17,7 @@ namespace SchedulerWpfApp.ViewModel
     {
         #region Fields
         private readonly CreateScheduleTree _createScheduleTree;
-        private readonly InterfaceScheduleServices _implementScheduleServices;
+        private readonly IScheduleServices _implementScheduleServices;
         private int _selectedYear;
         private string _selectedWeek;
         private string _selectedGroupName;
@@ -53,7 +52,7 @@ namespace SchedulerWpfApp.ViewModel
 
         public ICommand CreateScheduleCommand { get; }
 
-        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, InterfaceScheduleServices implementScheduleServices)
+        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices)
         {
             _createScheduleTree = createScheduleTree;
             _implementScheduleServices = implementScheduleServices;
