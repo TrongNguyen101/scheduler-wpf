@@ -1,6 +1,5 @@
 ﻿using SchedulerWpfApp.Model;
-
-namespace SchedulerWpfApp.Services
+namespace SchedulerWpfApp.ServiceRefactor.RoomService
 {
     public interface IRoomService
     {
@@ -13,5 +12,7 @@ namespace SchedulerWpfApp.Services
         Task DeleteRoom(int id);
         Task<List<Room>> SearchRoomsAsync(string searchTerm);
         Task<bool> CheckRoomIdExistsAsync(string classId);
+        void ExportRoomToExcel(List<Room> rooms, string filePath);
+        List<Room> ReadRoomListFromExcel(string filePath);
     }
 }

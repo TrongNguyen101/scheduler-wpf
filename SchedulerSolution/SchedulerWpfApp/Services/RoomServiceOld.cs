@@ -9,12 +9,12 @@ namespace SchedulerWpfApp.Services
     /// Service class for managing room-related operations.
     /// This class provides methods to import rooms from Excel, retrieve all rooms, get a room by ID, add, update, delete rooms, search for rooms, and check if a room ID exists.
     /// </summary>
-    public class RoomService : IRoomService
+    public class RoomServiceOld : IRoomServiceOld
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-        public RoomService(DataContext context, IMapper mapper, IUnitOfWork unitOfWork)
+        public RoomServiceOld(DataContext context, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _context = context;
             _mapper = mapper;

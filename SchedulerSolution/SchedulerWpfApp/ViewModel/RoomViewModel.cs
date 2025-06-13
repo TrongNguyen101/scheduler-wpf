@@ -4,7 +4,7 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
-using SchedulerWpfApp.Services;
+using SchedulerWpfApp.ServiceRefactor.RoomService;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -15,8 +15,6 @@ namespace SchedulerWpfApp.ViewModel
     {
         #region Fields
         private readonly IRoomService _roomService;
-        private readonly IExcelRoomImport _excelRoomImport;
-        private readonly IExcelRoomExporter _excelRoomExporter;
         private ObservableCollection<Room> _roomlist;
         private Room? _selectedRoom;
         public string FormTitle => SelectedRoom?.RoomId == 0 ? "Thêm phòng mới" : "Chỉnh sửa thông tin phòng";
@@ -120,11 +118,9 @@ namespace SchedulerWpfApp.ViewModel
         /// <param name="roomService"></param>
         /// <param name="excelroomImporter"></param>
         /// <param name="excelroomExporter"></param>
-        public RoomViewModel(IRoomService roomService, IExcelRoomImport excelroomImporter, IExcelRoomExporter excelroomExporter)
+        public RoomViewModel(IRoomService roomService)
         {
             _roomService = roomService;
-            _excelRoomImport = excelroomImporter;
-            _excelRoomExporter = excelroomExporter;
             // Initialize commands for various actions related to room management
             ImportRoomListCommand = new RelayCommand(async () => await ImportRoomListAsync());
             ExportRoomListCommand = new RelayCommand(async () => await ExportRoomAsync());
@@ -173,7 +169,7 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     // call ReadRoomFromExcel function to process file and read file when importing
-                    var data = _excelRoomImport.ReadRoomListFromExcel(dialog.FileName);
+                    var data = _roomService.ReadRoomListFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
                     await _roomService.ImportRoomFromExcel(data);
                     MessageBox.Show("Nhập thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -211,7 +207,7 @@ namespace SchedulerWpfApp.ViewModel
                     //Filter the GroupNames list to remove null elements
                     var roomList = Rooms.Where(p => p != null).ToList();
                     // call ExportToExcelRoom function to export file
-                    _excelRoomExporter.ExportRoomToExcel(roomList, dialog.FileName);
+                    _roomService.ExportRoomToExcel(roomList, dialog.FileName);
                     MessageBox.Show("Xuất thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -356,7 +352,7 @@ namespace SchedulerWpfApp.ViewModel
                 IsRoomFormOpen = true;
                 return;
             }
-            else if (SelectedRoom.Floor < 0 || SelectedRoom.Floor > 5)
+            else if (SelectedRoom.Floor < 0 || SelectedRoom.Floor > 6)
             {
                 MessageBox.Show("Số tầng không được vượt quá 5 và không được nhỏ hơn 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsRoomFormOpen = true;
