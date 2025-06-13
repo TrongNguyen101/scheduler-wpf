@@ -12,10 +12,15 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
         #endregion
 
         #region Constructor
+        /// <summary>
+        /// Initializes a new instance of the ScheduleServices class
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="unitOfWork"></param>
         public ScheduleServices(ILogger<ScheduleServices> logger, IUnitOfWork unitOfWork)
         {
-            _logger = logger;
-            _unitOfWork = unitOfWork;
+            _logger = logger; // Injecting the logger to log errors and information
+            _unitOfWork = unitOfWork; // Injecting the unit of work to manage database operations
         }
         #endregion
 

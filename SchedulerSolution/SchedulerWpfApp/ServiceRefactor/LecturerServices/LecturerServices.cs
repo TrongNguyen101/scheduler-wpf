@@ -14,10 +14,10 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
         /// <summary>
         /// Initializes a new instance of the LecturerServices class
         /// </summary>
-        /// <param name="context">The database context used for data operations</param>
+        /// <param name="unitOfWork">The database context used for data operations</param>
         public LecturerServices(IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork; // Injecting the unit of work to manage database operations
         }
         #endregion
 

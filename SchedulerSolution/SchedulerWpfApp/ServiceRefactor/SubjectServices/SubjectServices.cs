@@ -11,9 +11,13 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
         #endregion
 
         #region Contructor
+        /// <summary>
+        /// Initializes a new instance of the SubjectServices class
+        /// </summary>
+        /// <param name="unitOfWork"></param>
         public SubjectServices(IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork; // Injecting the unit of work to manage database operations
         }
         #endregion
 
