@@ -10,6 +10,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         #endregion
+
         #region Contracstor
         public GroupNameService(IMapper mapper, IUnitOfWork unitOfWork)
         {
@@ -17,7 +18,8 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             _unitOfWork = unitOfWork;
         }
         #endregion
-        #region Method 
+
+        #region Methods
         /// <summary>
         /// Create a new instance of GroupNameService with the provided DataContext.
         /// This method adds a new group name (class) to the database.
@@ -156,7 +158,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         }
 
         /// <summary>
-        ///  
+        ///  Reads group class names from an Excel file and returns a list of GroupClass objects.
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
@@ -203,10 +205,12 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         }
 
         /// <summary>
-        /// 
+        /// Exports a list of group names (classes) to an Excel file.
+        /// This method creates an Excel file at the specified file path and writes the provided group name data into it.
+        /// The Excel file will contain columns for GroupName, Khóa, Ngành, BM, and Kỳ.
         /// </summary>
-        /// <param name="groupname"></param>
-        /// <param name="filePath"></param>
+        /// <param name="groupname">The list of GroupClass objects to export.</param>
+        /// <param name="filePath">The file path where the Excel file will be saved.</param>
         public void ExportToExcelGroupName(List<GroupClass> groupname, string filePath)
         {
             using ExcelEngine excelEngine = new();

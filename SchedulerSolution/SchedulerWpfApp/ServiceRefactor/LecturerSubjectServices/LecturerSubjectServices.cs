@@ -5,11 +5,22 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 {
     public class LecturerSubjectServices : ILecturerSubjectServices
     {
+        #region Fields
         private readonly IUnitOfWork _unitOfWork;
+        #endregion
+
+        #region Constructor
         public LecturerSubjectServices(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
+        #endregion
+
+        #region Method
+        /// <summary>
+        /// Retrieves all LecturerSubject entities asynchronously from the repository.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of LecturerSubject entities.</returns>
         public async Task<List<LecturerSubject>> GetAllAsync()
         {
             return await _unitOfWork.Repository<LecturerSubject>().GetAllAsync();
@@ -101,5 +112,6 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 throw;
             }
         }
+        #endregion
     }
 }

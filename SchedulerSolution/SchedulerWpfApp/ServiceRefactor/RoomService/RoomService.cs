@@ -10,13 +10,20 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         #endregion
-        #region Contracstor
+
+        #region Contractors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RoomService"/> class.
+        /// </summary>
+        /// <param name="mapper">The AutoMapper instance used for object mapping.</param>
+        /// <param name="unitOfWork">The unit of work instance for database operations.</param>
         public RoomService(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
         #endregion
+
         #region Method
         /// <summary>
         /// Reads a list of rooms from an Excel file.
