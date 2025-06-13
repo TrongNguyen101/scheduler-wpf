@@ -5,24 +5,27 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Algorithm;
-using SchedulerWpfApp.Services;
 using SchedulerWpfApp.ViewModel;
 using SchedulerWpfApp.Views;
 using Syncfusion.Licensing;
 using Microsoft.Extensions.Logging;
-using SchedulerWpfApp.Services.ScheduleServices;
-using SchedulerWpfApp.Services.LecturerSubjectServices;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Repository;
 using SchedulerWpfApp.Repository.RoomRepo;
 using SchedulerWpfApp.Repository.CurriculumRepo;
 using SchedulerWpfApp.Repository.CurriculumSubjectsRepo;
-using SchedulerWpfApp.Repository.GroupName;
+using SchedulerWpfApp.Repository.GroupNameRepo;
 using SchedulerWpfApp.Repository.LectureSubjectRepo;
 using SchedulerWpfApp.Repository.LecturerRequestRepository;
 using SchedulerWpfApp.Repository.LecturerRepository;
 using SchedulerWpfApp.Repository.ScheduleRepository;
 using SchedulerWpfApp.Repository.SubjectRepository;
+using SchedulerWpfApp.ServiceRefactor.GroupNameService;
+using SchedulerWpfApp.ServiceRefactor.LecturerServices;
+using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
+using SchedulerWpfApp.ServiceRefactor.RoomService;
+using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
+using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 namespace SchedulerWpfApp
 {
     /// <summary>
@@ -152,27 +155,35 @@ namespace SchedulerWpfApp
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Register person service with scoped lifetime (one instance per scope)
-            services.AddScoped<IPersonService, PersonService>();
-            services.AddScoped<ISubjectServices, SubjectServices>();
             services.AddScoped<IGroupNameService, GroupNameService>();
-            services.AddScoped<InterfaceScheduleServices, ImplementScheduleServices>();
-            services.AddScoped<InterfaceLecturerServices, ImplementLecturerServices>();
-            services.AddScoped<InterfaceLecturerSubjectServices, ImplementLecturerSubjectServices>();
-
-            services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
-            services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
-
-            services.AddScoped<IExcelSubjectImporter, ExcelSubjectImporter>();
-            services.AddScoped<IExcelSubjectExporter, ExcelSubjectExporter>();
-
-            services.AddScoped<IExcelLectureExporter, ExcelLectureExporter>();
-            services.AddScoped<IExcelLectureImporter, ExcelLectureImporter>();
+            services.AddScoped<ILecturerServices, LecturerServices>();
+            services.AddScoped<ILecturerSubjectServices, LecturerSubjectServices>();
             services.AddScoped<IRoomService, RoomService>();
-            services.AddScoped<IExcelRoomExporter, ExcelRoomExporter>();
-            services.AddScoped<IExcelRoomImport, ExcelRoomImport>();
-            services.AddScoped<ILectureSubjectService, LectureSubjectService>();
-            services.AddScoped<IExcelLectureSubjectImporter, ExcelLectureSubjectImporter>();
-            services.AddScoped<IExcelLectureSubjectExporter, ExcelLectureSubjectExporter>();
+            services.AddScoped<IScheduleServices, ScheduleServices>();
+            services.AddScoped<ISubjectServices, SubjectServices>();
+
+            //services.AddScoped<IPersonService, PersonService>();
+            //services.AddScoped<ISubjectServices, SubjectServices>();
+            //services.AddScoped<IGroupNameService, GroupNameService>();
+            //services.AddScoped<InterfaceScheduleServices, ImplementScheduleServices>();
+            //services.AddScoped<InterfaceLecturerServices, ImplementLecturerServices>();
+            //services.AddScoped<InterfaceLecturerSubjectServices, ImplementLecturerSubjectServices>();
+
+            //services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
+            //services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
+
+            //services.AddScoped<IExcelSubjectImporter, ExcelSubjectImporter>();
+            //services.AddScoped<IExcelSubjectExporter, ExcelSubjectExporter>();
+
+            //services.AddScoped<IExcelLectureExporter, ExcelLectureExporter>();
+            //services.AddScoped<IExcelLectureImporter, ExcelLectureImporter>();
+            //services.AddScoped<IRoomService, RoomService>();
+            //services.AddScoped<IExcelRoomExporter, ExcelRoomExporter>();
+            //services.AddScoped<IExcelRoomImport, ExcelRoomImport>();
+            //services.AddScoped<ILectureSubjectService, LectureSubjectService>();
+            //services.AddScoped<IExcelLectureSubjectImporter, ExcelLectureSubjectImporter>();
+            //services.AddScoped<IExcelLectureSubjectExporter, ExcelLectureSubjectExporter>();
+
             // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();
 
