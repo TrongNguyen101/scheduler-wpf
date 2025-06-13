@@ -8,7 +8,7 @@ namespace SchedulerWpfApp.Services
     /// <summary>
     /// Service for managing Subject entities in the database
     /// </summary>
-    public class SubjectServices : ISubjectServices
+    public class SubjectServicesOld : ISubjectServicesOld
     {
         #region Fields
         private readonly IUnitOfWork _unitOfWork;
@@ -21,7 +21,7 @@ namespace SchedulerWpfApp.Services
         /// Initializes a new instance of the PersonService class
         /// </summary>
         /// <param name="context">The database context used for data operations</param>
-        public SubjectServices(DataContext context, IMapper mapper, IUnitOfWork unitOfWork)
+        public SubjectServicesOld(DataContext context, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _context = context;
             _mapper = mapper;

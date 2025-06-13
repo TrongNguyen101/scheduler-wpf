@@ -2,10 +2,9 @@
 using SchedulerWpfApp.Helper;
 using System.Windows.Input;
 using SchedulerWpfApp.Model;
-using SchedulerWpfApp.Services;
 using Microsoft.Win32;
 using System.Windows;
-using SchedulerWpfApp.Services.LecturerSubjectServices;
+using SchedulerWpfApp.ServiceRefactor.LecturerServices;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -16,9 +15,7 @@ namespace SchedulerWpfApp.ViewModel
     {
         #region Fields
         // Dependencies injected via constructor
-        private readonly InterfaceLecturerServices _lecturerService;
-        private readonly IExcelLectureImporter _excelImporter;
-        private readonly IExcelLectureExporter _excelExporter;
+        private readonly ILecturerServices _lecturerService;
 
         // Internal data fields
         private ObservableCollection<Lecturer> _lecturers;
@@ -126,11 +123,9 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public LectureViewModel(InterfaceLecturerServices courseService, IExcelLectureExporter excelExporter, IExcelLectureImporter excelImporter)
+        public LectureViewModel(ILecturerServices lecturerService)
         {
-            _lecturerService = courseService;
-            _excelExporter = excelExporter;
-            _excelImporter = excelImporter;
+            _lecturerService = lecturerService;
 
             Lectures = new ObservableCollection<Lecturer>();
 
@@ -364,7 +359,7 @@ namespace SchedulerWpfApp.ViewModel
                 {
                     // Export only non-null list
                     var lectureList = _allLectures.Where(p => p != null).ToList();
-                    _excelExporter.ExportToExcel(lectureList, dialog.FileName);
+                    _lecturerService.ExportToExcel(lectureList, dialog.FileName);
                     MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -388,7 +383,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
-                    var data = _excelImporter.ReadLecturesFromExcel(dialog.FileName);
+                    var data = _lecturerService.ReadLecturersFromExcel(dialog.FileName);
                     await _lecturerService.ImportLectureFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadLectureAsync();

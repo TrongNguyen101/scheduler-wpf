@@ -2,7 +2,7 @@
 
 namespace SchedulerWpfApp.Services
 {
-    public interface ISubjectServices
+    public interface ISubjectServicesOld
     {
         Task<List<Subject>> GetAllAsync();
         Task<Subject?> GetBySubjectCodeAsync(string subjectCode);
