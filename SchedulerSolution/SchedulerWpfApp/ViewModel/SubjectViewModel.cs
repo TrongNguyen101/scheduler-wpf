@@ -1,11 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
-using AutoMapper;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
-using SchedulerWpfApp.Services;
+using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -16,10 +15,8 @@ namespace SchedulerWpfApp.ViewModel
     {
         #region Fields
         // Dependencies injected via constructor
-        private readonly ISubjectServices _courseService;
-        private readonly IExcelSubjectImporter _excelImporter;
-        private readonly IExcelSubjectExporter _excelExporter;
-        
+        private readonly ISubjectServices _subjectService;
+
         // Internal data fields
         private ObservableCollection<Subject> _subjects;
         private Subject? _selectedSubject;
@@ -127,11 +124,9 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public SubjectViewModel(ISubjectServices courseService, IExcelSubjectExporter excelExporter, IExcelSubjectImporter excelImporter)
+        public SubjectViewModel(ISubjectServices courseService)
         {
-            _courseService = courseService;
-            _excelExporter = excelExporter;
-            _excelImporter = excelImporter;
+            _subjectService = courseService;
 
             Subjects = new ObservableCollection<Subject>();
 
@@ -163,7 +158,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             try
             {
-                var subjectList = await _courseService.GetAllAsync();
+                var subjectList = await _subjectService.GetAllAsync();
                 _allSubjects = new ObservableCollection<Subject>(subjectList);
                 ResetToAllSubjects();
             }
@@ -244,7 +239,7 @@ namespace SchedulerWpfApp.ViewModel
                 IsSubjectFormOpen = true;
                 return;
             }
-            
+
             try
             {
                 // Check if _isEdit is false will create new course. Otherwise, update course
@@ -256,7 +251,7 @@ namespace SchedulerWpfApp.ViewModel
                     if (existingSubject == null)
                     {
                         // Add new subject
-                        await _courseService.AddSubject(SelectedSubject);
+                        await _subjectService.AddSubject(SelectedSubject);
                         MessageBox.Show("Thêm môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
@@ -270,10 +265,13 @@ namespace SchedulerWpfApp.ViewModel
 
                     if (existingSubject != null)
                     {
-                        existingSubject = SelectedSubject; // Update the entire object
+                        existingSubject.SubjectNameEnglish = SelectedSubject.SubjectNameEnglish;
+                        existingSubject.SubjectNameVietnamese = SelectedSubject.SubjectNameVietnamese;
+                        existingSubject.TotalTime = SelectedSubject.TotalTime;
+                        existingSubject.TotalCredits = SelectedSubject.TotalCredits;
 
                         // Update the subject in the data source
-                        await _courseService.UpdateSubject(existingSubject);
+                        await _subjectService.UpdateSubject(existingSubject);
                         MessageBox.Show("Update môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
@@ -328,7 +326,7 @@ namespace SchedulerWpfApp.ViewModel
             try
             {
                 // Delete the selected subject from the data source
-                await _courseService.DeleteSubject(SelectedSubject.SubjectCode);
+                await _subjectService.DeleteSubject(SelectedSubject.SubjectCode);
 
                 MessageBox.Show("Xóa môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -368,7 +366,7 @@ namespace SchedulerWpfApp.ViewModel
                     // Export only non-null list
                     var subjectList = _allSubjects.Where(p => p != null).ToList();
                     // Use the Excel exporter service to export the subjects to the selected file
-                    _excelExporter.ExportToExcel(subjectList, dialog.FileName);
+                    _subjectService.ExportToExcel(subjectList, dialog.FileName);
                     MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -392,9 +390,9 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
-                    var data = _excelImporter.ReadSubjectsFromExcel(dialog.FileName);
+                    var data = _subjectService.ReadSubjectsFromExcel(dialog.FileName);
                     // Validate the imported data
-                    await _courseService.ImportSubjectFromExcel(data);
+                    await _subjectService.ImportSubjectFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadSubjectAsync();
                 }

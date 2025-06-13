@@ -1,5 +1,5 @@
 ﻿using SchedulerWpfApp.Model;
-using SchedulerWpfApp.ServiceRefactor.GroupNameService;
+using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 using SchedulerWpfApp.Services;
 using SchedulerWpfApp.Services.LecturerSubjectServices;
 using SchedulerWpfApp.Services.ScheduleServices;
