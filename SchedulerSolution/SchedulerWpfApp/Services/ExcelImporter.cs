@@ -44,14 +44,12 @@ namespace SchedulerWpfApp.Services
 
                 persons.Add(person);
             }
-
             return persons;
         }
 
-
-        public List<GroupName> ReadRoomFromExcel(string filePath)
+        public List<GroupClass> ReadGroupNameFromExcel(string filePath)
         {
-            var rooms = new List<GroupName>();
+            var rooms = new List<GroupClass>();
 
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
@@ -70,26 +68,23 @@ namespace SchedulerWpfApp.Services
                 if (!string.IsNullOrWhiteSpace(header))
                     headerMap[header] = c;
             }
-
-            string[] requiredHeaders = { "Major", "Category", "NumberOfStudents", "NumberOfScheduler" };
+            string[] requiredHeaders = { "Groupname", "Khóa", "Kỳ", "BM", "Ngành" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");
 
             for (int r = 2; r <= rowCount; r++)
             {
-                var room = new GroupName
+                var room = new GroupClass
                 {
-                    ClassId = sheet[r, headerMap["ClassId"]].Value,
-                    Major = sheet[r, headerMap["Major"]].Value,
-                    Category = sheet[r, headerMap["Category"]].Value,
-                    NumberOfStudents = int.TryParse(sheet[r, headerMap["NumberOfStudents"]]?.Value?.ToString(), out int students) ? students : 0,
-                    NumberOfScheduler = int.TryParse(sheet[r, headerMap["NumberOfScheduler"]]?.Value?.ToString(), out int scheduler) ? scheduler : 0,
+                    GroupName = sheet[r, headerMap["Groupname"]].Value,
+                    CurriculumCode = sheet[r, headerMap["Khóa"]].Value,
+                    Department = sheet[r, headerMap["BM"]].Value,
+                    Major = sheet[r, headerMap["Ngành"]].Value,
+                    Term = sheet[r, headerMap["Kỳ"]].Value,
                 };
-
                 rooms.Add(room);
             }
-
             return rooms;
         }
     }

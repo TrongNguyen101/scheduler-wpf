@@ -4,8 +4,8 @@
                     xmlns:views="clr-namespace:SchedulerWpfApp.Views">
 
     <!-- DataTemplate for CourseView -->
-    <DataTemplate DataType="{x:Type vm:CourseViewModel}">
-        <views:CourseView/>
+    <DataTemplate DataType="{x:Type vm:SubjectViewModel}">
+        <views:SubjectView/>
     </DataTemplate>
 
     <!-- DataTemplate for PersonView -->
@@ -14,8 +14,27 @@
     </DataTemplate>
 
     <!-- DataTemplate for RoomView -->
-    <DataTemplate DataType="{x:Type vm:RoomViewModel}">
-        <views:RoomView/>
+    <DataTemplate DataType="{x:Type vm:GroupNameViewModel}">
+        <views:GroupNameView/>
     </DataTemplate>
 
+    <!-- DataTemplate for RoomView -->
+    <DataTemplate DataType="{x:Type vm:RoomViewModel}">
+        <views:RoomView />
+    </DataTemplate>
+
+    <!-- DataTemplate for CreateScheduleView -->
+    <DataTemplate DataType="{x:Type vm:CreateScheduleViewModel}">
+        <views:CreateScheduleView/>
+    </DataTemplate>
+
+    <!-- DataTemplate for LectureView -->
+    <DataTemplate DataType="{x:Type vm:LectureViewModel}">
+        <views:LectureView />
+    </DataTemplate>
+
+    <!-- DataTemplate for LectureSubjectView -->
+    <DataTemplate DataType="{x:Type vm:LectureSubjectViewModel}">
+        <views:LectureSubjectView/>
+    </DataTemplate>
 </ResourceDictionary>

@@ -16,7 +16,7 @@ using System.Windows.Shapes;
 namespace SchedulerWpfApp.Views
 {
     /// <summary>
-    /// Interaction logic for RoomView.xaml
+    /// Interaction logic for Room.xaml
     /// </summary>
     public partial class RoomView : UserControl
     {

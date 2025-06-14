@@ -106,29 +106,34 @@
                     </Border>
 
                     <Border Style="{StaticResource MenuItemStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="📅" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
-                            <TextBlock Text="Xếp lịch học" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
-                        </Grid>
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowCreateScheduleCommand}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="📅" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                                <TextBlock Text="Xếp lịch học" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                            </Grid>
+                        </Button>
                     </Border>
 
                     <Border Style="{StaticResource MenuItemStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="👨‍🎓" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
-                            <TextBlock Text="Quản lý học viên" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
-                        </Grid>
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowLectureSubjectCommand}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="📅" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                                <TextBlock Text="Phân công giảng dạy" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                            </Grid>
+                        </Button>
                     </Border>
 
                     <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowTeacherCommand}">
+                        <Button Style="{StaticResource MenuButtonStyle}"
+                                Command="{Binding ShowLectureCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -174,20 +179,22 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="🏫" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
-                                <TextBlock Text="Quản lý phòng học" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                                <TextBlock Text="Quản lý lớp học" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
                             </Grid>
                         </Button>
                     </Border>
 
                     <Border Style="{StaticResource MenuItemStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="🏫" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
-                            <TextBlock Text="Quản Lí Lớp Học" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
-                        </Grid>
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowRoomlistCommand}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="🏫" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+                                <TextBlock Text="Quản lý phòng" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
+                            </Grid>
+                        </Button>
                     </Border>
 
                     <Border Style="{StaticResource MenuItemStyle}">

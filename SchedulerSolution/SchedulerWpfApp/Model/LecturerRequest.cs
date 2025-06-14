@@ -1,22 +1,39 @@
-﻿namespace SchedulerWpfApp.Model
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SchedulerWpfApp.Model
 {
+    [Table("LecturerRequests")]
     public class LecturerRequest
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
+        [Required]
+        [Column("LecturerId")]
         public string? LecturerId { get; set; }
+
+        [Required]
+        [Column("DayName")]
         public string? DayName { get; set; }
+
+        [Required]
+        [Column("Session")]
         public string? Session { get; set; }
+
+        [Column("SlotTime")]
         public string? SlotTime { get; set; }
+
+        [Column("SlotType")]
         public string? SlotType { get; set; }
 
-        public LecturerRequest(int id, string? lecturerId, string? dayName, string? session, string? slotTime, string? slotType)
-        {
-            Id = id;
-            LecturerId = lecturerId;
-            DayName = dayName;
-            Session = session;
-            SlotTime = slotTime;
-            SlotType = slotType;
-        }
+        [Column("DistanceNote ")]
+        public bool DistanceNote { get; set; } = false;
+
+        [Column("HasHealthIssue")]
+        public bool HasHealthIssue { get; set; } = false;
+
+        public Lecturer? Lecturer { get; set; }
     }
 }

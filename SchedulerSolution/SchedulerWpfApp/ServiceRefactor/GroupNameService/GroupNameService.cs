@@ -1,0 +1,241 @@
+﻿using SchedulerWpfApp.Repository;
+using SchedulerWpfApp.Model;
+using AutoMapper;
+using Syncfusion.XlsIO;
+namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
+{
+    public class GroupNameService : IGroupNameService
+    {
+        #region Fields
+        private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
+        #endregion
+
+        #region Contracstor
+        public GroupNameService(IMapper mapper, IUnitOfWork unitOfWork)
+        {
+            _mapper = mapper;
+            _unitOfWork = unitOfWork;
+        }
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// Create a new instance of GroupNameService with the provided DataContext.
+        /// This method adds a new group name (class) to the database.
+        /// It takes a GroupName object as input and saves it asynchronously.
+        /// </summary>
+        /// <param name="groupName"></param>
+        public async Task AddGroupName(GroupClass groupName)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _unitOfWork.Repository<GroupClass>().AddAsync(groupName);
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Delete a group name (class) by its ID.
+        /// This method checks if the group name exists in the database and removes it if found.
+        /// It takes the class ID as input and performs the deletion asynchronously.
+        /// </summary>
+        public async Task DeleteGroupName(string classid)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _unitOfWork.GroupNameRepository.DeleteAsync(classid);
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Retrieve all group names (classes) from the database.
+        /// This method returns a list of all group names stored in the database.
+        /// </summary>
+        public async Task<List<GroupClass>> GetAllAsync()
+        {
+            try
+            {
+                var groupClass = await _unitOfWork.Repository<GroupClass>().GetAllAsync();
+                return groupClass;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi lấy danh sách lớp học", ex);
+            }
+        }
+
+        /// <summary>
+        /// Retrieve a group name (class) by its ID.
+        /// This method searches for a group name in the database using its unique identifier.
+        /// It takes the class ID as input and returns the corresponding GroupName object if found.
+        /// </summary>
+        public Task<GroupClass?> GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Import group names (classes) from an Excel file.
+        /// This method takes a list of GroupName objects as input and adds them to the database.
+        /// </summary>
+        public async Task ImportGroupNameFromExcel(List<GroupClass> listGroupNameFromExcel)
+        {
+            try
+            {
+                foreach (var room in listGroupNameFromExcel)
+                {
+                    await _unitOfWork.GroupNameRepository.AddAsync(room);
+                }
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi nhập lớp học từ Excel", ex);
+            }
+        }
+
+        /// <summary>
+        /// Retrieve a group name (class) by its class ID.
+        /// </summary>
+        /// <param name="classID"></param>
+        public async Task<GroupClass?> GetByGroupNameCodeAsync(string classID)
+        {
+            return await _unitOfWork.GroupNameRepository.GetGroupClassByCodeAsync(classID);
+        }
+
+        /// <summary>
+        /// Update an existing group name (class) in the database.
+        /// This method takes a GroupName object as input, updates the corresponding record in the database, and saves the changes asynchronously.
+        /// </summary>
+        public async Task UpdateGroupName(GroupClass groupname)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                var existinggroupname = await GetByGroupNameCodeAsync(groupname.GroupName);
+                if (existinggroupname != null)
+                {
+                    _mapper.Map(groupname, existinggroupname);
+                    await _unitOfWork.Repository<GroupClass>().UpdateAsync(existinggroupname);
+                    await _unitOfWork.CommitAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Check if a class ID exists in the database.
+        /// This method takes a class ID as input and returns a boolean indicating whether the class ID exists.
+        /// </summary>
+        public async Task<bool> CheckClassIdExistsAsync(string classId)
+        {
+            try
+            {
+                return await _unitOfWork.GroupNameRepository.CheckRoomIdExistsAsync(classId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi kiểm tra mã lớp", ex);
+            }
+        }
+
+        /// <summary>
+        ///  Reads group class names from an Excel file and returns a list of GroupClass objects.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public List<GroupClass> ReadGroupNameFromExcel(string filePath)
+        {
+            var rooms = new List<GroupClass>();
+
+            using ExcelEngine excelEngine = new();
+            var app = excelEngine.Excel;
+            app.DefaultVersion = ExcelVersion.Xlsx;
+
+            var workbook = app.Workbooks.Open(filePath);
+            var sheet = workbook.Worksheets[0];
+
+            int rowCount = sheet.UsedRange.LastRow;
+            int colCount = sheet.UsedRange.LastColumn;
+
+            Dictionary<string, int> headerMap = new();
+            for (int c = 1; c <= colCount; c++)
+            {
+                string header = sheet[1, c].Value?.Trim() ?? "";
+                if (!string.IsNullOrWhiteSpace(header))
+                    headerMap[header] = c;
+            }
+            string[] requiredHeaders = { "Groupname", "Khóa", "Kỳ", "BM", "Ngành" };
+            foreach (var h in requiredHeaders)
+                if (!headerMap.ContainsKey(h))
+                    throw new Exception($"Missing required column: {h}");
+
+            for (int r = 2; r <= rowCount; r++)
+            {
+                var room = new GroupClass
+                {
+                    GroupName = sheet[r, headerMap["Groupname"]].Value,
+                    CurriculumCode = sheet[r, headerMap["Khóa"]].Value,
+                    Department = sheet[r, headerMap["BM"]].Value,
+                    Major = sheet[r, headerMap["Ngành"]].Value,
+                    Term = sheet[r, headerMap["Kỳ"]].Value,
+                };
+                rooms.Add(room);
+            }
+            return rooms;
+        }
+
+        /// <summary>
+        /// Exports a list of group names (classes) to an Excel file.
+        /// This method creates an Excel file at the specified file path and writes the provided group name data into it.
+        /// The Excel file will contain columns for GroupName, Khóa, Ngành, BM, and Kỳ.
+        /// </summary>
+        /// <param name="groupname">The list of GroupClass objects to export.</param>
+        /// <param name="filePath">The file path where the Excel file will be saved.</param>
+        public void ExportToExcelGroupName(List<GroupClass> groupname, string filePath)
+        {
+            using ExcelEngine excelEngine = new();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Xlsx;
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet sheet = workbook.Worksheets[0];
+            // Header
+            sheet[1, 1].Text = "GroupName";
+            sheet[1, 2].Text = "Khóa";
+            sheet[1, 3].Text = "Ngành";
+            sheet[1, 4].Text = "BM";
+            sheet[1, 5].Text = "Kỳ";
+            int row = 2;
+            foreach (var groupnames in groupname)
+            {
+                sheet[row, 1].Text = groupnames.GroupName ?? "";
+                sheet[row, 2].Text = groupnames.CurriculumCode ?? "";
+                sheet[row, 3].Text = groupnames.Major ?? "";
+                sheet[row, 4].Text = groupnames.Department ?? "";
+                sheet[row, 5].Text = groupnames.Term ?? "";
+                row++;
+            }
+            workbook.SaveAs(filePath);
+        }
+        #endregion
+    }
+}

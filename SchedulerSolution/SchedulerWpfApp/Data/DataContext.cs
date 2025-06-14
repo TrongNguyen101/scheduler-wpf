@@ -33,9 +33,10 @@ namespace SchedulerWpfApp.Data
         public DbSet<Subject> Subjects { get; set; } = null!;
         public DbSet<Lecturer> Lecturers { get; set; } = null!;
         public DbSet<LecturerSubject> LecturerSubjects { get; set; } = null!;
-        public DbSet<GroupName> GroupName { get; set; }
-
-
+        public DbSet<GroupClass> GroupName { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
+        public DbSet<LecturerRequest> LecturerRequests { get; set; } = null!;
+        public DbSet<Room> Rooms { get; set; } = null!;
         /// <summary>
         /// Configures the database connection if not already configured.
         /// Creates the necessary directories for the SQLite database file if they don't exist.
@@ -73,106 +74,91 @@ namespace SchedulerWpfApp.Data
             }
         }
 
-        /// <summary>
-        /// Configures the database model creating relationships, constraints, and other configurations.
-        /// Currently empty, but can be extended to define entity relationships and configurations.
-        /// </summary>
-        /// <param name="modelBuilder">The builder used to configure the model.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Person>().HasData(
-                new Person
-                {
-                    Id = 1,
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Email = "john.doe@example.com",
-                    Phone = "123-456-7890",
-                },
-                new Person
-                {
-                    Id = 2,
-                    FirstName = "Jane",
-                    LastName = "Smith",
-                    Email = "Jane.smith@example.com",
-                    Phone = "987-654-3210",
-                },
-                new Person
-                {
-                    Id = 3,
-                    FirstName = "Alice",
-                    LastName = "Johnson",
-                    Email = "Alice.johnson@example.com",
-                    Phone = "555-123-4567",
-                }
-             );
+            // Configure the index for CurriculumCode and SubjectCode in the CurriculumSubject entity
+            modelBuilder.Entity<CurriculumSubject>()
+                   .HasIndex(c => new { c.CurriculumCode, c.SubjectCode })
+                   .HasDatabaseName("IX_CurriculumCode_SubjectCode");
 
-            modelBuilder.Entity<Subject>().HasData(
-                new Subject
-                {
-                    SubjectCode = "WDP201",
-                    SubjectName = "Web development",
-                    Major = "SE",
-                    TotalSessions = 1,
-                    SlotsPerWeek = 20,
-                    SemesterId = "SU25"
-                },
-                new Subject
-                {
-                    SubjectCode = "SEP492",
-                    SubjectName = "Do an tot nghiep",
-                    Major = "SE",
-                    TotalSessions = 1,
-                    SlotsPerWeek = 20,
-                    SemesterId = "SU25"
-                },
-                new Subject
-                {
-                    SubjectCode = "HCM202",
-                    SubjectName = "Tw tuong Ho Chi Minh",
-                    Major = "SE",
-                    TotalSessions = 1,
-                    SlotsPerWeek = 20,
-                    SemesterId = "SU25"
-                }
-             );
+            // Configure the index of CurriculumCode in the GroupClass entity
+            modelBuilder.Entity<GroupClass>()
+                    .HasIndex(g => new { g.CurriculumCode })
+                    .HasDatabaseName("IX_CurriculumCode");
 
-            modelBuilder.Entity<Lecturer>().HasData(
-                new Lecturer { LecturerId = "1", LecturerName = "Nguyễn Văn A" },
-                new Lecturer { LecturerId = "2", LecturerName = "Trần Thị B" }
-            );
+            // Create a composite index for LecturerId and SubjectCode
+            modelBuilder.Entity<LecturerSubject>()
+                    .HasIndex(ls => new { ls.LecturerId, ls.SubjectCode })  // Composite index for LecturerId and SubjectCode
+                    .HasDatabaseName("IX_LecturerId_SubjectCode");  // Name of the index
 
-            modelBuilder.Entity<LecturerSubject>().HasData(
-                new LecturerSubject { Id=1, LecturerId = "1", SubjectCode = "SEP492", LecturerName= "Nguyễn Văn A", NumberOfClasses=10 },
-                new LecturerSubject { Id=2, LecturerId = "2", SubjectCode = "SEP492", LecturerName = "Trần Thị B", NumberOfClasses = 5 }
-            );
-            
-            modelBuilder.Entity<GroupName>().HasData(
-              new GroupName
-              {
-                  ClassId = "CL01",
-                  Category = "Class room",
-                  Major = "SE",
-                  NumberOfScheduler = 5,
-                  NumberOfStudents = 35
-              },
-              new GroupName
-              {
-                  ClassId = "CL02",
-                  Category = "Class room",
-                  Major = "MC",
-                  NumberOfScheduler = 5,
-                  NumberOfStudents = 35
-              },
-              new GroupName
-              {
-                  ClassId = "CL03",
-                  Category = "Computer lab",
-                  Major = "SE",
-                  NumberOfScheduler = 5,
-                  NumberOfStudents = 35
-              }
-           );
+            // Configure the index for RoomName in the Room entity
+            modelBuilder.Entity<Room>()
+                    .HasIndex(r => r.RoomName)
+                    .HasDatabaseName("IX_RoomName");
+
+            modelBuilder.Entity<Schedule>(entity =>
+            {
+                // Relation: Schedule → Subject (Many-to-One)
+                entity.HasOne(ss => ss.Subject)
+                      .WithMany(s => s.Schedules)
+                      .HasForeignKey(ss => ss.SubjectCode)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relation: Schedule → Lecturer (Many-to-One)
+                entity.HasOne(ss => ss.Lecturer)
+                      .WithMany(l => l.Schedules)
+                      .HasForeignKey(ss => ss.LecturerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relation: Schedule → Room (Many-to-One)
+                entity.HasOne(ss => ss.Room)
+                      .WithMany(r => r.Schedules)
+                      .HasForeignKey(ss => ss.RoomId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relation: Schedule → StudentClass (Many-to-One)
+                entity.HasOne(ss => ss.GroupClass)
+                      .WithMany(sc => sc.Schedules)
+                      .HasForeignKey(ss => ss.GroupName)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<LecturerSubject>(entity =>
+            {
+                // Relation: LecturerSubject → Subject (Many-to-One)
+                entity.HasOne(ls => ls.Subject)
+                      .WithMany(s => s.LecturerSubjects)
+                      .HasForeignKey(ls => ls.SubjectCode)
+                      .OnDelete(DeleteBehavior.Restrict);
+                // Relation: LecturerSubject → Lecturer (Many-to-One)
+                entity.HasOne(ls => ls.Lecturer)
+                      .WithMany(l => l.LecturerSubjects)
+                      .HasForeignKey(ls => ls.LecturerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<LecturerRequest>(LecturerRequest =>
+            {
+                // Relation: LecturerRequest → Lecturer (Many-to-One)
+                LecturerRequest.HasOne(lr => lr.Lecturer)
+                               .WithMany(l => l.LecturerRequests)
+                               .HasForeignKey(lr => lr.LecturerId)
+                               .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<CurriculumSubject>(entity =>
+            {
+                // Relation: CurriculumSubject → Subject (Many-to-One)
+                entity.HasOne(cs => cs.Subject)
+                            .WithMany(s => s.CurriculumSubjects)
+                            .HasForeignKey(cs => cs.SubjectCode)
+                            .OnDelete(DeleteBehavior.Restrict);
+                // Relation: CurriculumSubject → Curriculum (Many-to-One)
+                entity.HasOne(cs => cs.Curriculum)
+                            .WithMany(c => c.CurriculumSubjects)
+                            .HasForeignKey(cs => cs.CurriculumCode)
+                            .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

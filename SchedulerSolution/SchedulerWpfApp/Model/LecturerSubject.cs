@@ -10,25 +10,29 @@ namespace SchedulerWpfApp.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [ForeignKey("Lecturer")]
         public string LecturerId { get; set; }
-        [ForeignKey("Subject")]
+
         public string SubjectCode { get; set; }
+
+        [Column("SubjectName")]
+        public string? SubjectName { get; set; }
+
         [Column("LecturerName")]
         public string? LecturerName { get; set; }
+
+        [Column("Major")]
+        public string? Major { get; set; }
+
+        [Column("Term")]
+        public string? Term { get; set; }
+
         [Column("NumberOfClasses")]
-        public int NumberOfClasses { get; set; }
-        public virtual Subject? Subject { get; set; }
-        public virtual Lecturer? Lecturer { get; set; }
+        public int? NumberOfClasses { get; set; }
 
-        public LecturerSubject() { }
+        [Column("TotalSLots")]
+        public int? TotalSlots { get; set; }
 
-        public LecturerSubject(string lecturerId, string subjectCode, string lecturerName, int numberOfClasses)
-        {
-            LecturerId = lecturerId;
-            SubjectCode = subjectCode;
-            NumberOfClasses = numberOfClasses;
-            LecturerName = lecturerName;
-        }
+        public Subject? Subject { get; set; }
+        public Lecturer? Lecturer { get; set; }
     }
 }

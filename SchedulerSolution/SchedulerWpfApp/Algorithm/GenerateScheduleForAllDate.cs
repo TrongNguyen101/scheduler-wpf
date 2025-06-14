@@ -1,5 +1,7 @@
 ﻿using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Services;
+using System;
+using System.Threading.Tasks;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -8,21 +10,22 @@ namespace SchedulerWpfApp.Algorithm
         private readonly TreeForSchedule _treeNode;
         private readonly SortSubjectsOneSession _sortSubjectsOneSession;
         private readonly GetLecturerForSubject _getLecturerForSubject;
+        private readonly IRoomServiceOld _roomService;
+        private readonly CreateSlotTypeCode _createSlotTypeCode;
 
-        public GenerateScheduleForAllDate(TreeForSchedule treeNode, GetLecturerForSubject getLecturerForSubject, SortSubjectsOneSession sortSubjectsOneSession)
+        public GenerateScheduleForAllDate(TreeForSchedule treeNode, GetLecturerForSubject getLecturerForSubject, SortSubjectsOneSession sortSubjectsOneSession, IRoomServiceOld roomService, CreateSlotTypeCode createSlotTypeCode)
         {
             _treeNode = treeNode;
             _sortSubjectsOneSession = sortSubjectsOneSession;
             _getLecturerForSubject = getLecturerForSubject;
+            _roomService = roomService;
+            _createSlotTypeCode = createSlotTypeCode;
         }
-        public void CreateSchedules(List<Schedule> allSchedules, List<Subject> subjects, int numberOfClass, List<LecturerSubject> lecturerSubject, DateTime startDate, List<LecturerRequest> lecturerRequests)
+        public async Task<List<Schedule>> CreateSchedules(List<Subject> subjects, List<GroupClass> listGroupName, List<LecturerSubject> lecturerSubject, DateTime startDate, List<LecturerRequest> lecturerRequests)
         {
-            try
-            {
-                // Calculate the number of rooms needed based on the number of classes
-                int numberOfRoom = CalculateNumberOfRooms(numberOfClass);
+                List<Schedule> allSchedules = new List<Schedule>();
 
-
+                var (listGroupNameAm, listGroupNamePm) = BalancedSplitWithGreedySwap(listGroupName);
 
                 // Cache lecturer lookup
                 // có bao nhiêu ông thầy thì có bấy nhiêu lớp học cùng lúc
@@ -30,135 +33,341 @@ namespace SchedulerWpfApp.Algorithm
                 var lecturersAM = _getLecturerForSubject.FilterLecturerInSession(lecturersTeachSubject, lecturerRequests, "AM");
                 var lecturersPM = _getLecturerForSubject.FilterLecturerInSession(lecturersTeachSubject, lecturerRequests, "PM");
 
-                CreateScheduleForSession(allSchedules, subjects, lecturersAM, numberOfRoom, startDate, lecturerRequests, "A", "G", 1);
-                CreateScheduleForSession(allSchedules, subjects, lecturersPM, numberOfRoom, startDate, lecturerRequests, "P", "G", numberOfRoom + 1);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while creating schedules: {ex}");
-            }
+                // Tạo lịch cho tuần đầu và tuần cuối - buổi sáng (AM)
+                var firstAndLastWeekSchedulesAM = await CreateSchedulesForFirstAndFinalWeek(subjects, lecturersAM, listGroupNameAm, startDate, lecturerRequests, "A", "G");
+                allSchedules.AddRange(firstAndLastWeekSchedulesAM);
+
+                // Tạo lịch cho tuần đầu và tuần cuối - buổi chiều (PM)
+                var firstAndLastWeekSchedulesPM = await CreateSchedulesForFirstAndFinalWeek(subjects, lecturersPM, listGroupNamePm, startDate, lecturerRequests, "P", "G");
+                allSchedules.AddRange(firstAndLastWeekSchedulesPM);
+
+                // Tạo lịch cho tuần từ 2 đến 9 - buổi sáng (AM)
+                //var weekSchedulesOnlineAm = CreateSchedulesFollowSlotStyleForWeek(subjectSE, lecturersAM, numberOfRoomForWeeks, startDate, lecturerRequests, "A","online", "G", 1);
+                //allSchedules.AddRange(weekSchedulesOnlineAm);
+                //CreateScheduleForSession(allSchedules, subjects, lecturersPM, numberOfRoom, startDate, lecturerRequests, "P", "G", numberOfRoom + 1);
+
+                return allSchedules;
         }
 
-        private void CreateScheduleForSession(List<Schedule> allSchedules,
-                                      List<Subject> subjects,
+        /// <summary>
+        /// Tạo lịch cho một session (AM hoặc PM) cho tất cả các phòng, lớp, tuần và ngày.
+        /// - Duyệt qua từng phòng (room), mỗi phòng tương ứng với một lớp học (class).
+        /// - Với mỗi phòng, xây dựng cây lịch cho phòng đó.
+        /// - Duyệt qua 10 tuần, mỗi tuần xác định kiểu slot (online/offline).
+        /// - Duyệt qua 7 ngày trong tuần, xác định ngày hiện tại.
+        /// - Lọc danh sách giảng viên phù hợp cho ngày và session hiện tại.
+        /// - Duyệt qua 2 slot của mỗi buổi (AM/PM), lấy môn học đã được sắp xếp cho slot đó.
+        /// - Sinh mã loại slot (slotTypeCode) dựa trên ngày, slot và session.
+        /// - Tính số thứ tự buổi học (sessionNo) của môn học trong kỳ.
+        /// - Tìm tên giảng viên phù hợp cho môn học, lớp và chu kỳ hiện tại.
+        /// - Thu thập và thêm lịch trình vào danh sách allSchedules.
+        /// </summary>
+        /// <param name="allSchedules">Danh sách lưu trữ tất cả các lịch trình được tạo.</param>
+        /// <param name="subjects">Danh sách các môn học.</param>
+        /// <param name="lecturersTeachSubjectSession">Dictionary chứa danh sách giảng viên theo môn học cho session hiện tại.</param>
+        /// <param name="numberOfRoom">Số lượng phòng cần tạo lịch.</param>
+        /// <param name="startDate">Ngày bắt đầu của kỳ học.</param>
+        /// <param name="lecturerRequests">Danh sách yêu cầu của giảng viên.</param>
+        /// <param name="sessionFilter">Session hiện tại ("A" cho AM, "P" cho PM).</param>
+        /// <param name="roomCodePrefix">Tiền tố mã phòng (ví dụ: "G").</param>
+        /// <param name="classIdStartIndex">Chỉ số bắt đầu để sinh mã lớp.</param>
+        private async Task<List<Schedule>> CreateSchedulesForFirstAndFinalWeek(List<Subject> subjects,
                                       Dictionary<string, List<LecturerSubject>> lecturersTeachSubjectSession,
-                                      int numberOfRoom,
+                                      List<GroupClass> listGroupName,
                                       DateTime startDate,
                                       List<LecturerRequest> lecturerRequests,
                                       string sessionFilter,
-                                      string roomCodePrefix,
-                                      int classIdStartIndex)
+                                      string roomCodePrefix)
         {
-            var subjectSchedule = _sortSubjectsOneSession.SortSubjectFourClass(subjects);
+            List<Schedule> allSchedules = new List<Schedule>();
 
-            // 1. Tổng hợp danh sách vị trí xuất hiện của từng môn học
-            var subjectAppearances = new Dictionary<string, List<(int Day, int Slot)>>();
-            var subjectAppearanceOrder = new Dictionary<string, int>(); // Đếm lần xuất hiện
+            // Dictionary dùng để tạo thứ tự từng slot học trong kỳ
+            var subjectAppearanceOrder = new Dictionary<string, int>();
 
-            for (int day = 1; day <= 7; day++)
+            // số thứ tự slot dựa vào buổi trong ngày
+            int slotStart = sessionFilter == "A" ? 1 : 3;
+
+            // số lượng slot trong 1 buổi
+            int slotsPerSession = 2;
+
+            // Tạo kiểu onl hay off cho tuần đó
+            string slotType = "offline";
+
+            List<Room> listRooms = await _roomService.GetNumberOfRoom(listGroupName.Count);
+
+            for (int indexRoom = 0; indexRoom < listRooms.Count; indexRoom++)
             {
-                for (int classIndex = 0; classIndex < 4; classIndex++) // giả định 4 lớp
+                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomId, "NewSlot");
+
+                /* Cần hàm tạo group name (mã lơp) ở đây*/
+                string classId = listGroupName[indexRoom].GroupName;
+
+                var subjectOfClass = subjects.Where(s => s.SubjectNameEnglish == listGroupName[indexRoom].Major).ToList();
+
+                var scheduleSubjectForClass = _sortSubjectsOneSession.SortSubjectFourClass(subjectOfClass);
+
+                // tìm thầy cho mỗi 4 lớp
+                var (classIndex, cycleLevel) = MapToCycle(indexRoom + 1);
+
+                // duyệt qua 10 tuần
+                foreach (int week in new int[] { 1, 10 })
                 {
-                    for (int slot = 0; slot < 2; slot++)
+                    //Duyệt qua 7 ngày trong tuần
+                    for (int dayOfWeek = 1; dayOfWeek <= 7; dayOfWeek++)
                     {
-                        var subject = subjectSchedule[day, classIndex, slot];
-                        if (subject == null || string.IsNullOrEmpty(subject.SubjectCode)) continue;
+                        //Lấy ngày tháng hiện tại của ngày
+                        DateTime currentDate = startDate.AddDays((week - 1) * 7 + (dayOfWeek - 1));
 
-                        if (!subjectAppearances.ContainsKey(subject.SubjectCode))
-                            subjectAppearances[subject.SubjectCode] = new();
-
-                        subjectAppearances[subject.SubjectCode].Add((day + 1, slot + 1));
-                    }
-                }
-            }
-
-            for (int roomNo = 1; roomNo <= numberOfRoom; roomNo++)
-            {
-                var roomId = $"{roomCodePrefix}{roomNo}";
-                TreeForSchedule roomNode = _treeNode.BuildTreeForRoom(roomId);
-                string classId = $"SE160{classIdStartIndex + roomNo - 1}";
-                var (classIndex, cycleLevel) = MapToCycle(roomNo);
-                int sessionNo = 0;
-
-                for (int week = 1; week <= 10; week++)
-                {
-                    string slotType = GetSlotTypeForWeek(week);
-
-                    for (int day = 1; day <= 7; day++)
-                    {
-                        DateTime currentDate = startDate.AddDays((week - 1) * 7 + (day - 1));
-                        var lecturersForDay = _getLecturerForSubject.FilterLecturerInDate(
-                            lecturersTeachSubjectSession, lecturerRequests, sessionFilter, currentDate);
-
-                        int slotStart = sessionFilter == "A" ? 1 : 3;
-                        int slotsCount = 2;
-
-                        for (int slot = 0; slot < slotsCount; slot++)
+                        // duyệt qua 2 slot của 1 buổi
+                        for (int slotIndex = 0; slotIndex < slotsPerSession; slotIndex++)
                         {
-                            var subject = subjectSchedule[day, classIndex, slot];
+                            // Lấy môn học đã được xếp vào ngày slot hiện tại
+                            var subject = scheduleSubjectForClass[dayOfWeek, classIndex, slotIndex];
+                            if (subject == null) continue;
 
-                            string slotTypeCode = "";
-                            if (subject != null && subjectAppearances.TryGetValue(subject.SubjectCode, out var appearances))
-                            {
-                                var parts = appearances.Select(a => $"{a.Day}{a.Slot}");
-                                slotTypeCode = $"{sessionFilter}{string.Join("", parts)}";
+                            // Lấy mã loại slot dựa trên ngày, slot và buổi
+                            string slotTypeCode = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, sessionFilter);
 
-                                // Tăng thứ tự xuất hiện
-                                if (subject != null && !subjectAppearanceOrder.ContainsKey(subject.SubjectCode))
-                                {
-                                    subjectAppearanceOrder[subject.SubjectCode] = 1;
-                                }
-                                else
-                                {
-                                    if (subjectAppearanceOrder[subject.SubjectCode] >= subject.TotalSessions)
-                                    {
-                                        subjectAppearanceOrder[subject.SubjectCode] = 1;
-                                    }
-                                    else
-                                    {
-                                        subjectAppearanceOrder[subject.SubjectCode]++;
-                                    }
-                                }
+                            // Lấy thứ tự buổi học trong kỳ
+                            int sessionNo = GetSessionNo(subjectAppearanceOrder, subject);
 
-                                sessionNo = subjectAppearanceOrder[subject.SubjectCode];
-                            }
-
+                            // lấy tên giảng viên để thêm vào lịch
                             var lecturerName = _getLecturerForSubject.FindLecturerForSubject(
-                                subject?.SubjectCode, lecturersForDay, cycleLevel);
+                                subject?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
 
+                            string slotLabel = $"slot {slotIndex + slotStart}";
 
-                            _treeNode.CollectSchedules(
-                                roomNode,
-                                allSchedules,
-                                subject?.SubjectName ?? "No subject",
-                                currentDate,
-                                classId,
-                                $"slot {slot + slotStart}",
-                                lecturerName,
-                                slotTypeCode,
-                                "NewSlot",
-                                sessionNo,
-                                sessionFilter,
-                                slotType
-                            );
+                            var schedulesItem = _treeNode.CollectSchedules(roomNode, subject.SubjectCode, currentDate, classId, slotLabel, lecturerName, slotTypeCode, "NewSlot", sessionNo, sessionFilter, slotType);
+
+                            allSchedules.AddRange(schedulesItem);
                         }
                     }
                 }
             }
+            return allSchedules;
+        }
+
+        private async Task<List<Schedule>> CreateSchedulesForWeek(List<Subject> subjects,
+                                      Dictionary<string, List<LecturerSubject>> lecturersTeachSubjectSession,
+                                      List<GroupClass> listGroupName,
+                                      DateTime startDate,
+                                      List<LecturerRequest> lecturerRequests,
+                                      string sessionFilter,
+                                      string roomCodePrefix)
+        {
+            List<Schedule> allSchedules = new List<Schedule>();
+
+            var subjectSchedule = _sortSubjectsOneSession.SortSubjectFourClass(subjects);
+
+            // Dictionary dùng để tạo thứ tự từng slot học trong kỳ
+            var subjectAppearanceOrder = new Dictionary<string, int>();
+
+            // số thứ tự slot dựa vào buổi trong ngày
+            int slotStart = sessionFilter == "A" ? 1 : 3;
+
+            // số lượng slot trong 1 buổi
+            int slotsPerSession = 2;
+
+            // Tạo kiểu onl hay off cho tuần đó
+            string slotType = "offline";
+
+            // Calculate the number of rooms needed based on the number of classes for first and final week
+            int numberOfRoomForFirstAndFinalWeek = CalculateNumberOfRoomsForWeeks(listGroupName.Count);
+
+            List<Room> listRooms = await _roomService.GetNumberOfRoom(numberOfRoomForFirstAndFinalWeek);
+
+            int groupNameIndex = sessionFilter == "A" ? 0 : listRooms.Count;
+
+            for (int indexRoom = 0; indexRoom < listRooms.Count; indexRoom++)
+            {
+                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomId, "NewSlot");
+
+                /* Cần hàm tạo group name (mã lơp) ở đây*/
+                string classId = listGroupName[indexRoom + groupNameIndex].GroupName;
+
+                // tìm thầy cho mỗi 4 lớp
+                var (classIndex, cycleLevel) = MapToCycle(indexRoom + 1);
+
+                // duyệt qua 10 tuần
+                foreach (int week in new int[] { 1, 10 })
+                {
+                    //Duyệt qua 7 ngày trong tuần
+                    for (int dayOfWeek = 1; dayOfWeek <= 7; dayOfWeek++)
+                    {
+                        //Lấy ngày tháng hiện tại của ngày
+                        DateTime currentDate = startDate.AddDays((week - 1) * 7 + (dayOfWeek - 1));
+
+                        // duyệt qua 2 slot của 1 buổi
+                        for (int slotIndex = 0; slotIndex < slotsPerSession; slotIndex++)
+                        {
+                            // Lấy môn học đã được xếp vào ngày slot hiện tại
+                            var subject = subjectSchedule[dayOfWeek, classIndex, slotIndex];
+                            if (subject == null) continue;
+
+                            // Lấy mã loại slot dựa trên ngày, slot và buổi
+                            string slotTypeCode = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, sessionFilter);
+
+                            // Lấy thứ tự buổi học trong kỳ
+                            int sessionNo = GetSessionNo(subjectAppearanceOrder, subject);
+
+                            // lấy tên giảng viên để thêm vào lịch
+                            var lecturerName = _getLecturerForSubject.FindLecturerForSubject(
+                                subject?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
+
+                            string slotLabel = $"slot {slotIndex + slotStart}";
+
+                            var schedulesItem = _treeNode.CollectSchedules(roomNode, subject.SubjectCode, currentDate, classId, slotLabel, lecturerName, slotTypeCode, "NewSlot", sessionNo, sessionFilter, slotType);
+
+                            allSchedules.AddRange(schedulesItem);
+                        }
+                    }
+                }
+            }
+            return allSchedules;
         }
 
 
-        private int CalculateNumberOfRooms(int numberOfClass)
+        /// <summary>
+        /// Chia danh sách các lớp (GroupName) thành hai nhóm sáng và chiều một cách cân bằng.
+        /// - Nhóm theo chuyên ngành (Major), sau đó chia mỗi nhóm thành hai nửa (sáng, chiều).
+        /// - Sử dụng thuật toán greedy để phân phối các nửa vào hai nhóm tổng thể sao cho số lượng lớp giữa hai nhóm cân bằng nhất.
+        /// - Nếu tổng số lớp của nhóm sáng nhỏ hơn hoặc bằng nhóm chiều thì thêm nửa sáng vào nhóm sáng, nửa chiều vào nhóm chiều.
+        /// - Ngược lại, đảo ngược phân phối để cân bằng số lượng lớp giữa hai nhóm.
+        /// </summary>
+        /// <param name="allGroupNames">Danh sách tất cả các lớp cần chia.</param>
+        /// <returns>
+        /// Tuple gồm:
+        /// - morningGroups: danh sách lớp học buổi sáng.
+        /// - afternoonGroups: danh sách lớp học buổi chiều.
+        /// </returns>
+        public (List<GroupClass> morningGroups, List<GroupClass> afternoonGroups) BalancedSplitWithGreedySwap(List<GroupClass> allGroupNames)
+        {
+            var morningGroups = new List<GroupClass>();
+            var afternoonGroups = new List<GroupClass>();
+
+            var groupedByMajor = allGroupNames
+                .GroupBy(g => g.Major)
+                .Select(g => new
+                {
+                    Major = g.Key,
+                    Group = g.ToList()
+                }).ToList();
+
+            // Tạo danh sách các cặp (nửa sáng, nửa chiều)
+            var splitPairs = new List<(List<GroupClass> MorningHalf, List<GroupClass> AfternoonHalf)>();
+
+            foreach (var item in groupedByMajor)
+            {
+                int count = item.Group.Count;
+                int half = count / 2;
+                int extra = count % 2;
+
+                var morningHalf = item.Group.Take(half + extra).ToList();
+                var afternoonHalf = item.Group.Skip(half + extra).ToList();
+
+                splitPairs.Add((morningHalf, afternoonHalf));
+            }
+
+            // Greedy phân phối để cân bằng
+            int totalMorning = 0;
+            int totalAfternoon = 0;
+
+            foreach (var (morningHalf, afternoonHalf) in splitPairs)
+            {
+                int morningSize = morningHalf.Count;
+                int afternoonSize = afternoonHalf.Count;
+
+                if (totalMorning <= totalAfternoon)
+                {
+                    morningGroups.AddRange(morningHalf);
+                    afternoonGroups.AddRange(afternoonHalf);
+                    totalMorning += morningSize;
+                    totalAfternoon += afternoonSize;
+                }
+                else
+                {
+                    // Đảo ngược phân phối
+                    morningGroups.AddRange(afternoonHalf);
+                    afternoonGroups.AddRange(morningHalf);
+                    totalMorning += afternoonSize;
+                    totalAfternoon += morningSize;
+                }
+            }
+
+            return (morningGroups, afternoonGroups);
+        }
+
+
+
+        /// <summary>
+        /// Lấy số thứ tự buổi học (session) của một môn học trong kỳ, dựa trên số lần xuất hiện của môn đó.
+        /// Nếu đã đạt đến tổng số buổi thì quay lại 1.
+        /// </summary>
+        /// <param name="subjectAppearanceOrder">Dictionary lưu số lần xuất hiện của từng môn học.</param>
+        /// <param name="subject">Môn học cần lấy số thứ tự buổi học.</param>
+        /// <returns>Số thứ tự buổi học hiện tại của môn học.</returns>
+        private int GetSessionNo(Dictionary<string, int> subjectAppearanceOrder, Subject subject)
+        {
+            if (subject == null)
+                throw new ArgumentNullException(nameof(subject));
+
+            if (!subjectAppearanceOrder.TryGetValue(subject.SubjectCode, out int currentSession))
+            {
+                currentSession = 1;
+            }
+            else
+            {
+                // Hãy sửa lại chỗ này nó bị gán cứng số slot
+                currentSession = currentSession >= 20 ? 1 : currentSession + 1;
+            }
+
+            subjectAppearanceOrder[subject.SubjectCode] = currentSession;
+            return currentSession;
+        }
+
+        private int CalculateNumberOfRoomsForFirstAndFinalWeek(int numberOfClass)
         {
             return (numberOfClass + 1) / 2; // Làm tròn lên, tối ưu hơn
         }
 
-        private string GetSlotTypeForWeek(int week)
+        private int CalculateNumberOfRoomsForWeeks(int numberOfClass)
         {
-            return week % 2 == 0 ? "online" : "offline";
+            return ((numberOfClass + 1) / 2) / 2; // Làm tròn lên, tối ưu hơn
+        }
+
+        private string GetSlotTypeForWeek(int week, int dayOfWeek, string slotTypeCode)
+        {
+            // Nếu là slot học trực tuyến theo mã
+            if (slotTypeCode == "AC" || slotTypeCode == "PC")
+                return "online";
+
+            // Nếu là tuần đầu hoặc tuần cuối (tuần 1, 10): luôn học offline
+            if (week == 1 || week == 10)
+                return "offline";
+
+            // Với các tuần còn lại:
+            bool isEvenWeek = week % 2 == 0;
+            bool isEvenDay = dayOfWeek % 2 == 0;
+
+            // Nếu tuần chẵn: ngày chẵn online, lẻ offline
+            // Nếu tuần lẻ: ngày chẵn offline, lẻ online
+            return isEvenWeek == isEvenDay ? "online" : "offline";
         }
 
 
+        /// <summary>
+        /// Xác định chỉ số lớp (classIndex) và cấp chu kỳ (cycleLevel) dựa trên số phòng (roomNo).
+        /// - Mỗi giảng viên có thể dạy tối đa 4 lớp trong một session, mỗi lớp có 2 slot.
+        /// - Nếu số phòng vượt quá 4, các lớp sẽ được chia thành các chu kỳ (cycle), mỗi chu kỳ gồm 4 lớp.
+        /// - classIndex: vị trí lớp trong chu kỳ (0-3).
+        /// - cycleLevel: số chu kỳ hiện tại (bắt đầu từ 1).
+        /// </summary>
+        /// <param name="roomNo">Số phòng/lớp hiện tại (bắt đầu từ 1).</param>
+        /// <returns>
+        /// Tuple gồm:
+        /// - classIndex: chỉ số lớp trong chu kỳ (0-based).
+        /// - cycleLevel: cấp chu kỳ (bắt đầu từ 1).
+        /// </returns>
         public static (int cyclePosition, int cycleLevel) MapToCycle(int roomNo)
         {
             int classIndex = 0;

@@ -1,0 +1,457 @@
+﻿using Microsoft.Win32;
+using SchedulerWpfApp.Algorithm;
+using SchedulerWpfApp.Helper;
+using SchedulerWpfApp.Model;
+using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
+using Syncfusion.XlsIO;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.Text;
+using System.Windows;
+using System.Windows.Input;
+
+namespace SchedulerWpfApp.ViewModel
+{
+    public class CreateScheduleViewModel : ViewBaseModel
+    {
+        #region Fields
+        private readonly CreateScheduleTree _createScheduleTree;
+        private readonly IScheduleServices _implementScheduleServices;
+        private int _selectedYear;
+        private string _selectedWeek;
+        private string _selectedGroupName;
+        #endregion
+
+        #region Constructor
+        public ObservableCollection<DateTime> WeekDays { get; set; } = new();
+        public ObservableCollection<int> Slots { get; set; } = new() { 1, 2, 3, 4 }; // List of available time slots in a day
+        public ObservableCollection<int> Years { get; set; } = new(Enumerable.Range(DateTime.Now.Year - 2, 5)); // List of years from 2 years ago to next 2 years
+        public ObservableCollection<string> Weeks { get; set; } = new(); // List of weeks in "dd/MM - dd/MM" format
+        public ObservableCollection<string> GroupNames { get; set; } = new(); // List of group names to filter schedules
+        public ObservableCollection<SlotRowViewModel> SlotRows { get; set; } = new(); // List of slot rows for the timetable
+        private ObservableCollection<Schedule> AllSchedules { get; set; } = new(); // All schedules loaded from the service
+
+        public int SelectedYear
+        {
+            get => _selectedYear;
+            set { SetProperty(ref _selectedYear, value); GenerateWeeks(); } // Regenerate week list based on the selected year
+        }
+
+        public string SelectedWeek
+        {
+            get => _selectedWeek;
+            set { SetProperty(ref _selectedWeek, value); FilterSchedules(); } // Filter schedules based on the selected week
+        }
+
+        public string SelectedGroupName
+        {
+            get => _selectedGroupName;
+            set { SetProperty(ref _selectedGroupName, value); FilterSchedules(); } // Filter schedules based on the selected group name
+        }
+
+        public ICommand CreateScheduleCommand { get; }
+
+        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices)
+        {
+            _createScheduleTree = createScheduleTree;
+            _implementScheduleServices = implementScheduleServices;
+
+            SelectedYear = DateTime.Now.Year; // Default to current year
+            CreateScheduleCommand = new RelayCommand(async () => await CreateScheduleDemo());
+
+            LoadMockSchedules(); // Load initial schedules from the service
+            InitCurrentWeekDays(); // Initialize current week days
+            FilterSchedules(); // Filter schedules based on initial selections
+        }
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// Initializes the WeekDays collection with the current week's dates starting from Monday.
+        /// </summary>
+        private void InitCurrentWeekDays()
+        {
+            WeekDays.Clear();
+            DateTime today = DateTime.Today; // Get today's date
+            int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7; // Calculate the difference to the last Monday
+            DateTime monday = today.AddDays(-diff); // Get the last Monday date
+
+            for (int i = 0; i < 7; i++)
+            {
+                WeekDays.Add(monday.AddDays(i)); // Add each day of the week starting from Monday
+            }
+        }
+
+        /// <summary>
+        /// Generates the list of weeks for the selected year in "dd/MM - dd/MM" format.
+        /// Generate weeks for the selected year.
+        /// </summary>
+        private void GenerateWeeks()
+        {
+            Weeks.Clear();
+            // One year has 52 weeks, so we generate weeks from 1 to 52
+            for (int i = 1; i <= 52; i++)
+            {
+                DateTime start = FirstDateOfWeek(SelectedYear, i);
+                DateTime end = start.AddDays(6);
+                Weeks.Add($"{start:dd/MM} - {end:dd/MM}");
+            }
+        }
+
+        /// <summary>
+        /// Calculates the first date of the specified week in the given year.
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="weekOfYear"></param>
+        /// <returns>First date of the specified week</returns>
+        private DateTime FirstDateOfWeek(int year, int weekOfYear)
+        {
+            DateTime jan1 = new(year, 1, 1); // January 1st of the specified year
+            int daysOffset = DayOfWeek.Monday - jan1.DayOfWeek; // Calculate the offset to the first Monday of the year
+            DateTime firstMonday = jan1.AddDays(daysOffset); // Get the first Monday of the year
+            return firstMonday.AddDays((weekOfYear - 1) * 7); // Calculate the first date of the specified week
+        }
+
+        /// <summary>
+        /// Filters the schedules based on the selected group name and week, and updates the SlotRows collection.
+        /// </summary>
+        private void FilterSchedules()
+        {
+            SlotRows.Clear();
+
+            if (string.IsNullOrEmpty(SelectedGroupName) || string.IsNullOrEmpty(SelectedWeek))
+            {
+                // If no group or week is selected, create empty rows
+                GenerateTimetableCellsAndSlotRows(new List<Schedule>());
+                return;
+            }
+
+            var (start, end) = ParseSelectedWeekToDates();
+
+            WeekDays.Clear();
+            for (int i = 0; i < 7; i++) WeekDays.Add(start.AddDays(i)); // Add each day of the week starting from the start date
+
+            var filtered = AllSchedules.Where(s => s.GroupName == SelectedGroupName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
+            GenerateTimetableCellsAndSlotRows(filtered); // Generate timetable cells and slot rows based on the filtered schedules
+        }
+
+        /// <summary>
+        /// Parses the selected week string in "dd/MM - dd/MM" format to a tuple of start and end dates.
+        /// </summary>
+        /// <returns>Start and end date</returns>
+        private (DateTime start, DateTime end) ParseSelectedWeekToDates()
+        {
+            var parts = SelectedWeek.Split(" - "); // Split the selected week string into start and end parts
+            DateTime start = DateTime.ParseExact(parts[0], "dd/MM", CultureInfo.InvariantCulture).AddYears(SelectedYear - DateTime.Now.Year);
+            DateTime end = DateTime.ParseExact(parts[1], "dd/MM", CultureInfo.InvariantCulture).AddYears(SelectedYear - DateTime.Now.Year);
+            return (start, end);
+        }
+
+        /// <summary>
+        /// Loads mock schedules from the service and populates the AllSchedules and GroupNames collections.
+        /// </summary>
+        private async void LoadMockSchedules()
+        {
+            var schedules = await _implementScheduleServices.GetAllAsync(); // Fetch all schedules from the service
+            AllSchedules = new ObservableCollection<Schedule>(schedules); // Store all schedules in the AllSchedules collection
+
+            if (schedules?.Any() == true)
+            {
+                GroupNames = new ObservableCollection<string>(schedules.Select(s => s.GroupName).Distinct().OrderBy(name => name)); // Get distinct group names from the schedules
+            }
+        }
+
+        /// <summary>
+        /// Generates a demo schedule starting from a specific date and exports it to an Excel file.
+        /// </summary>
+        private async Task CreateScheduleDemo()
+        {           
+            DateTime startDate = new DateTime(2025, 01, 06);
+
+            var schedules = await _createScheduleTree.GenerateSchedules(startDate);
+
+            PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
+
+            var dialog = new SaveFileDialog
+            {
+                Filter = "Excel Files (*.xlsx)|*.xlsx",
+                FileName = "ScheduleDemo.xlsx"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    // Export only non-null list
+                    ExportSchedulesToExcel(schedules, dialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Export failed: {ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Exports the list of schedules to an Excel file at the specified file path.
+        /// </summary>
+        /// <param name="schedules"></param>
+        /// <param name="filePath"></param>
+        private void ExportSchedulesToExcel(List<Schedule> schedules, string filePath)
+        {
+            using ExcelEngine excelEngine = new();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Xlsx;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet sheet = workbook.Worksheets[0];
+
+            // Header row
+            string[] headers = new string[]
+            {
+                "ScheduleId", "RoomNo", "PartOfDay", "SlotTime", "StatusSlot",
+                "Date", "Major", "SubjectCode", "GroupName", "LecturerId",
+                "SlotTypeCode", "TypeSlot", "SessionNo"
+            };
+
+            for (int i = 0; i < headers.Length; i++)
+            {
+                sheet[1, i + 1].Text = headers[i];
+            }
+
+            // Data rows
+            int row = 2;
+            foreach (var s in schedules)
+            {
+                sheet[row, 1].Number = s.ScheduleId;
+                //sheet[row, 2].Text = s.RoomId ?? "";
+                sheet[row, 3].Text = s.PartOfDay ?? "";
+                sheet[row, 4].Text = s.SlotTime ?? "";
+                sheet[row, 5].Text = s.StatusSlot ?? "";
+                sheet[row, 6].Text = s.Date?.ToString("yyyy-MM-dd") ?? "";
+                sheet[row, 7].Text = s.Major ?? "";
+                sheet[row, 8].Text = s.SubjectCode ?? "";
+                sheet[row, 9].Text = s.GroupName ?? "";
+                sheet[row, 10].Text = s.LecturerId ?? "";
+                sheet[row, 11].Text = s.SlotTypeCode ?? "";
+                sheet[row, 12].Text = s.TypeSlot ?? "";
+                //sheet[row, 13].Number = s.SessionNo;
+
+                row++;
+            }
+
+            workbook.SaveAs(filePath);
+        }
+
+        /// <summary>
+        /// Print timetable grouped by week for each class, including detailed information for each slot.
+        /// </summary>
+        /// <param name="schedules"></param>
+        public static void PrintTimetableGroupByWeek(List<Schedule> schedules)
+        {
+            if (schedules == null || !schedules.Any())
+            {
+                Debug.WriteLine("No schedules available.");
+                return;
+            }
+
+            // Nhóm theo ClassId
+            var groupedByClass = schedules.GroupBy(s => s.GroupName).OrderBy(g => g.Key);
+
+            foreach (var classGroup in groupedByClass)
+            {
+                Debug.WriteLine($"TIMETABLE FOR CLASS: {classGroup.Key}");
+                Debug.WriteLine($"Room: {classGroup.First().RoomId} | Session: {classGroup.First().PartOfDay}");
+                Debug.WriteLine("=============================================================");
+
+                // Nhóm theo tuần (dựa trên ngày bắt đầu tuần)
+                var groupedByWeek = classGroup
+                    .GroupBy(s => GetWeekStartDate(s.Date))
+                    .OrderBy(g => g.Key);
+                int weekCount = 0;
+                foreach (var weekGroup in groupedByWeek)
+                {
+                    weekCount++;
+                    DateTime weekStart = weekGroup.Key ?? DateTime.MinValue;
+                    DateTime weekEnd = weekStart.AddDays(6);
+
+                    Debug.WriteLine($"Week {weekCount}: {weekStart:dd/MM/yyyy} - {weekEnd:dd/MM/yyyy}");
+
+                    // Lấy danh sách ngày trong tuần này
+                    //var dates = weekGroup.Select(s => s.Date)
+                    //    .Distinct()
+                    //    .OrderBy(d => d)
+                    //    .ToList();
+
+                    // MỚI: Lấy đủ 7 ngày từ thứ Hai đến Chủ nhật
+                    var dates = Enumerable.Range(0, 7)
+                        .Select(offset => weekStart.AddDays(offset))
+                        .ToList();
+
+                    // Danh sách slot duy nhất
+                    var slots = weekGroup.Select(s => s.SlotTime).Distinct().OrderBy(s => s).ToList();
+
+                    // Độ rộng cột cố định
+                    const int columnWidth = 40;
+
+                    // Tạo tiêu đề cột (ngày và thứ)
+                    StringBuilder header = new StringBuilder();
+                    header.Append("Slot      ".PadRight(10) + "| ");
+                    foreach (var date in dates)
+                    {
+                        header.Append($"{date:dd/MM/yyyy} ({date:ddd})".PadRight(columnWidth) + "| ");
+                    }
+                    Debug.WriteLine(header.ToString());
+                    Debug.WriteLine(new string('-', header.Length));
+
+                    // In từng hàng (slot)
+                    foreach (var slot in slots)
+                    {
+                        // Mỗi slot có 3 dòng (Subject, Lecturer, Status)
+                        string[] rowLines = new string[8];
+                        rowLines[0] = slot.PadRight(10) + "| "; // Dòng đầu tiên bắt đầu bằng slot
+                        rowLines[1] = "".PadRight(10) + "| ";   // Dòng thứ hai và ba để trống ở cột slot
+                        rowLines[2] = "".PadRight(10) + "| ";
+                        rowLines[3] = "".PadRight(10) + "| ";
+                        rowLines[4] = "".PadRight(10) + "| ";
+                        rowLines[5] = "".PadRight(10) + "| ";
+                        rowLines[6] = "".PadRight(10) + "| ";
+                        rowLines[7] = "".PadRight(10) + "| ";
+
+                        foreach (var date in dates)
+                        {
+                            var schedule = weekGroup.FirstOrDefault(s => s.Date == date && s.SlotTime == slot);
+                            if (schedule != null)
+                            {
+                                if (schedule.SubjectCode == "")
+                                {
+                                    rowLines[0] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[1] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[2] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[3] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[4] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[5] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[6] += "".PadRight(columnWidth) + "| ";
+                                    rowLines[7] += "".PadRight(columnWidth) + "| ";
+                                }
+                                else
+                                {
+                                    rowLines[0] += $"Subject: {schedule.SubjectCode}".PadRight(columnWidth) + "| ";
+                                    rowLines[1] += $"Lecturer: {schedule.LecturerId}".PadRight(columnWidth) + "| ";
+                                    rowLines[2] += $"Slot type: {schedule.StatusSlot}".PadRight(columnWidth) + "| ";
+                                    rowLines[3] += $"Session: {schedule.PartOfDay}".PadRight(columnWidth) + "| ";
+                                    rowLines[4] += $"Room: {schedule.RoomId}".PadRight(columnWidth) + "| ";
+                                    rowLines[5] += $"Slot code: {schedule.SlotTypeCode}".PadRight(columnWidth) + "| ";
+                                    rowLines[6] += $"Session No: {schedule.SessionNo}".PadRight(columnWidth) + "| ";
+                                    rowLines[7] += $"Class: {schedule.GroupName}".PadRight(columnWidth) + "| ";
+                                }
+                            }
+                            else
+                            {
+                                rowLines[0] += "".PadRight(columnWidth) + "| ";
+                                rowLines[1] += "".PadRight(columnWidth) + "| ";
+                                rowLines[2] += "".PadRight(columnWidth) + "| ";
+                                rowLines[3] += "".PadRight(columnWidth) + "| ";
+                                rowLines[4] += "".PadRight(columnWidth) + "| ";
+                                rowLines[5] += "".PadRight(columnWidth) + "| ";
+                                rowLines[6] += "".PadRight(columnWidth) + "| ";
+                                rowLines[7] += "".PadRight(columnWidth) + "| ";
+                            }
+                        }
+
+                        // In 3 dòng của hàng
+                        Debug.WriteLine(rowLines[0]);
+                        Debug.WriteLine(rowLines[1]);
+                        Debug.WriteLine(rowLines[2]);
+                        Debug.WriteLine(rowLines[3]);
+                        Debug.WriteLine(rowLines[4]);
+                        Debug.WriteLine(rowLines[5]);
+                        Debug.WriteLine(rowLines[6]);
+                        Debug.WriteLine(rowLines[7]);
+
+                        Debug.WriteLine(new string('-', header.Length));
+                    }
+
+                    Debug.WriteLine(new string('=', header.Length));
+                    Debug.WriteLine(""); // Thêm khoảng cách giữa các tuần
+                }
+                Debug.WriteLine("\n"); // Thêm khoảng cách giữa các lớp
+            }
+        }
+
+        /// <summary>
+        /// Calculates the start date of the week for a given date.
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns>Start date of week</returns>
+
+        private static DateTime? GetWeekStartDate(DateTime? date)
+        {
+            if (!date.HasValue)
+                return null;
+
+            int diff = (7 + (date.Value.DayOfWeek - DayOfWeek.Monday)) % 7;
+            return date.Value.AddDays(-diff).Date;
+        }
+
+        public static DateTime GetWeekStartDate(DateTime date)
+        {
+            int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+            return date.AddDays(-1 * diff).Date;
+        }
+
+        /// <summary>
+        /// Generates timetable cells and slot rows based on the filtered schedules.
+        /// </summary>
+        /// <param name="filtered"></param>
+        private void GenerateTimetableCellsAndSlotRows(List<Schedule> filtered)
+        {
+            SlotRows.Clear();
+
+            foreach (var slot in Slots)
+            {
+                string slotStr = $"slot {slot}";
+                var cells = new ObservableCollection<TimetableCellViewModel>();
+
+                foreach (var day in WeekDays)
+                {
+                    var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slotStr); // Check if there is a schedule for this day and slot
+
+                    cells.Add(new TimetableCellViewModel
+                    {
+                        DayOfWeek = day,
+                        SlotNumber = slotStr,
+                        Schedule = match
+                    });
+                }
+
+                SlotRows.Add(new SlotRowViewModel
+                {
+                    SlotNumber = slot,
+                    Cells = cells
+                });
+            }
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// Represents a cell in the timetable, containing information about the day, slot number, and associated schedule.
+    /// </summary>
+    public class TimetableCellViewModel
+    {
+        public DateTime DayOfWeek { get; set; }
+        public string SlotNumber { get; set; }
+        public Schedule? Schedule { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a row in the timetable, containing a slot number and a collection of timetable cells for that slot.
+    /// </summary>
+    public class SlotRowViewModel
+    {
+        public int SlotNumber { get; set; }
+        public ObservableCollection<TimetableCellViewModel> Cells { get; set; } = new();
+    }
+}

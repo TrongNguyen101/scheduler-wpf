@@ -5,11 +5,27 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Algorithm;
-using SchedulerWpfApp.Services;
 using SchedulerWpfApp.ViewModel;
 using SchedulerWpfApp.Views;
 using Syncfusion.Licensing;
-
+using Microsoft.Extensions.Logging;
+using SchedulerWpfApp.Helper;
+using SchedulerWpfApp.Repository;
+using SchedulerWpfApp.Repository.RoomRepo;
+using SchedulerWpfApp.Repository.CurriculumRepo;
+using SchedulerWpfApp.Repository.CurriculumSubjectsRepo;
+using SchedulerWpfApp.Repository.GroupNameRepo;
+using SchedulerWpfApp.Repository.LectureSubjectRepo;
+using SchedulerWpfApp.Repository.LecturerRequestRepository;
+using SchedulerWpfApp.Repository.LecturerRepository;
+using SchedulerWpfApp.Repository.ScheduleRepository;
+using SchedulerWpfApp.Repository.SubjectRepository;
+using SchedulerWpfApp.ServiceRefactor.GroupNameService;
+using SchedulerWpfApp.ServiceRefactor.LecturerServices;
+using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
+using SchedulerWpfApp.ServiceRefactor.RoomService;
+using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
+using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 namespace SchedulerWpfApp
 {
     /// <summary>
@@ -110,19 +126,63 @@ namespace SchedulerWpfApp
         /// <param name="services">The service collection to configure</param>
         private void ConfigureService(IServiceCollection services)
         {
+            services.AddLogging(config =>
+            {
+                config.ClearProviders(); // Delete all existing providers
+                config.AddConsole();     // Show log in Console output
+                config.AddDebug();       // Show log in Debug output
+            });
+
+            // Register the AutoMapper configuration
+            services.AddAutoMapper(typeof(AutoMappingProfiles));
+
             // Register the database context
             services.AddDbContext<DataContext>();
 
+            // Register repositories with scoped lifetime (one instance per request)
+            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            services.AddScoped<IRoomRepository, RoomRepository>();
+            services.AddScoped<ICurriculumRepository, CurriculumRepository>();
+            services.AddScoped<ICurriculumSubjectsRepository, CurriculumSubjectsRepository>();
+            services.AddScoped<IGroupNameRepository, GroupNameRepository>();
+            services.AddScoped<ILectureSubjectRepository, LectureSubjectRepository>();
+            services.AddScoped<ILecturerRequestRepository, LecturerRequestRepository>();
+            services.AddScoped<ILecturerRepository, LecturerRepository>();
+            services.AddScoped<IScheduleRepository, ScheduleRepository>();
+            services.AddScoped<ISubjectRepository, SubjectRepository>();
+
+            // Register the unit of work with scoped lifetime (one instance per request)
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             // Register person service with scoped lifetime (one instance per scope)
-            services.AddScoped<IPersonService, PersonService>();
-            services.AddScoped<ICourseService, CourseService>();
             services.AddScoped<IGroupNameService, GroupNameService>();
+            services.AddScoped<ILecturerServices, LecturerServices>();
+            services.AddScoped<ILecturerSubjectServices, LecturerSubjectServices>();
+            services.AddScoped<IRoomService, RoomService>();
+            services.AddScoped<IScheduleServices, ScheduleServices>();
+            services.AddScoped<ISubjectServices, SubjectServices>();
 
-            services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
-            services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
+            //services.AddScoped<IPersonService, PersonService>();
+            //services.AddScoped<ISubjectServices, SubjectServices>();
+            //services.AddScoped<IGroupNameService, GroupNameService>();
+            //services.AddScoped<InterfaceScheduleServices, ImplementScheduleServices>();
+            //services.AddScoped<InterfaceLecturerServices, ImplementLecturerServices>();
+            //services.AddScoped<InterfaceLecturerSubjectServices, ImplementLecturerSubjectServices>();
 
-            services.AddSingleton<IExcelSubjectImporter, ExcelSubjectImporter>();
-            services.AddSingleton<IExcelSubjectExporter, ExcelSubjectExporter>();
+            //services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
+            //services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
+
+            //services.AddScoped<IExcelSubjectImporter, ExcelSubjectImporter>();
+            //services.AddScoped<IExcelSubjectExporter, ExcelSubjectExporter>();
+
+            //services.AddScoped<IExcelLectureExporter, ExcelLectureExporter>();
+            //services.AddScoped<IExcelLectureImporter, ExcelLectureImporter>();
+            //services.AddScoped<IRoomService, RoomService>();
+            //services.AddScoped<IExcelRoomExporter, ExcelRoomExporter>();
+            //services.AddScoped<IExcelRoomImport, ExcelRoomImport>();
+            //services.AddScoped<ILectureSubjectService, LectureSubjectService>();
+            //services.AddScoped<IExcelLectureSubjectImporter, ExcelLectureSubjectImporter>();
+            //services.AddScoped<IExcelLectureSubjectExporter, ExcelLectureSubjectExporter>();
 
             // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();
@@ -135,22 +195,29 @@ namespace SchedulerWpfApp
             // Register the add person window as transient (new instance created each time)
             services.AddTransient<PersonViewModel>();
 
-            services.AddTransient<CourseViewModel>();
+            services.AddTransient<SubjectViewModel>();
             services.AddTransient<LectureView>();
-            services.AddTransient<ClassRoom>();
+            services.AddTransient<GroupNameViewModel>();
+            services.AddTransient<CreateScheduleViewModel>();
+            services.AddTransient<LectureViewModel>();
             services.AddTransient<RoomViewModel>();
+            services.AddTransient<LectureSubjectViewModel>();
 
             // Add factories
-            services.AddSingleton<Func<CourseViewModel>>(sp => () => sp.GetRequiredService<CourseViewModel>());
+            services.AddSingleton<Func<SubjectViewModel>>(sp => () => sp.GetRequiredService<SubjectViewModel>());
             services.AddSingleton<Func<PersonViewModel>>(sp => () => sp.GetRequiredService<PersonViewModel>());
+            services.AddSingleton<Func<GroupNameViewModel>>(sp => () => sp.GetRequiredService<GroupNameViewModel>());
+            services.AddSingleton<Func<CreateScheduleViewModel>>(sp => () => sp.GetRequiredService<CreateScheduleViewModel>());
+            services.AddSingleton<Func<LectureViewModel>>(sp => () => sp.GetRequiredService<LectureViewModel>());
+            services.AddSingleton<Func<LectureSubjectViewModel>>(sp => () => sp.GetRequiredService<LectureSubjectViewModel>());
             services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
-
 
             services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime
             services.AddScoped<TreeForSchedule>(); // Register TreeNode with a scoped lifetime
             services.AddScoped<SortSubjectsOneSession>(); // Register SortSubjectsOneSession with a scoped lifetime
             services.AddScoped<GetLecturerForSubject>(); // Register GetLecturerForSubject with a scoped lifetime
             services.AddScoped<GenerateScheduleForAllDate>(); // Register GenerateScheduleForAllDate with a scoped lifetime
+            services.AddScoped<CreateSlotTypeCode>(); // Register CreateSlotTypeCode with a scoped lifetime
         }
 
         /// <summary>

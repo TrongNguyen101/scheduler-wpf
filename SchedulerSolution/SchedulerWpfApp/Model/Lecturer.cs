@@ -12,17 +12,17 @@ namespace SchedulerWpfApp.Model
 
         [Column("LecturerName")]
         public string? LecturerName { get; set; }
-        //public string? Role { get; set; }
 
-        public virtual List<LecturerSubject>? LecturerSubjects { get; set; }
+        [Column("Role")]
+        public string? Role { get; set; }
 
-        public Lecturer() { }
-        
-        public Lecturer(string lecturerId, string lecturerName, List<LecturerSubject>? lecturerSubjects = null)
-        {
-            LecturerId = lecturerId;
-            LecturerName = lecturerName;
-            LecturerSubjects = lecturerSubjects ?? new List<LecturerSubject>();
-        }
+        [Column("Department")]
+        public string? Department { get; set; }
+
+        public ICollection<LecturerSubject>? LecturerSubjects { get; set; }
+
+        public ICollection<Schedule>? Schedules { get; set; }
+
+        public ICollection<LecturerRequest>? LecturerRequests { get; set; }
     }
 }

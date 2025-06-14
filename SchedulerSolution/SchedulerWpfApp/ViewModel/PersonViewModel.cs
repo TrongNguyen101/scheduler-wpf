@@ -12,6 +12,7 @@ namespace SchedulerWpfApp.ViewModel
     /// </summary>
     public class PersonViewModel : ViewBaseModel
     {
+        #region Fields
         // Dependencies injected via constructor
         private readonly IPersonService _personService;
         private readonly IExcelPersonImporter _excelImporter;
@@ -24,8 +25,9 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isPersonFormOpen;
         private bool _isOpenDialog;
         private bool _isConfirmationOpen;
+        #endregion
 
-
+        #region Constructors
         /// <summary>
         /// Gets or sets the collection of people displayed in the UI.
         /// This observable collection automatically notifies the UI of changes.
@@ -67,7 +69,9 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand CancelEditPersonCommand { get; }
         public ICommand ConfirmDeleteCommand { get; }
         public ICommand CancelDeletePersonCommand { get; }
+        #endregion
 
+        #region Methods
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
@@ -113,6 +117,8 @@ namespace SchedulerWpfApp.ViewModel
                 MessageBox.Show($"Failed to load persons: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+
 
         /// <summary>
         /// Exports the current list of persons to an Excel file.
@@ -162,7 +168,7 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     var data = _excelImporter.ReadPersonsFromExcel(dialog.FileName);
-                    await _personService.ImportPersonFromExcel(data);
+                    await _personService.ImportRoomFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadPeopleAsync();
                 }
@@ -226,4 +232,5 @@ namespace SchedulerWpfApp.ViewModel
 
         }
     }
+    #endregion
 }
