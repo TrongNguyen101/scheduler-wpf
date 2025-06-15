@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Repository.CurriculumRepo;
 using SchedulerWpfApp.Repository.CurriculumSubjectsRepo;
-using SchedulerWpfApp.Repository.GroupName;
+using SchedulerWpfApp.Repository.GroupNameRepo;
 using SchedulerWpfApp.Repository.LecturerRepository;
 using SchedulerWpfApp.Repository.LecturerRequestRepository;
 using SchedulerWpfApp.Repository.LectureSubjectRepo;
