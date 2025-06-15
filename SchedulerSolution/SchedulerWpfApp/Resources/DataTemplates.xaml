@@ -8,11 +8,6 @@
         <views:SubjectView/>
     </DataTemplate>
 
-    <!-- DataTemplate for PersonView -->
-    <DataTemplate DataType="{x:Type vm:PersonViewModel}">
-        <views:PersonView/>
-    </DataTemplate>
-
     <!-- DataTemplate for RoomView -->
     <DataTemplate DataType="{x:Type vm:GroupNameViewModel}">
         <views:GroupNameView/>
