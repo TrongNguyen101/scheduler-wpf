@@ -146,19 +146,6 @@
                     </Border>
 
                     <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowPersonCommand}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="👨‍🏫" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
-                                <TextBlock Text="Quản lý Con Người" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
-                            </Grid>
-                        </Button>
-                    </Border>
-
-                    <Border Style="{StaticResource MenuItemStyle}">
                         <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowCourseCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>

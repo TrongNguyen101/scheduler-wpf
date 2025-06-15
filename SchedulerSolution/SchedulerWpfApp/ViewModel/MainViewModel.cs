@@ -34,7 +34,6 @@ namespace SchedulerWpfApp.ViewModel
 
         // Commands bound to buttons or menu items to switch views
         public ICommand ShowCourseCommand { get; }
-        public ICommand ShowPersonCommand { get; }
         public ICommand ShowRoomCommand { get; }
         public ICommand ShowCreateScheduleCommand { get; }
         public ICommand ShowLectureCommand { get; }
@@ -43,7 +42,7 @@ namespace SchedulerWpfApp.ViewModel
 
         /// <summary>
         /// Initializes the MainViewModel with view model factories.
-        /// Sets up commands and sets the default view to PersonViewModel.
+        /// Sets up commands and sets the default view to GroupNamViewModel.
         /// </summary>
         public MainViewModel(Func<SubjectViewModel> courseViewModelFactory,
             Func<RoomViewModel> roomViewModelFactory,
@@ -67,7 +66,8 @@ namespace SchedulerWpfApp.ViewModel
             ShowLectureCommand = new RelayCommand(ShowLecture);
             ShowRoomlistCommand = new RelayCommand(ShowRoomlist);
             ShowLectureSubjectCommand = new RelayCommand(ShowLectureSubject);
-            // Set default view to PersonViewModel
+
+            // Set default view to GroupNameViewModel
             CurrentViewModel = _GroupNameViewModelFactory();
         }
 
