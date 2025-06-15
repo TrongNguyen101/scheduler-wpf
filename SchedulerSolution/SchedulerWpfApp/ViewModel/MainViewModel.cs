@@ -16,7 +16,6 @@ namespace SchedulerWpfApp.ViewModel
 
         // Factory delegates to lazily create view models
         private readonly Func<SubjectViewModel> _subjectViewModelFactory;
-        private readonly Func<PersonViewModel> _personViewModelFactory;
         private readonly Func<GroupNameViewModel> _GroupNameViewModelFactory;
         private readonly Func<CreateScheduleViewModel> _createScheduleViewModelFactory;
         private readonly Func<LectureViewModel> _lectureViewModelFactory;
@@ -47,7 +46,6 @@ namespace SchedulerWpfApp.ViewModel
         /// Sets up commands and sets the default view to PersonViewModel.
         /// </summary>
         public MainViewModel(Func<SubjectViewModel> courseViewModelFactory,
-            Func<PersonViewModel> personViewModelFactory,
             Func<RoomViewModel> roomViewModelFactory,
             Func<CreateScheduleViewModel> createScheduleViewModelFactory,
             Func<LectureViewModel> lectureViewModelFactory,
@@ -56,7 +54,6 @@ namespace SchedulerWpfApp.ViewModel
         {
             // Assign factory methods
             _subjectViewModelFactory = courseViewModelFactory;
-            _personViewModelFactory = personViewModelFactory;
             _GroupNameViewModelFactory = groupNameViewModelFactory;
             _createScheduleViewModelFactory = createScheduleViewModelFactory;
             _lectureViewModelFactory = lectureViewModelFactory;
@@ -65,25 +62,19 @@ namespace SchedulerWpfApp.ViewModel
 
             // Initialize commands for switching views
             ShowCourseCommand = new RelayCommand(ShowCourse);
-            ShowPersonCommand = new RelayCommand(ShowPerson);
             ShowRoomCommand = new RelayCommand(ShowRoom);
             ShowCreateScheduleCommand = new RelayCommand(ShowCreateSchedule);
             ShowLectureCommand = new RelayCommand(ShowLecture);
             ShowRoomlistCommand = new RelayCommand(ShowRoomlist);
             ShowLectureSubjectCommand = new RelayCommand(ShowLectureSubject);
             // Set default view to PersonViewModel
-            CurrentViewModel = _personViewModelFactory();
+            CurrentViewModel = _GroupNameViewModelFactory();
         }
 
         /// <summary>
         /// Switches the current view to CourseViewModel.
         /// </summary>
         private void ShowCourse() => CurrentViewModel = _subjectViewModelFactory();
-
-        /// <summary>
-        /// Switches the current view to PersonViewModel.
-        /// </summary>
-        private void ShowPerson() => CurrentViewModel = _personViewModelFactory();
 
         /// <summary>
         /// Switches the current view to RoomViewModel.
