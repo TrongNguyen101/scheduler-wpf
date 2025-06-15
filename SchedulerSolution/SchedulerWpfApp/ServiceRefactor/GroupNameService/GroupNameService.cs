@@ -79,16 +79,6 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         }
 
         /// <summary>
-        /// Retrieve a group name (class) by its ID.
-        /// This method searches for a group name in the database using its unique identifier.
-        /// It takes the class ID as input and returns the corresponding GroupName object if found.
-        /// </summary>
-        public Task<GroupClass?> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Import group names (classes) from an Excel file.
         /// This method takes a list of GroupName objects as input and adds them to the database.
         /// </summary>
