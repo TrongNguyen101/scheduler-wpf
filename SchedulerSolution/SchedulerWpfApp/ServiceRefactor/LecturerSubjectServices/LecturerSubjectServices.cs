@@ -1,5 +1,6 @@
 ﻿using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
+using Syncfusion.XlsIO;
 
 namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 {
@@ -29,14 +30,21 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// <summary>
         /// Imports a list of lecturer subjects from an Excel file into the database.
         /// </summary>
-        //public async Task ImportLectureSubjectFromExcel(List<LecturerSubject> listlecturesubjectFromExcel)
-        //{
-        //    foreach (var lecturesubject in listlecturesubjectFromExcel)
-        //    {
-        //        _context.LecturerSubjects.Add(lecturesubject);
-        //    }
-        //    await _context.SaveChangesAsync();
-        //}
+        public async Task ImportLectureSubjectFromExcel(List<LecturerSubject> listlecturesubjectFromExcel)
+        {
+            try
+            {
+                foreach (var lecturesubject in listlecturesubjectFromExcel)
+                {
+                    await _unitOfWork.LectureSubjectRepository.AddAsync(lecturesubject);
+                }
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("lỗi", ex);
+            }
+        }
 
         /// <summary>
         /// Retrieves a lecturer subject by its ID asynchronously.
@@ -111,6 +119,51 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 await _unitOfWork.RollbackAsync();
                 throw;
             }
+        }
+        public List<LecturerSubject> ReadLectureSubjectFromExcel(string filePath)
+        {
+            var lecturesubjects = new List<LecturerSubject>();
+
+            using ExcelEngine excelEngine = new();
+            var app = excelEngine.Excel;
+            app.DefaultVersion = ExcelVersion.Xlsx;
+
+            var workbook = app.Workbooks.Open(filePath);
+            var sheet = workbook.Worksheets[0];
+
+            int rowCount = sheet.UsedRange.LastRow;
+            int colCount = sheet.UsedRange.LastColumn;
+
+            Dictionary<string, int> headerMap = new();
+            for (int c = 1; c <= colCount; c++)
+            {
+                string header = sheet[1, c].Value?.Trim() ?? "";
+                if (!string.IsNullOrWhiteSpace(header))
+                    headerMap[header] = c;
+            }
+
+            string[] requiredHeaders = { "LecturerId", "LecturerName", "SubjectCode", "SubjectName", "Major", "Term", "NumberOfClasses", "TotalSLots" };
+            foreach (var h in requiredHeaders)
+                if (!headerMap.ContainsKey(h))
+                    throw new Exception($"Missing required column: {h}");
+
+            for (int r = 2; r <= rowCount; r++)
+            {
+                var lecturesubject = new LecturerSubject
+                {
+                    LecturerId = sheet[r, headerMap["LecturerId"]].Value,
+                    LecturerName = sheet[r, headerMap["LecturerName"]].Value,
+                    SubjectCode = sheet[r, headerMap["SubjectCode"]].Value,
+                    SubjectName = sheet[r, headerMap["SubjectName"]].Value,
+                    Major = sheet[r, headerMap["Major"]].Value,
+                    Term = sheet[r, headerMap["Term"]].Value,
+                    TotalSlots = int.TryParse(sheet[r, headerMap["NumberOfClasses"]].Value, out int totalslots) ? totalslots : 0,
+                    NumberOfClasses = int.TryParse(sheet[r, headerMap["NumberOfClasses"]].Value, out int numberOfClasses) ? numberOfClasses : 0
+                };
+
+                lecturesubjects.Add(lecturesubject);
+            }
+            return lecturesubjects;
         }
         #endregion
     }

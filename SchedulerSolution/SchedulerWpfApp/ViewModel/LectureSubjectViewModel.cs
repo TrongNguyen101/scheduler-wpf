@@ -1,4 +1,4 @@
-﻿using SchedulerWpfApp.Services;
+﻿using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 using SchedulerWpfApp.Model;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -14,9 +14,7 @@ namespace SchedulerWpfApp.ViewModel
     public class LectureSubjectViewModel : ViewBaseModel
     {
         #region Fields
-        private readonly ILectureSubjectService _lecturesubjectService;
-        private readonly IExcelLectureSubjectImporter _excelImporter;
-        private readonly IExcelLectureSubjectExporter _excelExporter;
+        private readonly ILecturerSubjectServices _lecturesubjectService;
         private ObservableCollection<LecturerSubject> _lecturesubject;
         private LecturerSubject? _selectedSubject;
         public string FormTitle => SelectedLectureSubject?.Id == 0 ? "Thêm môn mới cho giảng viên" : "Chỉnh sửa môn cho giảng viên";
@@ -89,14 +87,12 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Initializes a new instance of the LectureSubjectViewModel class, setting up commands and loading initial data.
         /// </summary>
-        public LectureSubjectViewModel(ILectureSubjectService lecturesubjectService, IExcelLectureSubjectImporter excelImporter, IExcelLectureSubjectExporter excelExporter)
+        public LectureSubjectViewModel(ILecturerSubjectServices lecturesubjectService)
         {
             _lecturesubjectService = lecturesubjectService;
-            _excelImporter = excelImporter;
-            _excelExporter = excelExporter;
             LectureSubjects = new ObservableCollection<LecturerSubject>();
             ImportLectureSubjectCommand = new RelayCommand(async () => await ImportLectureSubjectListAsync());
-            ExportLectureSubjectCommand = new RelayCommand(async () => await ExportLectureSubjectAsync());
+            //ExportLectureSubjectCommand = new RelayCommand(async () => await ExportLectureSubjectAsync());
             EditLectureSubjectCommand = new RelayCommandGeneric<LecturerSubject>(async (lectursubject) => await EditLectureSubject(lectursubject));
             AddLectureSubjectCommand = new RelayCommand(async () => await AddLectureSubjectAsync());
             DeleteLectureSubjectCommand = new RelayCommandGeneric<LecturerSubject>(async (lectursubject) => await DeleteRoomAsync(lectursubject));
@@ -105,7 +101,6 @@ namespace SchedulerWpfApp.ViewModel
             SaveLectureSubjectCommand = new RelayCommand(async () => await SaveLectureSubjectAsync());
             ConfirmDeleteLectureSubjectCommand = new RelayCommand(async () => await ConfirmDeleteLectureSubjectAsync());
             _ = LoadLectureSubjects();
-            _excelExporter = excelExporter;
         }
         /// <summary>
         /// Asynchronously loads all lecture subjects from the service and populates the LectureSubjects collection.
@@ -139,9 +134,8 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     // call ReadRoomFromExcel function to process file and read file when importing
-                    var data = _excelImporter.ReadLectureSubjectFromExcel(dialog.FileName);
+                    var data = _lecturesubjectService.ReadLectureSubjectFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
-
                     await _lecturesubjectService.ImportLectureSubjectFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadLectureSubjects();
@@ -156,36 +150,36 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Exports the list of lecture subjects to an Excel file using the Excel exporter service.
         /// </summary>
-        private async Task ExportLectureSubjectAsync()
-        {
-            if (LectureSubjects == null || LectureSubjects.Count == 0)
-            {
-                MessageBox.Show("No lecturesubject to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+        //private async Task ExportLectureSubjectAsync()
+        //{
+        //    if (LectureSubjects == null || LectureSubjects.Count == 0)
+        //    {
+        //        MessageBox.Show("No lecturesubject to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+        //        return;
+        //    }
 
-            var dialog = new SaveFileDialog
-            {
-                Filter = "Excel Files (*.xlsx)|*.xlsx",
-                FileName = "LectureSubject.xlsx"
-            };
+        //    var dialog = new SaveFileDialog
+        //    {
+        //        Filter = "Excel Files (*.xlsx)|*.xlsx",
+        //        FileName = "LectureSubject.xlsx"
+        //    };
 
-            if (dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    //Filter the GroupNames list to remove null elements
-                    var roomList = LectureSubjects.Where(p => p != null).ToList();
-                    // call ExportToExcelRoom function to export file
-                    _excelExporter.ExportToExcel(roomList, dialog.FileName);
-                    MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Export failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
+        //    if (dialog.ShowDialog() == true)
+        //    {
+        //        try
+        //        {
+        //            //Filter the GroupNames list to remove null elements
+        //            var roomList = LectureSubjects.Where(p => p != null).ToList();
+        //            // call ExportToExcelRoom function to export file
+        //            _excelExporter.ExportToExcel(roomList, dialog.FileName);
+        //            MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            MessageBox.Show($"Export failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Opens the form to edit a selected lecturer subject. 
