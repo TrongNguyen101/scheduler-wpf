@@ -23,6 +23,71 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
 
         #region Methods
         /// <summary>
+        /// Adds a new curriculumSubject to the database
+        /// </summary>
+        /// <param name="curriculumSubject">The person entity to add</param>
+        /// <returns>A task representing the asynchronous operation</returns>
+        public async Task AddCurriculumSubject(CurriculumSubject curriculumSubject)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.Repository<CurriculumSubject>().AddAsync(curriculumSubject);
+            await _unitOfWork.CommitAsync();
+        }
+
+        /// <summary>
+        /// Deletes a curriculumSubject from the database by their ID
+        /// </summary>
+        /// <param name="id">The ID of the curriculumSubject to delete</param>
+        /// <returns>A task representing the asynchronous operation</returns>
+        /// <remarks>If no curriculumSubject with the specified ID exists, no action is taken</remarks>
+        public async Task DeleteCurriculumSubject(int id)
+        {
+            var existingCurriculumSubject = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
+            if (existingCurriculumSubject != null)
+            {
+                await _unitOfWork.CurriculumSubjectsRepository.GetByIdAsync(id);
+                await _unitOfWork.SaveChangesAsync();
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a specific curriculumSubject by their ID
+        /// </summary>
+        /// <param name="id">The ID of the curriculumSubject to retrieve</param>
+        /// <returns>The curriculumSubject with the specified ID, or null if not found</returns>
+        public async Task<CurriculumSubject?> GetByIdAsync(int id)
+        {
+           var test = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
+            return test;
+        }
+
+        /// <summary>
+        /// Updates an existing curriculumSubject in the database
+        /// </summary>
+        /// <param name="curriculumSubject">The curriculumSubject entity with updated values</param>
+        /// <returns>A task representing the asynchronous operation</returns>
+        /// <remarks>If no curriculumSubject with the specified ID exists, no action is taken</remarks>
+        public async Task UpdateCurriculumSubject(CurriculumSubject curriculumSubject)
+        {
+            var existingCurriculumSubject = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(curriculumSubject.Id);
+            if (existingCurriculumSubject != null)
+            {
+                existingCurriculumSubject.CurriculumCode = curriculumSubject.CurriculumCode;
+                existingCurriculumSubject.SubjectCode = curriculumSubject.SubjectCode;
+                existingCurriculumSubject.SubjectNameEnglish = curriculumSubject.SubjectNameEnglish;
+                existingCurriculumSubject.SubjectNameVietnamese = curriculumSubject.SubjectNameVietnamese;
+                existingCurriculumSubject.TermNo = curriculumSubject.TermNo;
+                existingCurriculumSubject.IsCombo = curriculumSubject.IsCombo;
+                existingCurriculumSubject.Credit = curriculumSubject.Credit;
+                existingCurriculumSubject.TotalSlots = curriculumSubject.TotalSlots;
+
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.Repository<CurriculumSubject>().UpdateAsync(existingCurriculumSubject);
+                await _unitOfWork.CommitAsync();
+            }
+        }
+
+        /// <summary>
         /// Retrieves all curriculum subjects from the database asynchronously
         /// </summary>
         /// <returns>Task<List<CurriculumSubject>></returns>
@@ -129,6 +194,46 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                 curriculumSubjects.Add(curriculumSubject);
             }
             return curriculumSubjects;
+        }
+
+        /// <summary>
+        /// Exports a list of curriculumSubjects to an Excel file
+        /// </summary>
+        /// <param name="curriculumSubjects"></param>
+        /// <param name="filePath"></param>
+        public void ExportToExcel(List<CurriculumSubject> curriculumSubjects, string filePath)
+        {
+            using ExcelEngine excelEngine = new();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Xlsx;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet sheet = workbook.Worksheets[0];
+
+            // Header
+            sheet[1, 1].Text = "CurriculumCode";
+            sheet[1, 2].Text = "SubjectCode";
+            sheet[1, 3].Text = "SubjectName";
+            sheet[1, 4].Text = "SubjectV";
+            sheet[1, 5].Text = "TermNo";
+            sheet[1, 6].Text = "IsCombo";
+            sheet[1, 7].Text = "Credits";
+            sheet[1, 8].Text = "TotalSLots";
+
+            int row = 2;
+            foreach (var curriculumSubject in curriculumSubjects)
+            {
+                sheet[row, 1].Text = curriculumSubject.CurriculumCode ?? "";
+                sheet[row, 2].Text = curriculumSubject.SubjectCode ?? "";
+                sheet[row, 3].Text = curriculumSubject.SubjectNameEnglish ?? "";
+                sheet[row, 4].Text = curriculumSubject.SubjectNameVietnamese ?? "";
+                sheet[row, 5].Text = curriculumSubject.TermNo.ToString() ?? "";
+                sheet[row, 6].Text = curriculumSubject.IsCombo.ToString() ?? "";
+                sheet[row, 7].Text = curriculumSubject.Credit.ToString() ?? "";
+                sheet[row, 8].Text = curriculumSubject.TotalSlots.ToString() ?? "";
+                row++;
+            }
+            workbook.SaveAs(filePath);
         }
         #endregion
     }

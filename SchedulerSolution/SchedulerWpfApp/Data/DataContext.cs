@@ -37,6 +37,7 @@ namespace SchedulerWpfApp.Data
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<LecturerRequest> LecturerRequests { get; set; } = null!;
         public DbSet<Room> Rooms { get; set; } = null!;
+        public DbSet<Curriculum> Curriculums { get; set; } = null!;
         /// <summary>
         /// Configures the database connection if not already configured.
         /// Creates the necessary directories for the SQLite database file if they don't exist.

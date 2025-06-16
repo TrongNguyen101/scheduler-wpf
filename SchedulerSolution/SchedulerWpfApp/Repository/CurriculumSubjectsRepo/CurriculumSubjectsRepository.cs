@@ -8,9 +8,8 @@ using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Repository.CurriculumSubjectsRepo
 {
-    public class CurriculumSubjectsRepository: BaseRepository<CurriculumSubject>, ICurriculumSubjectsRepository
+    public class CurriculumSubjectsRepository : BaseRepository<CurriculumSubject>, ICurriculumSubjectsRepository
     {
         public CurriculumSubjectsRepository(DataContext context) : base(context) { }
-
     }
 }
