@@ -206,7 +206,6 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 sheet[row, 6].Text = lecturesubject.Term ?? "";
                 sheet[row, 7].Number = lecturesubject.NumberOfClasses ?? 0;
                 sheet[row, 8].Number = lecturesubject.TotalSlots ?? 0;
-                //sheet[row, 4].Number = lecturesubject.NumberOfClasses;
                 row++;
             }
             workbook.SaveAs(filePath);
