@@ -9,7 +9,7 @@ namespace SchedulerWpfApp.Repository.LecturerRepository
 {
     public interface ILecturerRepository : IBaseRepository<Lecturer>
     {
-        Task<Lecturer?> GetByLectureCodeAsync(string LecturerId);
-        Task DeleteLecture(string LecturerId);
+        Task<Lecturer?> GetByLecturerCodeAsync(string LecturerId);
+        Task DeleteLecturer(string LecturerId);
     }
 }
