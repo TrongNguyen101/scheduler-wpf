@@ -54,7 +54,7 @@ namespace SchedulerWpfApp.Repository.RoomRepo
             {
                 return await _context.Rooms
                     .Where(r => r.TypeOfRoom == "Phòng học")
-                    .OrderBy(r => r.RoomId) // hoặc bất kỳ cột nào bạn muốn sắp xếp
+                    .OrderBy(r => r.RoomName) // hoặc bất kỳ cột nào bạn muốn sắp xếp
                     .Take(numberOfRoom)
                     .ToListAsync();
             }
