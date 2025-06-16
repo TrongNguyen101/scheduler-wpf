@@ -100,7 +100,7 @@ namespace SchedulerWpfApp.Algorithm
                 TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomId, "NewSlot");
 
                 /* Cần hàm tạo group name (mã lơp) ở đây*/
-                string classId = listGroupName[indexRoom].GroupName;
+                string groupName = listGroupName[indexRoom].GroupName;
 
                 var subjectOfClass = subjects.Where(s => s.SubjectNameEnglish == listGroupName[indexRoom].Major).ToList();
 
@@ -137,7 +137,7 @@ namespace SchedulerWpfApp.Algorithm
 
                             string slotLabel = $"slot {slotIndex + slotStart}";
 
-                            var schedulesItem = _treeNode.CollectSchedules(roomNode, subject.SubjectCode, currentDate, classId, slotLabel, lecturerName, slotTypeCode, "NewSlot", sessionNo, sessionFilter, slotType);
+                            var schedulesItem = _treeNode.CollectSchedules(roomNode, subject.SubjectCode, currentDate, groupName, slotLabel, lecturerName, slotTypeCode, "NewSlot", sessionNo, sessionFilter, slotType);
 
                             allSchedules.AddRange(schedulesItem);
                         }
