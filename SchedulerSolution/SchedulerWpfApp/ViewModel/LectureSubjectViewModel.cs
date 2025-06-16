@@ -100,7 +100,7 @@ namespace SchedulerWpfApp.ViewModel
                     SelectedLectureSubject.LecturerId = value;
                     if (!string.IsNullOrEmpty(value))
                     {
-                        var lecturer = _lectureService.GetByLectureCodeAsync(value).Result;
+                        var lecturer = _lectureService.GetByLecturerCodeAsync(value).Result;
                         SelectedLectureSubject.LecturerName = lecturer?.LecturerName ?? string.Empty;
                         OnPropertyChanged(nameof(SelectedLectureSubject));
                     }
