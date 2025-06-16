@@ -27,6 +27,7 @@ using SchedulerWpfApp.ServiceRefactor.RoomService;
 using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
+using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 namespace SchedulerWpfApp
 {
     /// <summary>
@@ -163,6 +164,7 @@ namespace SchedulerWpfApp
             services.AddScoped<IScheduleServices, ScheduleServices>();
             services.AddScoped<ISubjectServices, SubjectServices>();
             services.AddScoped<ICurriculumServices, CurriculumServices>();
+            services.AddScoped<ICurriculumSubjectServices, CurriculumSubjectServices>();
 
             //services.AddScoped<IPersonService, PersonService>();
             //services.AddScoped<ISubjectServices, SubjectServices>();

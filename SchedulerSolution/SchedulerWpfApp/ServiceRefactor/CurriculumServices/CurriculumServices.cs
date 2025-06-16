@@ -28,8 +28,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <returns>Task<List<Curriculum>></returns>
         public async Task<List<Curriculum>> GetAllCurriculumAsync()
         {
-            var curriList = await _unitOfWork.Repository<Curriculum>().GetAllAsync();
-            return curriList;
+            return await _unitOfWork.Repository<Curriculum>().GetAllAsync();
         }
 
         /// <summary>
@@ -88,7 +87,6 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
                 {
                     CurriculumCode = sheet[r, headerMap["CurriculumCode"]].Value,
                     IsActive = bool.TryParse(sheet[r, headerMap["IsActive"]].Value?.ToString(), out isActive)
-
                 };
 
                 curriculums.Add(curriculum);
