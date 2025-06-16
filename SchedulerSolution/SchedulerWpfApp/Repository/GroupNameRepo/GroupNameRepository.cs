@@ -63,11 +63,11 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
         /// </summary>
         /// <param name="groupnameid">The group name identifier.</param>
         /// <returns>The matching <see cref="GroupClass"/> entity, or null if not found.</returns>
-        public async Task<GroupClass?> GetGroupClassByIdAsync(string groupnameid)
+        public async Task<GroupClass?> GetGroupNameByIdAsync(string groupname)
         {
             try
             {
-                return await _context.GroupName.FirstOrDefaultAsync(s => s.GroupName == groupnameid);
+                return await _context.GroupName.FirstOrDefaultAsync(s => s.GroupName == groupname);
             }
             catch (Exception ex)
             {
@@ -83,7 +83,7 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
         {
             try
             {
-                var groupClass = await GetGroupClassByIdAsync(code);
+                var groupClass = await GetGroupNameByIdAsync(code);
                 if (groupClass != null)
                 {
                     _context.GroupName.Remove(groupClass);
