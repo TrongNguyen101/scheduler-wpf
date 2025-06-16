@@ -37,7 +37,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw;
+                throw new Exception("Lỗi lấy dữ liệu lớp học", ex);
             }
         }
 
@@ -57,7 +57,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw;
+                throw new Exception("Lỗi khi xóa lớp học", ex);
             }
         }
 
@@ -127,7 +127,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw;
+                throw new Exception("Lỗi khi cập nhật lớp học", ex);
             }
         }
 
@@ -181,7 +181,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
 
             for (int r = 2; r <= rowCount; r++)
             {
-                var room = new GroupClass
+                var groupname = new GroupClass
                 {
                     GroupName = sheet[r, headerMap["Groupname"]].Value,
                     CurriculumCode = sheet[r, headerMap["Khóa"]].Value,
@@ -189,7 +189,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                     Major = sheet[r, headerMap["Ngành"]].Value,
                     Term = sheet[r, headerMap["Kỳ"]].Value,
                 };
-                groupnames.Add(room);
+                groupnames.Add(groupname);
             }
             return groupnames;
         }
