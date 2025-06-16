@@ -2,34 +2,30 @@
 
 namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
 {
-    public interface IGroupNameService 
+    public interface IGroupNameService
     {
-        // Lấy danh sách tất cả các lớp học
+        // Get a list of all classes
         Task<List<GroupClass>> GetAllAsync();
 
-        // Lấy thông tin một lớp học theo ID (dạng số nguyên)
-        Task<GroupClass?> GetByIdAsync(int id);
-
-        // Thêm một lớp học mới vào hệ thống
+        // Add a new class to the system
         Task AddGroupName(GroupClass groupName);
 
-        // Cập nhật thông tin lớp học hiện tại
-        Task UpdateGroupName(GroupClass person);
+        // Update current class information
+        Task UpdateGroupName(GroupClass groupName);
 
-        // Xóa lớp học theo mã lớp (ClassId)
-        Task DeleteGroupName(string classid);
+        // Delete class by class code (ClassId)
+        Task DeleteGroupName(string groupname);
 
-        // Nhập danh sách lớp học từ file Excel
+        // Import class list from Excel file
         Task ImportGroupNameFromExcel(List<GroupClass> listGroupNameFromExcel);
 
-        // Kiểm tra mã lớp đã tồn tại trong hệ thống hay chưa (true = đã tồn tại)
-        Task<bool> CheckClassIdExistsAsync(string classId);
+        // Check if the class code exists in the system (true = exists)
+        Task<bool> CheckGroupNameExistsAsync(string groupname);
 
-        // đọc file excel
+        // read excel file
         List<GroupClass> ReadGroupNameFromExcel(string filePath);
 
-        // đọc file excel để export ra
+        // read excel file to export
         void ExportToExcelGroupName(List<GroupClass> groupname, string filePath);
-
     }
 }

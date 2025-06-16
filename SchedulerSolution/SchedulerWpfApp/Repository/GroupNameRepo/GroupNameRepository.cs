@@ -22,12 +22,12 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
         /// </summary>
         /// <param name="searchTerm">The term to search for in group names.</param>
         /// <returns>A list of matching <see cref="GroupClass"/> entities.</returns>
-        public async Task<List<GroupClass>> SearchRoomsAsync(string searchTerm)
+        public async Task<List<GroupClass>> SearchGroupNameAsync(string searchTerm)
         {
             try
             {
                 return await _context.GroupName
-                    .Where(r => r.GroupName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    .Where(gc => gc.GroupName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                     .ToListAsync();
             }
             catch (Exception ex)
@@ -41,12 +41,12 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
         /// </summary>
         /// <param name="groupName">The group name to check for existence.</param>
         /// <returns>True if the group name exists; otherwise, false.</returns>
-        public async Task<bool> CheckRoomIdExistsAsync(string groupName)
+        public async Task<bool> CheckGroupNameExistsAsync(string groupName)
         {
             try
             {
-                var room = await _context.GroupName.FirstOrDefaultAsync(r => r.GroupName.ToLower() == groupName.ToLower());
-                if (room == null)
+                var groupNames = await _context.GroupName.FirstOrDefaultAsync(gc => gc.GroupName.ToLower() == groupName.ToLower());
+                if (groupNames == null)
                 {
                     return false;
                 }
@@ -63,11 +63,11 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
         /// </summary>
         /// <param name="groupnameid">The group name identifier.</param>
         /// <returns>The matching <see cref="GroupClass"/> entity, or null if not found.</returns>
-        public async Task<GroupClass?> GetGroupClassByCodeAsync(string groupnameid)
+        public async Task<GroupClass?> GetGroupNameAsync(string groupname)
         {
             try
             {
-                return await _context.GroupName.FirstOrDefaultAsync(s => s.GroupName == groupnameid);
+                return await _context.GroupName.FirstOrDefaultAsync(gc => gc.GroupName == groupname);
             }
             catch (Exception ex)
             {
@@ -79,11 +79,11 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
         /// Deletes a <see cref="GroupClass"/> entity with the specified group name code.
         /// </summary>
         /// <param name="code">The group name code of the entity to delete.</param>
-        public async Task DeleteAsync(string code)
+        public async Task DeleteAsync(string groupname)
         {
             try
             {
-                var groupClass = await GetGroupClassByCodeAsync(code);
+                var groupClass = await GetGroupNameAsync(groupname);
                 if (groupClass != null)
                 {
                     _context.GroupName.Remove(groupClass);
@@ -92,7 +92,7 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
             }
             catch (Exception ex)
             {
-                throw new Exception("Delete fail GroupClass.", ex);
+                throw new Exception($"Delete failed for GroupClass with groupname '{groupname}'.", ex);
             }
         }
         #endregion
