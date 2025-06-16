@@ -1,6 +1,6 @@
 ﻿using SchedulerWpfApp.Model;
 
-namespace SchedulerWpfApp.Repository.RoomRepo
+namespace SchedulerWpfApp.Repository.RoomRepository
 {
     public interface IRoomRepository : IBaseRepository<Room>
     {

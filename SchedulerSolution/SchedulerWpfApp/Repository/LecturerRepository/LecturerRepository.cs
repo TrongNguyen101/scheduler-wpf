@@ -20,7 +20,7 @@ namespace SchedulerWpfApp.Repository.LecturerRepository
         /// </summary>
         /// <param name="LecturerId"></param>
         /// <returns></returns>
-        public async Task<Lecturer?> GetByLectureCodeAsync(string LecturerId)
+        public async Task<Lecturer?> GetByLecturerCodeAsync(string LecturerId)
         {
             return await _context.Lecturers.FirstOrDefaultAsync(l => l.LecturerId == LecturerId);
         }
@@ -30,11 +30,11 @@ namespace SchedulerWpfApp.Repository.LecturerRepository
         /// </summary>
         /// <param name="LecturerId"></param>
         /// <returns></returns>
-        public async Task DeleteLecture(string LecturerId)
+        public async Task DeleteLecturer(string LecturerId)
         {
             try
             {
-                var lecturer = await GetByLectureCodeAsync(LecturerId);
+                var lecturer = await GetByLecturerCodeAsync(LecturerId);
                 if (lecturer != null)
                 {
                     _context.Lecturers.Remove(lecturer);
