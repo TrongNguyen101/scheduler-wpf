@@ -11,11 +11,11 @@ namespace SchedulerWpfApp.Repository.LectureSubjectRepository
         #endregion
 
         #region Methods
-        public async Task<LecturerSubject> GetLectureSubjectByIdAsync(int lecturesubjectid)
+        public async Task<LecturerSubject> GetLectureSubjectByIdAsync(int lecturesubjectId)
         {
             try
             {
-                return await _context.LecturerSubjects.FirstOrDefaultAsync(s => s.Id == lecturesubjectid);
+                return await _context.LecturerSubjects.FirstOrDefaultAsync(ls => ls.Id == lecturesubjectId);
             }
             catch (Exception ex)
             {

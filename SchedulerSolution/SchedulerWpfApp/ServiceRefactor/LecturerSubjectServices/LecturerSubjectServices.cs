@@ -34,19 +34,19 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// <summary>
         /// Imports a list of lecturer subjects from an Excel file into the database.
         /// </summary>
-        public async Task ImportLectureSubjectFromExcel(List<LecturerSubject> listlecturesubjectFromExcel)
+        public async Task ImportLecturerSubjectFromExcel(List<LecturerSubject> listLectuerSubjectFromExcel)
         {
             try
             {
-                foreach (var lecturesubject in listlecturesubjectFromExcel)
+                foreach (var lecturerSubject in listLectuerSubjectFromExcel)
                 {
-                    await _unitOfWork.LectureSubjectRepository.AddAsync(lecturesubject);
+                    await _unitOfWork.LectureSubjectRepository.AddAsync(lecturerSubject);
                 }
                 await _unitOfWork.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception("lỗi khi import danh sách phân công", ex);
+                throw new Exception("Lỗi khi import danh sách phân công", ex);
             }
         }
 
@@ -129,9 +129,9 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// </summary>
         /// <param name="filePath">The path to the Excel file.</param>
         /// <returns>A list of LecturerSubject objects read from the Excel file.</returns>
-        public List<LecturerSubject> ReadLectureSubjectFromExcel(string filePath)
+        public List<LecturerSubject> ReadLecturerSubjectFromExcel(string filePath)
         {
-            var lecturesubjects = new List<LecturerSubject>();
+            var lecturerSubjects = new List<LecturerSubject>();
 
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
@@ -158,7 +158,10 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 
             for (int r = 2; r <= rowCount; r++)
             {
-                var lecturesubject = new LecturerSubject
+                bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
+                if (isEmptyRow)
+                    continue;
+                var lectureSubject = new LecturerSubject
                 {
                     LecturerId = sheet[r, headerMap["MAGV"]].Value,
                     LecturerName = sheet[r, headerMap["GIANGVIEN"]].Value,
@@ -169,9 +172,9 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     TotalSlots = int.TryParse(sheet[r, headerMap["SLSV"]].Value, out int totalslots) ? totalslots : 0,
                     NumberOfClasses = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
                 };
-                lecturesubjects.Add(lecturesubject);
+                lecturerSubjects.Add(lectureSubject);
             }
-            return lecturesubjects;
+            return lecturerSubjects;
         }
 
         /// <summary>
@@ -179,7 +182,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// </summary>
         /// <param name="lecturesubjects">The list of LecturerSubject objects to export.</param>
         /// <param name="filePath">The path where the Excel file will be saved.</param>
-        public void ExportToLectureSubjectExcel(List<LecturerSubject> lecturesubjects, string filePath)
+        public void ExportToLecturerSubjectExcel(List<LecturerSubject> lectureSubjects, string filePath)
         {
             using ExcelEngine excelEngine = new();
             IApplication application = excelEngine.Excel;
@@ -196,16 +199,16 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
             sheet[1, 7].Text = "SLL";
             sheet[1, 8].Text = "TONGSLOT";
             int row = 2;
-            foreach (var lecturesubject in lecturesubjects)
+            foreach (var lecturerSubject in lectureSubjects)
             {
-                sheet[row, 1].Text = lecturesubject.LecturerId ?? "";
-                sheet[row, 2].Text = lecturesubject.LecturerName ?? "";
-                sheet[row, 3].Text = lecturesubject.SubjectCode ?? "";
-                sheet[row, 4].Text = lecturesubject.SubjectName ?? "";
-                sheet[row, 5].Text = lecturesubject.Major ?? "";
-                sheet[row, 6].Text = lecturesubject.Term ?? "";
-                sheet[row, 7].Number = lecturesubject.NumberOfClasses ?? 0;
-                sheet[row, 8].Number = lecturesubject.TotalSlots ?? 0;
+                sheet[row, 1].Text = lecturerSubject.LecturerId ?? "";
+                sheet[row, 2].Text = lecturerSubject.LecturerName ?? "";
+                sheet[row, 3].Text = lecturerSubject.SubjectCode ?? "";
+                sheet[row, 4].Text = lecturerSubject.SubjectName ?? "";
+                sheet[row, 5].Text = lecturerSubject.Major ?? "";
+                sheet[row, 6].Text = lecturerSubject.Term ?? "";
+                sheet[row, 7].Number = lecturerSubject.NumberOfClasses ?? 0;
+                sheet[row, 8].Number = lecturerSubject.TotalSlots ?? 0;
                 row++;
             }
             workbook.SaveAs(filePath);
