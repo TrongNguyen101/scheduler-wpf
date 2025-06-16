@@ -11,6 +11,6 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         Task UpdateAsync(LecturerSubject lecturerSubject);
         Task DeleteAsync(int id);
         List<LecturerSubject> ReadLectureSubjectFromExcel(string filePath);
-
+        void ExportToLectureSubjectExcel(List<LecturerSubject> lectureSubjects, string filePath);
     }
 }

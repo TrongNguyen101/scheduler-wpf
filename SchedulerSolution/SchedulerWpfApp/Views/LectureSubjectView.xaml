@@ -147,14 +147,24 @@
 
                     <!-- Form Fields -->
                     <StackPanel Grid.Row="1" Margin="0,0,0,20">
-                        <TextBlock Text="Mã giảng viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.LecturerId}" IsReadOnly="{Binding IsLectureCodeEdit}" />
+                        <TextBlock Text="Mã Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <ComboBox ItemsSource="{Binding Lecturers}" SelectedValue="{Binding SelectedLecturerId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="LecturerId" DisplayMemberPath="LecturerId" Margin="0,0,0,15" />
 
-                        <TextBlock Text="Mã môn" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.SubjectCode, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="Tên Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <TextBlock Text="Tổng số lớp" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="Mã Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <ComboBox ItemsSource="{Binding Subjects}" SelectedValue="{Binding SelectedSubjectId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="SubjectCode" DisplayMemberPath="SubjectCode" Margin="0,0,0,15" />
+
+                        <TextBlock Text="Tên Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Text="Chuyên Ngành" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.Major, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Text="Kỳ Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.Term, UpdateSourceTrigger=PropertyChanged}" />
+
                     </StackPanel>
 
                     <!-- Form Actions -->
