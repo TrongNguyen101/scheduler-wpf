@@ -102,9 +102,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// Retrieve a group name (class) by its class ID.
         /// </summary>
         /// <param name="classID"></param>
-        public async Task<GroupClass?> GetByGroupNameCodeAsync(string classID)
+        public async Task<GroupClass?> GetByGroupNameIdAsync(string classID)
         {
-            return await _unitOfWork.GroupNameRepository.GetGroupClassByCodeAsync(classID);
+            return await _unitOfWork.GroupNameRepository.GetGroupClassByIdAsync(classID);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-                var existinggroupname = await GetByGroupNameCodeAsync(groupname.GroupName);
+                var existinggroupname = await GetByGroupNameIdAsync(groupname.GroupName);
                 if (existinggroupname != null)
                 {
                     _mapper.Map(groupname, existinggroupname);
@@ -135,11 +135,11 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// Check if a class ID exists in the database.
         /// This method takes a class ID as input and returns a boolean indicating whether the class ID exists.
         /// </summary>
-        public async Task<bool> CheckClassIdExistsAsync(string classId)
+        public async Task<bool> CheckGroupNameExistsAsync(string groupname)
         {
             try
             {
-                return await _unitOfWork.GroupNameRepository.CheckRoomIdExistsAsync(classId);
+                return await _unitOfWork.GroupNameRepository.CheckGroupNameIdExistsAsync(groupname);
             }
             catch (Exception ex)
             {

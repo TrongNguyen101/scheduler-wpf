@@ -6,7 +6,6 @@ namespace SchedulerWpfApp.Repository.RoomRepo
     {
         Task<List<Room>> GetNumberOfRoom(int numberOfRoom);
         Task<List<Room>> SearchRoomsAsync(string searchTerm);
-        Task<bool> CheckRoomIdExistsAsync(string roomName);
-        Task<Room> GetRoomByCodeAsync(int roomid);
+        Task<bool> CheckRoomNameExistsAsync(string roomName);
     }
 }

@@ -11,22 +11,21 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         Task AddGroupName(GroupClass groupName);
 
         // Update current class information
-        Task UpdateGroupName(GroupClass person);
+        Task UpdateGroupName(GroupClass groupName);
 
         // Delete class by class code (ClassId)
-        Task DeleteGroupName(string classid);
+        Task DeleteGroupName(string groupname);
 
         // Import class list from Excel file
         Task ImportGroupNameFromExcel(List<GroupClass> listGroupNameFromExcel);
 
         // Check if the class code exists in the system (true = exists)
-        Task<bool> CheckClassIdExistsAsync(string classId);
+        Task<bool> CheckGroupNameExistsAsync(string groupname);
 
         // read excel file
         List<GroupClass> ReadGroupNameFromExcel(string filePath);
 
         // read excel file to export
         void ExportToExcelGroupName(List<GroupClass> groupname, string filePath);
-
     }
 }

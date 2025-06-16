@@ -140,7 +140,7 @@ namespace SchedulerWpfApp.Services
 
         public async Task<bool> CheckRoomIdExistsAsync(string roomname)
         {
-            return await _unitOfWork.RoomRepository.CheckRoomIdExistsAsync(roomname);
+            return await _unitOfWork.RoomRepository.CheckRoomNameExistsAsync(roomname);
         }
     }
 }

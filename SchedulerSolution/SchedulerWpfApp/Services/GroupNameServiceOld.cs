@@ -117,7 +117,7 @@ namespace SchedulerWpfApp.Services
         /// <param name="classID"></param>
         public async Task<GroupClass?> GetByGroupNameCodeAsync(string classID)
         {
-            return await _unitOfWork.GroupNameRepository.GetGroupClassByCodeAsync(classID);
+            return await _unitOfWork.GroupNameRepository.GetGroupClassByIdAsync(classID);
         }
 
         /// <summary>
@@ -147,11 +147,11 @@ namespace SchedulerWpfApp.Services
         /// Check if a class ID exists in the database.
         /// This method takes a class ID as input and returns a boolean indicating whether the class ID exists.
         /// </summary>
-        public async Task<bool> CheckClassIdExistsAsync(string classId)
+        public async Task<bool> CheckClassIdExistsAsync(string groupname)
         {
             try
             {
-                return await _unitOfWork.GroupNameRepository.CheckRoomIdExistsAsync(classId);
+                return await _unitOfWork.GroupNameRepository.CheckGroupNameIdExistsAsync(groupname);
             }
             catch (Exception ex)
             {
