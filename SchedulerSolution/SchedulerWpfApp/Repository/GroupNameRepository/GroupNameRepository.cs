@@ -1,7 +1,7 @@
 ﻿using SchedulerWpfApp.Data;
 using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Model;
-namespace SchedulerWpfApp.Repository.GroupNameRepo
+namespace SchedulerWpfApp.Repository.GroupNameRepository
 {
     /// <summary>
     /// Repository for managing GroupClass entities, providing methods for searching, checking existence, retrieving, and deleting group classes.

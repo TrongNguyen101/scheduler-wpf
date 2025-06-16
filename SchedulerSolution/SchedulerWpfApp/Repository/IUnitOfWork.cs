@@ -1,10 +1,10 @@
-﻿using SchedulerWpfApp.Repository.CurriculumRepo;
-using SchedulerWpfApp.Repository.CurriculumSubjectsRepo;
-using SchedulerWpfApp.Repository.GroupNameRepo;
+﻿using SchedulerWpfApp.Repository.CurriculumRepository;
+using SchedulerWpfApp.Repository.CurriculumSubjectsRepository;
+using SchedulerWpfApp.Repository.GroupNameRepository;
 using SchedulerWpfApp.Repository.LecturerRepository;
 using SchedulerWpfApp.Repository.LecturerRequestRepository;
-using SchedulerWpfApp.Repository.LectureSubjectRepo;
-using SchedulerWpfApp.Repository.RoomRepo;
+using SchedulerWpfApp.Repository.LectureSubjectRepository;
+using SchedulerWpfApp.Repository.RoomRepository;
 using SchedulerWpfApp.Repository.ScheduleRepository;
 using SchedulerWpfApp.Repository.SubjectRepository;
 namespace SchedulerWpfApp.Repository

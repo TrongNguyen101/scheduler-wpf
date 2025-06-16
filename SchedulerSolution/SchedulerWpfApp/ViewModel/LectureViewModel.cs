@@ -244,7 +244,7 @@ namespace SchedulerWpfApp.ViewModel
                     if (existingLecture == null)
                     {
                         // Add new lecturer
-                        await _lecturerService.AddLecture(SelectedLecture);
+                        await _lecturerService.AddLecturer(SelectedLecture);
                         MessageBox.Show("Thêm giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
@@ -265,7 +265,7 @@ namespace SchedulerWpfApp.ViewModel
                         existingLecture.Department = SelectedLecture.Department;
 
                         // Update other properties as needed
-                        await _lecturerService.UpdateLecture(existingLecture);
+                        await _lecturerService.UpdateLecturer(existingLecture);
                         MessageBox.Show("Cập nhật giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
@@ -320,7 +320,7 @@ namespace SchedulerWpfApp.ViewModel
             try
             {
                 // Call the service to delete the lecturer
-                await _lecturerService.DeleteLecture(SelectedLecture.LecturerId);
+                await _lecturerService.DeleteLecturer(SelectedLecture.LecturerId);
 
                 MessageBox.Show("Xóa Giảng viên thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -384,7 +384,7 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     var data = _lecturerService.ReadLecturersFromExcel(dialog.FileName);
-                    await _lecturerService.ImportLectureFromExcel(data);
+                    await _lecturerService.ImportLecturerFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadLectureAsync();
                 }

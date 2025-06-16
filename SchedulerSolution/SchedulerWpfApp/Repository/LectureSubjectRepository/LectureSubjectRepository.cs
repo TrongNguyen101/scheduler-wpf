@@ -2,7 +2,7 @@
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
 
-namespace SchedulerWpfApp.Repository.LectureSubjectRepo
+namespace SchedulerWpfApp.Repository.LectureSubjectRepository
 {
     public class LectureSubjectRepository : BaseRepository<LecturerSubject>, ILectureSubjectRepository
     {
