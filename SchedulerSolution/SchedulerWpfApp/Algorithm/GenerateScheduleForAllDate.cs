@@ -23,30 +23,30 @@ namespace SchedulerWpfApp.Algorithm
         }
         public async Task<List<Schedule>> CreateSchedules(List<Subject> subjects, List<GroupClass> listGroupName, List<LecturerSubject> lecturerSubject, DateTime startDate, List<LecturerRequest> lecturerRequests)
         {
-                List<Schedule> allSchedules = new List<Schedule>();
+            List<Schedule> allSchedules = new List<Schedule>();
 
-                var (listGroupNameAm, listGroupNamePm) = BalancedSplitWithGreedySwap(listGroupName);
+            var (listGroupNameAm, listGroupNamePm) = BalancedSplitWithGreedySwap(listGroupName);
 
-                // Cache lecturer lookup
-                // có bao nhiêu ông thầy thì có bấy nhiêu lớp học cùng lúc
-                var lecturersTeachSubject = lecturerSubject.GroupBy(l => l.SubjectCode).ToDictionary(g => g.Key, g => g.ToList());
-                var lecturersAM = _getLecturerForSubject.FilterLecturerInSession(lecturersTeachSubject, lecturerRequests, "AM");
-                var lecturersPM = _getLecturerForSubject.FilterLecturerInSession(lecturersTeachSubject, lecturerRequests, "PM");
+            // Cache lecturer lookup
+            // có bao nhiêu ông thầy thì có bấy nhiêu lớp học cùng lúc
+            var lecturersTeachSubject = lecturerSubject.GroupBy(l => l.SubjectCode).ToDictionary(g => g.Key, g => g.ToList());
+            var lecturersAM = _getLecturerForSubject.FilterLecturerInSession(lecturersTeachSubject, lecturerRequests, "AM");
+            var lecturersPM = _getLecturerForSubject.FilterLecturerInSession(lecturersTeachSubject, lecturerRequests, "PM");
 
-                // Tạo lịch cho tuần đầu và tuần cuối - buổi sáng (AM)
-                var firstAndLastWeekSchedulesAM = await CreateSchedulesForFirstAndFinalWeek(subjects, lecturersAM, listGroupNameAm, startDate, lecturerRequests, "A", "G");
-                allSchedules.AddRange(firstAndLastWeekSchedulesAM);
+            // Tạo lịch cho tuần đầu và tuần cuối - buổi sáng (AM)
+            var firstAndLastWeekSchedulesAM = await CreateSchedulesForFirstAndFinalWeek(subjects, lecturersAM, listGroupNameAm, startDate, lecturerRequests, "A", "G");
+            allSchedules.AddRange(firstAndLastWeekSchedulesAM);
 
-                // Tạo lịch cho tuần đầu và tuần cuối - buổi chiều (PM)
-                var firstAndLastWeekSchedulesPM = await CreateSchedulesForFirstAndFinalWeek(subjects, lecturersPM, listGroupNamePm, startDate, lecturerRequests, "P", "G");
-                allSchedules.AddRange(firstAndLastWeekSchedulesPM);
+            // Tạo lịch cho tuần đầu và tuần cuối - buổi chiều (PM)
+            var firstAndLastWeekSchedulesPM = await CreateSchedulesForFirstAndFinalWeek(subjects, lecturersPM, listGroupNamePm, startDate, lecturerRequests, "P", "G");
+            allSchedules.AddRange(firstAndLastWeekSchedulesPM);
 
-                // Tạo lịch cho tuần từ 2 đến 9 - buổi sáng (AM)
-                //var weekSchedulesOnlineAm = CreateSchedulesFollowSlotStyleForWeek(subjectSE, lecturersAM, numberOfRoomForWeeks, startDate, lecturerRequests, "A","online", "G", 1);
-                //allSchedules.AddRange(weekSchedulesOnlineAm);
-                //CreateScheduleForSession(allSchedules, subjects, lecturersPM, numberOfRoom, startDate, lecturerRequests, "P", "G", numberOfRoom + 1);
+            // Tạo lịch cho tuần từ 2 đến 9 - buổi sáng (AM)
+            //var weekSchedulesOnlineAm = CreateSchedulesFollowSlotStyleForWeek(subjectSE, lecturersAM, numberOfRoomForWeeks, startDate, lecturerRequests, "A","online", "G", 1);
+            //allSchedules.AddRange(weekSchedulesOnlineAm);
+            //CreateScheduleForSession(allSchedules, subjects, lecturersPM, numberOfRoom, startDate, lecturerRequests, "P", "G", numberOfRoom + 1);
 
-                return allSchedules;
+            return allSchedules;
         }
 
         /// <summary>
