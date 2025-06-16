@@ -41,7 +41,7 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
         /// </summary>
         /// <param name="groupName">The group name to check for existence.</param>
         /// <returns>True if the group name exists; otherwise, false.</returns>
-        public async Task<bool> CheckGroupNameIdExistsAsync(string groupName)
+        public async Task<bool> CheckGroupNameExistsAsync(string groupName)
         {
             try
             {
@@ -63,7 +63,7 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
         /// </summary>
         /// <param name="groupnameid">The group name identifier.</param>
         /// <returns>The matching <see cref="GroupClass"/> entity, or null if not found.</returns>
-        public async Task<GroupClass?> GetGroupNameByIdAsync(string groupname)
+        public async Task<GroupClass?> GetGroupNameAsync(string groupname)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
         {
             try
             {
-                var groupClass = await GetGroupNameByIdAsync(code);
+                var groupClass = await GetGroupNameAsync(code);
                 if (groupClass != null)
                 {
                     _context.GroupName.Remove(groupClass);

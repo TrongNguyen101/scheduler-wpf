@@ -117,7 +117,7 @@ namespace SchedulerWpfApp.Services
         /// <param name="classID"></param>
         public async Task<GroupClass?> GetByGroupNameCodeAsync(string classID)
         {
-            return await _unitOfWork.GroupNameRepository.GetGroupNameByIdAsync(classID);
+            return await _unitOfWork.GroupNameRepository.GetGroupNameAsync(classID);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace SchedulerWpfApp.Services
         {
             try
             {
-                return await _unitOfWork.GroupNameRepository.CheckGroupNameIdExistsAsync(groupname);
+                return await _unitOfWork.GroupNameRepository.CheckGroupNameExistsAsync(groupname);
             }
             catch (Exception ex)
             {

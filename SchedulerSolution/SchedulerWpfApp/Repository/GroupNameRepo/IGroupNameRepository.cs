@@ -5,9 +5,9 @@ namespace SchedulerWpfApp.Repository.GroupNameRepo
     public interface IGroupNameRepository : IBaseRepository<GroupClass>
     {
         Task<List<GroupClass>> SearchRoomsAsync(string searchTerm);
-        Task<bool> CheckGroupNameIdExistsAsync(string groupName);
+        Task<bool> CheckGroupNameExistsAsync(string groupName);
         Task DeleteAsync(string code);
-        Task<GroupClass> GetGroupNameByIdAsync(string groupnameid);
+        Task<GroupClass> GetGroupNameAsync(string groupname);
     }
 }
 
