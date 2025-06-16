@@ -2,7 +2,7 @@
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
 
-namespace SchedulerWpfApp.Repository.CurriculumRepo
+namespace SchedulerWpfApp.Repository.CurriculumRepository
 {
     public class CurriculumRepository : BaseRepository<Curriculum>, ICurriculumRepository
     {

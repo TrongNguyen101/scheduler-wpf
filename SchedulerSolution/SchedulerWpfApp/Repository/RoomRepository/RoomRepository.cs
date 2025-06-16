@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
-namespace SchedulerWpfApp.Repository.RoomRepo
+namespace SchedulerWpfApp.Repository.RoomRepository
 {
     /// <summary>
     /// Repository for handling Room entity database operations.

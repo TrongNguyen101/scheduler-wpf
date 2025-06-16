@@ -1,6 +1,6 @@
 ﻿using SchedulerWpfApp.Model;
 
-namespace SchedulerWpfApp.Repository.LectureSubjectRepo
+namespace SchedulerWpfApp.Repository.LectureSubjectRepository
 {
     public interface ILectureSubjectRepository: IBaseRepository<LecturerSubject>
     {

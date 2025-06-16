@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SchedulerWpfApp.Data;
+﻿using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
 
-namespace SchedulerWpfApp.Repository.CurriculumSubjectsRepo
+namespace SchedulerWpfApp.Repository.CurriculumSubjectsRepository
 {
     public class CurriculumSubjectsRepository : BaseRepository<CurriculumSubject>, ICurriculumSubjectsRepository
     {
