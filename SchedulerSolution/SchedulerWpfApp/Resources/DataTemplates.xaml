@@ -32,4 +32,14 @@
     <DataTemplate DataType="{x:Type vm:LectureSubjectViewModel}">
         <views:LectureSubjectView/>
     </DataTemplate>
+
+    <!-- DataTemplate for CurriculumView -->
+    <DataTemplate DataType="{x:Type vm:CurriculumViewModel}">
+        <views:CurriculumView />
+    </DataTemplate>
+
+    <!-- DataTemplate for CurriculumSubjectView -->
+    <DataTemplate DataType="{x:Type vm:CurriculumSubjectViewModel}">
+        <views:CurriculumSubjectView />
+    </DataTemplate>
 </ResourceDictionary>

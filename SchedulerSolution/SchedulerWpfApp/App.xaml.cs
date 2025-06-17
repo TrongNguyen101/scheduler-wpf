@@ -201,6 +201,8 @@ namespace SchedulerWpfApp
             services.AddTransient<LectureViewModel>();
             services.AddTransient<RoomViewModel>();
             services.AddTransient<LectureSubjectViewModel>();
+            services.AddTransient<CurriculumViewModel>();
+            services.AddTransient<CurriculumSubjectViewModel>();
 
             // Add factories
             services.AddSingleton<Func<SubjectViewModel>>(sp => () => sp.GetRequiredService<SubjectViewModel>());
@@ -209,6 +211,8 @@ namespace SchedulerWpfApp
             services.AddSingleton<Func<LectureViewModel>>(sp => () => sp.GetRequiredService<LectureViewModel>());
             services.AddSingleton<Func<LectureSubjectViewModel>>(sp => () => sp.GetRequiredService<LectureSubjectViewModel>());
             services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
+            services.AddSingleton<Func<CurriculumViewModel>>(sp => () => sp.GetRequiredService<CurriculumViewModel>());
+            services.AddSingleton<Func<CurriculumSubjectViewModel>>(sp => () => sp.GetRequiredService<CurriculumSubjectViewModel>());
 
             services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime
             services.AddScoped<TreeForSchedule>(); // Register TreeNode with a scoped lifetime
