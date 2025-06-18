@@ -38,6 +38,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         {
             try
             {
+                await _unitOfWork.BeginTransactionAsync();
                 foreach (var lecturerSubject in listLectuerSubjectFromExcel)
                 {
                     await _unitOfWork.LectureSubjectRepository.AddAsync(lecturerSubject);
@@ -46,8 +47,9 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
             }
             catch (Exception ex)
             {
+                await _unitOfWork.RollbackAsync();
                 throw new Exception("Lỗi khi import danh sách phân công", ex);
-            }
+            }   
         }
 
         /// <summary>

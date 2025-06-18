@@ -85,7 +85,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
-       
+
         /// <summary>
         /// Gets or sets the selected lecturer ID for the current lecturer subject.
         /// When set, updates the lecturer name of the selected lecturer subject.
@@ -107,7 +107,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
-        
+
         /// <summary>
         /// Gets or sets the selected subject code for the current lecturer subject.
         /// When set, updates the subject name of the selected lecturer subject.
@@ -177,8 +177,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                // Handle exceptions (e.g., show a message to the user)
-                Console.WriteLine($"Error loading lecture subjects: {ex.Message}");
+                MessageBox.Show($"Lấy dữ liệu không thành công: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -232,7 +231,7 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     //Filter the GroupNames list to remove null elements
-                    var lectureSubjectList = LectureSubjects.Where(ls => ls != null).ToList();
+                    var lectureSubjectList = await _lectureSubjectService.GetAllAsync();
                     // call ExportToLectureSubjectExcel function to export file
                     _lectureSubjectService.ExportToLecturerSubjectExcel(lectureSubjectList, dialog.FileName);
                     MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
