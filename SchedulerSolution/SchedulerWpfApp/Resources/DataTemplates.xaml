@@ -29,8 +29,8 @@
     </DataTemplate>
 
     <!-- DataTemplate for LectureSubjectView -->
-    <DataTemplate DataType="{x:Type vm:LectureSubjectViewModel}">
-        <views:LectureSubjectView/>
+    <DataTemplate DataType="{x:Type vm:LecturerSubjectViewModel}">
+        <views:LecturerSubjectView/>
     </DataTemplate>
 
     <!-- DataTemplate for CurriculumView -->

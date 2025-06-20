@@ -11,32 +11,32 @@ using SchedulerWpfApp.ServiceRefactor.LecturerServices;
 namespace SchedulerWpfApp.ViewModel
 {
     /// <summary>
-    /// ViewModel for managing lecture subjects, including adding, editing, deleting, importing, and exporting subjects.
+    /// ViewModel for managing lecturer subjects, including adding, editing, deleting, importing, and exporting subjects.
     /// </summary>
-    public class LectureSubjectViewModel : ViewBaseModel
+    public class LecturerSubjectViewModel : ViewBaseModel
     {
         #region Fields
-        private readonly ILecturerSubjectServices _lectureSubjectService;
+        private readonly ILecturerSubjectServices _lecturerSubjectService;
         private readonly ISubjectServices _subjectServices;
         private readonly ILecturerServices _lectureService;
 
-        private ObservableCollection<LecturerSubject> _lecturesubject;
+        private ObservableCollection<LecturerSubject> _lecturersubject;
         private LecturerSubject? _selectedSubject;
         public string FormTitle => SelectedLecturerSubject?.Id == 0 ? "Thêm môn mới cho giảng viên" : "Chỉnh sửa môn cho giảng viên";
         private bool _isOpenDialog;
         private bool _isConfirmationOpen;
         private bool _isEditing;
-        private bool _isLectureSubjectOpen;
+        private bool _isLecturerSubjectOpen;
         #endregion
 
         #region Construsctor
         /// <summary>
         /// Gets or sets the collection of lecture subjects displayed in the UI.
         /// </summary>
-        public ObservableCollection<LecturerSubject> LectureSubjects
+        public ObservableCollection<LecturerSubject> LecturerSubjects
         {
-            get => _lecturesubject;
-            set => SetProperty(ref _lecturesubject, value);
+            get => _lecturersubject;
+            set => SetProperty(ref _lecturersubject, value);
         }
         public ObservableCollection<Lecturer> Lecturers { get; set; }
         public ObservableCollection<Subject> Subjects { get; set; }
@@ -62,10 +62,10 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Gets or sets a value indicating whether the lecture subject form for adding/editing is currently open.
         /// </summary>
-        public bool IsLectureSubjectFormOpen
+        public bool IsLecturerSubjectFormOpen
         {
-            get => _isLectureSubjectOpen;
-            set => SetProperty(ref _isLectureSubjectOpen, value);
+            get => _isLecturerSubjectOpen;
+            set => SetProperty(ref _isLecturerSubjectOpen, value);
         }
 
         /// <summary>
@@ -144,12 +144,12 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Initializes a new instance of the LectureSubjectViewModel class, setting up commands and loading initial data.
         /// </summary>
-        public LectureSubjectViewModel(ILecturerSubjectServices lectureSubjectService, ISubjectServices subjectServices, ILecturerServices lecturerServices)
+        public LecturerSubjectViewModel(ILecturerSubjectServices lectureSubjectService, ISubjectServices subjectServices, ILecturerServices lecturerServices)
         {
-            _lectureSubjectService = lectureSubjectService;
+            _lecturerSubjectService = lectureSubjectService;
             _subjectServices = subjectServices;
             _lectureService = lecturerServices;
-            LectureSubjects = new ObservableCollection<LecturerSubject>();
+            LecturerSubjects = new ObservableCollection<LecturerSubject>();
             ImportLectureSubjectCommand = new RelayCommand(async () => await ImportLecturerSubjectListAsync());
             ExportLectureSubjectCommand = new RelayCommand(async () => await ExportLecturerSubjectAsync());
             EditLectureSubjectCommand = new RelayCommandGeneric<LecturerSubject>(async (lectursubject) => await EditLecturerSubject(lectursubject));
@@ -168,10 +168,10 @@ namespace SchedulerWpfApp.ViewModel
         {
             try
             {
-                var lecturesubjects = await _lectureSubjectService.GetAllAsync();
+                var lecturesubjects = await _lecturerSubjectService.GetAllAsync();
                 var subjectList = await _subjectServices.GetAllAsync();
                 var lecturerlist = await _lectureService.GetAllLecturerAsync();
-                LectureSubjects = new ObservableCollection<LecturerSubject>(lecturesubjects);
+                LecturerSubjects = new ObservableCollection<LecturerSubject>(lecturesubjects);
                 Subjects = new ObservableCollection<Subject>(subjectList);
                 Lecturers = new ObservableCollection<Lecturer>(lecturerlist);
             }
@@ -196,9 +196,9 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     // call ReadLectureSubjectFromExcel function to process file and read file when importing
-                    var data = _lectureSubjectService.ReadLecturerSubjectFromExcel(dialog.FileName);
+                    var data = _lecturerSubjectService.ReadLecturerSubjectFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
-                    await _lectureSubjectService.ImportLecturerSubjectFromExcel(data);
+                    await _lecturerSubjectService.ImportLecturerSubjectFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadLecturerSubjects();
                 }
@@ -214,7 +214,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task ExportLecturerSubjectAsync()
         {
-            if (LectureSubjects == null || LectureSubjects.Count == 0)
+            if (LecturerSubjects == null || LecturerSubjects.Count == 0)
             {
                 MessageBox.Show("No lecturesubject to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -231,9 +231,9 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     //Filter the GroupNames list to remove null elements
-                    var lectureSubjectList = await _lectureSubjectService.GetAllAsync();
+                    var lectureSubjectList = await _lecturerSubjectService.GetAllAsync();
                     // call ExportToLectureSubjectExcel function to export file
-                    _lectureSubjectService.ExportToLecturerSubjectExcel(lectureSubjectList, dialog.FileName);
+                    _lecturerSubjectService.ExportToLecturerSubjectExcel(lectureSubjectList, dialog.FileName);
                     MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -260,7 +260,7 @@ namespace SchedulerWpfApp.ViewModel
                 SubjectCode = lecturerSubject.SubjectCode,
                 NumberOfClasses = lecturerSubject.NumberOfClasses
             };
-            IsLectureSubjectFormOpen = true;
+            IsLecturerSubjectFormOpen = true;
             _isEditing = true;
         }
 
@@ -271,7 +271,7 @@ namespace SchedulerWpfApp.ViewModel
         public async Task AddLecturerSubjectAsync()
         {
             SelectedLecturerSubject = new LecturerSubject();
-            IsLectureSubjectFormOpen = true;
+            IsLecturerSubjectFormOpen = true;
             // check if it is an edit event
             _isEditing = false;
         }
@@ -310,7 +310,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             // set SelectedGroupname null 
             SelectedLecturerSubject = null;
-            IsLectureSubjectFormOpen = false;
+            IsLecturerSubjectFormOpen = false;
         }
 
         /// <summary>
@@ -332,16 +332,16 @@ namespace SchedulerWpfApp.ViewModel
                 if (_isEditing)
                 {
                     // Update existing lecturer subject
-                    await _lectureSubjectService.UpdateAsync(SelectedLecturerSubject);
+                    await _lecturerSubjectService.UpdateAsync(SelectedLecturerSubject);
                     MessageBox.Show("Lecturer subject saved successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
                     // Add new lecturer subject
-                    await _lectureSubjectService.AddAsync(SelectedLecturerSubject);
+                    await _lecturerSubjectService.AddAsync(SelectedLecturerSubject);
                     MessageBox.Show("Add Lecturer subject saved successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
-                IsLectureSubjectFormOpen = false;
+                IsLecturerSubjectFormOpen = false;
                 await LoadLecturerSubjects();
             }
             catch (Exception ex)
@@ -359,7 +359,7 @@ namespace SchedulerWpfApp.ViewModel
             if (SelectedLecturerSubject == null) return;
             try
             {
-                await _lectureSubjectService.DeleteAsync(SelectedLecturerSubject.Id);
+                await _lecturerSubjectService.DeleteAsync(SelectedLecturerSubject.Id);
                 MessageBox.Show("Lecturer subject deleted successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 IsOpenDialog = false;
                 await LoadLecturerSubjects();

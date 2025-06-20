@@ -3,7 +3,7 @@ using SchedulerWpfApp.Repository.CurriculumSubjectsRepository;
 using SchedulerWpfApp.Repository.GroupNameRepository;
 using SchedulerWpfApp.Repository.LecturerRepository;
 using SchedulerWpfApp.Repository.LecturerRequestRepository;
-using SchedulerWpfApp.Repository.LectureSubjectRepository;
+using SchedulerWpfApp.Repository.LecturerSubjectRepository;
 using SchedulerWpfApp.Repository.RoomRepository;
 using SchedulerWpfApp.Repository.ScheduleRepository;
 using SchedulerWpfApp.Repository.SubjectRepository;
@@ -14,7 +14,7 @@ namespace SchedulerWpfApp.Repository
         IBaseRepository<T> Repository<T>() where T : class;
         IRoomRepository RoomRepository { get; }
         ILecturerRepository LecturerRepository { get; }
-        ILectureSubjectRepository LectureSubjectRepository { get; }
+        ILecturerSubjectRepository LecturerSubjectRepository { get; }
         ILecturerRequestRepository LecturerRequestRepository { get; }
         IGroupNameRepository GroupNameRepository { get; }
         ICurriculumRepository CurriculumRepository { get; }
