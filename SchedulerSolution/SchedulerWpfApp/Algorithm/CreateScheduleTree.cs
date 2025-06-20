@@ -2,8 +2,8 @@
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 using SchedulerWpfApp.ServiceRefactor.GroupNameService;
 using SchedulerWpfApp.ServiceRefactor.LecturerServices;
-using SchedulerWpfApp.Services.ScheduleServices;
-using SchedulerWpfApp.Services.LecturerSubjectServices;
+using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
+using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -12,9 +12,9 @@ namespace SchedulerWpfApp.Algorithm
 
         private readonly GenerateScheduleForAllDate _generateScheduleForAllDate;
 
-        private readonly InterfaceScheduleServices _implementScheduleServices;
-        private readonly InterfaceLecturerSubjectServices _implementLecturerSubjectServices;
-        private readonly InterfaceLecturerServices _implementLecturerServices;
+        private readonly IScheduleServices _implementScheduleServices;
+        private readonly ILecturerSubjectServices _implementLecturerSubjectServices;
+        private readonly ILecturerServices _implementLecturerServices;
 
         // services refactor
         private readonly ISubjectServices _subjectServices;
@@ -23,8 +23,8 @@ namespace SchedulerWpfApp.Algorithm
 
 
         public CreateScheduleTree(GenerateScheduleForAllDate generateScheduleForAllDate,
-                                InterfaceScheduleServices implementSchedule,
-                                InterfaceLecturerSubjectServices implementLecturerSubjectServices,
+                                IScheduleServices implementSchedule,
+                                ILecturerSubjectServices implementLecturerSubjectServices,
                                 ISubjectServices subjectServices,
                                 ILecturerServices lecturerServices,
                                 IGroupNameService groupNameService)
@@ -40,10 +40,10 @@ namespace SchedulerWpfApp.Algorithm
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate)
         {
             List<Schedule> allSchedules = new List<Schedule>();
-            List<Lecturer> lecturers = await _implementLecturerServices.GetAllLecturerAsync();
+            //List<Lecturer> lecturers = await _implementLecturerServices.GetAllLecturerAsync();
             List<Subject> subjects = await _subjectServices.GetAllAsync();
             List<GroupClass> listGroupName = await _groupNameService.GetAllAsync();
-            List<LecturerSubject> lecturerSubjects = await _implementLecturerSubjectServices.GetAllLecturerSubjectAsync();
+            List<LecturerSubject> lecturerSubjects = await _implementLecturerSubjectServices.GetAllAsync();
             List<LecturerRequest> lecturerRequests = new List<LecturerRequest>();
 
             allSchedules = await _generateScheduleForAllDate.CreateSchedules(subjects, listGroupName, lecturerSubjects, startDate, lecturerRequests);

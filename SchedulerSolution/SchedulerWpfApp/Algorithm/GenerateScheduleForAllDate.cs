@@ -1,5 +1,5 @@
 ﻿using SchedulerWpfApp.Model;
-using SchedulerWpfApp.Services;
+using SchedulerWpfApp.ServiceRefactor.RoomService;
 using System;
 using System.Threading.Tasks;
 
@@ -10,10 +10,10 @@ namespace SchedulerWpfApp.Algorithm
         private readonly TreeForSchedule _treeNode;
         private readonly SortSubjectsOneSession _sortSubjectsOneSession;
         private readonly GetLecturerForSubject _getLecturerForSubject;
-        private readonly IRoomServiceOld _roomService;
+        private readonly IRoomService _roomService;
         private readonly CreateSlotTypeCode _createSlotTypeCode;
 
-        public GenerateScheduleForAllDate(TreeForSchedule treeNode, GetLecturerForSubject getLecturerForSubject, SortSubjectsOneSession sortSubjectsOneSession, IRoomServiceOld roomService, CreateSlotTypeCode createSlotTypeCode)
+        public GenerateScheduleForAllDate(TreeForSchedule treeNode, GetLecturerForSubject getLecturerForSubject, SortSubjectsOneSession sortSubjectsOneSession, IRoomService roomService, CreateSlotTypeCode createSlotTypeCode)
         {
             _treeNode = treeNode;
             _sortSubjectsOneSession = sortSubjectsOneSession;

@@ -1,13 +1,11 @@
 ﻿using SchedulerWpfApp.Model;
-using SchedulerWpfApp.Services;
-using SchedulerWpfApp.Services;
-using System.Threading.Tasks;
+using SchedulerWpfApp.ServiceRefactor.RoomService;
 
 namespace SchedulerWpfApp.Algorithm
 {
     public class TreeForSchedule
     {
-        private readonly IRoomServiceOld _roomService;
+        private readonly IRoomService _roomService;
 
         public string Value { get; set; }
         public TreeForSchedule Left { get; set; }
@@ -17,7 +15,7 @@ namespace SchedulerWpfApp.Algorithm
         public string? SlotTime { get; set; }
         public string? StatusSlot { get; set; }
 
-        public TreeForSchedule(IRoomServiceOld roomService)
+        public TreeForSchedule(IRoomService roomService)
         {
             _roomService = roomService;
         }
