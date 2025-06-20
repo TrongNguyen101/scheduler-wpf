@@ -10,8 +10,11 @@ namespace SchedulerWpfApp.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ScheduleId { get; set; } // Id of schedule 
 
-        [Column("RoomNo")]
+        [Column("RoomId")]
         public int? RoomId { get; set; } // Room number
+
+        [Column("RoomName")]
+        public string? RoomName { get; set; } // Room number
 
         [Column("PartOfDay")]
         public string? PartOfDay { get; set; } // Session of the schedule in a day (AM - PM)

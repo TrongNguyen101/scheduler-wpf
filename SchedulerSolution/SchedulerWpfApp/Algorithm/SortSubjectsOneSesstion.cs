@@ -4,7 +4,7 @@ namespace SchedulerWpfApp.Algorithm
 {
     public class SortSubjectsOneSession
     {
-        public Subject[,,] SortSubjectFourClass(List<CurriculumSubject> allSubjects, int numClasses = 4)
+        public CurriculumSubject[,,] SortSubjectFourClass(List<CurriculumSubject> allSubjects, int numClasses = 4)
         {
 
             // trong một tuần, trong 1 buổi, một thầy dạy được tối đa 4 lớp mỗi lớp 2 slot cho 1 môn
@@ -27,7 +27,7 @@ namespace SchedulerWpfApp.Algorithm
             }
 
             // Khởi tạo lịch học: [Ngày, Lớp, Slot]
-            Subject[,,] schedule = new Subject[8, numClasses, 2];
+            CurriculumSubject[,,] schedule = new CurriculumSubject[8, numClasses, 2];
 
             // Mẫu xoay vòng cho 4 lớp (chỉ số môn học: 0, 1, 2, 3)
             int[,] mondayPattern = new int[4, 2] {

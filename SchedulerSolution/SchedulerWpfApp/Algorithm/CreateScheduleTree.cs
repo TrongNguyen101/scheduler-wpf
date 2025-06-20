@@ -29,7 +29,8 @@ namespace SchedulerWpfApp.Algorithm
                                 ILecturerSubjectServices implementLecturerSubjectServices,
                                 ISubjectServices subjectServices,
                                 ILecturerServices lecturerServices,
-                                IGroupNameService groupNameService)
+                                IGroupNameService groupNameService,
+                                ICurriculumSubjectServices curriculumSubjectServices)
         {
             _generateScheduleForAllDate = generateScheduleForAllDate;
             _implementScheduleServices = implementSchedule;
@@ -37,6 +38,7 @@ namespace SchedulerWpfApp.Algorithm
             _lecturerService = lecturerServices;
             _subjectServices = subjectServices;
             _groupNameService = groupNameService;
+            _curriculumSubjectServices = curriculumSubjectServices;
         }
 
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate)

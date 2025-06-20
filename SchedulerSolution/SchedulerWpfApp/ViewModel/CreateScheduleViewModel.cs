@@ -262,7 +262,7 @@ namespace SchedulerWpfApp.ViewModel
             foreach (var classGroup in groupedByClass)
             {
                 Debug.WriteLine($"TIMETABLE FOR CLASS: {classGroup.Key}");
-                Debug.WriteLine($"Room: {classGroup.First().RoomId} | Session: {classGroup.First().PartOfDay}");
+                Debug.WriteLine($"Room: {classGroup.First().RoomName} | Session: {classGroup.First().PartOfDay}");
                 Debug.WriteLine("=============================================================");
 
                 // Nhóm theo tuần (dựa trên ngày bắt đầu tuần)
@@ -341,7 +341,7 @@ namespace SchedulerWpfApp.ViewModel
                                     rowLines[1] += $"Lecturer: {schedule.LecturerId}".PadRight(columnWidth) + "| ";
                                     rowLines[2] += $"Slot type: {schedule.StatusSlot}".PadRight(columnWidth) + "| ";
                                     rowLines[3] += $"Session: {schedule.PartOfDay}".PadRight(columnWidth) + "| ";
-                                    rowLines[4] += $"Room: {schedule.RoomId}".PadRight(columnWidth) + "| ";
+                                    rowLines[4] += $"Room: {schedule.RoomName}".PadRight(columnWidth) + "| ";
                                     rowLines[5] += $"Slot code: {schedule.SlotTypeCode}".PadRight(columnWidth) + "| ";
                                     rowLines[6] += $"Session No: {schedule.SessionNo}".PadRight(columnWidth) + "| ";
                                     rowLines[7] += $"Class: {schedule.GroupName}".PadRight(columnWidth) + "| ";

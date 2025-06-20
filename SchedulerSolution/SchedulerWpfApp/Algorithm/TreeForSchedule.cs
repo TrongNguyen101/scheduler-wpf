@@ -7,10 +7,9 @@ namespace SchedulerWpfApp.Algorithm
     {
         private readonly IRoomService _roomService;
 
-        public string Value { get; set; }
+        public string RoomName { get; set; }
         public TreeForSchedule Left { get; set; }
         public TreeForSchedule Right { get; set; }
-        public int? RoomId { get; set; }
         public string? PartOfDay { get; set; }
         public string? SlotTime { get; set; }
         public string? StatusSlot { get; set; }
@@ -20,10 +19,9 @@ namespace SchedulerWpfApp.Algorithm
             _roomService = roomService;
         }
 
-        public TreeForSchedule(string value, int? roomId = null, string partOfDay = null, string slotTime = null, string statusSlot = null)
+        public TreeForSchedule(string value, string partOfDay = null, string slotTime = null, string statusSlot = null)
         {
-            Value = value;
-            RoomId = roomId;
+            RoomName = value;
             PartOfDay = partOfDay;
             SlotTime = slotTime;
             StatusSlot = statusSlot;
@@ -38,39 +36,32 @@ namespace SchedulerWpfApp.Algorithm
         //     - Slot (Slot 1, Slot 2, Slot 3, Slot 4)
         //       - Slot Type (Online, Offline)
 
-        public async Task<TreeForSchedule> BuildTreeForRoom(int? roomId, string typeOfSlot)
+        public async Task<TreeForSchedule> BuildTreeForRoom(string roomName, string typeOfSlot)
         {
-            if (roomId is null)
-                throw new ArgumentNullException(nameof(roomId), "Room ID cannot be null.");
-
-            Room? room = await _roomService.GetByIdAsync(roomId.Value);
-            if (room is null)
-                throw new InvalidOperationException($"Room with ID {roomId} not found.");
-
             // First level: Room
             // Create the root node with the room name
-            TreeForSchedule root = new TreeForSchedule(room.RoomName, roomId);
+            TreeForSchedule root = new TreeForSchedule(roomName);
 
             // Second level: PartOfDay (AM, PM)
-            root.Left = new TreeForSchedule(room.RoomName, roomId, partOfDay: "A");
-            root.Right = new TreeForSchedule(room.RoomName, roomId, partOfDay: "P");
+            root.Left = new TreeForSchedule(roomName, partOfDay: "A");
+            root.Right = new TreeForSchedule(roomName, partOfDay: "P");
 
             // Third level: Slot (Slot 1, Slot 2, Slot 3, Slot 4)
-            root.Left.Left = new TreeForSchedule(room.RoomName, roomId, partOfDay: "A", slotTime: "slot 1");
-            root.Left.Right = new TreeForSchedule(room.RoomName, roomId, partOfDay: "A", slotTime: "slot 2");
-            root.Right.Left = new TreeForSchedule(room.RoomName, roomId, partOfDay: "P", slotTime: "slot 3");
-            root.Right.Right = new TreeForSchedule(room.RoomName, roomId, partOfDay: "P", slotTime: "slot 4");
+            root.Left.Left = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 1");
+            root.Left.Right = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 2");
+            root.Right.Left = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 3");
+            root.Right.Right = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 4");
 
             // Fourth level: Slot Type (Online, Offline)
             // Each slot has two types: Online and Offline
-            root.Left.Left.Left = new TreeForSchedule(room.RoomName, roomId, partOfDay: "A", slotTime: "slot 1", statusSlot: "online");
-            root.Left.Left.Right = new TreeForSchedule(room.RoomName, roomId, partOfDay: "A", slotTime: "slot 1", statusSlot: "offline");
-            root.Left.Right.Left = new TreeForSchedule(room.RoomName, roomId, partOfDay: "A", slotTime: "slot 2", statusSlot: "online");
-            root.Left.Right.Right = new TreeForSchedule(room.RoomName, roomId, partOfDay: "A", slotTime: "slot 2", statusSlot: "offline");
-            root.Right.Left.Left = new TreeForSchedule(room.RoomName, roomId, partOfDay: "P", slotTime: "slot 3", statusSlot: "online");
-            root.Right.Left.Right = new TreeForSchedule(room.RoomName, roomId, partOfDay: "P", slotTime: "slot 3", statusSlot: "offline");
-            root.Right.Right.Left = new TreeForSchedule(room.RoomName, roomId, partOfDay: "P", slotTime: "slot 4", statusSlot: "online");
-            root.Right.Right.Right = new TreeForSchedule(room.RoomName, roomId, partOfDay: "P", slotTime: "slot 4", statusSlot: "offline");
+            root.Left.Left.Left = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 1", statusSlot: "online");
+            root.Left.Left.Right = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 1", statusSlot: "offline");
+            root.Left.Right.Left = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 2", statusSlot: "online");
+            root.Left.Right.Right = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 2", statusSlot: "offline");
+            root.Right.Left.Left = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 3", statusSlot: "online");
+            root.Right.Left.Right = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 3", statusSlot: "offline");
+            root.Right.Right.Left = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 4", statusSlot: "online");
+            root.Right.Right.Right = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 4", statusSlot: "offline");
 
             return root;
         }
@@ -109,7 +100,7 @@ namespace SchedulerWpfApp.Algorithm
             {
                 schedules.Add(new Schedule
                 {
-                    RoomId = node.RoomId,
+                    RoomName = node.RoomName,
                     PartOfDay = node.PartOfDay,
                     SlotTime = node.SlotTime,
                     StatusSlot = node.StatusSlot,

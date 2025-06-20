@@ -97,12 +97,12 @@ namespace SchedulerWpfApp.Algorithm
 
             for (int indexRoom = 0; indexRoom < listRooms.Count; indexRoom++)
             {
-                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomId, "NewSlot");
+                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomName, "NewSlot");
 
                 /* Cần hàm tạo group name (mã lơp) ở đây*/
                 string groupName = listGroupName[indexRoom].GroupName;
 
-                var subjectOfClass = subjects.Where(s => s.SubjectNameEnglish == listGroupName[indexRoom].Major).ToList();
+                var subjectOfClass = subjects.Where(s => s.CurriculumCode == listGroupName[indexRoom].CurriculumCode && s.TermNo == listGroupName[indexRoom].Term).ToList();
 
                 var scheduleSubjectForClass = _sortSubjectsOneSession.SortSubjectFourClass(subjectOfClass);
 
@@ -147,7 +147,7 @@ namespace SchedulerWpfApp.Algorithm
             return allSchedules;
         }
 
-        private async Task<List<Schedule>> CreateSchedulesForWeek(List<Subject> subjects,
+        private async Task<List<Schedule>> CreateSchedulesForWeek(List<CurriculumSubject> subjects,
                                       Dictionary<string, List<LecturerSubject>> lecturersTeachSubjectSession,
                                       List<GroupClass> listGroupName,
                                       DateTime startDate,
@@ -180,7 +180,7 @@ namespace SchedulerWpfApp.Algorithm
 
             for (int indexRoom = 0; indexRoom < listRooms.Count; indexRoom++)
             {
-                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomId, "NewSlot");
+                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomName, "NewSlot");
 
                 /* Cần hàm tạo group name (mã lơp) ở đây*/
                 string classId = listGroupName[indexRoom + groupNameIndex].GroupName;
@@ -306,7 +306,7 @@ namespace SchedulerWpfApp.Algorithm
         /// <param name="subjectAppearanceOrder">Dictionary lưu số lần xuất hiện của từng môn học.</param>
         /// <param name="subject">Môn học cần lấy số thứ tự buổi học.</param>
         /// <returns>Số thứ tự buổi học hiện tại của môn học.</returns>
-        private int GetSessionNo(Dictionary<string, int> subjectAppearanceOrder, Subject subject)
+        private int GetSessionNo(Dictionary<string, int> subjectAppearanceOrder, CurriculumSubject subject)
         {
             if (subject == null)
                 throw new ArgumentNullException(nameof(subject));

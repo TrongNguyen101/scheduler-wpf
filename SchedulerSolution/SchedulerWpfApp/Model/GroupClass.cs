@@ -19,7 +19,7 @@ namespace SchedulerWpfApp.Model
         public string? Department { get; set; }
 
         [Column("Term")]
-        public string? Term { get; set; }
+        public int? Term { get; set; }
 
         public ICollection<Schedule>? Schedules { get; set; }
     }
