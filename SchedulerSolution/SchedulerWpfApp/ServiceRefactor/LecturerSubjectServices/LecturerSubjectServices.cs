@@ -43,7 +43,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 {
                     await _unitOfWork.LectureSubjectRepository.AddAsync(lecturerSubject);
                 }
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {

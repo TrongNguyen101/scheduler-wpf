@@ -151,25 +151,25 @@
                         <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Lecturers}" SelectedValue="{Binding SelectedLecturerId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="LecturerId" DisplayMemberPath="LecturerId" Margin="0,0,0,15" />
 
                         <TextBlock Text="Tên Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
 
                         <TextBlock Text="Mã Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
                         <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Subjects}" SelectedValue="{Binding SelectedSubjectId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="SubjectCode" DisplayMemberPath="SubjectCode" Margin="0,0,0,15" />
 
                         <TextBlock Text="Tên Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
 
                         <TextBlock Text="Chuyên Ngành" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.Major, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.Major, UpdateSourceTrigger=PropertyChanged}" />
 
                         <TextBlock Text="Kỳ Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.Term, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.Term, UpdateSourceTrigger=PropertyChanged}" />
 
                         <TextBlock Text="Số Lượng Lớp" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged}" />
 
                         <TextBlock Text="Tổng Slots" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
 
                     <!-- Form Actions -->
