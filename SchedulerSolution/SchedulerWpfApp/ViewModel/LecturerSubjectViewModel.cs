@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using System.Windows;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 using SchedulerWpfApp.ServiceRefactor.LecturerServices;
+using Syncfusion.Windows.Shared;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -322,9 +323,13 @@ namespace SchedulerWpfApp.ViewModel
             if (SelectedLecturerSubject == null) return;
             if (string.IsNullOrWhiteSpace(SelectedLecturerSubject.LecturerId) ||
                 string.IsNullOrWhiteSpace(SelectedLecturerSubject.SubjectCode) ||
+                string.IsNullOrEmpty(SelectedLecturerSubject.Term) ||
+                SelectedLecturerSubject.TotalSlots <= 0 ||
+                string.IsNullOrWhiteSpace(SelectedLecturerSubject.Major) ||
                 SelectedLecturerSubject.NumberOfClasses <= 0)
             {
                 MessageBox.Show("Dữ liệu không được để trống.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLecturerSubjectFormOpen = true;
                 return;
             }
             try
