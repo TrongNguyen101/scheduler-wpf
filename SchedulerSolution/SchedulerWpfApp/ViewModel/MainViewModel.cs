@@ -21,6 +21,8 @@ namespace SchedulerWpfApp.ViewModel
         private readonly Func<LectureViewModel> _lectureViewModelFactory;
         private readonly Func<RoomViewModel> _roomViewModelFactory;
         private readonly Func<LectureSubjectViewModel> _lectureSubjectViewModelFactory;
+        private readonly Func<CurriculumViewModel> _curriculumViewModelFactory;
+        private readonly Func<CurriculumSubjectViewModel> _curriculumSubjectViewModelFactory;
 
         /// <summary>
         /// The current view model being shown in the main content area.
@@ -39,6 +41,8 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ShowLectureCommand { get; }
         public ICommand ShowRoomlistCommand { get; }
         public ICommand ShowLectureSubjectCommand { get; }
+        public ICommand ShowCurriculumCommand { get; }
+        public ICommand ShowCurriculumSubjectCommand { get; }
 
         /// <summary>
         /// Initializes the MainViewModel with view model factories.
@@ -49,7 +53,9 @@ namespace SchedulerWpfApp.ViewModel
             Func<CreateScheduleViewModel> createScheduleViewModelFactory,
             Func<LectureViewModel> lectureViewModelFactory,
             Func<GroupNameViewModel> groupNameViewModelFactory,
-            Func<LectureSubjectViewModel> lectureSubjectViewModelFactory)
+            Func<LectureSubjectViewModel> lectureSubjectViewModelFactory,
+            Func<CurriculumViewModel> curriculumViewModelFactory,
+            Func<CurriculumSubjectViewModel> curriculumSubjectViewModelFactory)
         {
             // Assign factory methods
             _subjectViewModelFactory = courseViewModelFactory;
@@ -58,6 +64,8 @@ namespace SchedulerWpfApp.ViewModel
             _lectureViewModelFactory = lectureViewModelFactory;
             _roomViewModelFactory = roomViewModelFactory;
             _lectureSubjectViewModelFactory = lectureSubjectViewModelFactory;
+            _curriculumViewModelFactory = curriculumViewModelFactory;
+            _curriculumSubjectViewModelFactory = curriculumSubjectViewModelFactory;
 
             // Initialize commands for switching views
             ShowCourseCommand = new RelayCommand(ShowCourse);
@@ -66,6 +74,8 @@ namespace SchedulerWpfApp.ViewModel
             ShowLectureCommand = new RelayCommand(ShowLecture);
             ShowRoomlistCommand = new RelayCommand(ShowRoomlist);
             ShowLectureSubjectCommand = new RelayCommand(ShowLectureSubject);
+            ShowCurriculumCommand = new RelayCommand(ShowCurriculumList);
+            ShowCurriculumSubjectCommand = new RelayCommand(ShowCurriculumSubjectList);
 
             // Set default view to GroupNameViewModel
             CurrentViewModel = _GroupNameViewModelFactory();
@@ -82,9 +92,13 @@ namespace SchedulerWpfApp.ViewModel
         private void ShowRoom() => CurrentViewModel = _GroupNameViewModelFactory();
         private void ShowCreateSchedule() => CurrentViewModel = _createScheduleViewModelFactory();
         private void ShowLecture() => CurrentViewModel = _lectureViewModelFactory();
-        private void ShowLectureSubject () =>
+        private void ShowLectureSubject() =>
             CurrentViewModel = _lectureSubjectViewModelFactory();
         private void ShowRoomlist() =>
             CurrentViewModel = _roomViewModelFactory();
+        private void ShowCurriculumList() =>
+            CurrentViewModel = _curriculumViewModelFactory();
+        private void ShowCurriculumSubjectList() =>
+            CurrentViewModel = _curriculumSubjectViewModelFactory();
     }
 }

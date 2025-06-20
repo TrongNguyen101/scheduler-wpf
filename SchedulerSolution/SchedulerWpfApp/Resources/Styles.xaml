@@ -117,6 +117,21 @@
         </Setter>
     </Style>
 
+    <!-- ComboBox Style -->
+    <Style x:Key="ModernComboBoxStyle"
+           TargetType="ComboBox">
+        <Setter Property="Foreground"
+                Value="{StaticResource TextColor}" />
+        <Setter Property="Background"
+                Value="White" />
+        <Setter Property="BorderBrush"
+                Value="{StaticResource SearchBorder}" />
+        <Setter Property="BorderThickness"
+                Value="1" />
+        <Setter Property="Padding"
+                Value="14,12" />
+    </Style>
+
     <!-- Improved Header style -->
     <Style x:Key="GridHeaderStyle" TargetType="syncfusion:GridHeaderCellControl">
         <Setter Property="Background" Value="{StaticResource HeaderBackground}" />
