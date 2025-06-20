@@ -21,7 +21,7 @@ namespace SchedulerWpfApp.Algorithm
             _roomService = roomService;
             _createSlotTypeCode = createSlotTypeCode;
         }
-        public async Task<List<Schedule>> CreateSchedules(List<Subject> subjects, List<GroupClass> listGroupName, List<LecturerSubject> lecturerSubject, DateTime startDate, List<LecturerRequest> lecturerRequests)
+        public async Task<List<Schedule>> CreateSchedules(List<CurriculumSubject> subjects, List<GroupClass> listGroupName, List<LecturerSubject> lecturerSubject, DateTime startDate, List<LecturerRequest> lecturerRequests)
         {
             List<Schedule> allSchedules = new List<Schedule>();
 
@@ -71,7 +71,7 @@ namespace SchedulerWpfApp.Algorithm
         /// <param name="sessionFilter">Session hiện tại ("A" cho AM, "P" cho PM).</param>
         /// <param name="roomCodePrefix">Tiền tố mã phòng (ví dụ: "G").</param>
         /// <param name="classIdStartIndex">Chỉ số bắt đầu để sinh mã lớp.</param>
-        private async Task<List<Schedule>> CreateSchedulesForFirstAndFinalWeek(List<Subject> subjects,
+        private async Task<List<Schedule>> CreateSchedulesForFirstAndFinalWeek(List<CurriculumSubject> subjects,
                                       Dictionary<string, List<LecturerSubject>> lecturersTeachSubjectSession,
                                       List<GroupClass> listGroupName,
                                       DateTime startDate,

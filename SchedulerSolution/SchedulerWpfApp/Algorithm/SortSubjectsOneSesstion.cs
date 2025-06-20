@@ -4,7 +4,7 @@ namespace SchedulerWpfApp.Algorithm
 {
     public class SortSubjectsOneSession
     {
-        public Subject[,,] SortSubjectFourClass(List<Subject> allSubjects, int numClasses = 4)
+        public Subject[,,] SortSubjectFourClass(List<CurriculumSubject> allSubjects, int numClasses = 4)
         {
 
             // trong một tuần, trong 1 buổi, một thầy dạy được tối đa 4 lớp mỗi lớp 2 slot cho 1 môn
@@ -12,8 +12,8 @@ namespace SchedulerWpfApp.Algorithm
             //  get all subjects with 2 slots per week
 
             //Hãy sửa lại chỗ này để chọn đúng môn
-            var subjects = allSubjects.Where(subject => subject.TotalCredits == 2).ToList();
-            var subjectOneSlot = allSubjects.Where(subject => subject.TotalCredits == 1).ToList();
+            var subjects = allSubjects.Where(subject => subject.TotalSlots == 20).ToList();
+            var subjectOneSlot = allSubjects.Where(subject => subject.TotalSlots == 10).ToList();
 
 
             // Kiểm tra đầu vào
