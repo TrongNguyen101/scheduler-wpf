@@ -174,7 +174,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                 if (!string.IsNullOrWhiteSpace(header))
                     headerMap[header] = c;
             }
-            string[] requiredHeaders = { "Groupname", "Khóa", "Kỳ", "BM", "Ngành" };
+            string[] requiredHeaders = { "GroupName", "Khóa", "Kỳ", "BM", "Ngành" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");
@@ -183,7 +183,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             {
                 var groupname = new GroupClass
                 {
-                    GroupName = sheet[r, headerMap["Groupname"]].Value,
+                    GroupName = sheet[r, headerMap["GroupName"]].Value,
                     CurriculumCode = sheet[r, headerMap["Khóa"]].Value,
                     Department = sheet[r, headerMap["BM"]].Value,
                     Major = sheet[r, headerMap["Ngành"]].Value,
