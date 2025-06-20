@@ -15,7 +15,7 @@ using SchedulerWpfApp.Repository.RoomRepository;
 using SchedulerWpfApp.Repository.CurriculumRepository;
 using SchedulerWpfApp.Repository.CurriculumSubjectsRepository;
 using SchedulerWpfApp.Repository.GroupNameRepository;
-using SchedulerWpfApp.Repository.LectureSubjectRepository;
+using SchedulerWpfApp.Repository.LecturerSubjectRepository;
 using SchedulerWpfApp.Repository.LecturerRequestRepository;
 using SchedulerWpfApp.Repository.LecturerRepository;
 using SchedulerWpfApp.Repository.ScheduleRepository;
@@ -147,7 +147,7 @@ namespace SchedulerWpfApp
             services.AddScoped<ICurriculumRepository, CurriculumRepository>();
             services.AddScoped<ICurriculumSubjectsRepository, CurriculumSubjectsRepository>();
             services.AddScoped<IGroupNameRepository, GroupNameRepository>();
-            services.AddScoped<ILectureSubjectRepository, LectureSubjectRepository>();
+            services.AddScoped<ILecturerSubjectRepository, LecturerSubjectRepository>();
             services.AddScoped<ILecturerRequestRepository, LecturerRequestRepository>();
             services.AddScoped<ILecturerRepository, LecturerRepository>();
             services.AddScoped<IScheduleRepository, ScheduleRepository>();
@@ -200,7 +200,7 @@ namespace SchedulerWpfApp
             services.AddTransient<CreateScheduleViewModel>();
             services.AddTransient<LectureViewModel>();
             services.AddTransient<RoomViewModel>();
-            services.AddTransient<LectureSubjectViewModel>();
+            services.AddTransient<LecturerSubjectViewModel>();
             services.AddTransient<CurriculumViewModel>();
             services.AddTransient<CurriculumSubjectViewModel>();
 
@@ -209,7 +209,7 @@ namespace SchedulerWpfApp
             services.AddSingleton<Func<GroupNameViewModel>>(sp => () => sp.GetRequiredService<GroupNameViewModel>());
             services.AddSingleton<Func<CreateScheduleViewModel>>(sp => () => sp.GetRequiredService<CreateScheduleViewModel>());
             services.AddSingleton<Func<LectureViewModel>>(sp => () => sp.GetRequiredService<LectureViewModel>());
-            services.AddSingleton<Func<LectureSubjectViewModel>>(sp => () => sp.GetRequiredService<LectureSubjectViewModel>());
+            services.AddSingleton<Func<LecturerSubjectViewModel>>(sp => () => sp.GetRequiredService<LecturerSubjectViewModel>());
             services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
             services.AddSingleton<Func<CurriculumViewModel>>(sp => () => sp.GetRequiredService<CurriculumViewModel>());
             services.AddSingleton<Func<CurriculumSubjectViewModel>>(sp => () => sp.GetRequiredService<CurriculumSubjectViewModel>());

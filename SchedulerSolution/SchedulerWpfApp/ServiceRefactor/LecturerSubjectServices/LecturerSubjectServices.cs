@@ -41,9 +41,9 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 await _unitOfWork.BeginTransactionAsync();
                 foreach (var lecturerSubject in listLectuerSubjectFromExcel)
                 {
-                    await _unitOfWork.LectureSubjectRepository.AddAsync(lecturerSubject);
+                    await _unitOfWork.LecturerSubjectRepository.AddAsync(lecturerSubject);
                 }
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
@@ -84,7 +84,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         public async Task UpdateAsync(LecturerSubject lecturerSubject)
         {
             await _unitOfWork.BeginTransactionAsync();
-            var existingLecturerSubject = await _unitOfWork.LectureSubjectRepository.GetLectureSubjectByIdAsync(lecturerSubject.Id);
+            var existingLecturerSubject = await _unitOfWork.LecturerSubjectRepository.GetLecturerSubjectByIdAsync(lecturerSubject.Id);
             if (existingLecturerSubject == null)
             {
                 throw new Exception("Không tìm thấy phân công cần cập nhật");
@@ -163,7 +163,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
                 if (isEmptyRow)
                     continue;
-                var lectureSubject = new LecturerSubject
+                var lecturerSubject = new LecturerSubject
                 {
                     LecturerId = sheet[r, headerMap["MAGV"]].Value,
                     LecturerName = sheet[r, headerMap["GIANGVIEN"]].Value,
@@ -174,7 +174,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     TotalSlots = int.TryParse(sheet[r, headerMap["SLSV"]].Value, out int totalslots) ? totalslots : 0,
                     NumberOfClasses = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
                 };
-                lecturerSubjects.Add(lectureSubject);
+                lecturerSubjects.Add(lecturerSubject);
             }
             return lecturerSubjects;
         }
@@ -182,9 +182,9 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// <summary>
         /// Exports a list of LecturerSubject objects to an Excel file.
         /// </summary>
-        /// <param name="lecturesubjects">The list of LecturerSubject objects to export.</param>
+        /// <param name="lecturersubjects">The list of LecturerSubject objects to export.</param>
         /// <param name="filePath">The path where the Excel file will be saved.</param>
-        public void ExportToLecturerSubjectExcel(List<LecturerSubject> lectureSubjects, string filePath)
+        public void ExportToLecturerSubjectExcel(List<LecturerSubject> lecturerSubjects, string filePath)
         {
             using ExcelEngine excelEngine = new();
             IApplication application = excelEngine.Excel;
@@ -201,7 +201,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
             sheet[1, 7].Text = "SLL";
             sheet[1, 8].Text = "TONGSLOT";
             int row = 2;
-            foreach (var lecturerSubject in lectureSubjects)
+            foreach (var lecturerSubject in lecturerSubjects)
             {
                 sheet[row, 1].Text = lecturerSubject.LecturerId ?? "";
                 sheet[row, 2].Text = lecturerSubject.LecturerName ?? "";

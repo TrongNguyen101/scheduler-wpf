@@ -6,7 +6,7 @@ using SchedulerWpfApp.Repository.CurriculumSubjectsRepository;
 using SchedulerWpfApp.Repository.GroupNameRepository;
 using SchedulerWpfApp.Repository.LecturerRepository;
 using SchedulerWpfApp.Repository.LecturerRequestRepository;
-using SchedulerWpfApp.Repository.LectureSubjectRepository;
+using SchedulerWpfApp.Repository.LecturerSubjectRepository;
 using SchedulerWpfApp.Repository.RoomRepository;
 using SchedulerWpfApp.Repository.ScheduleRepository;
 using SchedulerWpfApp.Repository.SubjectRepository;
@@ -36,7 +36,7 @@ namespace SchedulerWpfApp.Repository
         /// <summary>
         /// Gets the LectureSubject repository instance
         /// </summary>
-        public ILectureSubjectRepository LectureSubjectRepository { get; }
+        public ILecturerSubjectRepository LecturerSubjectRepository { get; }
 
         /// <summary>
         /// Gets the LecturerRequest repository instance
@@ -75,7 +75,7 @@ namespace SchedulerWpfApp.Repository
         /// </summary>
         /// <param name="context">The database context</param>
         /// <param name="roomRepository">The room repository implementation</param>
-        public UnitOfWork(DataContext context, IRoomRepository roomRepository, IGroupNameRepository groupNameRepository, ILectureSubjectRepository lectureSubjectRepository, ICurriculumSubjectsRepository curriculumSubjectsRepository, ICurriculumRepository curriculumRepository, ILecturerRepository lecturerRepository, ILecturerRequestRepository lecturerRequestRepository, IScheduleRepository scheduleRepository, ISubjectRepository subjectRepository,IServiceProvider serviceProvider)
+        public UnitOfWork(DataContext context, IRoomRepository roomRepository, IGroupNameRepository groupNameRepository, ILecturerSubjectRepository lecturerSubjectRepository, ICurriculumSubjectsRepository curriculumSubjectsRepository, ICurriculumRepository curriculumRepository, ILecturerRepository lecturerRepository, ILecturerRequestRepository lecturerRequestRepository, IScheduleRepository scheduleRepository, ISubjectRepository subjectRepository,IServiceProvider serviceProvider)
         {
             _context = context;
             RoomRepository = roomRepository;
@@ -85,7 +85,7 @@ namespace SchedulerWpfApp.Repository
             GroupNameRepository = groupNameRepository;
             LecturerRepository = lecturerRepository;
             LecturerRequestRepository = lecturerRequestRepository;
-            LectureSubjectRepository = lectureSubjectRepository;
+            LecturerSubjectRepository = lecturerSubjectRepository;
             ScheduleRepository = scheduleRepository;
             SubjectRepository = subjectRepository;
         }
