@@ -1,8 +1,6 @@
-﻿using System.IO;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Data;
-using SchedulerWpfApp.Migrations;
 using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Services.ScheduleServices

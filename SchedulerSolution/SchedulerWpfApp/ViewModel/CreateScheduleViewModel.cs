@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using SchedulerWpfApp.Algorithm;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
@@ -26,7 +25,7 @@ namespace SchedulerWpfApp.ViewModel
 
         #region Constructor
         public ObservableCollection<DateTime> WeekDays { get; set; } = new();
-        public ObservableCollection<int> Slots { get; set; } = new() { 1, 2, 3, 4 }; // List of available time slots in a day
+        public ObservableCollection<int> Slots { get; set; } = new() { 1, 2, 3, 4, 5, 6, 7, 8 }; // List of available time slots in a day
         public ObservableCollection<int> Years { get; set; } = new(Enumerable.Range(DateTime.Now.Year - 2, 5)); // List of years from 2 years ago to next 2 years
         public ObservableCollection<string> Weeks { get; set; } = new(); // List of weeks in "dd/MM - dd/MM" format
         public ObservableCollection<string> GroupNames { get; set; } = new(); // List of group names to filter schedules
@@ -430,11 +429,43 @@ namespace SchedulerWpfApp.ViewModel
                 // Validate the drop operation
                 if (!ValidateScheduleMove(sourceCell, targetCell, droppedSchedule))
                 {
-                    MessageBox.Show("Cannot move schedule to this slot. Check for conflicts.",
-                                  "Move Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Đã bị trùng lịch. Không thể duy chuyển slot này.",
+                                  "Duy chuyển thất bại", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
+                if (targetCell.Schedule != null)
+                {
+                    MessageBoxResult result = MessageBox.Show($@"Bạn có muốn chuyển đổi slot của môn
+                    { droppedSchedule.SubjectCode} ngày { sourceCell.DayOfWeek:dd / MM / yyyy} { sourceCell.SlotNumber}
+                    với môn { targetCell.Schedule.SubjectCode} ngày { targetCell.DayOfWeek:dd / MM / yyyy} {targetCell.SlotNumber} không?", "Xác nhận", MessageBoxButton.YesNo
+                        , MessageBoxImage.Question, MessageBoxResult.Yes);
+
+                    if (result == MessageBoxResult.No)
+                    {
+                        return; // User chose not to swap, exit the method
+                    }
+                    else
+                    {
+                        await HandelSwapSchedule(sourceCell, targetCell, droppedSchedule); // Swap schedules
+                    }
+                }
+                else
+                {
+                    await HandelSwapSchedule(sourceCell, targetCell, droppedSchedule); // Swap schedules
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error moving schedule: {ex.Message}", "Error",
+                               MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public async Task HandelSwapSchedule(TimetableCellViewModel sourceCell, TimetableCellViewModel targetCell, Schedule droppedSchedule)
+        {
+            try
+            {
                 // Store the target cell's current schedule (for swapping)
                 var targetSchedule = targetCell.Schedule;
 
@@ -474,7 +505,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error moving schedule: {ex.Message}", "Error",
+                MessageBox.Show($"Error swapping schedule: {ex.Message}", "Error",
                                MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
