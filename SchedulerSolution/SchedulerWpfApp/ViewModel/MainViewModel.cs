@@ -20,7 +20,7 @@ namespace SchedulerWpfApp.ViewModel
         private readonly Func<CreateScheduleViewModel> _createScheduleViewModelFactory;
         private readonly Func<LectureViewModel> _lectureViewModelFactory;
         private readonly Func<RoomViewModel> _roomViewModelFactory;
-        private readonly Func<LectureSubjectViewModel> _lectureSubjectViewModelFactory;
+        private readonly Func<LecturerSubjectViewModel> _lecturerSubjectViewModelFactory;
         private readonly Func<CurriculumViewModel> _curriculumViewModelFactory;
         private readonly Func<CurriculumSubjectViewModel> _curriculumSubjectViewModelFactory;
 
@@ -53,7 +53,7 @@ namespace SchedulerWpfApp.ViewModel
             Func<CreateScheduleViewModel> createScheduleViewModelFactory,
             Func<LectureViewModel> lectureViewModelFactory,
             Func<GroupNameViewModel> groupNameViewModelFactory,
-            Func<LectureSubjectViewModel> lectureSubjectViewModelFactory,
+            Func<LecturerSubjectViewModel> lectureSubjectViewModelFactory,
             Func<CurriculumViewModel> curriculumViewModelFactory,
             Func<CurriculumSubjectViewModel> curriculumSubjectViewModelFactory)
         {
@@ -63,7 +63,7 @@ namespace SchedulerWpfApp.ViewModel
             _createScheduleViewModelFactory = createScheduleViewModelFactory;
             _lectureViewModelFactory = lectureViewModelFactory;
             _roomViewModelFactory = roomViewModelFactory;
-            _lectureSubjectViewModelFactory = lectureSubjectViewModelFactory;
+            _lecturerSubjectViewModelFactory = lectureSubjectViewModelFactory;
             _curriculumViewModelFactory = curriculumViewModelFactory;
             _curriculumSubjectViewModelFactory = curriculumSubjectViewModelFactory;
 
@@ -93,7 +93,7 @@ namespace SchedulerWpfApp.ViewModel
         private void ShowCreateSchedule() => CurrentViewModel = _createScheduleViewModelFactory();
         private void ShowLecture() => CurrentViewModel = _lectureViewModelFactory();
         private void ShowLectureSubject() =>
-            CurrentViewModel = _lectureSubjectViewModelFactory();
+            CurrentViewModel = _lecturerSubjectViewModelFactory();
         private void ShowRoomlist() =>
             CurrentViewModel = _roomViewModelFactory();
         private void ShowCurriculumList() =>

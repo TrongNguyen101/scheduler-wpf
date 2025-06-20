@@ -5,9 +5,9 @@ namespace SchedulerWpfApp.Views
     /// <summary>
     /// Interaction logic for LectureSubject.xaml
     /// </summary>
-    public partial class LectureSubjectView : UserControl
+    public partial class LecturerSubjectView : UserControl
     {
-        public LectureSubjectView()
+        public LecturerSubjectView()
         {
             InitializeComponent();
         }

@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SchedulerWpfApp.Views.LectureSubjectView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:SchedulerWpfApp.Views" xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel" xmlns:syncfusion="http://schemas.syncfusion.com/wpf" Background="White">
+﻿<UserControl x:Class="SchedulerWpfApp.Views.LecturerSubjectView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:SchedulerWpfApp.Views" xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel" xmlns:syncfusion="http://schemas.syncfusion.com/wpf" Background="White">
     <Grid Background="#f8f9fa">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -85,7 +85,7 @@
                     <DropShadowEffect ShadowDepth="1" BlurRadius="10" Opacity="0.1" Color="Gray" />
                 </Border.Effect>
 
-                <syncfusion:SfDataGrid x:Name="LecturersDataGrid" ItemsSource="{Binding LectureSubjects}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
+                <syncfusion:SfDataGrid x:Name="LecturersDataGrid" ItemsSource="{Binding LecturerSubjects}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
 
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:GridTextColumn HeaderText="Tên Giảng Viên" MappingName="LecturerName" />
@@ -127,7 +127,7 @@
         </Grid>
 
         <!-- Lecturer Form Popup -->
-        <Popup x:Name="LecturerFormPopup" StaysOpen="False" Placement="Center" IsOpen="{Binding IsLectureSubjectFormOpen}" AllowsTransparency="True">
+        <Popup x:Name="LecturerFormPopup" StaysOpen="False" Placement="Center" IsOpen="{Binding IsLecturerSubjectFormOpen}" AllowsTransparency="True">
             <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="500">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="15" Opacity="0.2" Color="Black" />
@@ -151,25 +151,25 @@
                         <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Lecturers}" SelectedValue="{Binding SelectedLecturerId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="LecturerId" DisplayMemberPath="LecturerId" Margin="0,0,0,15" />
 
                         <TextBlock Text="Tên Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
 
                         <TextBlock Text="Mã Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
                         <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Subjects}" SelectedValue="{Binding SelectedSubjectId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="SubjectCode" DisplayMemberPath="SubjectCode" Margin="0,0,0,15" />
 
                         <TextBlock Text="Tên Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
 
                         <TextBlock Text="Chuyên Ngành" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.Major, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.Major, UpdateSourceTrigger=PropertyChanged}" />
 
                         <TextBlock Text="Kỳ Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.Term, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.Term, UpdateSourceTrigger=PropertyChanged}" />
 
                         <TextBlock Text="Số Lượng Lớp" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged}" />
 
                         <TextBlock Text="Tổng Slots" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
 
                     <!-- Form Actions -->
