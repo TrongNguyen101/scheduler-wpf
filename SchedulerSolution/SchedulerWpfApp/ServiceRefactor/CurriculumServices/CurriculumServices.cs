@@ -75,8 +75,6 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         public async Task UpdateCurriculum(Curriculum curriculum)
         {
             var existingCurriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculum.CurriculumCode);
-            /// <returns>A task representing the asynchronous operation</returns>
-            /// <remarks>If no Curriculum with thnitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(Curriculum.CurriculumId);
             if (existingCurriculum != null)
             {
                 existingCurriculum.CurriculumCode = curriculum.CurriculumCode;

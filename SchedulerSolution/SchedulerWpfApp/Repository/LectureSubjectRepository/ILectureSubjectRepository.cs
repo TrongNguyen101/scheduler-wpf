@@ -4,7 +4,7 @@ namespace SchedulerWpfApp.Repository.LectureSubjectRepository
 {
     public interface ILectureSubjectRepository: IBaseRepository<LecturerSubject>
     {
-        Task<LecturerSubject> GetLectureSubjectByCodeAsync(int groupnameid);
+        Task<LecturerSubject> GetLectureSubjectByIdAsync(int lectureSubjectId);
     }
 }
 

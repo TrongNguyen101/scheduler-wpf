@@ -1,5 +1,6 @@
 ﻿using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
+using Syncfusion.XlsIO;
 
 namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 {
@@ -10,6 +11,10 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         #endregion
 
         #region Constructor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LecturerSubjectServices"/> class.
+        /// </summary>
+        /// <param name="unitOfWork">The unit of work instance for data access.</param>
         public LecturerSubjectServices(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -29,14 +34,23 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// <summary>
         /// Imports a list of lecturer subjects from an Excel file into the database.
         /// </summary>
-        //public async Task ImportLectureSubjectFromExcel(List<LecturerSubject> listlecturesubjectFromExcel)
-        //{
-        //    foreach (var lecturesubject in listlecturesubjectFromExcel)
-        //    {
-        //        _context.LecturerSubjects.Add(lecturesubject);
-        //    }
-        //    await _context.SaveChangesAsync();
-        //}
+        public async Task ImportLecturerSubjectFromExcel(List<LecturerSubject> listLectuerSubjectFromExcel)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                foreach (var lecturerSubject in listLectuerSubjectFromExcel)
+                {
+                    await _unitOfWork.LectureSubjectRepository.AddAsync(lecturerSubject);
+                }
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Lỗi khi import danh sách phân công", ex);
+            }   
+        }
 
         /// <summary>
         /// Retrieves a lecturer subject by its ID asynchronously.
@@ -60,7 +74,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw;
+                throw new Exception("Thêm phân công không thành công", ex);
             }
         }
 
@@ -69,29 +83,29 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// </summary>
         public async Task UpdateAsync(LecturerSubject lecturerSubject)
         {
-            var existingLecturerSubject = await _unitOfWork.LectureSubjectRepository.GetLectureSubjectByCodeAsync(lecturerSubject.Id);
-            //if (existingLecturerSubject == null)
-            //{
-            //    throw new Exception("LecturerSubject not found");
-            //}
-            //var existinglecture = await _context.Lecturers.FindAsync(lecturerSubject.LecturerId);
-            //if (existinglecture == null)
-            //{
-            //    throw new Exception("Lecturer not found");
-            //}
-            //existingLecturerSubject.LecturerId = lecturerSubject.LecturerId;
-            //existingLecturerSubject.SubjectCode = lecturerSubject.SubjectCode;
-            //existingLecturerSubject.LecturerName = existinglecture.LecturerName;
-            //existingLecturerSubject.NumberOfClasses = lecturerSubject.NumberOfClasses;
-            //await _context.SaveChangesAsync();
             await _unitOfWork.BeginTransactionAsync();
+            var existingLecturerSubject = await _unitOfWork.LectureSubjectRepository.GetLectureSubjectByIdAsync(lecturerSubject.Id);
+            if (existingLecturerSubject == null)
+            {
+                throw new Exception("Không tìm thấy phân công cần cập nhật");
+            }
             try
             {
+                existingLecturerSubject.LecturerId = lecturerSubject.LecturerId;
+                existingLecturerSubject.SubjectCode = lecturerSubject.SubjectCode;
+                existingLecturerSubject.LecturerName = lecturerSubject.LecturerName;
+                existingLecturerSubject.NumberOfClasses = lecturerSubject.NumberOfClasses;
+                existingLecturerSubject.SubjectName = lecturerSubject.SubjectName;
+                existingLecturerSubject.Major = lecturerSubject.Major;
+                existingLecturerSubject.Term = lecturerSubject.Term;
+                existingLecturerSubject.TotalSlots = lecturerSubject.TotalSlots;
                 await _unitOfWork.Repository<LecturerSubject>().UpdateAsync(existingLecturerSubject);
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Cập nhật phân công không thành công", ex);
             }
         }
 
@@ -109,8 +123,97 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw;
+                throw new Exception("Xóa phân công không thành công", ex);
             }
+        }
+        /// <summary>
+        /// Reads lecturer subject data from an Excel file and maps it to a list of LecturerSubject objects.
+        /// </summary>
+        /// <param name="filePath">The path to the Excel file.</param>
+        /// <returns>A list of LecturerSubject objects read from the Excel file.</returns>
+        public List<LecturerSubject> ReadLecturerSubjectFromExcel(string filePath)
+        {
+            var lecturerSubjects = new List<LecturerSubject>();
+
+            using ExcelEngine excelEngine = new();
+            var app = excelEngine.Excel;
+            app.DefaultVersion = ExcelVersion.Xlsx;
+
+            var workbook = app.Workbooks.Open(filePath);
+            var sheet = workbook.Worksheets[0];
+
+            int rowCount = sheet.UsedRange.LastRow;
+            int colCount = sheet.UsedRange.LastColumn;
+
+            Dictionary<string, int> headerMap = new();
+            for (int c = 1; c <= colCount; c++)
+            {
+                string header = sheet[1, c].Value?.Trim() ?? "";
+                if (!string.IsNullOrWhiteSpace(header))
+                    headerMap[header] = c;
+            }
+
+            string[] requiredHeaders = { "MAGV", "GIANGVIEN", "MAMH", "TENMH", "NGANH", "KY", "SLSV", "TONGSLOT" };
+            foreach (var h in requiredHeaders)
+                if (!headerMap.ContainsKey(h))
+                    throw new Exception($"Missing required column: {h}");
+
+            for (int r = 2; r <= rowCount; r++)
+            {
+                bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
+                if (isEmptyRow)
+                    continue;
+                var lectureSubject = new LecturerSubject
+                {
+                    LecturerId = sheet[r, headerMap["MAGV"]].Value,
+                    LecturerName = sheet[r, headerMap["GIANGVIEN"]].Value,
+                    SubjectCode = sheet[r, headerMap["MAMH"]].Value,
+                    SubjectName = sheet[r, headerMap["TENMH"]].Value,
+                    Major = sheet[r, headerMap["NGANH"]].Value,
+                    Term = sheet[r, headerMap["KY"]].Value,
+                    TotalSlots = int.TryParse(sheet[r, headerMap["SLSV"]].Value, out int totalslots) ? totalslots : 0,
+                    NumberOfClasses = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
+                };
+                lecturerSubjects.Add(lectureSubject);
+            }
+            return lecturerSubjects;
+        }
+
+        /// <summary>
+        /// Exports a list of LecturerSubject objects to an Excel file.
+        /// </summary>
+        /// <param name="lecturesubjects">The list of LecturerSubject objects to export.</param>
+        /// <param name="filePath">The path where the Excel file will be saved.</param>
+        public void ExportToLecturerSubjectExcel(List<LecturerSubject> lectureSubjects, string filePath)
+        {
+            using ExcelEngine excelEngine = new();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Xlsx;
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet sheet = workbook.Worksheets[0];
+            // Header
+            sheet[1, 1].Text = "MAGV";
+            sheet[1, 2].Text = "GIANGVIEN";
+            sheet[1, 3].Text = "MAMH";
+            sheet[1, 4].Text = "TENMH";
+            sheet[1, 5].Text = "NGANH";
+            sheet[1, 6].Text = "KY";
+            sheet[1, 7].Text = "SLL";
+            sheet[1, 8].Text = "TONGSLOT";
+            int row = 2;
+            foreach (var lecturerSubject in lectureSubjects)
+            {
+                sheet[row, 1].Text = lecturerSubject.LecturerId ?? "";
+                sheet[row, 2].Text = lecturerSubject.LecturerName ?? "";
+                sheet[row, 3].Text = lecturerSubject.SubjectCode ?? "";
+                sheet[row, 4].Text = lecturerSubject.SubjectName ?? "";
+                sheet[row, 5].Text = lecturerSubject.Major ?? "";
+                sheet[row, 6].Text = lecturerSubject.Term ?? "";
+                sheet[row, 7].Number = lecturerSubject.NumberOfClasses ?? 0;
+                sheet[row, 8].Number = lecturerSubject.TotalSlots ?? 0;
+                row++;
+            }
+            workbook.SaveAs(filePath);
         }
         #endregion
     }

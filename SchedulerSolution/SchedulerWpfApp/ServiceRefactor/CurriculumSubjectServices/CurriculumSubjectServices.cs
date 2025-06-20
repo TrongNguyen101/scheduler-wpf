@@ -45,7 +45,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
             var existingCurriculumSubject = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
             if (existingCurriculumSubject != null)
             {
-                await _unitOfWork.CurriculumSubjectsRepository.GetByIdAsync(id);
+                await _unitOfWork.CurriculumSubjectsRepository.DeleteAsync(id);
                 await _unitOfWork.SaveChangesAsync();
             }
         }

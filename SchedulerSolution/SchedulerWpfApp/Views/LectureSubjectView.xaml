@@ -74,7 +74,7 @@
                 <Button Grid.Column="3" Style="{StaticResource SuccessButtonStyle}" Command="{Binding AddLectureSubjectCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕" VerticalAlignment="Center" />
-                        <TextBlock Text="Thêm Môn Cho Giảng Viên" Margin="5,0,0,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Thêm Phân Công" Margin="5,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </Grid>
@@ -88,10 +88,12 @@
                 <syncfusion:SfDataGrid x:Name="LecturersDataGrid" ItemsSource="{Binding LectureSubjects}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
 
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Mã Giảng Viên" MappingName="LecturerId" />
-                        <syncfusion:GridTextColumn HeaderText="Tên Giáo Viên" MappingName="LecturerName" />
-                        <syncfusion:GridTextColumn HeaderText="Mã Môn" MappingName="SubjectCode" />
-                        <syncfusion:GridTextColumn HeaderText="Tổng Lớp" MappingName="NumberOfClasses" />
+                        <syncfusion:GridTextColumn HeaderText="Tên Giảng Viên" MappingName="LecturerName" />
+                        <syncfusion:GridTextColumn HeaderText="Mã Môn Học" MappingName="SubjectCode" />
+                        <syncfusion:GridTextColumn HeaderText="Chuyên Ngành" MappingName="Major" />
+                        <syncfusion:GridTextColumn HeaderText="Kỳ Học" MappingName="Term" />
+                        <syncfusion:GridTextColumn HeaderText="Sô Lượng Lớp" MappingName="NumberOfClasses" />
+                        <syncfusion:GridTextColumn HeaderText="Tổng Số Slots" MappingName="TotalSlots" />
                         <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False" MappingName="ActionPlaceHolder">
                             <syncfusion:GridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -145,14 +147,29 @@
 
                     <!-- Form Fields -->
                     <StackPanel Grid.Row="1" Margin="0,0,0,20">
-                        <TextBlock Text="Mã giảng viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.LecturerId}" IsReadOnly="{Binding IsLectureCodeEdit}" />
+                        <TextBlock Text="Mã Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Lecturers}" SelectedValue="{Binding SelectedLecturerId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="LecturerId" DisplayMemberPath="LecturerId" Margin="0,0,0,15" />
 
-                        <TextBlock Text="Mã môn" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.SubjectCode, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="Tên Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <TextBlock Text="Tổng số lớp" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBlock Text="Mã Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Subjects}" SelectedValue="{Binding SelectedSubjectId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="SubjectCode" DisplayMemberPath="SubjectCode" Margin="0,0,0,15" />
+
+                        <TextBlock Text="Tên Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Text="Chuyên Ngành" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.Major, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Text="Kỳ Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.Term, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Text="Số Lượng Lớp" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
                         <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Text="Tổng Slots" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLectureSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
 
                     <!-- Form Actions -->
