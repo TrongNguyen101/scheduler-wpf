@@ -11,11 +11,11 @@ using Syncfusion.Licensing;
 using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Repository;
-using SchedulerWpfApp.Repository.RoomRepo;
-using SchedulerWpfApp.Repository.CurriculumRepo;
-using SchedulerWpfApp.Repository.CurriculumSubjectsRepo;
-using SchedulerWpfApp.Repository.GroupNameRepo;
-using SchedulerWpfApp.Repository.LectureSubjectRepo;
+using SchedulerWpfApp.Repository.RoomRepository;
+using SchedulerWpfApp.Repository.CurriculumRepository;
+using SchedulerWpfApp.Repository.CurriculumSubjectsRepository;
+using SchedulerWpfApp.Repository.GroupNameRepository;
+using SchedulerWpfApp.Repository.LectureSubjectRepository;
 using SchedulerWpfApp.Repository.LecturerRequestRepository;
 using SchedulerWpfApp.Repository.LecturerRepository;
 using SchedulerWpfApp.Repository.ScheduleRepository;
@@ -26,6 +26,8 @@ using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 using SchedulerWpfApp.ServiceRefactor.RoomService;
 using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
+using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
+using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 namespace SchedulerWpfApp
 {
     /// <summary>
@@ -161,6 +163,8 @@ namespace SchedulerWpfApp
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IScheduleServices, ScheduleServices>();
             services.AddScoped<ISubjectServices, SubjectServices>();
+            services.AddScoped<ICurriculumServices, CurriculumServices>();
+            services.AddScoped<ICurriculumSubjectServices, CurriculumSubjectServices>();
 
             //services.AddScoped<IPersonService, PersonService>();
             //services.AddScoped<ISubjectServices, SubjectServices>();

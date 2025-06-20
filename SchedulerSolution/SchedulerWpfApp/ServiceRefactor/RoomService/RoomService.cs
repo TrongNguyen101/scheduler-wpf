@@ -176,7 +176,7 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         /// </summary>
         /// <param name="id">The ID of the room to retrieve</param>
         /// <returns>The subject with the specified ID, or null if not found</returns>
-        public async Task<Room?> GetByRoomCodeAsync(int roomid)
+        public async Task<Room?> GetByRoomIdAsync(int roomid)
         {
             return await _unitOfWork.Repository<Room>().GetByIdAsync(roomid);
         }
@@ -188,7 +188,7 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         /// <param name="room"></param>
         public async Task UpdateRoom(Room room)
         {
-            var existingRoom = await GetByRoomCodeAsync(room.RoomId);
+            var existingRoom = await GetByRoomIdAsync(room.RoomId);
             if (existingRoom != null)
             {
                 _mapper.Map(room, existingRoom);
@@ -228,9 +228,9 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         /// This method checks if there is any room in the database with the specified room name.
         /// </summary>
         /// <param name="roomname"></param>
-        public async Task<bool> CheckRoomIdExistsAsync(string roomname)
+        public async Task<bool> CheckRoomNameExistsAsync(string roomname)
         {
-            return await _unitOfWork.RoomRepository.CheckRoomIdExistsAsync(roomname);
+            return await _unitOfWork.RoomRepository.CheckRoomNameExistsAsync(roomname);
         }
         #endregion
     }

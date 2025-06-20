@@ -54,10 +54,10 @@ namespace SchedulerWpfApp.Services.LecturerSubjectServices
         /// <remarks>If no lecture with the specified ID exists, no action is taken</remarks>
         public async Task DeleteLecture(string LecturerId)
         {
-            var existingLecture = await _unitOfWork.LecturerRepository.GetByLectureCodeAsync(LecturerId);
+            var existingLecture = await _unitOfWork.LecturerRepository.GetByLecturerCodeAsync(LecturerId);
             if (existingLecture != null)
             {
-                await _unitOfWork.LecturerRepository.DeleteLecture(LecturerId);
+                await _unitOfWork.LecturerRepository.DeleteLecturer(LecturerId);
                 await _unitOfWork.SaveChangesAsync();
             }
         }
@@ -69,7 +69,7 @@ namespace SchedulerWpfApp.Services.LecturerSubjectServices
         /// <returns>The lecture with the specified ID, or null if not found</returns>
         public async Task<Lecturer?> GetByLectureCodeAsync(string LecturerId)
         {
-            return await _unitOfWork.LecturerRepository.GetByLectureCodeAsync(LecturerId);
+            return await _unitOfWork.LecturerRepository.GetByLecturerCodeAsync(LecturerId);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace SchedulerWpfApp.Services.LecturerSubjectServices
         /// <remarks>If no lecture with the specified ID exists, no action is taken</remarks>
         public async Task UpdateLecture(Lecturer lecture)
         {
-            var existingLecture = await _unitOfWork.LecturerRepository.GetByLectureCodeAsync(lecture.LecturerId);
+            var existingLecture = await _unitOfWork.LecturerRepository.GetByLecturerCodeAsync(lecture.LecturerId);
             if (existingLecture != null)
             {
                 existingLecture.LecturerName = lecture.LecturerName;

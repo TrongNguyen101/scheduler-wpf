@@ -23,14 +23,14 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
 
         #region Methods
         /// <summary>
-        /// Adds a new lecture to the database
+        /// Adds a new lecturer to the database
         /// </summary>
-        /// <param name="lecture">The person entity to add</param>
+        /// <param name="lecturer">The person entity to add</param>
         /// <returns>A task representing the asynchronous operation</returns>
-        public async Task AddLecture(Lecturer lecture)
+        public async Task AddLecturer(Lecturer lecturer)
         {
             await _unitOfWork.BeginTransactionAsync();
-            await _unitOfWork.Repository<Lecturer>().AddAsync(lecture);
+            await _unitOfWork.Repository<Lecturer>().AddAsync(lecturer);
             await _unitOfWork.CommitAsync();
         }
 
@@ -39,11 +39,11 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
         /// </summary>
         /// <param name="listLectureFromExcel"></param>
         /// <returns></returns>
-        public async Task ImportLectureFromExcel(List<Lecturer> listLectureFromExcel)
+        public async Task ImportLecturerFromExcel(List<Lecturer> listLecturerFromExcel)
         {
-            foreach (var lecture in listLectureFromExcel)
+            foreach (var lecturer in listLecturerFromExcel)
             {
-                await _unitOfWork.LecturerRepository.AddAsync(lecture);
+                await _unitOfWork.LecturerRepository.AddAsync(lecturer);
             }
             await _unitOfWork.SaveChangesAsync();
         }
@@ -51,27 +51,27 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
         /// <summary>
         /// Deletes a subject from the database by their ID
         /// </summary>
-        /// <param name="LecturerId">The ID of the lecture to delete</param>
+        /// <param name="LecturerId">The ID of the lecturer to delete</param>
         /// <returns>A task representing the asynchronous operation</returns>
-        /// <remarks>If no lecture with the specified ID exists, no action is taken</remarks>
-        public async Task DeleteLecture(string LecturerId)
+        /// <remarks>If no lecturer with the specified ID exists, no action is taken</remarks>
+        public async Task DeleteLecturer(string LecturerId)
         {
-            var existingLecture = await _unitOfWork.LecturerRepository.GetByLectureCodeAsync(LecturerId);
-            if (existingLecture != null)
+            var existingLecturer = await _unitOfWork.LecturerRepository.GetByLecturerCodeAsync(LecturerId);
+            if (existingLecturer != null)
             {
-                await _unitOfWork.LecturerRepository.DeleteLecture(LecturerId);
+                await _unitOfWork.LecturerRepository.DeleteLecturer(LecturerId);
                 await _unitOfWork.SaveChangesAsync();
             }
         }
 
         /// <summary>
-        /// Retrieves a specific lecture by their ID
+        /// Retrieves a specific lecturer by their ID
         /// </summary>
-        /// <param name="LecturerId">The ID of the lecture to retrieve</param>
-        /// <returns>The lecture with the specified ID, or null if not found</returns>
-        public async Task<Lecturer?> GetByLectureCodeAsync(string LecturerId)
+        /// <param name="LecturerId">The ID of the lecturer to retrieve</param>
+        /// <returns>The lecturer with the specified ID, or null if not found</returns>
+        public async Task<Lecturer?> GetByLecturerCodeAsync(string LecturerId)
         {
-            return await _unitOfWork.LecturerRepository.GetByLectureCodeAsync(LecturerId);
+            return await _unitOfWork.LecturerRepository.GetByLecturerCodeAsync(LecturerId);
         }
 
         /// <summary>
@@ -84,22 +84,22 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
         }
 
         /// <summary>
-        /// Updates an existing lecture in the database
+        /// Updates an existing lecturer in the database
         /// </summary>
-        /// <param name="lecture">The lecture entity with updated values</param>
+        /// <param name="lecturer">The lecturer entity with updated values</param>
         /// <returns>A task representing the asynchronous operation</returns>
-        /// <remarks>If no lecture with the specified ID exists, no action is taken</remarks>
-        public async Task UpdateLecture(Lecturer lecture)
+        /// <remarks>If no lecturer with the specified ID exists, no action is taken</remarks>
+        public async Task UpdateLecturer(Lecturer lecturer)
         {
-            var existingLecture = await _unitOfWork.LecturerRepository.GetByLectureCodeAsync(lecture.LecturerId);
-            if (existingLecture != null)
+            var existingLecturer = await _unitOfWork.LecturerRepository.GetByLecturerCodeAsync(lecturer.LecturerId);
+            if (existingLecturer != null)
             {
-                existingLecture.LecturerName = lecture.LecturerName;
-                existingLecture.Role = lecture.Role;
-                existingLecture.Department = lecture.Department;
+                existingLecturer.LecturerName = lecturer.LecturerName;
+                existingLecturer.Role = lecturer.Role;
+                existingLecturer.Department = lecturer.Department;
 
                 await _unitOfWork.BeginTransactionAsync();
-                await _unitOfWork.Repository<Lecturer>().UpdateAsync(existingLecture);
+                await _unitOfWork.Repository<Lecturer>().UpdateAsync(existingLecturer);
                 await _unitOfWork.CommitAsync();
             }
         }
@@ -142,7 +142,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                 bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
                 if (isEmptyRow)
                     continue;
-                var lecture = new Lecturer
+                var lecturer = new Lecturer
                 {
                     LecturerId = sheet[r, headerMap["MaNV"]].Value,
                     LecturerName = sheet[r, headerMap["Fullname"]].Value,
@@ -150,7 +150,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                     Department = sheet[r, headerMap["Bomon"]].Value
                 };
 
-                lectures.Add(lecture);
+                lectures.Add(lecturer);
             }
             return lectures;
         }
@@ -176,12 +176,12 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
             sheet[1, 4].Text = "LoaiGV";
 
             int row = 2;
-            foreach (var lecture in lectures)
+            foreach (var lecturer in lectures)
             {
-                sheet[row, 1].Text = lecture.LecturerId ?? "";
-                sheet[row, 2].Text = lecture.LecturerName ?? "";
-                sheet[row, 3].Text = lecture.Department ?? "";
-                sheet[row, 4].Text = lecture.Role ?? "";
+                sheet[row, 1].Text = lecturer.LecturerId ?? "";
+                sheet[row, 2].Text = lecturer.LecturerName ?? "";
+                sheet[row, 3].Text = lecturer.Department ?? "";
+                sheet[row, 4].Text = lecturer.Role ?? "";
                 row++;
             }
             workbook.SaveAs(filePath);

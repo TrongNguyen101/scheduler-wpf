@@ -312,7 +312,7 @@ namespace SchedulerWpfApp.ViewModel
                 if (_isEditing)
                 {
                     // Khi edit, chỉ cần kiểm tra ClassId có tồn tại không
-                    bool exists = await _groupnamelistService.CheckClassIdExistsAsync(SelectedGroupname.GroupName);
+                    bool exists = await _groupnamelistService.CheckGroupNameExistsAsync(SelectedGroupname.GroupName);
                     var existingLecture = _allGroupNames.FirstOrDefault(s => s.GroupName == SelectedGroupname.GroupName);
 
                     if (exists)
@@ -336,7 +336,7 @@ namespace SchedulerWpfApp.ViewModel
                 else // Add mode
                 {
                     // Kiểm tra trùng ClassId
-                    bool exists = await _groupnamelistService.CheckClassIdExistsAsync(SelectedGroupname.GroupName);
+                    bool exists = await _groupnamelistService.CheckGroupNameExistsAsync(SelectedGroupname.GroupName);
                     if (!exists)
                     {
                         await _groupnamelistService.AddGroupName(SelectedGroupname);

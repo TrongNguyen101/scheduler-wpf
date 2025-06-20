@@ -37,7 +37,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw;
+                throw new Exception("Lỗi lấy dữ liệu lớp học", ex);
             }
         }
 
@@ -46,18 +46,18 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// This method checks if the group name exists in the database and removes it if found.
         /// It takes the class ID as input and performs the deletion asynchronously.
         /// </summary>
-        public async Task DeleteGroupName(string classid)
+        public async Task DeleteGroupName(string groupnameid)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.GroupNameRepository.DeleteAsync(classid);
+                await _unitOfWork.GroupNameRepository.DeleteAsync(groupnameid);
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw;
+                throw new Exception("Lỗi khi xóa lớp học", ex);
             }
         }
 
@@ -79,16 +79,6 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         }
 
         /// <summary>
-        /// Retrieve a group name (class) by its ID.
-        /// This method searches for a group name in the database using its unique identifier.
-        /// It takes the class ID as input and returns the corresponding GroupName object if found.
-        /// </summary>
-        public Task<GroupClass?> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Import group names (classes) from an Excel file.
         /// This method takes a list of GroupName objects as input and adds them to the database.
         /// </summary>
@@ -96,9 +86,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         {
             try
             {
-                foreach (var room in listGroupNameFromExcel)
+                foreach (var groupname in listGroupNameFromExcel)
                 {
-                    await _unitOfWork.GroupNameRepository.AddAsync(room);
+                    await _unitOfWork.GroupNameRepository.AddAsync(groupname);
                 }
                 await _unitOfWork.SaveChangesAsync();
             }
@@ -112,9 +102,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// Retrieve a group name (class) by its class ID.
         /// </summary>
         /// <param name="classID"></param>
-        public async Task<GroupClass?> GetByGroupNameCodeAsync(string classID)
+        public async Task<GroupClass?> GetByGroupNameIdAsync(string groupnameId)
         {
-            return await _unitOfWork.GroupNameRepository.GetGroupClassByCodeAsync(classID);
+            return await _unitOfWork.GroupNameRepository.GetGroupNameAsync(groupnameId);
         }
 
         /// <summary>
@@ -126,7 +116,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-                var existinggroupname = await GetByGroupNameCodeAsync(groupname.GroupName);
+                var existinggroupname = await GetByGroupNameIdAsync(groupname.GroupName);
                 if (existinggroupname != null)
                 {
                     _mapper.Map(groupname, existinggroupname);
@@ -137,7 +127,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw;
+                throw new Exception("Lỗi khi cập nhật lớp học", ex);
             }
         }
 
@@ -145,11 +135,11 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// Check if a class ID exists in the database.
         /// This method takes a class ID as input and returns a boolean indicating whether the class ID exists.
         /// </summary>
-        public async Task<bool> CheckClassIdExistsAsync(string classId)
+        public async Task<bool> CheckGroupNameExistsAsync(string groupname)
         {
             try
             {
-                return await _unitOfWork.GroupNameRepository.CheckRoomIdExistsAsync(classId);
+                return await _unitOfWork.GroupNameRepository.CheckGroupNameExistsAsync(groupname);
             }
             catch (Exception ex)
             {
@@ -165,7 +155,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// <exception cref="Exception"></exception>
         public List<GroupClass> ReadGroupNameFromExcel(string filePath)
         {
-            var rooms = new List<GroupClass>();
+            var groupnames = new List<GroupClass>();
 
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
@@ -191,7 +181,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
 
             for (int r = 2; r <= rowCount; r++)
             {
-                var room = new GroupClass
+                var groupname = new GroupClass
                 {
                     GroupName = sheet[r, headerMap["Groupname"]].Value,
                     CurriculumCode = sheet[r, headerMap["Khóa"]].Value,
@@ -199,9 +189,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                     Major = sheet[r, headerMap["Ngành"]].Value,
                     Term = sheet[r, headerMap["Kỳ"]].Value,
                 };
-                rooms.Add(room);
+                groupnames.Add(groupname);
             }
-            return rooms;
+            return groupnames;
         }
 
         /// <summary>

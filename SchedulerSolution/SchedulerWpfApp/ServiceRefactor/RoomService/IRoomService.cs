@@ -11,7 +11,7 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         Task UpdateRoom(Room room);
         Task DeleteRoom(int id);
         Task<List<Room>> SearchRoomsAsync(string searchTerm);
-        Task<bool> CheckRoomIdExistsAsync(string classId);
+        Task<bool> CheckRoomNameExistsAsync(string roomname);
         void ExportRoomToExcel(List<Room> rooms, string filePath);
         List<Room> ReadRoomListFromExcel(string filePath);
     }

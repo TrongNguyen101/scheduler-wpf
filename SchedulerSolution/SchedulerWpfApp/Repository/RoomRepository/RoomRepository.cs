@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
-namespace SchedulerWpfApp.Repository.RoomRepo
+namespace SchedulerWpfApp.Repository.RoomRepository
 {
     /// <summary>
     /// Repository for handling Room entity database operations.
@@ -24,7 +24,7 @@ namespace SchedulerWpfApp.Repository.RoomRepo
         /// <param name="roomName">The name of the room to check.</param>
         /// <returns>True if the room exists, otherwise false.</returns>
         /// <exception cref="Exception">Thrown when an error occurs while checking room existence.</exception>
-        public async Task<bool> CheckRoomIdExistsAsync(string roomName)
+        public async Task<bool> CheckRoomNameExistsAsync(string roomName)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace SchedulerWpfApp.Repository.RoomRepo
             {
                 return await _context.Rooms
                     .Where(r => r.TypeOfRoom == "Phòng học")
-                    .OrderBy(r => r.RoomId) // hoặc bất kỳ cột nào bạn muốn sắp xếp
+                    .OrderBy(r => r.RoomName) // hoặc bất kỳ cột nào bạn muốn sắp xếp
                     .Take(numberOfRoom)
                     .ToListAsync();
             }
@@ -82,16 +82,6 @@ namespace SchedulerWpfApp.Repository.RoomRepo
             {
                 throw new Exception("An error occurred while searching for rooms.", ex);
             }
-        }
-
-        /// <summary>
-        /// Retrieves a room based on its unique RoomId.
-        /// </summary>
-        /// <param name="roomid"></param>
-        /// <returns></returns>
-        public async Task<Room?> GetRoomByCodeAsync(int roomid)
-        {
-            return await _context.Rooms.FirstOrDefaultAsync(s => s.RoomId == roomid);
         }
         #endregion
     }
