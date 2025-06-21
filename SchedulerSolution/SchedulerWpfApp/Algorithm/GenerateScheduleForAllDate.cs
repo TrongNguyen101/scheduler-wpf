@@ -42,7 +42,7 @@ namespace SchedulerWpfApp.Algorithm
             allSchedules.AddRange(firstAndLastWeekSchedulesPM);
 
             // Tạo lịch cho tuần từ 2 đến 9 - buổi sáng (AM)
-            //var weekSchedulesOnlineAm = CreateSchedulesFollowSlotStyleForWeek(subjectSE, lecturersAM, numberOfRoomForWeeks, startDate, lecturerRequests, "A","online", "G", 1);
+            //var weekSchedulesOnlineAm = CreateSchedulesForWeek(subjects, lecturersAM, listGroupNameAm, startDate, lecturerRequests, "A", "");
             //allSchedules.AddRange(weekSchedulesOnlineAm);
             //CreateScheduleForSession(allSchedules, subjects, lecturersPM, numberOfRoom, startDate, lecturerRequests, "P", "G", numberOfRoom + 1);
 
@@ -172,9 +172,9 @@ namespace SchedulerWpfApp.Algorithm
             string slotType = "offline";
 
             // Calculate the number of rooms needed based on the number of classes for first and final week
-            int numberOfRoomForFirstAndFinalWeek = CalculateNumberOfRoomsForWeeks(listGroupName.Count);
+            int numberOfRoomForWeeks = CalculateNumberOfRoomsForWeeks(listGroupName.Count);
 
-            List<Room> listRooms = await _roomService.GetNumberOfRoom(numberOfRoomForFirstAndFinalWeek);
+            List<Room> listRooms = await _roomService.GetNumberOfRoom(numberOfRoomForWeeks);
 
             int groupNameIndex = sessionFilter == "A" ? 0 : listRooms.Count;
 
