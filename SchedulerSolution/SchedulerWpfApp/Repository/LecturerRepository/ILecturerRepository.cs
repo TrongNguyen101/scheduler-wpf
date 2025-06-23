@@ -7,6 +7,5 @@ namespace SchedulerWpfApp.Repository.LecturerRepository
         Task<Lecturer?> GetByLecturerCodeAsync(string LecturerId);
         Task DeleteLecturer(string LecturerId);
         Task<bool> CheckLecturerExistsAsync(string lecturerId);
-
     }
 }
