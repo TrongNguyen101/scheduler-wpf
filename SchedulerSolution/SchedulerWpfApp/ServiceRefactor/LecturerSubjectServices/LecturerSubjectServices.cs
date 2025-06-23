@@ -36,9 +36,9 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// </summary>
         public async Task ImportLecturerSubjectFromExcel(List<LecturerSubject> listLectuerSubjectFromExcel)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
                 foreach (var lecturerSubject in listLectuerSubjectFromExcel)
                 {
                     var existingLecturerSubject = await _unitOfWork.LecturerSubjectRepository.CheckLecturerSubjectExits(lecturerSubject);

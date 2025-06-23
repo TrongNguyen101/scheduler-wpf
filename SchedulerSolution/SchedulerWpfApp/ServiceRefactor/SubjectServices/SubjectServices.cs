@@ -99,9 +99,9 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
         /// <returns></returns>
         public async Task ImportSubjectFromExcel(List<Subject> listSubjectFromExcel)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
                 foreach (var subject in listSubjectFromExcel)
                 {
                     var existingSubject = await _unitOfWork.SubjectRepository.CheckSubjectCodeExistsAsync(subject.SubjectCode);

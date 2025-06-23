@@ -49,9 +49,16 @@ namespace SchedulerWpfApp.Repository.LecturerRepository
 
         public async Task<bool> CheckLecturerExistsAsync(string lecturerId)
         {
-            return await _context.Lecturers
+            try
+            {
+                return await _context.Lecturers
                 .AnyAsync(l => l.LecturerId.ToLower() == lecturerId.ToLower());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra sự tồn tại của mã Lecturer", ex);
+            }
+            #endregion
         }
-        #endregion
     }
 }

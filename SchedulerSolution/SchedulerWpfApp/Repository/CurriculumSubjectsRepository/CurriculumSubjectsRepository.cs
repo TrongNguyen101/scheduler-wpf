@@ -26,11 +26,18 @@ namespace SchedulerWpfApp.Repository.CurriculumSubjectsRepository
         /// <returns>A task that represents the asynchronous operation. The task result contains true if the CurriculumSubject exists, otherwise false.</returns>
         public Task<bool> CheckCurriculumSubjectCodeExistsAsync(CurriculumSubject curriculumSubject)
         {
-            return _context.CurriculumSubjects
+            try
+            {
+                return _context.CurriculumSubjects
                 .AnyAsync(cs => cs.CurriculumCode.ToLower() == curriculumSubject.CurriculumCode.ToLower() &&
                                 cs.SubjectCode.ToLower() == curriculumSubject.SubjectCode.ToLower() &&
                                 cs.TermNo == curriculumSubject.TermNo);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra sự tồn tại của mã CurriculumSubject.", ex);
+            }
+            #endregion
         }
-        #endregion
     }
 }

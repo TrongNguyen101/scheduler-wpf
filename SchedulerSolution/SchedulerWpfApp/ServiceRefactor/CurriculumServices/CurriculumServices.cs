@@ -92,9 +92,9 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <param name="listCurriculumFromExcel"></param>
         public async Task ImportCurriculumFromExcel(List<Curriculum> listCurriculumFromExcel)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
                 foreach (var curriculum in listCurriculumFromExcel)
                 {
                     var existingCurriculum = await _unitOfWork.CurriculumRepository.CheckCurriculumCodeExistsAsync(curriculum.CurriculumCode);

@@ -49,9 +49,16 @@ namespace SchedulerWpfApp.Repository.SubjectRepository
 
         public Task<bool> CheckSubjectCodeExistsAsync(string subjectCode)
         {
-            return _context.Subjects
+            try
+            {
+                return _context.Subjects
                 .AnyAsync(s => s.SubjectCode.ToLower() == subjectCode.ToLower());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra mã môn học.", ex);
+            }
+            #endregion
         }
-        #endregion
     }
 }

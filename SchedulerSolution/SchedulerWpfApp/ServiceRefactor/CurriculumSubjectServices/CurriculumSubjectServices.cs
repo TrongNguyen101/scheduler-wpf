@@ -57,8 +57,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// <returns>The curriculumSubject with the specified ID, or null if not found</returns>
         public async Task<CurriculumSubject?> GetByIdAsync(int id)
         {
-            var test = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
-            return test;
+            return await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
         }
 
         /// <summary>
@@ -103,9 +102,9 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// <param name="listCurriculumSubjectFromExcel"></param>
         public async Task ImportCurriculumSubjectFromExcel(List<CurriculumSubject> listCurriculumSubjectFromExcel)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
                 foreach (var curriculumSubject in listCurriculumSubjectFromExcel)
                 {
                     var existingCurriculumSubject = await _unitOfWork.CurriculumSubjectsRepository.CheckCurriculumSubjectCodeExistsAsync(curriculumSubject);

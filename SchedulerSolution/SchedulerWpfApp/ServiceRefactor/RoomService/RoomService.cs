@@ -142,9 +142,9 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         /// </summary>
         public async Task ImportRoomFromExcel(List<Room> listRoomFromExcel)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
                 foreach (var room in listRoomFromExcel)
                 {
                     var existing = await _unitOfWork.RoomRepository.CheckRoomNameExistsAsync(room.RoomName);

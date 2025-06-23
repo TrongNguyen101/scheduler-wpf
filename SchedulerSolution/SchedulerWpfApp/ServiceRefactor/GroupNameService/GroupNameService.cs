@@ -119,9 +119,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// </summary>
         public async Task UpdateGroupName(GroupClass groupname)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
                 var existinggroupname = await GetByGroupNameIdAsync(groupname.GroupName);
                 if (existinggroupname != null)
                 {
@@ -209,9 +209,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                 .ToDictionary(gn => gn.Key, gn => gn.Value);
             if (duplicateGroupName.Count > 0)
             {
-                    var errorMessage = duplicateGroupName
-                        .Select(dlc => $"GroupName '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                    throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
+                var errorMessage = duplicateGroupName
+                    .Select(dlc => $"GroupName '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
+                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return groupnames;
         }

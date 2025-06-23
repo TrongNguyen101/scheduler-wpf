@@ -25,11 +25,18 @@ namespace SchedulerWpfApp.Repository.LecturerSubjectRepository
 
         public Task<bool> CheckLecturerSubjectExits(LecturerSubject lecturerSubject)
         {
-            return _context.LecturerSubjects
-                .AnyAsync(ls => ls.LecturerId == lecturerSubject.LecturerId &&
-                                ls.SubjectCode == lecturerSubject.SubjectCode &&
-                                ls.Term == lecturerSubject.Term);
+            try
+            {
+                return _context.LecturerSubjects
+              .AnyAsync(ls => ls.LecturerId == lecturerSubject.LecturerId &&
+                              ls.SubjectCode == lecturerSubject.SubjectCode &&
+                              ls.Term == lecturerSubject.Term);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra xem LecturerSubject có tồn tại không.", ex);
+            }
+            #endregion
         }
-        #endregion
     }
 }

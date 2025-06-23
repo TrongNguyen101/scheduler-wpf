@@ -51,9 +51,16 @@ namespace SchedulerWpfApp.Repository.CurriculumRepository
         /// <returns>True if the curriculum code exists, otherwise false.</returns>
         public Task<bool> CheckCurriculumCodeExistsAsync(string curriculumCode)
         {
-            return _context.Curriculums
-                 .AnyAsync(c => c.CurriculumCode.ToLower() == curriculumCode.ToLower());
+            try
+            {
+                return _context.Curriculums
+                .AnyAsync(c => c.CurriculumCode.ToLower() == curriculumCode.ToLower());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra sự tồn tại của mã chương trình giảng dạy.", ex);
+            }
+            #endregion
         }
-        #endregion
     }
 }
