@@ -157,7 +157,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     headerMap[header] = c;
             }
 
-            string[] requiredHeaders = { "MAGV", "GIANGVIEN", "MAMH", "TENMH", "NGANH", "KY", "SLSV", "TONGSLOT" };
+            string[] requiredHeaders = { "MAGV", "GIANGVIEN", "MAMH", "TENMH", "NGANH", "KY", "SLL", "TONGSLOT" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");
