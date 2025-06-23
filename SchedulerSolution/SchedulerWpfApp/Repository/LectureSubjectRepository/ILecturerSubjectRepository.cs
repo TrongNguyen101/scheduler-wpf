@@ -6,6 +6,7 @@ namespace SchedulerWpfApp.Repository.LecturerSubjectRepository
     {
         Task<LecturerSubject> GetLecturerSubjectByIdAsync(int lecturerSubjectId);
         Task<bool> CheckLecturerSubjectExits(LecturerSubject lecturerSubject);
+        Task<LecturerSubject?> GetLecturerSubjectAsync(LecturerSubject lecturerSubject);
     }
 }
 
