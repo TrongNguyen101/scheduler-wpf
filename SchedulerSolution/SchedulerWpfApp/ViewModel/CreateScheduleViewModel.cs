@@ -225,7 +225,7 @@ namespace SchedulerWpfApp.ViewModel
             foreach (var s in schedules)
             {
                 sheet[row, 1].Number = s.ScheduleId;
-                //sheet[row, 2].Text = s.RoomId ?? "";
+                sheet[row, 2].Text = s.RoomName ?? "";
                 sheet[row, 3].Text = s.PartOfDay ?? "";
                 sheet[row, 4].Text = s.SlotTime ?? "";
                 sheet[row, 5].Text = s.StatusSlot ?? "";
@@ -236,7 +236,7 @@ namespace SchedulerWpfApp.ViewModel
                 sheet[row, 10].Text = s.LecturerId ?? "";
                 sheet[row, 11].Text = s.SlotTypeCode ?? "";
                 sheet[row, 12].Text = s.TypeSlot ?? "";
-                //sheet[row, 13].Number = s.SessionNo;
+                sheet[row, 13].Number = s.SessionNo ?? 0;
 
                 row++;
             }
@@ -262,7 +262,7 @@ namespace SchedulerWpfApp.ViewModel
             foreach (var classGroup in groupedByClass)
             {
                 Debug.WriteLine($"TIMETABLE FOR CLASS: {classGroup.Key}");
-                Debug.WriteLine($"Room: {classGroup.First().RoomId} | Session: {classGroup.First().PartOfDay}");
+                Debug.WriteLine($"Room: {classGroup.First().RoomName} | Session: {classGroup.First().PartOfDay}");
                 Debug.WriteLine("=============================================================");
 
                 // Nhóm theo tuần (dựa trên ngày bắt đầu tuần)
@@ -341,7 +341,7 @@ namespace SchedulerWpfApp.ViewModel
                                     rowLines[1] += $"Lecturer: {schedule.LecturerId}".PadRight(columnWidth) + "| ";
                                     rowLines[2] += $"Slot type: {schedule.StatusSlot}".PadRight(columnWidth) + "| ";
                                     rowLines[3] += $"Session: {schedule.PartOfDay}".PadRight(columnWidth) + "| ";
-                                    rowLines[4] += $"Room: {schedule.RoomId}".PadRight(columnWidth) + "| ";
+                                    rowLines[4] += $"Room: {schedule.RoomName}".PadRight(columnWidth) + "| ";
                                     rowLines[5] += $"Slot code: {schedule.SlotTypeCode}".PadRight(columnWidth) + "| ";
                                     rowLines[6] += $"Session No: {schedule.SessionNo}".PadRight(columnWidth) + "| ";
                                     rowLines[7] += $"Class: {schedule.GroupName}".PadRight(columnWidth) + "| ";

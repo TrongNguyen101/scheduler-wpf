@@ -187,7 +187,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                     CurriculumCode = sheet[r, headerMap["Khóa"]].Value,
                     Department = sheet[r, headerMap["BM"]].Value,
                     Major = sheet[r, headerMap["Ngành"]].Value,
-                    Term = sheet[r, headerMap["Kỳ"]].Value,
+                    Term = int.TryParse(sheet[r, headerMap["Kỳ"]].Value, out int term) ? term : 0
                 };
                 groupnames.Add(groupname);
             }
@@ -199,9 +199,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// This method creates an Excel file at the specified file path and writes the provided group name data into it.
         /// The Excel file will contain columns for GroupName, Khóa, Ngành, BM, and Kỳ.
         /// </summary>
-        /// <param name="groupname">The list of GroupClass objects to export.</param>
+        /// <param name="groupNames">The list of GroupClass objects to export.</param>
         /// <param name="filePath">The file path where the Excel file will be saved.</param>
-        public void ExportToExcelGroupName(List<GroupClass> groupname, string filePath)
+        public void ExportToExcelGroupName(List<GroupClass> groupNames, string filePath)
         {
             using ExcelEngine excelEngine = new();
             IApplication application = excelEngine.Excel;
@@ -215,13 +215,13 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             sheet[1, 4].Text = "BM";
             sheet[1, 5].Text = "Kỳ";
             int row = 2;
-            foreach (var groupnames in groupname)
+            foreach (var groupName in groupNames)
             {
-                sheet[row, 1].Text = groupnames.GroupName ?? "";
-                sheet[row, 2].Text = groupnames.CurriculumCode ?? "";
-                sheet[row, 3].Text = groupnames.Major ?? "";
-                sheet[row, 4].Text = groupnames.Department ?? "";
-                sheet[row, 5].Text = groupnames.Term ?? "";
+                sheet[row, 1].Text = groupName.GroupName ?? "";
+                sheet[row, 2].Text = groupName.CurriculumCode ?? "";
+                sheet[row, 3].Text = groupName.Major ?? "";
+                sheet[row, 4].Text = groupName.Department ?? "";
+                sheet[row, 5].Number = groupName.Term ?? 0;
                 row++;
             }
             workbook.SaveAs(filePath);

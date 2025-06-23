@@ -64,7 +64,7 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Failed to add schedules due to an unexpected error.");
-                throw new Exception("Lỗi khi lấy danh sách lớp học", ex);
+                throw new Exception("Lỗi khi lấy danh sách lịch học", ex);
             }
         }
         #endregion

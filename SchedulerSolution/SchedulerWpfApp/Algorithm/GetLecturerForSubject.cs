@@ -4,15 +4,16 @@ namespace SchedulerWpfApp.Algorithm
 {
     public class GetLecturerForSubject
     {
-        public string FindLecturerForSubject(string subjectId, Dictionary<string, List<LecturerSubject>> lecturerBySubject, int lecturerIndex)
+        public (string lecturerId, string lecturerName) FindLecturerForSubject(string subjectId, Dictionary<string, List<LecturerSubject>> lecturerBySubject, int lecturerIndex)
         {
             if (subjectId == null || !lecturerBySubject.TryGetValue(subjectId, out var lecturers))
             {
-                return null; // No lecturer found for the subject
+                return (null, null); // No lecturer found for the subject
             }
             var lecturername = lecturers.ElementAtOrDefault(lecturerIndex - 1)?.LecturerName; // Get the lecturer's name at the specified index
+            var lecturerId = lecturers.ElementAtOrDefault(lecturerIndex - 1)?.LecturerId; // Get the lecturer's ID at the specified index
 
-            return lecturername ?? "No lecturer"; // Return the first lecturer's name or "No lecturer" if not found
+            return (lecturerId ?? "No lecturer", lecturername ?? "No lecturer"); // Return the first lecturer's name or "No lecturer" if not found
         }
 
         public Dictionary<string, List<LecturerSubject>> FilterLecturerInSession(
