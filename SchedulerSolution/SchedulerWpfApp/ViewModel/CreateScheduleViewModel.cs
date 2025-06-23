@@ -225,7 +225,7 @@ namespace SchedulerWpfApp.ViewModel
             foreach (var s in schedules)
             {
                 sheet[row, 1].Number = s.ScheduleId;
-                //sheet[row, 2].Text = s.RoomId ?? "";
+                sheet[row, 2].Text = s.RoomName ?? "";
                 sheet[row, 3].Text = s.PartOfDay ?? "";
                 sheet[row, 4].Text = s.SlotTime ?? "";
                 sheet[row, 5].Text = s.StatusSlot ?? "";
@@ -236,7 +236,7 @@ namespace SchedulerWpfApp.ViewModel
                 sheet[row, 10].Text = s.LecturerId ?? "";
                 sheet[row, 11].Text = s.SlotTypeCode ?? "";
                 sheet[row, 12].Text = s.TypeSlot ?? "";
-                //sheet[row, 13].Number = s.SessionNo;
+                sheet[row, 13].Number = s.SessionNo ?? 0;
 
                 row++;
             }
