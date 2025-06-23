@@ -30,6 +30,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="Syncfusion.Licensing" Version="29.1.40" />
     <PackageReference Include="Syncfusion.SfGrid.WPF" Version="29.1.40" />
     <PackageReference Include="Syncfusion.SfInput.WPF" Version="29.1.40" />
