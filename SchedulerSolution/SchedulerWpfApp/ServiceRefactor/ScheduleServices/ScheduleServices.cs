@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 
@@ -47,6 +48,50 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
             {
                 await _unitOfWork.RollbackAsync();
                 _logger?.LogError(ex, "Failed to add schedules due to an unexpected error.");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Update schedule in database
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task<bool> UpdateScheduleAsync(Schedule schedule)
+        {
+            if (schedule == null)
+                throw new ArgumentNullException(nameof(schedule));
+            try
+            {
+                var existingScheduler = await _unitOfWork.ScheduleRepository.GetByIdAsync(schedule.ScheduleId);
+
+                if (existingScheduler != null)
+                {
+                    existingScheduler.ScheduleId = schedule.ScheduleId;
+                    existingScheduler.RoomId = schedule.RoomId;
+                    existingScheduler.RoomName = schedule.RoomName;
+                    existingScheduler.PartOfDay = schedule.PartOfDay;
+                    existingScheduler.SlotTime = schedule.SlotTime;
+                    existingScheduler.StatusSlot = schedule.StatusSlot;
+                    existingScheduler.Date = schedule.Date;
+                    existingScheduler.Major = schedule.Major;
+                    existingScheduler.SubjectCode = schedule.SubjectCode;
+                    existingScheduler.GroupName = schedule.GroupName;
+                    existingScheduler.LecturerId = schedule.LecturerId;
+                    existingScheduler.SlotTypeCode = schedule.SlotTypeCode;
+                    existingScheduler.TypeSlot = schedule.TypeSlot;
+                    existingScheduler.SessionNo = schedule.SessionNo;
+
+                    await _unitOfWork.BeginTransactionAsync();
+                    await _unitOfWork.Repository<Schedule>().UpdateAsync(existingScheduler);
+                    await _unitOfWork.CommitAsync();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to update schedule due to an unexpected error.");
+                await _unitOfWork.RollbackAsync();
                 return false;
             }
         }

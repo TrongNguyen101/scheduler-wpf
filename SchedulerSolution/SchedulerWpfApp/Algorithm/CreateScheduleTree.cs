@@ -45,7 +45,7 @@ namespace SchedulerWpfApp.Algorithm
             List<LecturerRequest> lecturerRequests = new List<LecturerRequest>();
 
             allSchedules = await _generateScheduleForAllDate.CreateSchedules(curriculumSubjects, listGroupName, lecturerSubjects, startDate, lecturerRequests);
-            //_implementScheduleServices.AddScheduleAsync(allSchedules);
+            await _implementScheduleServices.AddScheduleAsync(allSchedules);
 
             return allSchedules;
         }
