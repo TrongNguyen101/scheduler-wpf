@@ -45,12 +45,12 @@ namespace SchedulerWpfApp.Repository.GroupNameRepository
         {
             try
             {
-                var groupNames = await _context.GroupName.FirstOrDefaultAsync(gc => gc.GroupName.ToLower() == groupName.ToLower());
-                if (groupNames == null)
+                var groupNames = await _context.GroupName.AnyAsync(gc => gc.GroupName.ToLower() == groupName.ToLower());
+                if (groupNames)
                 {
-                    return false;
+                    return true;
                 }
-                return true;
+                return false;
             }
             catch (Exception ex)
             {

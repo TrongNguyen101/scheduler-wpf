@@ -29,12 +29,12 @@ namespace SchedulerWpfApp.Repository.RoomRepository
             try
             {
                 var room = await _context.Rooms
-                    .FirstOrDefaultAsync(r => r.RoomName.Equals(roomName, StringComparison.OrdinalIgnoreCase));
-                if (room == null)
+                    .AnyAsync(r => r.RoomName.ToLower() == roomName.ToLower());
+                if (room)
                 {
-                    return false;
+                    return true;
                 }
-                return true;
+                return false;
             }
             catch (Exception ex)
             {
