@@ -32,7 +32,7 @@ namespace SchedulerWpfApp.Repository.GroupNameRepository
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while searching for GroupName.", ex);
+                throw new Exception("Đã xảy ra lỗi khi tìm kiếm GroupName.", ex);
             }
         }
 
@@ -50,7 +50,7 @@ namespace SchedulerWpfApp.Repository.GroupNameRepository
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while checking GroupName ID existence.", ex);
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra sự tồn tại của ID GroupName.", ex);
             }
         }
 
@@ -67,7 +67,7 @@ namespace SchedulerWpfApp.Repository.GroupNameRepository
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while retrieving the GroupClass by code.", ex);
+                throw new Exception("Đã xảy ra lỗi khi truy xuất GroupClass theo mã.", ex);
             }
         }
 
@@ -88,7 +88,7 @@ namespace SchedulerWpfApp.Repository.GroupNameRepository
             }
             catch (Exception ex)
             {
-                throw new Exception($"Delete failed for GroupClass with groupname '{groupname}'.", ex);
+                throw new Exception($"Xóa không thành công cho GroupClass với groupname '{groupname}'.", ex);
             }
         }
         #endregion

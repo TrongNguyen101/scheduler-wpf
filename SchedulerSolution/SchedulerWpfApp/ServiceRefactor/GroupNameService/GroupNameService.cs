@@ -86,20 +86,21 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         {
             try
             {
+                await _unitOfWork.BeginTransactionAsync();
                 foreach (var groupname in listGroupNameFromExcel)
                 {
                     var existing = await _unitOfWork.GroupNameRepository.CheckGroupNameExistsAsync(groupname.GroupName);
-                    if (existing)
+                    if (!existing)
                     {
-                        throw new Exception($"GroupName đã tồn tại: {groupname.GroupName}");
+                        await _unitOfWork.GroupNameRepository.AddAsync(groupname);
                     }
-                    await _unitOfWork.GroupNameRepository.AddAsync(groupname);
                 }
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi trong quá trình import dữ liệu", ex);
             }
         }
 
@@ -196,7 +197,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                     Term = sheet[r, headerMap["Kỳ"]].Value,
                 };
                 groupnames.Add(groupname);
-                // Ghi nhớ dòng cho từng GroupName
+                //remember line for GroupName
                 if (!groupNameLineMap.ContainsKey(groupName))
                 {
                     groupNameLineMap[groupName] = new List<int>();
@@ -208,9 +209,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                 .ToDictionary(gn => gn.Key, gn => gn.Value);
             if (duplicateGroupName.Count > 0)
             {
-                var errorMessage = duplicateGroupName
-                    .Select(dlc => $"GroupName '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
+                    var errorMessage = duplicateGroupName
+                        .Select(dlc => $"GroupName '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
+                    throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return groupnames;
         }

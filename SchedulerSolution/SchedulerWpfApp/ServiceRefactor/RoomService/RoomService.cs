@@ -144,20 +144,21 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         {
             try
             {
+                await _unitOfWork.BeginTransactionAsync();
                 foreach (var room in listRoomFromExcel)
                 {
                     var existing = await _unitOfWork.RoomRepository.CheckRoomNameExistsAsync(room.RoomName);
-                    if (existing)
+                    if (!existing)
                     {
-                        throw new Exception($"RoomName đã tồn tại: {room.RoomName}");
+                        await _unitOfWork.RoomRepository.AddAsync(room);
                     }
-                    await _unitOfWork.RoomRepository.AddAsync(room);
                 }
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi trong quá trình import dữ liệu", ex);
             }
         }
 

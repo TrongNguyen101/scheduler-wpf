@@ -391,22 +391,15 @@ namespace SchedulerWpfApp.ViewModel
                 return;
             }
 
-            if (SelectedCurriculumSubject.TermNo < 1)
-            {
-                MessageBox.Show("Số học kỳ phải lớn hơn hoặc bằng 1.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                IsCurriculumSubjectFormOpen = true;
-                return;
-            }
-
             try
             {
                 // Check if _isEdit is false will create new. Otherwise update
                 if (!_isEdit)
                 {
                     // Check if the curriculumSubject already exists
-                    var existingCurriculumSubject = CurriculumSubjects.FirstOrDefault(s => s.CurriculumCode == SelectedCurriculumSubject.CurriculumCode && s.SubjectCode == SelectedCurriculumSubject.SubjectCode && s.TermNo == SelectedCurriculumSubject.TermNo);
+                    var existingCurriculumSubject = CurriculumSubjects.Any(s => s.CurriculumCode == SelectedCurriculumSubject.CurriculumCode && s.SubjectCode == SelectedCurriculumSubject.SubjectCode && s.TermNo == SelectedCurriculumSubject.TermNo);
 
-                    if (existingCurriculumSubject == null)
+                    if (!existingCurriculumSubject)
                     {
                         // Add new curriculumSubject
                         await _curriculumSubjectService.AddCurriculumSubject(SelectedCurriculumSubject);

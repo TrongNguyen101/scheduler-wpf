@@ -4,7 +4,7 @@ using Syncfusion.XlsIO;
 
 namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
 {
-    public class LecturerServices: ILecturerServices
+    public class LecturerServices : ILecturerServices
     {
         #region Fields
         private IUnitOfWork _unitOfWork;
@@ -41,11 +41,24 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
         /// <returns></returns>
         public async Task ImportLecturerFromExcel(List<Lecturer> listLecturerFromExcel)
         {
-            foreach (var lecturer in listLecturerFromExcel)
+            try
             {
-                await _unitOfWork.LecturerRepository.AddAsync(lecturer);
+                await _unitOfWork.BeginTransactionAsync();
+                foreach (var lecturer in listLecturerFromExcel)
+                {
+                    var existingLecturer = await _unitOfWork.LecturerRepository.CheckLecturerExistsAsync(lecturer.LecturerId);
+                    if (!existingLecturer)
+                    {
+                        await _unitOfWork.LecturerRepository.AddAsync(lecturer);
+                    }
+                }
+                await _unitOfWork.CommitAsync();
             }
-            await _unitOfWork.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi trong quá trình import dữ liệu", ex);
+            }
         }
 
         /// <summary>
@@ -113,7 +126,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
         public List<Lecturer> ReadLecturersFromExcel(string filePath)
         {
             var lectures = new List<Lecturer>();
-
+            var lecturerLineMap = new Dictionary<string, List<int>>();
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
             app.DefaultVersion = ExcelVersion.Xlsx;
@@ -142,6 +155,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                 bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
                 if (isEmptyRow)
                     continue;
+                string lecturerId = sheet[r, headerMap["MaNV"]].Value;
                 var lecturer = new Lecturer
                 {
                     LecturerId = sheet[r, headerMap["MaNV"]].Value,
@@ -151,6 +165,20 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                 };
 
                 lectures.Add(lecturer);
+                if (!lecturerLineMap.ContainsKey(lecturerId))
+                {
+                    lecturerLineMap[lecturerId] = new List<int>();
+                }
+                lecturerLineMap[lecturerId].Add(r);
+            }
+            var dulicateLecturerId = lecturerLineMap
+                .Where(l => l.Value.Count > 1)
+                .ToDictionary(l => l.Key, l => l.Value);
+            if (dulicateLecturerId.Count > 0)
+            {
+                var errorMessage = dulicateLecturerId
+                  .Select(dlc => $"Lecturer '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
+                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return lectures;
         }

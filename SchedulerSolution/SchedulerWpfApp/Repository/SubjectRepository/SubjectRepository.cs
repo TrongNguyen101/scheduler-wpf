@@ -43,10 +43,15 @@ namespace SchedulerWpfApp.Repository.SubjectRepository
             catch (Exception ex)
             {
                 // Handle delete subject failure
-                throw new Exception("An error occurred while deleting the subject.", ex);
+                throw new Exception("Đã xảy ra lỗi khi xóa chủ đề.", ex);
             }
         }
-        #endregion
 
+        public Task<bool> CheckSubjectCodeExistsAsync(string subjectCode)
+        {
+            return _context.Subjects
+                .AnyAsync(s => s.SubjectCode.ToLower() == subjectCode.ToLower());
+        }
+        #endregion
     }
 }

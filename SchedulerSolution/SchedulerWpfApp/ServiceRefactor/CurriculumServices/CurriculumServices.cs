@@ -92,11 +92,24 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <param name="listCurriculumFromExcel"></param>
         public async Task ImportCurriculumFromExcel(List<Curriculum> listCurriculumFromExcel)
         {
-            foreach (var curriculum in listCurriculumFromExcel)
+            try
             {
-                await _unitOfWork.Repository<Curriculum>().AddAsync(curriculum);
+                await _unitOfWork.BeginTransactionAsync();
+                foreach (var curriculum in listCurriculumFromExcel)
+                {
+                    var existingCurriculum = await _unitOfWork.CurriculumRepository.CheckCurriculumCodeExistsAsync(curriculum.CurriculumCode);
+                    if (!existingCurriculum)
+                    {
+                        await _unitOfWork.CurriculumRepository.AddAsync(curriculum);
+                    }
+                }
+                await _unitOfWork.CommitAsync();
             }
-            await _unitOfWork.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi trong quá trình import dữ liệu", ex);
+            }
         }
 
         /// <summary>
@@ -107,7 +120,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         public List<Curriculum> ReadCurriculumsFromExcel(string filePath)
         {
             var curriculums = new List<Curriculum>();
-
+            var curriculumLineMap = new Dictionary<string, List<int>>();
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
             app.DefaultVersion = ExcelVersion.Xlsx;
@@ -138,13 +151,27 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
                     continue;
 
                 bool isActive = true; // Default value for IsActive
+                string curriculumCode = sheet[r, headerMap["CurriculumCode"]].Value;
                 var curriculum = new Curriculum
                 {
                     CurriculumCode = sheet[r, headerMap["CurriculumCode"]].Value,
                     IsActive = bool.TryParse(sheet[r, headerMap["IsActive"]].Value?.ToString(), out isActive)
                 };
-
                 curriculums.Add(curriculum);
+                if (!curriculumLineMap.ContainsKey(curriculumCode))
+                {
+                    curriculumLineMap[curriculumCode] = new List<int>();
+                }
+                curriculumLineMap[curriculumCode].Add(r);
+            }
+            var duplicateCurriculums = curriculumLineMap
+                .Where(kvp => kvp.Value.Count > 1)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            if (duplicateCurriculums.Count > 0)
+            {
+                var errorMessage = duplicateCurriculums
+                   .Select(dlc => $"Curriculum '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
+                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return curriculums;
         }

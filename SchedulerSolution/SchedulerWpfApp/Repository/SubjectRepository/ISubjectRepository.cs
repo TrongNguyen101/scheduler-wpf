@@ -6,5 +6,6 @@ namespace SchedulerWpfApp.Repository.SubjectRepository
     {
         Task<Subject?> GetSubjectByCodeAsync(string code);
         Task DeleteAsync(string code);
+        Task<bool> CheckSubjectCodeExistsAsync(string subjectCode);
     }
 }

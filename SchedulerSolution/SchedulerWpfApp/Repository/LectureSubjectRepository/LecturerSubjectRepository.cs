@@ -22,7 +22,14 @@ namespace SchedulerWpfApp.Repository.LecturerSubjectRepository
                 throw new Exception("An error occurred while retrieving the LecturerSubject by code.", ex);
             }
         }
+
+        public Task<bool> CheckLecturerSubjectExits(LecturerSubject lecturerSubject)
+        {
+            return _context.LecturerSubjects
+                .AnyAsync(ls => ls.LecturerId == lecturerSubject.LecturerId &&
+                                ls.SubjectCode == lecturerSubject.SubjectCode &&
+                                ls.Term == lecturerSubject.Term);
+        }
         #endregion
     }
-
 }

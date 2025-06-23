@@ -41,15 +41,19 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 await _unitOfWork.BeginTransactionAsync();
                 foreach (var lecturerSubject in listLectuerSubjectFromExcel)
                 {
-                    await _unitOfWork.LecturerSubjectRepository.AddAsync(lecturerSubject);
+                    var existingLecturerSubject = await _unitOfWork.LecturerSubjectRepository.CheckLecturerSubjectExits(lecturerSubject);
+                    if (!existingLecturerSubject)
+                    {
+                        await _unitOfWork.Repository<LecturerSubject>().AddAsync(lecturerSubject);
+                    }
                 }
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new Exception("Lỗi khi import danh sách phân công", ex);
-            }   
+                throw new Exception("Có lỗi trong quá trình import dữ liệu", ex);
+            }
         }
 
         /// <summary>
@@ -134,7 +138,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         public List<LecturerSubject> ReadLecturerSubjectFromExcel(string filePath)
         {
             var lecturerSubjects = new List<LecturerSubject>();
-
+            var lecturerSubjecLineMap = new Dictionary<string, List<int>>();
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
             app.DefaultVersion = ExcelVersion.Xlsx;
@@ -163,6 +167,10 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
                 if (isEmptyRow)
                     continue;
+                string lecturerId = sheet[r, headerMap["MAGV"]].Value;
+                string subjectCode = sheet[r, headerMap["MAMH"]].Value;
+                string term = sheet[r, headerMap["KY"]].Value;
+                string key = $"{lecturerId}-{subjectCode}-{term}";
                 var lecturerSubject = new LecturerSubject
                 {
                     LecturerId = sheet[r, headerMap["MAGV"]].Value,
@@ -175,8 +183,21 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     NumberOfClasses = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
                 };
                 lecturerSubjects.Add(lecturerSubject);
+                if (!lecturerSubjecLineMap.ContainsKey(key)){
+                    lecturerSubjecLineMap[key] = new List<int>();
+                }
+                lecturerSubjecLineMap[key].Add(r);    
             }
-            return lecturerSubjects;
+            var duplicateLecturerSubjects = lecturerSubjecLineMap
+                .Where(ls => ls.Value.Count > 1)
+                .ToDictionary(ls => ls.Key, ls => ls.Value);
+            if (duplicateLecturerSubjects.Count > 0)
+            {
+                var errorMessage = duplicateLecturerSubjects
+                   .Select(dlc => $"LecturerSubject bị trùng tại các dòng: {string.Join(", ", dlc.Value)}");
+                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
+            }
+                return lecturerSubjects;
         }
 
         /// <summary>
@@ -198,7 +219,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
             sheet[1, 4].Text = "TENMH";
             sheet[1, 5].Text = "NGANH";
             sheet[1, 6].Text = "KY";
-            sheet[1, 7].Text = "SLL";
+            sheet[1, 7].Text = "SLSV";
             sheet[1, 8].Text = "TONGSLOT";
             int row = 2;
             foreach (var lecturerSubject in lecturerSubjects)
@@ -214,6 +235,16 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 row++;
             }
             workbook.SaveAs(filePath);
+        }
+
+        /// <summary>
+        /// Checks if a LecturerSubject entity already exists in the repository.
+        /// </summary>
+        /// <param name="lecturerSubject">The LecturerSubject entity to check for existence.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains true if the entity exists; otherwise, false.</returns>
+        public Task<bool> CheckLecturerSubjectExits(LecturerSubject lecturerSubject)
+        {
+            return _unitOfWork.LecturerSubjectRepository.CheckLecturerSubjectExits(lecturerSubject);
         }
         #endregion
     }

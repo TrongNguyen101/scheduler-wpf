@@ -33,7 +33,7 @@ namespace SchedulerWpfApp.Repository.RoomRepository
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while checking room ID existence.", ex);
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra sự tồn tại của ID phòng.", ex);
             }
         }
 
@@ -55,7 +55,7 @@ namespace SchedulerWpfApp.Repository.RoomRepository
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while retrieving the number of rooms.", ex);
+                throw new Exception("Đã xảy ra lỗi khi lấy số phòng.", ex);
             }
         }
 
@@ -75,7 +75,7 @@ namespace SchedulerWpfApp.Repository.RoomRepository
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while searching for rooms.", ex);
+                throw new Exception("Đã xảy ra lỗi khi tìm kiếm phòng.", ex);
             }
         }
         #endregion
