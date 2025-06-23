@@ -236,7 +236,7 @@ namespace SchedulerWpfApp.ViewModel
                 sheet[row, 10].Text = s.LecturerId ?? "";
                 sheet[row, 11].Text = s.SlotTypeCode ?? "";
                 sheet[row, 12].Text = s.TypeSlot ?? "";
-                //sheet[row, 13].Number = s.SessionNo;
+                sheet[row, 13].Number = s.SessionNo ?? 0;
 
                 row++;
             }

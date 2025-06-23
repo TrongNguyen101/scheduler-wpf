@@ -7,6 +7,7 @@ namespace SchedulerWpfApp.Algorithm
     {
         private readonly IRoomService _roomService;
 
+        public int RoomId { get; set; }
         public string RoomName { get; set; }
         public TreeForSchedule Left { get; set; }
         public TreeForSchedule Right { get; set; }
@@ -19,8 +20,9 @@ namespace SchedulerWpfApp.Algorithm
             _roomService = roomService;
         }
 
-        public TreeForSchedule(string value, string partOfDay = null, string slotTime = null, string statusSlot = null)
+        public TreeForSchedule(int roomId, string value, string partOfDay = null, string slotTime = null, string statusSlot = null)
         {
+            RoomId = roomId;
             RoomName = value;
             PartOfDay = partOfDay;
             SlotTime = slotTime;
@@ -36,32 +38,32 @@ namespace SchedulerWpfApp.Algorithm
         //     - Slot (Slot 1, Slot 2, Slot 3, Slot 4)
         //       - Slot Type (Online, Offline)
 
-        public async Task<TreeForSchedule> BuildTreeForRoom(string roomName, string typeOfSlot)
+        public async Task<TreeForSchedule> BuildTreeForRoom(int roomId, string roomName, string typeOfSlot)
         {
             // First level: Room
             // Create the root node with the room name
-            TreeForSchedule root = new TreeForSchedule(roomName);
+            TreeForSchedule root = new TreeForSchedule(roomId, roomName);
 
             // Second level: PartOfDay (AM, PM)
-            root.Left = new TreeForSchedule(roomName, partOfDay: "A");
-            root.Right = new TreeForSchedule(roomName, partOfDay: "P");
+            root.Left = new TreeForSchedule(roomId, roomName, partOfDay: "A");
+            root.Right = new TreeForSchedule(roomId, roomName, partOfDay: "P");
 
             // Third level: Slot (Slot 1, Slot 2, Slot 3, Slot 4)
-            root.Left.Left = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 1");
-            root.Left.Right = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 2");
-            root.Right.Left = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 3");
-            root.Right.Right = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 4");
+            root.Left.Left = new TreeForSchedule(roomId, roomName, partOfDay: "A", slotTime: "slot 1");
+            root.Left.Right = new TreeForSchedule(roomId, roomName, partOfDay: "A", slotTime: "slot 2");
+            root.Right.Left = new TreeForSchedule(roomId, roomName, partOfDay: "P", slotTime: "slot 3");
+            root.Right.Right = new TreeForSchedule(roomId, roomName, partOfDay: "P", slotTime: "slot 4");
 
             // Fourth level: Slot Type (Online, Offline)
             // Each slot has two types: Online and Offline
-            root.Left.Left.Left = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 1", statusSlot: "online");
-            root.Left.Left.Right = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 1", statusSlot: "offline");
-            root.Left.Right.Left = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 2", statusSlot: "online");
-            root.Left.Right.Right = new TreeForSchedule(roomName, partOfDay: "A", slotTime: "slot 2", statusSlot: "offline");
-            root.Right.Left.Left = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 3", statusSlot: "online");
-            root.Right.Left.Right = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 3", statusSlot: "offline");
-            root.Right.Right.Left = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 4", statusSlot: "online");
-            root.Right.Right.Right = new TreeForSchedule(roomName, partOfDay: "P", slotTime: "slot 4", statusSlot: "offline");
+            root.Left.Left.Left = new TreeForSchedule(roomId, roomName, partOfDay: "A", slotTime: "slot 1", statusSlot: "online");
+            root.Left.Left.Right = new TreeForSchedule(roomId, roomName, partOfDay: "A", slotTime: "slot 1", statusSlot: "offline");
+            root.Left.Right.Left = new TreeForSchedule(roomId, roomName, partOfDay: "A", slotTime: "slot 2", statusSlot: "online");
+            root.Left.Right.Right = new TreeForSchedule(roomId, roomName, partOfDay: "A", slotTime: "slot 2", statusSlot: "offline");
+            root.Right.Left.Left = new TreeForSchedule(roomId, roomName, partOfDay: "P", slotTime: "slot 3", statusSlot: "online");
+            root.Right.Left.Right = new TreeForSchedule(roomId, roomName, partOfDay: "P", slotTime: "slot 3", statusSlot: "offline");
+            root.Right.Right.Left = new TreeForSchedule(roomId, roomName, partOfDay: "P", slotTime: "slot 4", statusSlot: "online");
+            root.Right.Right.Right = new TreeForSchedule(roomId, roomName, partOfDay: "P", slotTime: "slot 4", statusSlot: "offline");
 
             return root;
         }
@@ -71,6 +73,7 @@ namespace SchedulerWpfApp.Algorithm
                                                 DateTime date,
                                                 string classId,
                                                 string slotTime,
+                                                string lecturerId,
                                                 string lecturerName,
                                                 string slotTypeCode,
                                                 string typeSlot,
@@ -100,6 +103,7 @@ namespace SchedulerWpfApp.Algorithm
             {
                 schedules.Add(new Schedule
                 {
+                    RoomId = node.RoomId,
                     RoomName = node.RoomName,
                     PartOfDay = node.PartOfDay,
                     SlotTime = node.SlotTime,
@@ -108,6 +112,7 @@ namespace SchedulerWpfApp.Algorithm
                     Date = date,
                     GroupName = classId,
                     LecturerId = lecturerName,
+                    LecturerName = lecturerName,
                     SlotTypeCode = slotTypeCode,
                     TypeSlot = typeSlot,
                     SessionNo = sessionNo
@@ -116,11 +121,11 @@ namespace SchedulerWpfApp.Algorithm
 
             // Đệ quy các nhánh con và gộp kết quả
             schedules.AddRange(CollectSchedules(node.Left, subject, date, classId,
-                slotTime, lecturerName, slotTypeCode, typeSlot, sessionNo,
+                slotTime, lecturerId, lecturerName, slotTypeCode, typeSlot, sessionNo,
                 partOfDayFilter, statusSlot));
 
             schedules.AddRange(CollectSchedules(node.Right, subject, date, classId,
-                slotTime, lecturerName, slotTypeCode, typeSlot, sessionNo,
+                slotTime, lecturerId, lecturerName, slotTypeCode, typeSlot, sessionNo,
                 partOfDayFilter, statusSlot));
 
             return schedules;
