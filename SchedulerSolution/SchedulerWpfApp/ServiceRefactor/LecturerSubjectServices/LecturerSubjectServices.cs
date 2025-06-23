@@ -242,9 +242,9 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// </summary>
         /// <param name="lecturerSubject">The LecturerSubject entity to check for existence.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains true if the entity exists; otherwise, false.</returns>
-        public Task<bool> CheckLecturerSubjectExits(LecturerSubject lecturerSubject)
+        public Task<LecturerSubject> CheckLecturerSubjectExits(LecturerSubject lecturerSubject)
         {
-            return _unitOfWork.LecturerSubjectRepository.CheckLecturerSubjectExits(lecturerSubject);
+            return _unitOfWork.LecturerSubjectRepository.GetLecturerSubjectAsync(lecturerSubject);
         }
         #endregion
     }

@@ -36,7 +36,25 @@ namespace SchedulerWpfApp.Repository.LecturerSubjectRepository
             {
                 throw new Exception("Đã xảy ra lỗi khi kiểm tra xem LecturerSubject có tồn tại không.", ex);
             }
-            #endregion
         }
+
+        public async Task<LecturerSubject?> GetLecturerSubjectAsync(LecturerSubject lecturerSubject)
+        {
+            try
+            {
+                return await _context.LecturerSubjects
+                    .FirstOrDefaultAsync(ls =>
+                        ls.LecturerId == lecturerSubject.LecturerId &&
+                        ls.SubjectCode == lecturerSubject.SubjectCode &&
+                        ls.Term == lecturerSubject.Term &&
+                        ls.Id != lecturerSubject.Id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra bản ghi LecturerSubject trùng.", ex);
+            }
+        }
+
+        #endregion
     }
 }
