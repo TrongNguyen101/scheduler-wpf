@@ -105,7 +105,7 @@ namespace SchedulerWpfApp.Algorithm
 
             for (int indexRoom = 0; indexRoom < listRooms.Count; indexRoom++)
             {
-                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomName, "NewSlot");
+                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomId, listRooms[indexRoom].RoomName, "NewSlot");
 
                 /* Cần hàm tạo group name (mã lơp) ở đây*/
                 string groupName = listGroupName[indexRoom].GroupName;
@@ -140,12 +140,12 @@ namespace SchedulerWpfApp.Algorithm
                             int sessionNo = GetSessionNoForFirstWeeksAndFinal(subjectAppearanceOrder, subject, week);
 
                             // lấy tên giảng viên để thêm vào lịch
-                            var lecturerName = _getLecturerForSubject.FindLecturerForSubject(
+                            var (lecturerId, lecturerName) = _getLecturerForSubject.FindLecturerForSubject(
                                 subject?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
 
                             string slotLabel = $"slot {slotIndex + slotStart}";
 
-                            var schedulesItem = _treeNode.CollectSchedules(roomNode, subject.SubjectCode, currentDate, groupName, slotLabel, lecturerName, slotTypeCode, "NewSlot", sessionNo, sessionFilter, slotType);
+                            var schedulesItem = _treeNode.CollectSchedules(roomNode, subject.SubjectCode, currentDate, groupName, slotLabel, lecturerId, lecturerName, slotTypeCode, "NewSlot", sessionNo, sessionFilter, slotType);
 
                             allSchedules.AddRange(schedulesItem);
                         }
@@ -193,7 +193,7 @@ namespace SchedulerWpfApp.Algorithm
 
             for (int indexRoom = 0; indexRoom < listRooms.Count; indexRoom++)
             {
-                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomName, "NewSlot");
+                TreeForSchedule roomNode = await _treeNode.BuildTreeForRoom(listRooms[indexRoom].RoomId, listRooms[indexRoom].RoomName, "NewSlot");
 
                 string groupNameInGroupBBA = groupBBA[indexRoom].GroupName;
                 string groupNameInGroupBIT_NN = groupBIT_NN[indexRoom].GroupName;
@@ -243,13 +243,13 @@ namespace SchedulerWpfApp.Algorithm
                             int sessionNoBIT_NN = GetSessionNoForWeeks(subjectAppearanceOrder, subjectBIT_NN);
 
                             // lấy tên giảng viên để thêm vào lịch
-                            var lecturerName = _getLecturerForSubject.FindLecturerForSubject(
+                            var (lecturerId, lecturerName) = _getLecturerForSubject.FindLecturerForSubject(
                                 subjectBBA?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
 
                             string slotLabel = $"slot {slotIndex + slotStart}";
 
-                            var schedulesItemBBA = _treeNode.CollectSchedules(roomNode, subjectBBA.SubjectCode, currentDate, groupNameInGroupBBA, slotLabel, lecturerName, slotTypeCode, "NewSlot", sessionNoBBA, sessionFilter, slotTypeBBA);
-                            var schedulesItemBIT_NN = _treeNode.CollectSchedules(roomNode, subjectBIT_NN.SubjectCode, currentDate, groupNameInGroupBIT_NN, slotLabel, lecturerName, slotTypeCode, "NewSlot", sessionNoBIT_NN, sessionFilter, slotTypeBIT_NN);
+                            var schedulesItemBBA = _treeNode.CollectSchedules(roomNode, subjectBBA.SubjectCode, currentDate, groupNameInGroupBBA, slotLabel, lecturerId, lecturerName, slotTypeCode, "NewSlot", sessionNoBBA, sessionFilter, slotTypeBBA);
+                            var schedulesItemBIT_NN = _treeNode.CollectSchedules(roomNode, subjectBIT_NN.SubjectCode, currentDate, groupNameInGroupBIT_NN, slotLabel, lecturerId, lecturerName, slotTypeCode, "NewSlot", sessionNoBIT_NN, sessionFilter, slotTypeBIT_NN);
 
                             allSchedules.AddRange(schedulesItemBBA);
                             allSchedules.AddRange(schedulesItemBIT_NN);
