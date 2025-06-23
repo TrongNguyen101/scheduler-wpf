@@ -30,8 +30,16 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         public async Task AddCurriculumSubject(CurriculumSubject curriculumSubject)
         {
             await _unitOfWork.BeginTransactionAsync();
-            await _unitOfWork.Repository<CurriculumSubject>().AddAsync(curriculumSubject);
-            await _unitOfWork.CommitAsync();
+            try
+            {
+                await _unitOfWork.Repository<CurriculumSubject>().AddAsync(curriculumSubject);
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while adding the curriculum subject.", ex);
+            }
         }
 
         /// <summary>
@@ -42,11 +50,20 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// <remarks>If no curriculumSubject with the specified ID exists, no action is taken</remarks>
         public async Task DeleteCurriculumSubject(int id)
         {
-            var existingCurriculumSubject = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
-            if (existingCurriculumSubject != null)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                await _unitOfWork.CurriculumSubjectsRepository.DeleteAsync(id);
-                await _unitOfWork.SaveChangesAsync();
+                var existingCurriculumSubject = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
+                if (existingCurriculumSubject != null)
+                {
+                    await _unitOfWork.CurriculumSubjectsRepository.DeleteAsync(id);
+                    await _unitOfWork.CommitAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while deleting the curriculum subject.", ex);
             }
         }
 
@@ -57,8 +74,15 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// <returns>The curriculumSubject with the specified ID, or null if not found</returns>
         public async Task<CurriculumSubject?> GetByIdAsync(int id)
         {
-           var test = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
-            return test;
+            try
+            {
+                var curriculumSubject = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
+                return curriculumSubject;
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException("Invalid ID provided.", ex);
+            }
         }
 
         /// <summary>
@@ -93,8 +117,15 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// <returns>Task<List<CurriculumSubject>></returns>
         public async Task<List<CurriculumSubject>> GetAllCurriculumSubjectAsync()
         {
-            var curriList = await _unitOfWork.Repository<CurriculumSubject>().GetAllAsync();
-            return curriList;
+            try
+            {
+                var curriculums = await _unitOfWork.Repository<CurriculumSubject>().GetAllAsync();
+                return curriculums;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving curriculum subjects.", ex);
+            }
         }
 
         /// <summary>
@@ -103,17 +134,23 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// <param name="listCurriculumSubjectFromExcel"></param>
         public async Task ImportCurriculumSubjectFromExcel(List<CurriculumSubject> listCurriculumSubjectFromExcel)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
                 foreach (var curriculumSubject in listCurriculumSubjectFromExcel)
                 {
-                    await _unitOfWork.Repository<CurriculumSubject>().AddAsync(curriculumSubject);
+                    bool isDuplicate = await _unitOfWork.CurriculumSubjectsRepository.IsDuplicateData(curriculumSubject.CurriculumCode);
+                    if (!isDuplicate)
+                    {
+                        await _unitOfWork.Repository<CurriculumSubject>().AddAsync(curriculumSubject);
+                    }
                 }
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
-                throw ex;
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while importing curriculum subjects from Excel.", ex);
             }
         }
 

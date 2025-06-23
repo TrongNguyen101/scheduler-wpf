@@ -28,7 +28,14 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <returns>Task<List<Curriculum>></returns>
         public async Task<List<Curriculum>> GetAllCurriculumAsync()
         {
-            return await _unitOfWork.Repository<Curriculum>().GetAllAsync();
+            try
+            {
+                return await _unitOfWork.Repository<Curriculum>().GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving curriculums", ex);
+            }
         }
 
         /// <summary>
@@ -38,8 +45,16 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         public async Task AddCurriculum(Curriculum curriculum)
         {
             await _unitOfWork.BeginTransactionAsync();
-            await _unitOfWork.Repository<Curriculum>().AddAsync(curriculum);
-            await _unitOfWork.CommitAsync();
+            try
+            {
+                await _unitOfWork.Repository<Curriculum>().AddAsync(curriculum);
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while adding the curriculum", ex);
+            }
         }
 
         /// <summary>
@@ -50,11 +65,20 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <remarks>If no curriculum with the specified ID exists, no action is taken</remarks>
         public async Task DeleteCurriculum(string curriculumCode)
         {
-            var existingCurriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculumCode);
-            if (existingCurriculum != null)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                await _unitOfWork.CurriculumRepository.DeleteCurriculum(curriculumCode);
-                await _unitOfWork.SaveChangesAsync();
+                var existingCurriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculumCode);
+                if (existingCurriculum != null)
+                {
+                    await _unitOfWork.CurriculumRepository.DeleteCurriculum(curriculumCode);
+                    await _unitOfWork.CommitAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while deleting the curriculum", ex);
             }
         }
 
@@ -65,7 +89,14 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <returns>The curriculum with the specified ID, or null if not found</returns>
         public async Task<Curriculum?> GetByCurriculumCodeAsync(string CurriculumCode)
         {
-            return await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(CurriculumCode);
+            try
+            {
+                return await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(CurriculumCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving the curriculum", ex);
+            }
         }
 
         /// <summary>
@@ -74,15 +105,23 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <param name="Curriculum">The curriculum specified ID exists, no action is taken</remarks>
         public async Task UpdateCurriculum(Curriculum curriculum)
         {
-            var existingCurriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculum.CurriculumCode);
-            if (existingCurriculum != null)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                existingCurriculum.CurriculumCode = curriculum.CurriculumCode;
-                existingCurriculum.IsActive = curriculum.IsActive;
+                var existingCurriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculum.CurriculumCode);
+                if (existingCurriculum != null)
+                {
+                    existingCurriculum.CurriculumCode = curriculum.CurriculumCode;
+                    existingCurriculum.IsActive = curriculum.IsActive;
 
-                await _unitOfWork.BeginTransactionAsync();
-                await _unitOfWork.Repository<Curriculum>().UpdateAsync(existingCurriculum);
-                await _unitOfWork.CommitAsync();
+                    await _unitOfWork.Repository<Curriculum>().UpdateAsync(existingCurriculum);
+                    await _unitOfWork.CommitAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while updating the curriculum", ex);
             }
         }
 
@@ -92,11 +131,24 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <param name="listCurriculumFromExcel"></param>
         public async Task ImportCurriculumFromExcel(List<Curriculum> listCurriculumFromExcel)
         {
-            foreach (var curriculum in listCurriculumFromExcel)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                await _unitOfWork.Repository<Curriculum>().AddAsync(curriculum);
+                foreach (var curriculum in listCurriculumFromExcel)
+                {
+                    bool isDuplicate = _unitOfWork.CurriculumRepository.IsDuplicateData(curriculum.CurriculumCode).Result;
+                    if (!isDuplicate)
+                    {
+                        await _unitOfWork.Repository<Curriculum>().AddAsync(curriculum);
+                    }
+                }
+                await _unitOfWork.CommitAsync();
             }
-            await _unitOfWork.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while importing curriculums from Excel", ex);
+            }
         }
 
         /// <summary>

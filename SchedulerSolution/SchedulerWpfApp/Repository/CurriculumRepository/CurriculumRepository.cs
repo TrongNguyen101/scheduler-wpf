@@ -21,5 +21,17 @@ namespace SchedulerWpfApp.Repository.CurriculumRepository
                 _context.Curriculums.Remove(curriculum);
             }
         }
+
+        public async Task<bool> IsDuplicateData(string curriculumCode)
+        {
+           try
+            {
+                return await _context.Curriculums.AnyAsync(c => c.CurriculumCode == curriculumCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while checking for duplicate data", ex);
+            }
+        }
     }
 }
