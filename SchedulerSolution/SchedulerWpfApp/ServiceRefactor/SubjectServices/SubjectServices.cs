@@ -21,6 +21,7 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
         }
         #endregion
 
+        #region Methods
         /// <summary>
         /// Adds a new subject to the database
         /// </summary>
@@ -98,11 +99,24 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
         /// <returns></returns>
         public async Task ImportSubjectFromExcel(List<Subject> listSubjectFromExcel)
         {
-            foreach (var subject in listSubjectFromExcel)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                await _unitOfWork.SubjectRepository.AddAsync(subject);
+                foreach (var subject in listSubjectFromExcel)
+                {
+                    var existingSubject = await _unitOfWork.SubjectRepository.CheckSubjectCodeExistsAsync(subject.SubjectCode);
+                    if (!existingSubject)
+                    {
+                        await _unitOfWork.SubjectRepository.AddAsync(subject);
+                    }
+                }
+                await _unitOfWork.CommitAsync();
             }
-            await _unitOfWork.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi trong quá trình import dữ liệu", ex);
+            }
         }
 
         /// <summary>
@@ -149,7 +163,7 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
         public List<Subject> ReadSubjectsFromExcel(string filePath)
         {
             var subjects = new List<Subject>();
-
+            var subjectLineMap = new Dictionary<string, List<int>>();
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
             app.DefaultVersion = ExcelVersion.Xlsx;
@@ -178,6 +192,7 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
                 bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
                 if (isEmptyRow)
                     continue;
+                string subjectCode = sheet[r, headerMap["SubjectCode"]].Value;
                 var subject = new Subject
                 {
                     SubjectCode = sheet[r, headerMap["SubjectCode"]].Value,
@@ -186,12 +201,24 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
                     TotalTime = int.TryParse(sheet[r, headerMap["TotalTime"]].Value, out int totalSessions) ? totalSessions : 0,
                     TotalCredits = int.TryParse(sheet[r, headerMap["TotalCredits"]].Value, out int SlotsPerWeek) ? SlotsPerWeek : 0
                 };
-
+                if (!subjectLineMap.ContainsKey(subjectCode))
+                {
+                    subjectLineMap[subjectCode] = new List<int>();
+                }
+                subjectLineMap[subjectCode].Add(r);
                 subjects.Add(subject);
             }
-
+            var duplicateSubjects = subjectLineMap
+                 .Where(s => s.Value.Count > 1)
+                 .ToDictionary(s => s.Key, s => s.Value);
+            if (duplicateSubjects.Count > 0)
+            {
+                var errorMessage = duplicateSubjects
+                  .Select(dlc => $"SubjectCode '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
+                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
+            }
             return subjects;
         }
-
+        #endregion
     }
 }

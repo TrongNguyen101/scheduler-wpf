@@ -86,15 +86,21 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         {
             try
             {
+                await _unitOfWork.BeginTransactionAsync();
                 foreach (var groupname in listGroupNameFromExcel)
                 {
-                    await _unitOfWork.GroupNameRepository.AddAsync(groupname);
+                    var existing = await _unitOfWork.GroupNameRepository.CheckGroupNameExistsAsync(groupname.GroupName);
+                    if (!existing)
+                    {
+                        await _unitOfWork.GroupNameRepository.AddAsync(groupname);
+                    }
                 }
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi nhập lớp học từ Excel", ex);
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi trong quá trình import dữ liệu", ex);
             }
         }
 
@@ -113,9 +119,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// </summary>
         public async Task UpdateGroupName(GroupClass groupname)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
                 var existinggroupname = await GetByGroupNameIdAsync(groupname.GroupName);
                 if (existinggroupname != null)
                 {
@@ -156,7 +162,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         public List<GroupClass> ReadGroupNameFromExcel(string filePath)
         {
             var groupnames = new List<GroupClass>();
-
+            var groupNameLineMap = new Dictionary<string, List<int>>();
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
             app.DefaultVersion = ExcelVersion.Xlsx;
@@ -181,15 +187,31 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
 
             for (int r = 2; r <= rowCount; r++)
             {
+                string groupName = sheet[r, headerMap["GroupName"]].Value;
                 var groupname = new GroupClass
                 {
                     GroupName = sheet[r, headerMap["GroupName"]].Value,
                     CurriculumCode = sheet[r, headerMap["Khóa"]].Value,
                     Department = sheet[r, headerMap["BM"]].Value,
                     Major = sheet[r, headerMap["Ngành"]].Value,
-                    Term = sheet[r, headerMap["Kỳ"]].Value,
+                    Term = int.TryParse(sheet[r, headerMap["Kỳ"]].Value, out int term) ? term : 0
                 };
                 groupnames.Add(groupname);
+                //remember line for GroupName
+                if (!groupNameLineMap.ContainsKey(groupName))
+                {
+                    groupNameLineMap[groupName] = new List<int>();
+                }
+                groupNameLineMap[groupName].Add(r);
+            }
+            var duplicateGroupName = groupNameLineMap
+                .Where(gn => gn.Value.Count > 1)
+                .ToDictionary(gn => gn.Key, gn => gn.Value);
+            if (duplicateGroupName.Count > 0)
+            {
+                var errorMessage = duplicateGroupName
+                    .Select(dlc => $"GroupName '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
+                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return groupnames;
         }
@@ -199,9 +221,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// This method creates an Excel file at the specified file path and writes the provided group name data into it.
         /// The Excel file will contain columns for GroupName, Khóa, Ngành, BM, and Kỳ.
         /// </summary>
-        /// <param name="groupname">The list of GroupClass objects to export.</param>
+        /// <param name="groupNames">The list of GroupClass objects to export.</param>
         /// <param name="filePath">The file path where the Excel file will be saved.</param>
-        public void ExportToExcelGroupName(List<GroupClass> groupname, string filePath)
+        public void ExportToExcelGroupName(List<GroupClass> groupNames, string filePath)
         {
             using ExcelEngine excelEngine = new();
             IApplication application = excelEngine.Excel;
@@ -215,13 +237,13 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             sheet[1, 4].Text = "BM";
             sheet[1, 5].Text = "Kỳ";
             int row = 2;
-            foreach (var groupnames in groupname)
+            foreach (var groupName in groupNames)
             {
-                sheet[row, 1].Text = groupnames.GroupName ?? "";
-                sheet[row, 2].Text = groupnames.CurriculumCode ?? "";
-                sheet[row, 3].Text = groupnames.Major ?? "";
-                sheet[row, 4].Text = groupnames.Department ?? "";
-                sheet[row, 5].Text = groupnames.Term ?? "";
+                sheet[row, 1].Text = groupName.GroupName ?? "";
+                sheet[row, 2].Text = groupName.CurriculumCode ?? "";
+                sheet[row, 3].Text = groupName.Major ?? "";
+                sheet[row, 4].Text = groupName.Department ?? "";
+                sheet[row, 5].Number = groupName.Term ?? 0;
                 row++;
             }
             workbook.SaveAs(filePath);

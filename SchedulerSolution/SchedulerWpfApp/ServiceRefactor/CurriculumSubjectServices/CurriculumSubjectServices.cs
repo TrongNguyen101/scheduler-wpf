@@ -74,15 +74,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// <returns>The curriculumSubject with the specified ID, or null if not found</returns>
         public async Task<CurriculumSubject?> GetByIdAsync(int id)
         {
-            try
-            {
-                var curriculumSubject = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
-                return curriculumSubject;
-            }
-            catch (ArgumentException ex)
-            {
-                throw new ArgumentException("Invalid ID provided.", ex);
-            }
+            return await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
         }
 
         /// <summary>
@@ -139,10 +131,10 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
             {
                 foreach (var curriculumSubject in listCurriculumSubjectFromExcel)
                 {
-                    bool isDuplicate = await _unitOfWork.CurriculumSubjectsRepository.IsDuplicateData(curriculumSubject.CurriculumCode);
-                    if (!isDuplicate)
+                    var existingCurriculumSubject = await _unitOfWork.CurriculumSubjectsRepository.CheckCurriculumSubjectCodeExistsAsync(curriculumSubject);
+                    if (!existingCurriculumSubject)
                     {
-                        await _unitOfWork.Repository<CurriculumSubject>().AddAsync(curriculumSubject);
+                        await _unitOfWork.CurriculumSubjectsRepository.AddAsync(curriculumSubject);
                     }
                 }
                 await _unitOfWork.CommitAsync();
@@ -150,7 +142,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new Exception("An error occurred while importing curriculum subjects from Excel.", ex);
+                throw new Exception("Có lỗi trong quá trình import dữ liệu", ex);
             }
         }
 
@@ -162,7 +154,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         public List<CurriculumSubject> ReadCurriculumSubjectsFromExcel(string filePath)
         {
             var curriculumSubjects = new List<CurriculumSubject>();
-
+            var curriculumSubjectLineMap = new Dictionary<string, List<int>>();
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
             app.DefaultVersion = ExcelVersion.Xlsx;
@@ -215,7 +207,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                 {
                     totalSlots = slots;
                 }
-
+                string key = $"{curriculumCode}-{subjectCode}-{termNo}";
                 var curriculumSubject = new CurriculumSubject
                 {
                     CurriculumCode = curriculumCode,
@@ -229,6 +221,20 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                 };
 
                 curriculumSubjects.Add(curriculumSubject);
+                if (!curriculumSubjectLineMap.ContainsKey(key))
+                {
+                    curriculumSubjectLineMap[key] = new List<int>();
+                }
+                curriculumSubjectLineMap[key].Add(r);
+            }
+            var duplicateCurriculumSubjects = curriculumSubjectLineMap
+                .Where(ccs => ccs.Value.Count > 1)
+                .ToDictionary(ccs => ccs.Key, ccs => ccs.Value);
+            if (duplicateCurriculumSubjects.Count > 0)
+            {
+                var errorMessage = duplicateCurriculumSubjects
+                   .Select(dlc => $"CurriculumSubjects bị trùng tại các dòng: {string.Join(", ", dlc.Value)}");
+                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return curriculumSubjects;
         }

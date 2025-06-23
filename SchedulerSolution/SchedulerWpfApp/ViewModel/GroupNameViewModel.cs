@@ -197,7 +197,6 @@ namespace SchedulerWpfApp.ViewModel
                     // call ReadgroupnameFromExcel function to process file and read file when importing
                     var data = _groupnamelistService.ReadGroupNameFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
-
                     await _groupnamelistService.ImportGroupNameFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadGroupNameAsync();
@@ -303,7 +302,7 @@ namespace SchedulerWpfApp.ViewModel
                     string.IsNullOrWhiteSpace(SelectedGroupname?.CurriculumCode) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Department) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.Term))
+                     !SelectedGroupname?.Term.HasValue == true)
                 {
                     MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     IsGroupNameFormOpen = true; // Mở lại form nếu có dữ liệu trống
