@@ -46,6 +46,19 @@ namespace SchedulerWpfApp.Repository.LecturerRepository
                 throw new Exception("Failed to delete lecturer", ex);
             }
         }
-        #endregion
+
+        public async Task<bool> CheckLecturerExistsAsync(string lecturerId)
+        {
+            try
+            {
+                return await _context.Lecturers
+                .AnyAsync(l => l.LecturerId.ToLower() == lecturerId.ToLower());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra sự tồn tại của mã Lecturer", ex);
+            }
+            #endregion
+        }
     }
 }

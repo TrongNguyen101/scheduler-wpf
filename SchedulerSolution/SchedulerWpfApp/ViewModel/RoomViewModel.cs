@@ -29,7 +29,7 @@ namespace SchedulerWpfApp.ViewModel
         // check if it is edit or add event
         private bool _isEditing;
         // check if ClassId is edited
-        private bool _isRoomIdEditable = true;
+        private bool _isRoomNameEditable = true;
         #endregion
 
         #region Contrucstor
@@ -93,10 +93,10 @@ namespace SchedulerWpfApp.ViewModel
         /// Gets or sets a value indicating whether the ClassId field is editable.
         /// This property is used to control whether the ClassId can be modified in the room form.
         /// </summary>
-        public bool IsRoomIdEditable
+        public bool IsRoomNameEditable
         {
-            get => _isRoomIdEditable;
-            set => SetProperty(ref _isRoomIdEditable, value);
+            get => _isRoomNameEditable;
+            set => SetProperty(ref _isRoomNameEditable, value);
         }
         public ICommand ImportRoomListCommand { get; }
         public ICommand ExportRoomListCommand { get; }
@@ -229,7 +229,7 @@ namespace SchedulerWpfApp.ViewModel
             // check if it is an edit event
             _isEditing = false;
             // allow adding new classid
-            IsRoomIdEditable = true;
+            IsRoomNameEditable = true;
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace SchedulerWpfApp.ViewModel
             // check event edit 
             _isEditing = true;
             // do not allow to edit classid
-            IsRoomIdEditable = false;
+            IsRoomNameEditable = false;
         }
 
         /// <summary>
@@ -367,6 +367,13 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 else
                 {
+                    var exists = await _roomService.CheckRoomNameExistsAsync(SelectedRoom.RoomName);
+                    if (exists)
+                    {
+                        MessageBox.Show("Tên phòng đã tồn tại. Vui lòng chọn tên khác.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        IsRoomFormOpen = true;
+                        return;
+                    }
                     await _roomService.AddRoom(SelectedRoom);
                     MessageBox.Show("Thêm phòng mới thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
