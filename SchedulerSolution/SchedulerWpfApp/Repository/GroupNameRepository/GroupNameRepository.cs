@@ -45,12 +45,8 @@ namespace SchedulerWpfApp.Repository.GroupNameRepository
         {
             try
             {
-                var groupNames = await _context.GroupName.AnyAsync(gc => gc.GroupName.ToLower() == groupName.ToLower());
-                if (groupNames)
-                {
-                    return true;
-                }
-                return false;
+                return await _context.GroupName
+                .AnyAsync(gc => gc.GroupName.ToLower() == groupName.ToLower());
             }
             catch (Exception ex)
             {

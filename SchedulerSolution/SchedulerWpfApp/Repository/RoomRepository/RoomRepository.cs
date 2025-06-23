@@ -28,13 +28,8 @@ namespace SchedulerWpfApp.Repository.RoomRepository
         {
             try
             {
-                var room = await _context.Rooms
+                return await _context.Rooms
                     .AnyAsync(r => r.RoomName.ToLower() == roomName.ToLower());
-                if (room)
-                {
-                    return true;
-                }
-                return false;
             }
             catch (Exception ex)
             {
