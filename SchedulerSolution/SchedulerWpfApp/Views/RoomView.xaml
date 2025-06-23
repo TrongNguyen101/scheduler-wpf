@@ -177,7 +177,7 @@
                         <TextBox Text="{Binding SelectedRoom.RoomId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" IsEnabled="{Binding IsGroupNameEditable}" />-->
 
                         <TextBlock Text="Tên Phòng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedRoom.RoomName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+                        <TextBox Text="{Binding SelectedRoom.RoomName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" IsEnabled="{Binding IsRoomNameEditable}" />
 
                         <TextBlock Text="Loại phòng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
                         <TextBox Text="{Binding SelectedRoom.TypeOfRoom, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />

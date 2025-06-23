@@ -197,7 +197,6 @@ namespace SchedulerWpfApp.ViewModel
                     // call ReadgroupnameFromExcel function to process file and read file when importing
                     var data = _groupnamelistService.ReadGroupNameFromExcel(dialog.FileName);
                     // call ImportGroupNameFromExcel function to add new data to database
-
                     await _groupnamelistService.ImportGroupNameFromExcel(data);
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadGroupNameAsync();

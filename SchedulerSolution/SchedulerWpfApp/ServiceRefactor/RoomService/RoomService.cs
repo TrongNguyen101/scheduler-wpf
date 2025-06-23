@@ -39,7 +39,8 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         public List<Room> ReadRoomListFromExcel(string filePath)
         {
             var rooms = new List<Room>();
-
+            // key: RoomName, value: list of line numbers where this room appears
+            var roomLineMap = new Dictionary<string, List<int>>();
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
             app.DefaultVersion = ExcelVersion.Xlsx;
@@ -57,16 +58,17 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
                 if (!string.IsNullOrWhiteSpace(header))
                     headerMap[header] = c;
             }
-            string[] requiredHeaders = { "Phòng học", "RoomName", "Loại phòng", "Tầng", "Tòa", "SLSV", "Status" };
+            string[] requiredHeaders = {"RoomName", "Loại phòng", "Tầng", "Tòa", "SLSV", "Status" };
             foreach (var h in requiredHeaders)
                 if (!headerMap.ContainsKey(h))
                     throw new Exception($"Missing required column: {h}");
 
             for (int r = 2; r <= rowCount; r++)
             {
+                // get RoomName from the header map
+                string roomName = sheet[r, headerMap["RoomName"]].Value;
                 var room = new Room
                 {
-                    RoomId = int.TryParse(sheet[r, headerMap["Phòng học"]].Value, out var roomId) ? roomId : 0,
                     Building = sheet[r, headerMap["Tòa"]].Value?.Trim(),
                     Floor = int.TryParse(sheet[r, headerMap["Tầng"]].Value, out var floor) ? floor : 0,
                     RoomName = sheet[r, headerMap["RoomName"]].Value?.Trim(),
@@ -75,6 +77,25 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
                     TypeOfRoom = sheet[r, headerMap["Loại phòng"]].Value,
                 };
                 rooms.Add(room);
+                // If roomName already exists, create a new position in its place.
+                if (!roomLineMap.ContainsKey(roomName))
+                {
+                    roomLineMap[roomName] = new List<int>();
+                }
+                // Add the current row number to the list for this roomName
+                roomLineMap[roomName].Add(r);
+            }
+            var duplicateRooms = roomLineMap
+            //Filter out RoomNames that appear more than once.
+            .Where(r => r.Value.Count > 1)
+            // get key and value as a dictionary
+            .ToDictionary(r => r.Key, r => r.Value);
+            if (duplicateRooms.Count > 0)
+            {
+                // Create an error message for each duplicate room.
+                var errorMessage = duplicateRooms
+                    .Select(dlc => $"RoomName '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
+                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return rooms;
         }
@@ -95,23 +116,21 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
             IWorkbook workbook = application.Workbooks.Create(1);
             IWorksheet sheet = workbook.Worksheets[0];
             // Header
-            sheet[1, 1].Text = "Phòng học";
-            sheet[1, 2].Text = "RoomName";
-            sheet[1, 3].Text = "Loại phòng";
-            sheet[1, 4].Text = "Tầng";
-            sheet[1, 5].Text = "Tòa";
-            sheet[1, 6].Text = "SLSV";
-            sheet[1, 7].Text = "Status";
+            sheet[1, 1].Text = "RoomName";
+            sheet[1, 2].Text = "Loại phòng";
+            sheet[1, 3].Text = "Tầng";
+            sheet[1, 4].Text = "Tòa";
+            sheet[1, 5].Text = "SLSV";
+            sheet[1, 6].Text = "Status";
             int row = 2;
             foreach (var rooms in room)
             {
-                sheet[row, 1].Number = rooms.RoomId;
-                sheet[row, 2].Text = rooms.RoomName ?? "";
-                sheet[row, 3].Text = rooms.TypeOfRoom ?? "";
-                sheet[row, 4].Number = rooms.Floor;
-                sheet[row, 5].Text = rooms.Building ?? "";
-                sheet[row, 6].Number = rooms.TotalPersons;
-                sheet[row, 7].Text = rooms.Status ?? "";
+                sheet[row, 1].Text = rooms.RoomName ?? "";
+                sheet[row, 2].Text = rooms.TypeOfRoom ?? "";
+                sheet[row, 3].Number = rooms.Floor;
+                sheet[row, 4].Text = rooms.Building ?? "";
+                sheet[row, 5].Number = rooms.TotalPersons;
+                sheet[row, 6].Text = rooms.Status ?? "";
                 row++;
             }
             workbook.SaveAs(filePath);
@@ -123,11 +142,24 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         /// </summary>
         public async Task ImportRoomFromExcel(List<Room> listRoomFromExcel)
         {
-            foreach (var room in listRoomFromExcel)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                await _unitOfWork.RoomRepository.AddAsync(room);
+                foreach (var room in listRoomFromExcel)
+                {
+                    var existing = await _unitOfWork.RoomRepository.CheckRoomNameExistsAsync(room.RoomName);
+                    if (!existing)
+                    {
+                        await _unitOfWork.RoomRepository.AddAsync(room);
+                    }
+                }
+                await _unitOfWork.CommitAsync();
             }
-            await _unitOfWork.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi trong quá trình import dữ liệu", ex);
+            }
         }
 
         /// <summary>

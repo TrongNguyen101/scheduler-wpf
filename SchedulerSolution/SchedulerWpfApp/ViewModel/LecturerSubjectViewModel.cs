@@ -334,14 +334,26 @@ namespace SchedulerWpfApp.ViewModel
             }
             try
             {
+                var existingLecturerSubject = await _lecturerSubjectService.CheckLecturerSubjectExits(SelectedLecturerSubject);
                 if (_isEditing)
                 {
-                    // Update existing lecturer subject
+                    if (existingLecturerSubject != null)
+                    {
+                        MessageBox.Show("Lịch phân công cho giáo viên này đã bị trùng.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        IsLecturerSubjectFormOpen = true;
+                        return;
+                    }
                     await _lecturerSubjectService.UpdateAsync(SelectedLecturerSubject);
                     MessageBox.Show("Lecturer subject saved successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
+                    if (existingLecturerSubject != null)
+                    {
+                        MessageBox.Show("Lịch phân công cho giáo viên này đã bị trùng.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        IsLecturerSubjectFormOpen = true;
+                        return;
+                    }
                     // Add new lecturer subject
                     await _lecturerSubjectService.AddAsync(SelectedLecturerSubject);
                     MessageBox.Show("Add Lecturer subject saved successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);

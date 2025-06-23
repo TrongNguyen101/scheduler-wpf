@@ -86,15 +86,21 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         {
             try
             {
+                await _unitOfWork.BeginTransactionAsync();
                 foreach (var groupname in listGroupNameFromExcel)
                 {
-                    await _unitOfWork.GroupNameRepository.AddAsync(groupname);
+                    var existing = await _unitOfWork.GroupNameRepository.CheckGroupNameExistsAsync(groupname.GroupName);
+                    if (!existing)
+                    {
+                        await _unitOfWork.GroupNameRepository.AddAsync(groupname);
+                    }
                 }
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi nhập lớp học từ Excel", ex);
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi trong quá trình import dữ liệu", ex);
             }
         }
 
@@ -113,9 +119,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// </summary>
         public async Task UpdateGroupName(GroupClass groupname)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
                 var existinggroupname = await GetByGroupNameIdAsync(groupname.GroupName);
                 if (existinggroupname != null)
                 {
@@ -156,7 +162,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         public List<GroupClass> ReadGroupNameFromExcel(string filePath)
         {
             var groupnames = new List<GroupClass>();
-
+            var groupNameLineMap = new Dictionary<string, List<int>>();
             using ExcelEngine excelEngine = new();
             var app = excelEngine.Excel;
             app.DefaultVersion = ExcelVersion.Xlsx;
@@ -181,6 +187,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
 
             for (int r = 2; r <= rowCount; r++)
             {
+                string groupName = sheet[r, headerMap["GroupName"]].Value;
                 var groupname = new GroupClass
                 {
                     GroupName = sheet[r, headerMap["GroupName"]].Value,
@@ -190,6 +197,21 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                     Term = int.TryParse(sheet[r, headerMap["Kỳ"]].Value, out int term) ? term : 0
                 };
                 groupnames.Add(groupname);
+                //remember line for GroupName
+                if (!groupNameLineMap.ContainsKey(groupName))
+                {
+                    groupNameLineMap[groupName] = new List<int>();
+                }
+                groupNameLineMap[groupName].Add(r);
+            }
+            var duplicateGroupName = groupNameLineMap
+                .Where(gn => gn.Value.Count > 1)
+                .ToDictionary(gn => gn.Key, gn => gn.Value);
+            if (duplicateGroupName.Count > 0)
+            {
+                var errorMessage = duplicateGroupName
+                    .Select(dlc => $"GroupName '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
+                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return groupnames;
         }
