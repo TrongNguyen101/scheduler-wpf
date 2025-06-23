@@ -179,8 +179,8 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     SubjectName = sheet[r, headerMap["TENMH"]].Value,
                     Major = sheet[r, headerMap["NGANH"]].Value,
                     Term = sheet[r, headerMap["KY"]].Value,
-                    TotalSlots = int.TryParse(sheet[r, headerMap["SLSV"]].Value, out int totalslots) ? totalslots : 0,
-                    NumberOfClasses = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
+                    NumberOfClasses = int.TryParse(sheet[r, headerMap["SLL"]].Value, out int totalslots) ? totalslots : 0,
+                    TotalSlots = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
                 };
                 lecturerSubjects.Add(lecturerSubject);
                 if (!lecturerSubjecLineMap.ContainsKey(key)){
@@ -219,7 +219,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
             sheet[1, 4].Text = "TENMH";
             sheet[1, 5].Text = "NGANH";
             sheet[1, 6].Text = "KY";
-            sheet[1, 7].Text = "SLSV";
+            sheet[1, 7].Text = "SLL";
             sheet[1, 8].Text = "TONGSLOT";
             int row = 2;
             foreach (var lecturerSubject in lecturerSubjects)
