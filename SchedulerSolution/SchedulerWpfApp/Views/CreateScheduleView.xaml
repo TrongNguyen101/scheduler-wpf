@@ -556,7 +556,7 @@
                                                                            FontSize="10"
                                                                            VerticalAlignment="Center"
                                                                            Margin="0,0,3,0" />
-                                                                <TextBlock Text="{Binding Schedule.LecturerId}"
+                                                                <TextBlock Text="{Binding Schedule.LecturerName}"
                                                                            FontSize="12"
                                                                            Foreground="#495057"
                                                                            VerticalAlignment="Center" />
@@ -569,7 +569,7 @@
                                                                            FontSize="11"
                                                                            VerticalAlignment="Center"
                                                                            Margin="0,0,3,0" />
-                                                                <TextBlock Text="{Binding Schedule.RoomNo}"
+                                                                <TextBlock Text="{Binding Schedule.RoomName}"
                                                                            FontSize="13"
                                                                            Foreground="#6C757D"
                                                                            VerticalAlignment="Center" />

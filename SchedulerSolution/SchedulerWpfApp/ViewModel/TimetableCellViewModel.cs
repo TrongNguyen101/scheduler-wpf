@@ -8,10 +8,13 @@ namespace SchedulerWpfApp.ViewModel
 {
     public class TimetableCellViewModel : ViewBaseModel
     {
+        #region Fields
         private Schedule? _schedule;
         private bool _isDragOver;
         private bool _isDragSource;
+        #endregion
 
+        #region Constructors
         public DateTime DayOfWeek { get; set; }
         public string SlotNumber { get; set; }
 
@@ -56,7 +59,9 @@ namespace SchedulerWpfApp.ViewModel
 
         private bool _isMousePressed = false;
         private Point _startPoint;
+        #endregion
 
+        #region Methods
         private void OnMouseDown(MouseButtonEventArgs e)
         {
             if (Schedule != null && e.LeftButton == MouseButtonState.Pressed)
@@ -170,6 +175,7 @@ namespace SchedulerWpfApp.ViewModel
             // Additional validation can be added here
             return true;
         }
+        #endregion
     }
 
     /// <summary>

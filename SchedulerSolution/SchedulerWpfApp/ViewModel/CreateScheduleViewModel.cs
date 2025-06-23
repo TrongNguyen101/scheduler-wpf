@@ -480,6 +480,13 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
+        /// <summary>
+        /// Handles the swapping of schedules between two timetable cells.
+        /// </summary>
+        /// <param name="sourceCell"></param>
+        /// <param name="targetCell"></param>
+        /// <param name="droppedSchedule"></param>
+        /// <returns></returns>
         public async Task HandelSwapSchedule(TimetableCellViewModel sourceCell, TimetableCellViewModel targetCell, Schedule droppedSchedule)
         {
             try
