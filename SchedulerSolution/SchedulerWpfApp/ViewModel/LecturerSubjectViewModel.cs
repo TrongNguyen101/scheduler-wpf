@@ -324,11 +324,22 @@ namespace SchedulerWpfApp.ViewModel
             if (string.IsNullOrWhiteSpace(SelectedLecturerSubject.LecturerId) ||
                 string.IsNullOrWhiteSpace(SelectedLecturerSubject.SubjectCode) ||
                 string.IsNullOrEmpty(SelectedLecturerSubject.Term) ||
-                SelectedLecturerSubject.TotalSlots <= 0 ||
-                string.IsNullOrWhiteSpace(SelectedLecturerSubject.Major) ||
-                SelectedLecturerSubject.NumberOfClasses <= 0)
+                string.IsNullOrWhiteSpace(SelectedLecturerSubject.Major))
             {
                 MessageBox.Show("Dữ liệu không được để trống.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLecturerSubjectFormOpen = true;
+                return;
+            }
+            if (SelectedLecturerSubject.NumberOfClasses <= 0 ||
+                SelectedLecturerSubject.TotalSlots <= 0)
+            {
+                MessageBox.Show("Số lượng lớp học và tổng số tiết phải lớn hơn 0.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLecturerSubjectFormOpen = true;
+                return;
+            }
+            if (!int.TryParse(SelectedLecturerSubject.Term, out int termInt) || termInt <= 0 || termInt > 9)
+            {
+                MessageBox.Show("Dữ liệu kỳ phải lớn hơn 0 và bé hơn 9.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsLecturerSubjectFormOpen = true;
                 return;
             }

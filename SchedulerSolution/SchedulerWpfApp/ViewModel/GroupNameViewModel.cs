@@ -301,11 +301,16 @@ namespace SchedulerWpfApp.ViewModel
                 if (string.IsNullOrWhiteSpace(SelectedGroupname?.GroupName) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.CurriculumCode) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department) ||
-                     !SelectedGroupname?.Term.HasValue == true)
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department))
                 {
                     MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     IsGroupNameFormOpen = true; // Mở lại form nếu có dữ liệu trống
+                    return;
+                }
+                if (SelectedGroupname.Term <= 0 || SelectedGroupname.Term > 9)
+                {
+                    MessageBox.Show("Học kỳ phải lớn hơn 0 và bé hơn 9", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    IsGroupNameFormOpen = true; // Mở lại form nếu học kỳ không hợp lệ
                     return;
                 }
                 if (_isEditing)

@@ -69,9 +69,9 @@ namespace SchedulerWpfApp.Algorithm
         }
 
         public List<Schedule> CollectSchedules(TreeForSchedule node,
-                                                string subject,
+                                                string subjectCode,
                                                 DateTime date,
-                                                string classId,
+                                                string groupName,
                                                 string slotTime,
                                                 string lecturerId,
                                                 string lecturerName,
@@ -108,10 +108,10 @@ namespace SchedulerWpfApp.Algorithm
                     PartOfDay = node.PartOfDay,
                     SlotTime = node.SlotTime,
                     StatusSlot = node.StatusSlot,
-                    SubjectCode = subject,
+                    SubjectCode = subjectCode,
                     Date = date,
-                    GroupName = classId,
-                    LecturerId = lecturerName,
+                    GroupName = groupName,
+                    LecturerId = lecturerId,
                     LecturerName = lecturerName,
                     SlotTypeCode = slotTypeCode,
                     TypeSlot = typeSlot,
@@ -120,11 +120,11 @@ namespace SchedulerWpfApp.Algorithm
             }
 
             // Đệ quy các nhánh con và gộp kết quả
-            schedules.AddRange(CollectSchedules(node.Left, subject, date, classId,
+            schedules.AddRange(CollectSchedules(node.Left, subjectCode, date, groupName,
                 slotTime, lecturerId, lecturerName, slotTypeCode, typeSlot, sessionNo,
                 partOfDayFilter, statusSlot));
 
-            schedules.AddRange(CollectSchedules(node.Right, subject, date, classId,
+            schedules.AddRange(CollectSchedules(node.Right, subjectCode, date, groupName,
                 slotTime, lecturerId, lecturerName, slotTypeCode, typeSlot, sessionNo,
                 partOfDayFilter, statusSlot));
 

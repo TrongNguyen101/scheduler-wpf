@@ -211,7 +211,7 @@ namespace SchedulerWpfApp.ViewModel
             string[] headers = new string[]
             {
                 "ScheduleId", "RoomNo", "PartOfDay", "SlotTime", "StatusSlot",
-                "Date", "Major", "SubjectCode", "GroupName", "LecturerId",
+                "Date", "Major", "SubjectCode", "GroupName", "LecturerName",
                 "SlotTypeCode", "TypeSlot", "SessionNo"
             };
 
@@ -233,7 +233,7 @@ namespace SchedulerWpfApp.ViewModel
                 sheet[row, 7].Text = s.Major ?? "";
                 sheet[row, 8].Text = s.SubjectCode ?? "";
                 sheet[row, 9].Text = s.GroupName ?? "";
-                sheet[row, 10].Text = s.LecturerId ?? "";
+                sheet[row, 10].Text = s.LecturerName ?? "";
                 sheet[row, 11].Text = s.SlotTypeCode ?? "";
                 sheet[row, 12].Text = s.TypeSlot ?? "";
                 sheet[row, 13].Number = s.SessionNo ?? 0;
