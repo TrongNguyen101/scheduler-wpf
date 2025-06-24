@@ -45,13 +45,13 @@ namespace SchedulerWpfApp.Algorithm
             List<LecturerSubject> lecturerSubjects = await _lecturerSubjectServices.GetAllAsync();
             List<LecturerRequest> lecturerRequests = new List<LecturerRequest>();
 
-            List<GroupClass> listGroupNameBITAndBBA = listGroupName.Where(g => g.Department == "BIT" || g.Department == "BBA").ToList();
+            List<GroupClass> listGroupNameBITAndBBAAndNN = listGroupName.Where(g => g.Department == "BIT" || g.Department == "BBA" || g.Department == "NN").ToList();
 
-            List<Schedule> schedulesForBITAndBBA = new List<Schedule>();
+            List<Schedule> schedulesForBITAndBBAAndNN = new List<Schedule>();
 
-            schedulesForBITAndBBA = await _generateScheduleForAllDate.CreateSchedules(curriculumSubjects, listGroupNameBITAndBBA, lecturerSubjects, startDate, lecturerRequests);
+            schedulesForBITAndBBAAndNN = await _generateScheduleForAllDate.CreateSchedules(curriculumSubjects, listGroupNameBITAndBBAAndNN, lecturerSubjects, startDate, lecturerRequests);
            
-            allSchedules.AddRange(schedulesForBITAndBBA);
+            allSchedules.AddRange(schedulesForBITAndBBAAndNN);
 
             await _scheduleServices.AddScheduleAsync(allSchedules);
 
