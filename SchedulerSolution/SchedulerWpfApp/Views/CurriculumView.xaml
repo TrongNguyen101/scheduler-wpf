@@ -124,7 +124,7 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕"
                                    VerticalAlignment="Center" />
-                        <TextBlock Text=" Thêm Khung CHương Trình"
+                        <TextBlock Text=" Thêm Khung Chương Trình"
                                    Margin="5,0,0,0"
                                    VerticalAlignment="Center" />
                     </StackPanel>

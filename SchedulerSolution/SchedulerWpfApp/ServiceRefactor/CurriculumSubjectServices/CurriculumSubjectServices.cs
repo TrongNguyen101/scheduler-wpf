@@ -1,6 +1,7 @@
 ﻿using SchedulerWpfApp.Repository;
 using SchedulerWpfApp.Model;
 using Syncfusion.XlsIO;
+using System.Windows;
 
 namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
 {
@@ -105,8 +106,25 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
             await _unitOfWork.BeginTransactionAsync();
             try
             {
+                var curriculumMissList = new List<string>();
+                var subjectMissList = new List<string>();
+
                 foreach (var curriculumSubject in listCurriculumSubjectFromExcel)
                 {
+                    var curriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculumSubject.CurriculumCode);
+                    if (curriculum == null)
+                    {
+                        curriculumMissList.Add(curriculumSubject.CurriculumCode);
+                        continue;
+                    }
+
+                    var subject = await _unitOfWork.SubjectRepository.GetSubjectByCodeAsync(curriculumSubject.SubjectCode);
+                    if (subject == null)
+                    {
+                        subjectMissList.Add(curriculumSubject.SubjectCode);
+                        continue;
+                    }
+
                     var existingCurriculumSubject = await _unitOfWork.CurriculumSubjectsRepository.CheckCurriculumSubjectCodeExistsAsync(curriculumSubject);
                     if (!existingCurriculumSubject)
                     {
@@ -114,6 +132,19 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                     }
                 }
                 await _unitOfWork.CommitAsync();
+
+                if (curriculumMissList.Count > 0 && subjectMissList.Count > 0)
+                {
+                    MessageBox.Show("Không tìm thấy khung chương trình với mã: " + string.Join(", ", curriculumMissList) + "\n" + "Không tìm thấy môn học với mã:" + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else if (curriculumMissList.Count > 0)
+                {
+                    MessageBox.Show("Không tìm thấy khung chương trình với mã: " + string.Join(", ", curriculumMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else if (subjectMissList.Count > 0)
+                {
+                    MessageBox.Show("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
             catch (Exception ex)
             {

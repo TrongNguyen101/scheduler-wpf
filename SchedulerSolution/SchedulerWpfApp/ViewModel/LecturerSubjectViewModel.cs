@@ -7,7 +7,6 @@ using Microsoft.Win32;
 using System.Windows;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 using SchedulerWpfApp.ServiceRefactor.LecturerServices;
-using Syncfusion.Windows.Shared;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -187,6 +186,26 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task ImportLecturerSubjectListAsync()
         {
+            var lecturers = await _lectureService.GetAllLecturerAsync();
+            var subjects = await _subjectServices.GetAllAsync();
+
+            // Check if lecturers and subjects lists are empty before proceeding with import
+            if (!lecturers.Any() && !subjects.Any())
+            {
+                MessageBox.Show("Danh sách giảng viên và môn học đều đang trống. Vui lòng thêm danh sách giảng viên và môn học trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else if (!lecturers.Any())
+            {
+                MessageBox.Show("Không có giảng viên nào trong hệ thống. Vui lòng thêm danh sách giảng viên trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else if (!subjects.Any())
+            {
+                MessageBox.Show("Không có môn học nào trong hệ thống. Vui lòng thêm danh sách môn học trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var dialog = new OpenFileDialog
             {
                 Filter = "Excel Files (*.xlsx)|*.xlsx"
