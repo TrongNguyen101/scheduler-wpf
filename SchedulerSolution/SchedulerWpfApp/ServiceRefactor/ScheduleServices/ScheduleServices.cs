@@ -78,6 +78,7 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
                     existingScheduler.SubjectCode = schedule.SubjectCode;
                     existingScheduler.GroupName = schedule.GroupName;
                     existingScheduler.LecturerId = schedule.LecturerId;
+                    existingScheduler.LecturerName = schedule.LecturerName;
                     existingScheduler.SlotTypeCode = schedule.SlotTypeCode;
                     existingScheduler.TypeSlot = schedule.TypeSlot;
                     existingScheduler.SessionNo = schedule.SessionNo;
