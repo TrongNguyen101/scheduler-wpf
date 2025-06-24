@@ -206,53 +206,11 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
-                    using ExcelEngine excelEngine = new();
-                    IApplication application = excelEngine.Excel;
-                    application.DefaultVersion = ExcelVersion.Xlsx;
-
-                    IWorkbook workbook = application.Workbooks.Create(1);
-                    IWorksheet sheet = workbook.Worksheets[0];
-
-                    // Header row
-                    string[] headers = new string[]
-                    {
-                "ScheduleId", "RoomNo", "PartOfDay", "SlotTime", "StatusSlot",
-                "Date", "Major", "SubjectCode", "GroupName", "LecturerName",
-                "SlotTypeCode", "TypeSlot", "SessionNo"
-                    };
-
-                    for (int i = 0; i < headers.Length; i++)
-                    {
-                        sheet[1, i + 1].Text = headers[i];
-                    }
-
-                    // Data rows
-                    int row = 2;
-                    foreach (var s in schedules)
-                    {
-                        sheet[row, 1].Number = s.ScheduleId;
-                        sheet[row, 2].Text = s.RoomName ?? "";
-                        sheet[row, 3].Text = s.PartOfDay ?? "";
-                        sheet[row, 4].Text = s.SlotTime ?? "";
-                        sheet[row, 5].Text = s.StatusSlot ?? "";
-                        sheet[row, 6].Text = s.Date?.ToString("yyyy-MM-dd") ?? "";
-                        sheet[row, 7].Text = s.Major ?? "";
-                        sheet[row, 8].Text = s.SubjectCode ?? "";
-                        sheet[row, 9].Text = s.GroupName ?? "";
-                        sheet[row, 10].Text = s.LecturerName ?? "";
-                        sheet[row, 11].Text = s.SlotTypeCode ?? "";
-                        sheet[row, 12].Text = s.TypeSlot ?? "";
-                        sheet[row, 13].Number = s.SessionNo ?? 0;
-
-                        row++;
-                    }
-
-                    workbook.SaveAs(dialog.FileName);
-                    MessageBox.Show("Export thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _implementScheduleServices.ExportToExcel(schedules, dialog.FileName); // Export schedules to the selected Excel file
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Export failed: {ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Export thất bại: {ex}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
