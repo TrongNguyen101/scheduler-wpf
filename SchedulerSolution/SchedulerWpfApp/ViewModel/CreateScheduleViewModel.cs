@@ -21,6 +21,7 @@ namespace SchedulerWpfApp.ViewModel
         private int _selectedYear;
         private string _selectedWeek;
         private string _selectedGroupName;
+        private ObservableCollection<string> _groupNames;
         #endregion
 
         #region Constructor
@@ -28,7 +29,7 @@ namespace SchedulerWpfApp.ViewModel
         public ObservableCollection<int> Slots { get; set; } = new() { 1, 2, 3, 4, 5, 6, 7, 8 }; // List of available time slots in a day
         public ObservableCollection<int> Years { get; set; } = new(Enumerable.Range(DateTime.Now.Year - 2, 5)); // List of years from 2 years ago to next 2 years
         public ObservableCollection<string> Weeks { get; set; } = new(); // List of weeks in "dd/MM - dd/MM" format
-        public ObservableCollection<string> GroupNames { get; set; } = new(); // List of group names to filter schedules
+        public ObservableCollection<string> GroupNames { get => _groupNames; set => SetProperty(ref _groupNames, value); }// List of group names to filter schedules
         public ObservableCollection<SlotRowViewModel> SlotRows { get; set; } = new(); // List of slot rows for the timetable
         private ObservableCollection<Schedule> AllSchedules { get; set; } = new(); // All schedules loaded from the service
 
@@ -171,6 +172,7 @@ namespace SchedulerWpfApp.ViewModel
 
             var schedules = await _createScheduleTree.GenerateSchedules(startDate);
 
+            LoadMockSchedules(); // Reload schedules after generating new ones
             PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
 
             var dialog = new SaveFileDialog
@@ -578,6 +580,7 @@ namespace SchedulerWpfApp.ViewModel
                 SubjectCode = originalSchedule.SubjectCode,
                 GroupName = originalSchedule.GroupName,
                 LecturerId = originalSchedule.LecturerId,
+                LecturerName = originalSchedule.LecturerName,
                 SlotTypeCode = originalSchedule.SlotTypeCode,
                 TypeSlot = originalSchedule.TypeSlot,
                 SessionNo = originalSchedule.SessionNo
