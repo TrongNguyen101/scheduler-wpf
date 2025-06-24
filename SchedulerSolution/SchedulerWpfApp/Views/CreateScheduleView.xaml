@@ -263,7 +263,7 @@
                 <Button Grid.Column="1"
                         Style="{StaticResource ExportButtonStyle}"
                         Margin="0,0,10,0"
-                        Command="{Binding ExportPersonCommand}">
+                        Command="{Binding ExportExcelCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📤"
                                    VerticalAlignment="Center" />
