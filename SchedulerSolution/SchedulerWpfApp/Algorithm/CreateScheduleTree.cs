@@ -53,7 +53,7 @@ namespace SchedulerWpfApp.Algorithm
            
             allSchedules.AddRange(schedulesForBITAndBBAAndNN);
 
-            //await _scheduleServices.AddScheduleAsync(allSchedules);
+            await _scheduleServices.AddScheduleAsync(allSchedules);
 
             return allSchedules;
         }
