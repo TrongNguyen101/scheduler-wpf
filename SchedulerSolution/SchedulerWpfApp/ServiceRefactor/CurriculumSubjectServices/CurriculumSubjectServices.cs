@@ -106,22 +106,22 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var curriculumMiss = new List<string>();
-                var subjectMiss = new List<string>();
+                var curriculumMissList = new List<string>();
+                var subjectMissList = new List<string>();
 
                 foreach (var curriculumSubject in listCurriculumSubjectFromExcel)
                 {
                     var curriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculumSubject.CurriculumCode);
                     if (curriculum == null)
                     {
-                        curriculumMiss.Add(curriculumSubject.CurriculumCode);
+                        curriculumMissList.Add(curriculumSubject.CurriculumCode);
                         continue;
                     }
 
                     var subject = await _unitOfWork.SubjectRepository.GetSubjectByCodeAsync(curriculumSubject.SubjectCode);
                     if (subject == null)
                     {
-                        subjectMiss.Add(curriculumSubject.SubjectCode);
+                        subjectMissList.Add(curriculumSubject.SubjectCode);
                         continue;
                     }
 
@@ -133,17 +133,17 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                 }
                 await _unitOfWork.CommitAsync();
 
-                if (curriculumMiss.Count > 0 && subjectMiss.Count > 0)
+                if (curriculumMissList.Count > 0 && subjectMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy khung chương trình với mã: " + string.Join(", ", curriculumMiss) + "\n" + "Không tìm thấy môn học với mã:" + string.Join(", ", subjectMiss), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Không tìm thấy khung chương trình với mã: " + string.Join(", ", curriculumMissList) + "\n" + "Không tìm thấy môn học với mã:" + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-                else if (curriculumMiss.Count > 0)
+                else if (curriculumMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy khung chương trình với mã: " + string.Join(", ", curriculumMiss), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Không tìm thấy khung chương trình với mã: " + string.Join(", ", curriculumMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-                else if (subjectMiss.Count > 0)
+                else if (subjectMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMiss), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)

@@ -40,22 +40,22 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var lecturerMiss = new List<string>();
-                var subjectMiss = new List<string>();
+                var lecturerMissList = new List<string>();
+                var subjectMissList = new List<string>();
 
                 foreach (var lecturerSubject in listLecturerSubjectFromExcel)
                 {
                     var lecturer = await _unitOfWork.LecturerRepository.GetByLecturerCodeAsync(lecturerSubject.LecturerId);
                     if (lecturer == null)
                     {
-                        lecturerMiss.Add(lecturerSubject.LecturerId);
+                        lecturerMissList.Add(lecturerSubject.LecturerId);
                         continue;
                     }
 
                     var subject = await _unitOfWork.SubjectRepository.GetSubjectByCodeAsync(lecturerSubject.SubjectCode);
                     if (subject == null)
                     {
-                        subjectMiss.Add(lecturerSubject.SubjectCode);
+                        subjectMissList.Add(lecturerSubject.SubjectCode);
                         continue;
                     }
 
@@ -68,17 +68,17 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 
                 await _unitOfWork.CommitAsync();
 
-                if (lecturerMiss.Count > 0 && subjectMiss.Count > 0)
+                if (lecturerMissList.Count > 0 && subjectMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMiss) + "\n" + "Không tìm thấy giảng viên với mã:" + string.Join(", ", subjectMiss), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMissList) + "\n" + "Không tìm thấy giảng viên với mã:" + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-                else if (lecturerMiss.Count > 0)
+                else if (lecturerMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMiss), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-                else if (subjectMiss.Count > 0)
+                else if (subjectMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMiss), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
