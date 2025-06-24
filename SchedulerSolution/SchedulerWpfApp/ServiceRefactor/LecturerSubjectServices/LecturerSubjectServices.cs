@@ -1,4 +1,5 @@
-﻿using SchedulerWpfApp.Model;
+﻿using System.Windows;
+using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 using Syncfusion.XlsIO;
 
@@ -34,20 +35,51 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// <summary>
         /// Imports a list of lecturer subjects from an Excel file into the database.
         /// </summary>
-        public async Task ImportLecturerSubjectFromExcel(List<LecturerSubject> listLectuerSubjectFromExcel)
+        public async Task ImportLecturerSubjectFromExcel(List<LecturerSubject> listLecturerSubjectFromExcel)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                foreach (var lecturerSubject in listLectuerSubjectFromExcel)
+                var lecturerMiss = new List<string>();
+                var subjectMiss = new List<string>();
+
+                foreach (var lecturerSubject in listLecturerSubjectFromExcel)
                 {
+                    var lecturer = await _unitOfWork.LecturerRepository.GetByLecturerCodeAsync(lecturerSubject.LecturerId);
+                    if (lecturer == null)
+                    {
+                        lecturerMiss.Add(lecturerSubject.LecturerId);
+                        continue;
+                    }
+
+                    var subject = await _unitOfWork.SubjectRepository.GetSubjectByCodeAsync(lecturerSubject.SubjectCode);
+                    if (subject == null)
+                    {
+                        subjectMiss.Add(lecturerSubject.SubjectCode);
+                        continue;
+                    }
+
                     var existingLecturerSubject = await _unitOfWork.LecturerSubjectRepository.CheckLecturerSubjectExits(lecturerSubject);
                     if (!existingLecturerSubject)
                     {
                         await _unitOfWork.Repository<LecturerSubject>().AddAsync(lecturerSubject);
                     }
                 }
+
                 await _unitOfWork.CommitAsync();
+
+                if (lecturerMiss.Count > 0 && subjectMiss.Count > 0)
+                {
+                    MessageBox.Show("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMiss) + "\n" + "Không tìm thấy giảng viên với mã:" + string.Join(", ", subjectMiss), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else if (lecturerMiss.Count > 0)
+                {
+                    MessageBox.Show("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMiss), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else if (subjectMiss.Count > 0)
+                {
+                    MessageBox.Show("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMiss), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
             catch (Exception ex)
             {
@@ -183,10 +215,11 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     TotalSlots = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
                 };
                 lecturerSubjects.Add(lecturerSubject);
-                if (!lecturerSubjecLineMap.ContainsKey(key)){
+                if (!lecturerSubjecLineMap.ContainsKey(key))
+                {
                     lecturerSubjecLineMap[key] = new List<int>();
                 }
-                lecturerSubjecLineMap[key].Add(r);    
+                lecturerSubjecLineMap[key].Add(r);
             }
             var duplicateLecturerSubjects = lecturerSubjecLineMap
                 .Where(ls => ls.Value.Count > 1)
@@ -197,7 +230,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                    .Select(dlc => $"LecturerSubject bị trùng tại các dòng: {string.Join(", ", dlc.Value)}");
                 throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
-                return lecturerSubjects;
+            return lecturerSubjects;
         }
 
         /// <summary>
