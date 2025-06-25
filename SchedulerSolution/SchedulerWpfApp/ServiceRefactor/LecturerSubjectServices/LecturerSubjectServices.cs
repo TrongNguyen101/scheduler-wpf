@@ -1,5 +1,6 @@
 ﻿using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
+using Syncfusion.Windows.Shared;
 using Syncfusion.XlsIO;
 
 namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
@@ -171,22 +172,30 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 string subjectCode = sheet[r, headerMap["MAMH"]].Value;
                 string term = sheet[r, headerMap["KY"]].Value;
                 string key = $"{lecturerId}-{subjectCode}-{term}";
-                var lecturerSubject = new LecturerSubject
+                if (lecturerId.Equals("") || subjectCode.Equals("") || term.Equals(""))
                 {
-                    LecturerId = sheet[r, headerMap["MAGV"]].Value,
-                    LecturerName = sheet[r, headerMap["GIANGVIEN"]].Value,
-                    SubjectCode = sheet[r, headerMap["MAMH"]].Value,
-                    SubjectName = sheet[r, headerMap["TENMH"]].Value,
-                    Major = sheet[r, headerMap["NGANH"]].Value,
-                    Term = sheet[r, headerMap["KY"]].Value,
-                    NumberOfClasses = int.TryParse(sheet[r, headerMap["SLL"]].Value, out int totalslots) ? totalslots : 0,
-                    TotalSlots = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
-                };
-                lecturerSubjects.Add(lecturerSubject);
-                if (!lecturerSubjecLineMap.ContainsKey(key)){
-                    lecturerSubjecLineMap[key] = new List<int>();
+                    throw new Exception($"Dữ liệu không hợp lệ tại dòng {r}: MAGV, MAMH hoặc KY không được để trống.");
                 }
-                lecturerSubjecLineMap[key].Add(r);    
+                else
+                {
+                    var lecturerSubject = new LecturerSubject
+                    { 
+                        LecturerId = sheet[r, headerMap["MAGV"]].Value,
+                        LecturerName = sheet[r, headerMap["GIANGVIEN"]].Value,
+                        SubjectCode = sheet[r, headerMap["MAMH"]].Value,
+                        SubjectName = sheet[r, headerMap["TENMH"]].Value,
+                        Major = sheet[r, headerMap["NGANH"]].Value,
+                        Term = sheet[r, headerMap["KY"]].Value,
+                        NumberOfClasses = int.TryParse(sheet[r, headerMap["SLL"]].Value, out int totalslots) ? totalslots : 0,
+                        TotalSlots = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
+                    };
+                    lecturerSubjects.Add(lecturerSubject);
+                    if (!lecturerSubjecLineMap.ContainsKey(key))
+                    {
+                        lecturerSubjecLineMap[key] = new List<int>();
+                    }
+                    lecturerSubjecLineMap[key].Add(r);
+                }
             }
             var duplicateLecturerSubjects = lecturerSubjecLineMap
                 .Where(ls => ls.Value.Count > 1)
@@ -197,7 +206,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                    .Select(dlc => $"LecturerSubject bị trùng tại các dòng: {string.Join(", ", dlc.Value)}");
                 throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
-                return lecturerSubjects;
+            return lecturerSubjects;
         }
 
         /// <summary>
@@ -245,6 +254,17 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         public Task<LecturerSubject> CheckLecturerSubjectExits(LecturerSubject lecturerSubject)
         {
             return _unitOfWork.LecturerSubjectRepository.GetLecturerSubjectAsync(lecturerSubject);
+        }
+
+        private async Task<bool> IsNullValueAsync(dynamic excelFile)
+        {
+            Dictionary<string, string> errorsMap = new Dictionary<string, string>();
+            foreach (var item in excelFile)
+            {
+
+            }
+            errorsMap.Clear();
+            return true;
         }
         #endregion
     }
