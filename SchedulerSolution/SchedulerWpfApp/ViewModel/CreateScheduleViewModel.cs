@@ -52,6 +52,7 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         public ICommand CreateScheduleCommand { get; }
+        public ICommand ExportExcelCommand { get; }
 
         public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices)
         {
@@ -60,6 +61,7 @@ namespace SchedulerWpfApp.ViewModel
 
             SelectedYear = DateTime.Now.Year; // Default to current year
             CreateScheduleCommand = new RelayCommand(async () => await CreateScheduleDemo());
+            ExportExcelCommand = new RelayCommand(async () => await ExportSchedulesToExcel());
 
             LoadMockSchedules(); // Load initial schedules from the service
             InitCurrentWeekDays(); // Initialize current week days
@@ -175,75 +177,42 @@ namespace SchedulerWpfApp.ViewModel
             LoadMockSchedules(); // Reload schedules after generating new ones
             PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
 
+            if (schedules == null || !schedules.Any())
+                MessageBox.Show("Không có lịch nào được tạo.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            else
+                MessageBox.Show("Tạo lịch thành công.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        /// <summary>
+        /// Exports the list of schedules to an Excel file at the specified file path.
+        /// </summary>
+        private async Task ExportSchedulesToExcel()
+        {
+            var schedules = await _implementScheduleServices.GetAllAsync(); // Get the current list of schedules to export
+
+            if (schedules == null || !schedules.Any())
+            {
+                MessageBox.Show("Không có lịch nào để xuất.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             var dialog = new SaveFileDialog
             {
                 Filter = "Excel Files (*.xlsx)|*.xlsx",
-                FileName = "ScheduleDemo.xlsx"
+                FileName = "Schedules.xlsx"
             };
 
             if (dialog.ShowDialog() == true)
             {
                 try
                 {
-                    // Export only non-null list
-                    ExportSchedulesToExcel(schedules, dialog.FileName);
+                    _implementScheduleServices.ExportToExcel(schedules, dialog.FileName); // Export schedules to the selected Excel file
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Export failed: {ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Export thất bại: {ex}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-        }
-
-        /// <summary>
-        /// Exports the list of schedules to an Excel file at the specified file path.
-        /// </summary>
-        /// <param name="schedules"></param>
-        /// <param name="filePath"></param>
-        private void ExportSchedulesToExcel(List<Schedule> schedules, string filePath)
-        {
-            using ExcelEngine excelEngine = new();
-            IApplication application = excelEngine.Excel;
-            application.DefaultVersion = ExcelVersion.Xlsx;
-
-            IWorkbook workbook = application.Workbooks.Create(1);
-            IWorksheet sheet = workbook.Worksheets[0];
-
-            // Header row
-            string[] headers = new string[]
-            {
-                "ScheduleId", "RoomNo", "PartOfDay", "SlotTime", "StatusSlot",
-                "Date", "Major", "SubjectCode", "GroupName", "LecturerName",
-                "SlotTypeCode", "TypeSlot", "SessionNo"
-            };
-
-            for (int i = 0; i < headers.Length; i++)
-            {
-                sheet[1, i + 1].Text = headers[i];
-            }
-
-            // Data rows
-            int row = 2;
-            foreach (var s in schedules)
-            {
-                sheet[row, 1].Number = s.ScheduleId;
-                sheet[row, 2].Text = s.RoomName ?? "";
-                sheet[row, 3].Text = s.PartOfDay ?? "";
-                sheet[row, 4].Text = s.SlotTime ?? "";
-                sheet[row, 5].Text = s.StatusSlot ?? "";
-                sheet[row, 6].Text = s.Date?.ToString("yyyy-MM-dd") ?? "";
-                sheet[row, 7].Text = s.Major ?? "";
-                sheet[row, 8].Text = s.SubjectCode ?? "";
-                sheet[row, 9].Text = s.GroupName ?? "";
-                sheet[row, 10].Text = s.LecturerName ?? "";
-                sheet[row, 11].Text = s.SlotTypeCode ?? "";
-                sheet[row, 12].Text = s.TypeSlot ?? "";
-                sheet[row, 13].Number = s.SessionNo ?? 0;
-
-                row++;
-            }
-
-            workbook.SaveAs(filePath);
         }
 
         /// <summary>

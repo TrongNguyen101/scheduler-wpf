@@ -548,6 +548,26 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task ImportCurriculumSubjectAsync()
         {
+            var curriculums = await _curriculumServices.GetAllCurriculumAsync();
+            var subjects = await _subjectServices.GetAllAsync();
+            
+            // Check if lecturers and subjects lists are empty before proceeding with import
+            if (!curriculums.Any() && !subjects.Any())
+            {
+                MessageBox.Show("Danh sách khung chương trình và môn học đều đang trống. Vui lòng thêm danh sách khung chương trình và môn học trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else if (!curriculums.Any())
+            {
+                MessageBox.Show("Không có khung chương trình nào trong hệ thống. Vui lòng thêm danh sách khung chương trình trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else if (!subjects.Any())
+            {
+                MessageBox.Show("Không có môn học nào trong hệ thống. Vui lòng thêm danh sách môn học trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var dialog = new OpenFileDialog
             {
                 Filter = "Excel Files (*.xlsx)|*.xlsx"

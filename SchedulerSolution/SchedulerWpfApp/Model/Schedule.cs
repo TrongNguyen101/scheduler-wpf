@@ -57,6 +57,9 @@ namespace SchedulerWpfApp.Model
         [Column("SlotTypeCode")]
         public string? SlotTypeCode { get; set; }
 
+        [Column("TermInYear")]
+        public string? TermInYear { get; set; } // Type of the slot (Normal - Combo)]
+
         public Subject? Subject { get; set; } // Navigation property to Subject
 
         public Lecturer? Lecturer { get; set; } // Navigation property to Lecturer

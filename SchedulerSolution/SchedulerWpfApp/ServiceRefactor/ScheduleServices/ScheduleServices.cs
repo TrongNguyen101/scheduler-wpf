@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Windows;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
+using Syncfusion.XlsIO;
 
 namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
 {
@@ -112,6 +114,51 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
                 _logger?.LogError(ex, "Failed to add schedules due to an unexpected error.");
                 throw new Exception("Lỗi khi lấy danh sách lịch học", ex);
             }
+        }
+
+        public void ExportToExcel(List<Schedule> schedules, string filePath)
+        {
+            using ExcelEngine excelEngine = new();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Xlsx;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet sheet = workbook.Worksheets[0];
+
+            // Header row
+            string[] headers = new string[]
+            {
+                "ScheduleId", "GroupName", "SubjectCode", "Date", "Slot",
+                "RoomNo", "SessionNo", "Lecturer", "SlotTypeCode", "StatusSlot",
+                "TypeSlot"
+            };
+
+            for (int i = 0; i < headers.Length; i++)
+            {
+                sheet[1, i + 1].Text = headers[i];
+            }
+
+            // Data rows
+            int row = 2;
+            foreach (var s in schedules)
+            {
+                sheet[row, 1].Number = s.ScheduleId;
+                sheet[row, 2].Text = s.GroupName ?? "";
+                sheet[row, 3].Text = s.SubjectCode ?? "";
+                sheet[row, 4].Text = s.Date?.ToString("yyyy-MM-dd") ?? "";
+                sheet[row, 5].Text = s.SlotTime ?? "";
+                sheet[row, 6].Text = s.RoomName ?? "";
+                sheet[row, 7].Number = s.SessionNo ?? 0;
+                sheet[row, 8].Text = s.LecturerName ?? "";
+                sheet[row, 9].Text = s.SlotTypeCode ?? "";
+                sheet[row, 10].Text = s.StatusSlot ?? "";
+                sheet[row, 11].Text = s.TypeSlot ?? "";
+
+                row++;
+            }
+
+            workbook.SaveAs(filePath);
+            MessageBox.Show("Export thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         #endregion
     }

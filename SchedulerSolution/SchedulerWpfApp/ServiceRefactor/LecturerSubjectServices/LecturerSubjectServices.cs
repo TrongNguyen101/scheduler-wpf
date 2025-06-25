@@ -1,4 +1,5 @@
-﻿using SchedulerWpfApp.Model;
+﻿using System.Windows;
+using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 using Syncfusion.Windows.Shared;
 using Syncfusion.XlsIO;
@@ -35,20 +36,51 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// <summary>
         /// Imports a list of lecturer subjects from an Excel file into the database.
         /// </summary>
-        public async Task ImportLecturerSubjectFromExcel(List<LecturerSubject> listLectuerSubjectFromExcel)
+        public async Task ImportLecturerSubjectFromExcel(List<LecturerSubject> listLecturerSubjectFromExcel)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                foreach (var lecturerSubject in listLectuerSubjectFromExcel)
+                var lecturerMissList = new List<string>();
+                var subjectMissList = new List<string>();
+
+                foreach (var lecturerSubject in listLecturerSubjectFromExcel)
                 {
+                    var lecturer = await _unitOfWork.LecturerRepository.GetByLecturerCodeAsync(lecturerSubject.LecturerId);
+                    if (lecturer == null)
+                    {
+                        lecturerMissList.Add(lecturerSubject.LecturerId);
+                        continue;
+                    }
+
+                    var subject = await _unitOfWork.SubjectRepository.GetSubjectByCodeAsync(lecturerSubject.SubjectCode);
+                    if (subject == null)
+                    {
+                        subjectMissList.Add(lecturerSubject.SubjectCode);
+                        continue;
+                    }
+
                     var existingLecturerSubject = await _unitOfWork.LecturerSubjectRepository.CheckLecturerSubjectExits(lecturerSubject);
                     if (!existingLecturerSubject)
                     {
                         await _unitOfWork.Repository<LecturerSubject>().AddAsync(lecturerSubject);
                     }
                 }
+
                 await _unitOfWork.CommitAsync();
+
+                if (lecturerMissList.Count > 0 && subjectMissList.Count > 0)
+                {
+                    MessageBox.Show("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMissList) + "\n" + "Không tìm thấy giảng viên với mã:" + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else if (lecturerMissList.Count > 0)
+                {
+                    MessageBox.Show("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else if (subjectMissList.Count > 0)
+                {
+                    MessageBox.Show("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
             catch (Exception ex)
             {
@@ -172,30 +204,23 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 string subjectCode = sheet[r, headerMap["MAMH"]].Value;
                 string term = sheet[r, headerMap["KY"]].Value;
                 string key = $"{lecturerId}-{subjectCode}-{term}";
-                if (lecturerId.Equals("") || subjectCode.Equals("") || term.Equals(""))
+                var lecturerSubject = new LecturerSubject
                 {
-                    throw new Exception($"Dữ liệu không hợp lệ tại dòng {r}: MAGV, MAMH hoặc KY không được để trống.");
-                }
-                else
+                    LecturerId = sheet[r, headerMap["MAGV"]].Value,
+                    LecturerName = sheet[r, headerMap["GIANGVIEN"]].Value,
+                    SubjectCode = sheet[r, headerMap["MAMH"]].Value,
+                    SubjectName = sheet[r, headerMap["TENMH"]].Value,
+                    Major = sheet[r, headerMap["NGANH"]].Value,
+                    Term = int.TryParse(sheet[r, headerMap["KY"]].Value, out int termValue) ? termValue : 0,
+                    NumberOfClasses = int.TryParse(sheet[r, headerMap["SLL"]].Value, out int totalslots) ? totalslots : 0,
+                    TotalSlots = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
+                };
+                lecturerSubjects.Add(lecturerSubject);
+                if (!lecturerSubjecLineMap.ContainsKey(key))
                 {
-                    var lecturerSubject = new LecturerSubject
-                    { 
-                        LecturerId = sheet[r, headerMap["MAGV"]].Value,
-                        LecturerName = sheet[r, headerMap["GIANGVIEN"]].Value,
-                        SubjectCode = sheet[r, headerMap["MAMH"]].Value,
-                        SubjectName = sheet[r, headerMap["TENMH"]].Value,
-                        Major = sheet[r, headerMap["NGANH"]].Value,
-                        Term = sheet[r, headerMap["KY"]].Value,
-                        NumberOfClasses = int.TryParse(sheet[r, headerMap["SLL"]].Value, out int totalslots) ? totalslots : 0,
-                        TotalSlots = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
-                    };
-                    lecturerSubjects.Add(lecturerSubject);
-                    if (!lecturerSubjecLineMap.ContainsKey(key))
-                    {
-                        lecturerSubjecLineMap[key] = new List<int>();
-                    }
-                    lecturerSubjecLineMap[key].Add(r);
+                    lecturerSubjecLineMap[key] = new List<int>();
                 }
+                lecturerSubjecLineMap[key].Add(r);
             }
             var duplicateLecturerSubjects = lecturerSubjecLineMap
                 .Where(ls => ls.Value.Count > 1)
@@ -238,7 +263,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 sheet[row, 3].Text = lecturerSubject.SubjectCode ?? "";
                 sheet[row, 4].Text = lecturerSubject.SubjectName ?? "";
                 sheet[row, 5].Text = lecturerSubject.Major ?? "";
-                sheet[row, 6].Text = lecturerSubject.Term ?? "";
+                sheet[row, 6].Number = lecturerSubject.Term ?? 0;
                 sheet[row, 7].Number = lecturerSubject.NumberOfClasses ?? 0;
                 sheet[row, 8].Number = lecturerSubject.TotalSlots ?? 0;
                 row++;
