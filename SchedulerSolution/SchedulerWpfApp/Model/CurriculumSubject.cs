@@ -20,7 +20,7 @@ namespace SchedulerWpfApp.Model
 
         [Column("SubjectNameEnglish")]
         [StringLength(255)]
-        public string SubjectNameEnglish { get; set; }
+        public string? SubjectNameEnglish { get; set; }
 
         [Column("SubjectNameVietnamese")]
         [StringLength(255)]
@@ -33,7 +33,7 @@ namespace SchedulerWpfApp.Model
         public bool IsCombo { get; set; } = false;
 
         [Column("Credit")]
-        public int Credit { get; set; }
+        public int? Credit { get; set; }
 
         [Column("TotalSLots")]
         public int? TotalSlots { get; set; }
