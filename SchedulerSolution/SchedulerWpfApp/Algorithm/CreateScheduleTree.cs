@@ -38,6 +38,14 @@ namespace SchedulerWpfApp.Algorithm
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate)
         {
 
+            var listMajorA = new List<string> { "FN", "HM", "MC", "BA", "TM" };
+            var listMajorB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
+
+
+            var listMajorOnOff = new List<string>();
+            listMajorOnOff.AddRange(listMajorA);
+            listMajorOnOff.AddRange(listMajorB);
+
             List<Schedule> allSchedules = new List<Schedule>();
             List<Lecturer> lecturers = await _lecturerServices.GetAllLecturerAsync();
             List<CurriculumSubject> curriculumSubjects = await _curriculumSubjectServices.GetAllCurriculumSubjectAsync();
@@ -50,7 +58,7 @@ namespace SchedulerWpfApp.Algorithm
             List<Schedule> schedulesForBITAndBBAAndNN = new List<Schedule>();
 
             schedulesForBITAndBBAAndNN = await _generateScheduleForAllDate.CreateSchedules(curriculumSubjects, listGroupNameBITAndBBAAndNN, lecturerSubjects, startDate, lecturerRequests);
-           
+
             allSchedules.AddRange(schedulesForBITAndBBAAndNN);
 
             await _scheduleServices.AddScheduleAsync(allSchedules);

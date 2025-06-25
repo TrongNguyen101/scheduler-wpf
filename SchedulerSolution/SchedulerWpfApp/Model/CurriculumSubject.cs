@@ -38,6 +38,9 @@ namespace SchedulerWpfApp.Model
         [Column("TotalSLots")]
         public int? TotalSlots { get; set; }
 
+        [Column("TeachingMode ")]
+        public string? TeachingMode { get; set; }
+
         // === Navigation properties ===
 
         public Subject? Subject { get; set; }
