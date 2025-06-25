@@ -14,6 +14,9 @@ namespace SchedulerWpfApp.Model
         [Column("LecturerId")]
         public string? LecturerId { get; set; }
 
+        [Column("LecturerAccount")]
+        public string? LecturerAccount { get; set; }
+
         [Required]
         [Column("DayName")]
         public string? DayName { get; set; }

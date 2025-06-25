@@ -210,7 +210,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     SubjectCode = sheet[r, headerMap["MAMH"]].Value,
                     SubjectName = sheet[r, headerMap["TENMH"]].Value,
                     Major = sheet[r, headerMap["NGANH"]].Value,
-                    Term = sheet[r, headerMap["KY"]].Value,
+                    Term = int.TryParse(sheet[r, headerMap["KY"]].Value, out int termValue) ? termValue : 0,
                     NumberOfClasses = int.TryParse(sheet[r, headerMap["SLL"]].Value, out int totalslots) ? totalslots : 0,
                     TotalSlots = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
                 };
@@ -262,7 +262,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                 sheet[row, 3].Text = lecturerSubject.SubjectCode ?? "";
                 sheet[row, 4].Text = lecturerSubject.SubjectName ?? "";
                 sheet[row, 5].Text = lecturerSubject.Major ?? "";
-                sheet[row, 6].Text = lecturerSubject.Term ?? "";
+                sheet[row, 6].Number = lecturerSubject.Term ?? 0;
                 sheet[row, 7].Number = lecturerSubject.NumberOfClasses ?? 0;
                 sheet[row, 8].Number = lecturerSubject.TotalSlots ?? 0;
                 row++;

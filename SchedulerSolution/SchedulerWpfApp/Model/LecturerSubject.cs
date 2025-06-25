@@ -24,7 +24,7 @@ namespace SchedulerWpfApp.Model
         public string? Major { get; set; }
 
         [Column("Term")]
-        public string? Term { get; set; }
+        public int? Term { get; set; }
 
         [Column("NumberOfClasses")]
         public int? NumberOfClasses { get; set; }
