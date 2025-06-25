@@ -575,6 +575,17 @@
                                                                            VerticalAlignment="Center" />
                                                             </StackPanel>
 
+                                                            <Border Background="#5cb85c"
+                                                                    CornerRadius="3"
+                                                                    Padding="4,2"
+                                                                    Margin="0,4,0,0"
+                                                                    HorizontalAlignment="Center">
+                                                                <TextBlock Text="{Binding SlotTime}"
+                                                                           FontSize="15"
+                                                                           FontWeight="Medium"
+                                                                           Foreground="White" />
+                                                            </Border>
+
                                                             <Border Background="#E8F5E8"
                                                                     CornerRadius="3"
                                                                     Padding="4,2"
