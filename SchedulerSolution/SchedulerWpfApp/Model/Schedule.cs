@@ -43,6 +43,9 @@ namespace SchedulerWpfApp.Model
         [Column("LecturerName")]
         public string? LecturerName { get; set; } // Lecturer name of the schedule
 
+        [Column("LecturerAccount")]
+        public string? LecturerAccount { get; set; } // Lecturer name of the schedule
+
         [Column("TypeSlot")]
         public string? TypeSlot { get; set; } // Type of the slot (New Slot - Old Slot)
 
