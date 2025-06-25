@@ -427,11 +427,11 @@ namespace SchedulerWpfApp.ViewModel
             if (typeSlot == "OldSlot")
             {
                 minutesPerSlot = 90; // Old slots have a different duration
-                minutesPerBreak = 45; // Shorter break for old slots
+                minutesPerBreak = 30; // Shorter break for old slots
             }
 
             // Calculate the start and end times based on the slot number
-            double startHour = ((slot - 1) * minutesPerSlot) + ((slot - 1) * 15) + (slot >= 3 ? minutesPerBreak : 0);
+            double startHour = ((slot - 1) * minutesPerSlot) + ((slot - 1) * 15) + (minutesPerSlot == 135 && slot >= 3 ? minutesPerBreak : slot >= 4 ? minutesPerBreak : 0);
             // Start hour of slot
             DateTime startDate = new DateTime(2025, 1, 1, 7, 0, 0).AddMinutes(startHour);
 
