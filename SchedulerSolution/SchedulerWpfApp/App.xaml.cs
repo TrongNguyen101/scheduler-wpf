@@ -220,6 +220,7 @@ namespace SchedulerWpfApp
             services.AddScoped<GetLecturerForSubject>(); // Register GetLecturerForSubject with a scoped lifetime
             services.AddScoped<GenerateScheduleForAllDate>(); // Register GenerateScheduleForAllDate with a scoped lifetime
             services.AddScoped<CreateSlotTypeCode>(); // Register CreateSlotTypeCode with a scoped lifetime
+            services.AddScoped<Version2CreateSchedule>(); // Register Version2CreateSchedule with a scoped lifetime
         }
 
         /// <summary>

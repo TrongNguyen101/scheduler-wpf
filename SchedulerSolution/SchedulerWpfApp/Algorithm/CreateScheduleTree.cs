@@ -19,8 +19,11 @@ namespace SchedulerWpfApp.Algorithm
         private readonly IGroupNameService _groupNameService;
         private readonly ILecturerServices _lecturerServices;
 
+        private readonly Version2CreateSchedule _version2CreateSchedule;
+
 
         public CreateScheduleTree(GenerateScheduleForAllDate generateScheduleForAllDate,
+                                Version2CreateSchedule version2CreateSchedule,
                                 IScheduleServices scheduleServices,
                                 ILecturerSubjectServices lecturerSubjectServices,
                                 ILecturerServices lecturerServices,
@@ -33,10 +36,12 @@ namespace SchedulerWpfApp.Algorithm
             _lecturerServices = lecturerServices;
             _groupNameService = groupNameServices;
             _curriculumSubjectServices = curriculumSubjectServices;
+            _version2CreateSchedule = version2CreateSchedule;
         }
 
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate)
         {
+            _version2CreateSchedule.GenerateSchedules(startDate);
 
             var listMajorA = new List<string> { "FN", "HM", "MC", "BA", "TM" };
             var listMajorB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
