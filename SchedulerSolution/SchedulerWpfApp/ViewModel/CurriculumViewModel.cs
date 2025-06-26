@@ -379,7 +379,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Import thất bại: {ex.InnerException.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

@@ -171,8 +171,8 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
             int rowCount = sheet.UsedRange.LastRow;
             int colCount = sheet.UsedRange.LastColumn;
 
-            Utility.IsEmptyExcelRowAsync(filePath).Wait();
-            Utility.IsDuplicatedExcelRowAsync(filePath).Wait();
+            Utility.IsEmptyExcelRow(sheet);
+            Utility.IsDuplicatedExcelRow(sheet);
 
             Dictionary<string, int> headerMap = new();
             for (int c = 1; c <= colCount; c++)
