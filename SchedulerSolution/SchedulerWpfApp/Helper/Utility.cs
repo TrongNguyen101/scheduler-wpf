@@ -68,47 +68,44 @@ namespace SchedulerWpfApp.Helper
         /// <exception cref="Exception">Thrown when duplicate rows are found in the Excel worksheet, with details about which rows are duplicates.</exception>
         public static void IsDuplicatedExcelRow(IWorksheet worksheet)
         {
-            using (ExcelEngine excelEngine = new ExcelEngine())
+            var duplicatedMap = new Dictionary<string, int>();
+            var duplicates = new List<(int duplicateRow, int originalRow)>();
+
+            int rowCount = worksheet.UsedRange.LastRow;
+            int colCount = worksheet.UsedRange.LastColumn;
+
+            for (int row = 2; row <= rowCount; row++)
             {
-                var duplicatedMap = new Dictionary<string, int>();
-                var duplicates = new List<(int duplicateRow, int originalRow)>();
-
-                int rowCount = worksheet.UsedRange.LastRow;
-                int colCount = worksheet.UsedRange.LastColumn;
-
-                for (int row = 2; row <= rowCount; row++)
+                var rowData = new StringBuilder();
+                for (int col = 1; col <= colCount; col++)
                 {
-                    var rowData = new StringBuilder();
-                    for (int col = 1; col <= colCount; col++)
-                    {
-                        rowData.Append(worksheet[row, col].Value);
-                        rowData.Append('|');
-                    }
-
-                    string rowKey = rowData.ToString();
-
-                    if (duplicatedMap.TryGetValue(rowKey, out int originalRow))
-                    {
-                        duplicates.Add((row, originalRow));
-                    }
-                    else
-                    {
-                        duplicatedMap[rowKey] = row;
-                    }
+                    rowData.Append(worksheet[row, col].Value);
+                    rowData.Append('|');
                 }
 
-                if (duplicates.Any())
+                string rowKey = rowData.ToString();
+
+                if (duplicatedMap.TryGetValue(rowKey, out int originalRow))
                 {
-                    var message = new StringBuilder();
-                    message.AppendLine("Import thất bại phát hiện các dòng trùng lặp:");
-
-                    foreach (var (dupRow, origRow) in duplicates)
-                    {
-                        message.AppendLine($"- Dòng {dupRow} trùng với dòng {origRow}");
-                    }
-
-                    throw new Exception(message.ToString());
+                    duplicates.Add((row, originalRow));
                 }
+                else
+                {
+                    duplicatedMap[rowKey] = row;
+                }
+            }
+
+            if (duplicates.Any())
+            {
+                var message = new StringBuilder();
+                message.AppendLine("Import thất bại phát hiện các dòng trùng lặp:");
+
+                foreach (var (dupRow, origRow) in duplicates)
+                {
+                    message.AppendLine($"- Dòng {dupRow} trùng với dòng {origRow}");
+                }
+
+                throw new Exception(message.ToString());
             }
         }
     }
