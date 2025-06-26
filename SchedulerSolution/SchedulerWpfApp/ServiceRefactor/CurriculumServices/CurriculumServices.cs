@@ -1,6 +1,7 @@
 ﻿using SchedulerWpfApp.Repository;
 using SchedulerWpfApp.Model;
 using Syncfusion.XlsIO;
+using SchedulerWpfApp.Helper;
 
 namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
 {
@@ -170,6 +171,9 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
             int rowCount = sheet.UsedRange.LastRow;
             int colCount = sheet.UsedRange.LastColumn;
 
+            Utility.IsEmptyExcelRowAsync(filePath).Wait();
+            Utility.IsDuplicatedExcelRowAsync(filePath).Wait();
+
             Dictionary<string, int> headerMap = new();
             for (int c = 1; c <= colCount; c++)
             {
@@ -202,15 +206,6 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
                     curriculumLineMap[curriculumCode] = new List<int>();
                 }
                 curriculumLineMap[curriculumCode].Add(r);
-            }
-            var duplicateCurriculums = curriculumLineMap
-                .Where(kvp => kvp.Value.Count > 1)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            if (duplicateCurriculums.Count > 0)
-            {
-                var errorMessage = duplicateCurriculums
-                   .Select(dlc => $"Curriculum '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return curriculums;
         }

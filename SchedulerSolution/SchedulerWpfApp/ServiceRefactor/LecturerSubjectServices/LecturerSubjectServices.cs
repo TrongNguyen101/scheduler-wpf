@@ -1,8 +1,9 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
-using Syncfusion.Windows.Shared;
 using Syncfusion.XlsIO;
+using SchedulerWpfApp.Helper;
 
 namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 {
@@ -281,15 +282,40 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
             return _unitOfWork.LecturerSubjectRepository.GetLecturerSubjectAsync(lecturerSubject);
         }
 
-        private async Task<bool> IsNullValueAsync(dynamic excelFile)
+        private async Task<List<int>> IsNullValueAsync(string filePath)
         {
-            Dictionary<string, string> errorsMap = new Dictionary<string, string>();
-            foreach (var item in excelFile)
+            List<int> nullRows = new List<int>();
+            using (ExcelEngine excelEngine = new ExcelEngine())
             {
+                IApplication application = excelEngine.Excel;
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    IWorkbook workbook = application.Workbooks.Open(fileStream);
+                    IWorksheet worksheet = workbook.Worksheets[0];
 
+                    int rowCount = worksheet.UsedRange.LastRow;
+                    int colCount = worksheet.UsedRange.LastColumn;
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        bool hasNull = false;
+                        for (int col = 1; col <= colCount; col++)
+                        {
+                            var cellValue = worksheet[row, col].Value;
+                            if (string.IsNullOrWhiteSpace(cellValue))
+                            {
+                                hasNull = true;
+                                break;
+                            }
+                        }
+
+                        if (hasNull)
+                        {
+                            nullRows.Add(row);
+                        }
+                    }
+                }
             }
-            errorsMap.Clear();
-            return true;
+            return nullRows;
         }
         #endregion
     }
