@@ -43,32 +43,35 @@ namespace SchedulerWpfApp.Algorithm
         {
             _version2CreateSchedule.GenerateSchedules(startDate);
 
-            var listMajorA = new List<string> { "FN", "HM", "MC", "BA", "TM" };
-            var listMajorB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
+            //var listMajorA = new List<string> { "FN", "HM", "MC", "BA", "TM" };
+            //var listMajorB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
 
 
-            var listMajorOnOff = new List<string>();
-            listMajorOnOff.AddRange(listMajorA);
-            listMajorOnOff.AddRange(listMajorB);
+            //var listMajorOnOff = new List<string>();
+            //listMajorOnOff.AddRange(listMajorA);
+            //listMajorOnOff.AddRange(listMajorB);
 
-            List<Schedule> allSchedules = new List<Schedule>();
-            List<Lecturer> lecturers = await _lecturerServices.GetAllLecturerAsync();
-            List<CurriculumSubject> curriculumSubjects = await _curriculumSubjectServices.GetAllCurriculumSubjectAsync();
-            List<GroupClass> listGroupName = await _groupNameService.GetAllAsync();
-            List<LecturerSubject> lecturerSubjects = await _lecturerSubjectServices.GetAllAsync();
-            List<LecturerRequest> lecturerRequests = new List<LecturerRequest>();
+            //List<Schedule> allSchedules = new List<Schedule>();
+            //List<Lecturer> lecturers = await _lecturerServices.GetAllLecturerAsync();
+            //List<CurriculumSubject> curriculumSubjects = await _curriculumSubjectServices.GetAllCurriculumSubjectAsync();
+            //List<GroupClass> listGroupName = await _groupNameService.GetAllAsync();
+            //List<LecturerSubject> lecturerSubjects = await _lecturerSubjectServices.GetAllAsync();
+            //List<LecturerRequest> lecturerRequests = new List<LecturerRequest>();
 
-            List<GroupClass> listGroupNameBITAndBBAAndNN = listGroupName.Where(g => g.Department == "BIT" || g.Department == "BBA" || g.Department == "NN").ToList();
+            //List<GroupClass> listGroupNameBITAndBBAAndNN = listGroupName.Where(g => g.Department == "BIT" || g.Department == "BBA" || g.Department == "NN").ToList();
 
-            List<Schedule> schedulesForBITAndBBAAndNN = new List<Schedule>();
+            //List<Schedule> schedulesForBITAndBBAAndNN = new List<Schedule>();
 
-            schedulesForBITAndBBAAndNN = await _generateScheduleForAllDate.CreateSchedules(curriculumSubjects, listGroupNameBITAndBBAAndNN, lecturerSubjects, startDate, lecturerRequests);
+            //schedulesForBITAndBBAAndNN = await _generateScheduleForAllDate.CreateSchedules(curriculumSubjects, listGroupNameBITAndBBAAndNN, lecturerSubjects, startDate, lecturerRequests);
 
-            allSchedules.AddRange(schedulesForBITAndBBAAndNN);
+            //allSchedules.AddRange(schedulesForBITAndBBAAndNN);
+             List<Schedule> schedulesTest = new List<Schedule>();
 
-            await _scheduleServices.AddScheduleAsync(allSchedules);
+            schedulesTest = await _version2CreateSchedule.GenerateSchedules(startDate);
 
-            return allSchedules;
+            //await _scheduleServices.AddScheduleAsync(schedulesTest);
+
+            return schedulesTest;
         }
     }
 }
