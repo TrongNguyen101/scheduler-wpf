@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SchedulerWpfApp.Algorithm.DTO
+﻿namespace SchedulerWpfApp.Algorithm.DTO
 {
     public static class ScheduleConstants
     {
@@ -20,7 +14,27 @@ namespace SchedulerWpfApp.Algorithm.DTO
 
         public const int DaysInWeek = 7;
         public const int SlotsPerSession = 2;
-        // true tương ứng với new slot, false tương ứng với old slot
-        public const bool DefaultSlotStatus = true;
+
+        public const string TypeSlotIsNew = "NEW SLOT";
+
+        public const string TypeSlotIsOld = "OLD SLOT";
+
+        public const string StatusSlotIsOnline = "ON"; 
+
+        public const string StatusSlotIsOffline = "OFF";
+
+        public const string TechingModeIsOnOff = "ON/OFF";
+
+        public const string TechingModeIsFullOff = "OFF";
+
+        public const string TechingModeIsCoursera = "C-ON";
+
+        public const string PartOfDayIsAM = "A";
+        public const string PartOfDayIsPM = "P";
+
+        public const int NewSlotStartTimeAM = 1; // new slot start time in AM is 1
+        public const int NewSlotStartTimePM = 3; // new slot strart time in PM is 3
+
+
     }
 }

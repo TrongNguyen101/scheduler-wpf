@@ -281,7 +281,7 @@ namespace SchedulerWpfApp.ViewModel
                     {
                         // Mỗi slot có 3 dòng (Subject, Lecturer, Status)
                         string[] rowLines = new string[8];
-                        rowLines[0] = slot.PadRight(10) + "| "; // Dòng đầu tiên bắt đầu bằng slot
+                        rowLines[0] = $"Slot {slot}".PadRight(10) + "| "; // Dòng đầu tiên bắt đầu bằng slot
                         rowLines[1] = "".PadRight(10) + "| ";   // Dòng thứ hai và ba để trống ở cột slot
                         rowLines[2] = "".PadRight(10) + "| ";
                         rowLines[3] = "".PadRight(10) + "| ";
@@ -382,17 +382,16 @@ namespace SchedulerWpfApp.ViewModel
 
             foreach (var slot in Slots)
             {
-                string slotStr = $"slot {slot}";
                 var cells = new ObservableCollection<TimetableCellViewModel>();
 
                 foreach (var day in WeekDays)
                 {
-                    var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slotStr); // Check if there is a schedule for this day and slot
+                    var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slot); // Check if there is a schedule for this day and slot
 
                     cells.Add(new TimetableCellViewModel
                     {
                         DayOfWeek = day,
-                        SlotNumber = slotStr,
+                        SlotNumber = slot,
                         Schedule = match,
                         ParentViewModel = this // Set the parent view model for drag-and-drop functionality
                     });
@@ -534,7 +533,7 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Creates a new schedule with updated date and slot time
         /// </summary>
-        private Schedule CreateUpdatedSchedule(Schedule originalSchedule, DateTime newDate, string newSlotTime)
+        private Schedule CreateUpdatedSchedule(Schedule originalSchedule, DateTime newDate, int newSlotTime)
         {
             return new Schedule
             {
