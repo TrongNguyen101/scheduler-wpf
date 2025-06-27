@@ -142,7 +142,7 @@ namespace SchedulerWpfApp.Algorithm
                             int sessionNo = GetSessionNoForFirstWeeksAndFinal(subjectAppearanceOrder, subject, week);
 
                             // lấy tên giảng viên để thêm vào lịch
-                            var (lecturerId, lecturerName) = _getLecturerForSubject.FindLecturerForSubject(
+                            var (lecturerId, lecturerName, lecturerAccount) = _getLecturerForSubject.FindLecturerForSubject(
                                 subject?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
 
                             int slotLabel = slotIndex + slotStart;
@@ -249,9 +249,9 @@ namespace SchedulerWpfApp.Algorithm
                             int sessionNoBIT_NN = GetSessionNoForWeeks(subjectAppearanceOrder, subjectBIT_NN);
 
                             // lấy tên giảng viên để thêm vào lịch
-                            var (lecturerBBAId, lecturerBBAName) = _getLecturerForSubject.FindLecturerForSubject(
+                            var (lecturerBBAId, lecturerBBAName, lecturerBBAAccount) = _getLecturerForSubject.FindLecturerForSubject(
                                 subjectBBA?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
-                            var (lecturerBITId, lecturerBITName) = _getLecturerForSubject.FindLecturerForSubject(
+                            var (lecturerBITId, lecturerBITName, lecturerBITAccount) = _getLecturerForSubject.FindLecturerForSubject(
                                 subjectBIT_NN?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
 
                             int slotLabel = slotIndex + slotStart;

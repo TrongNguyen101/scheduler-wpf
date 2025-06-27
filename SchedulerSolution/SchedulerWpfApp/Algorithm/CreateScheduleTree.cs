@@ -69,7 +69,7 @@ namespace SchedulerWpfApp.Algorithm
 
             schedulesTest = await _version2CreateSchedule.GenerateSchedules(startDate);
 
-            //await _scheduleServices.AddScheduleAsync(schedulesTest);
+            await _scheduleServices.AddScheduleAsync(schedulesTest);
 
             return schedulesTest;
         }

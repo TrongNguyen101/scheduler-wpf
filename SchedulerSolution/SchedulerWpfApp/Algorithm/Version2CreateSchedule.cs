@@ -67,7 +67,6 @@ namespace SchedulerWpfApp.Algorithm
                 var listMajorFullOff = new List<string> { "GD" };
                 _context = await PrepareSchedulingDataAsync();
 
-
                 if (_context == null || !_context.Rooms.Any() || !_context.GroupNames.Any() || !_context.CurriculumSubjects.Any())
                 {
                     _logger.LogWarning("Context or required data is missing.");
@@ -83,7 +82,7 @@ namespace SchedulerWpfApp.Algorithm
                 var roomNodesAMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(listGroupNameAm.Count);
                 var roomNodesPMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(listGroupNamePm.Count);
 
-                var dataContextInAm = new SchedulePartOfDayContext
+                var dataContextInAmFullOff = new SchedulePartOfDayContext
                 {
                     GroupNames = listGroupNameAm,
                     LecturersTeachSubjects = lecturersAM,
@@ -92,7 +91,7 @@ namespace SchedulerWpfApp.Algorithm
                     TreeForSchedules = roomNodesAMFirstAndFinalWeek
                 };
 
-                var dataContextInPm = new SchedulePartOfDayContext
+                var dataContextInPmFullOff = new SchedulePartOfDayContext
                 {
                     GroupNames = listGroupNamePm,
                     LecturersTeachSubjects = lecturersPM,
@@ -104,13 +103,29 @@ namespace SchedulerWpfApp.Algorithm
                 var (roomNodesAMOnOff, listGroupNameAlternatingAmA, listGroupNameAlternatingAmB) = await BuildRoomTreeForSchedulesOnOffAlternative(listGroupNameAm, listMajorA, listMajorB);
                 var (roomNodesPMOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB) = await BuildRoomTreeForSchedulesOnOffAlternative(listGroupNamePm, listMajorA, listMajorB);
 
+                var dataContextInAmOnOff = new SchedulePartOfDayContext
+                {
+                    LecturersTeachSubjects = lecturersAM,
+                    PartOfDay = "A",
+                    StartDate = startDate,
+                    TreeForSchedules = roomNodesAMOnOff
+                };
 
+                var dataContextInPmOnOff = new SchedulePartOfDayContext
+                {
+                    LecturersTeachSubjects = lecturersPM,
+                    PartOfDay = "P",
+                    StartDate = startDate,
+                    TreeForSchedules = roomNodesPMOnOff
+                };
 
                 // *** TỐI ƯU HIỆU SUẤT: 4 luồng chính được chạy đồng thời, không cần chờ đợi nhau ***
                 var schedulingTasks = new List<Task<List<Schedule>>>
                                     {
-                                        GenerateSchedulesFullOffAsync(dataContextInAm, ScheduleConstants.FirstAndFinalWeeks, ScheduleConstants.StatusSlotIsOffline),
-                                        GenerateSchedulesFullOffAsync(dataContextInPm, ScheduleConstants.FirstAndFinalWeeks, ScheduleConstants.StatusSlotIsOffline),
+                                        GenerateSchedulesFullOffAsync(dataContextInAmFullOff),
+                                        GenerateSchedulesFullOffAsync(dataContextInPmFullOff),
+                                        GenerateSchedulesOnOffAsync(dataContextInAmOnOff, listGroupNameAlternatingAmA, listGroupNameAlternatingAmB),
+                                        GenerateSchedulesOnOffAsync(dataContextInPmOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB)
                                     };
 
                 var results = await Task.WhenAll(schedulingTasks);
@@ -152,6 +167,9 @@ namespace SchedulerWpfApp.Algorithm
             // Chuyển List thành Lookup để tìm kiếm môn học không cần duyệt lại toàn bộ danh sách.
             var curriculumLookup = curriculumSubjects.ToLookup(s => (s.CurriculumCode, s.TermNo));
 
+            var scheduleFourSubjectsLookup = ScheduleFourSubjectsLookup(curriculumLookup, listGroupName);
+
+
             return new SchedulingContext
             {
                 Lecturers = listLecturer,
@@ -161,7 +179,21 @@ namespace SchedulerWpfApp.Algorithm
                 GroupNames = listGroupName,
                 CurriculumLookup = curriculumLookup,
                 LecturersTeachSubjects = lecturersTeachSubjects,
+                SchedulesFourSubjectsLookup = scheduleFourSubjectsLookup
             };
+        }
+
+        // Phương thức để tiền xử lý các môn học
+        private Dictionary<string, CurriculumSubject[,,]> ScheduleFourSubjectsLookup(ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup, List<GroupClass> listGroupName)
+        {
+            var subjectLookup = new Dictionary<string, CurriculumSubject[,,]>();
+            foreach (var groupName in listGroupName)
+            {
+                var subjectOfClass = curriculumLookup[(groupName.CurriculumCode, groupName.Term.GetValueOrDefault())].ToList();
+                var sortedSubjects = _sortSubjectsOneSession.SortSubjectFourClass(subjectOfClass);
+                subjectLookup.Add(groupName.GroupName, sortedSubjects);
+            }
+            return subjectLookup;
         }
 
         /// <summary>
@@ -234,54 +266,6 @@ namespace SchedulerWpfApp.Algorithm
             return (morningGroups, afternoonGroups);
         }
 
-        //    if (weeksToProcess.Count() > 2)
-        //        {
-        //            var listGroupNameAlternatingA = context.GroupNames.Where(group => listMajorA.Contains(group.Major)).ToList();
-        //    var listGroupNameAlternatingB = context.GroupNames.Where(group => listMajorB.Contains(group.Major)).ToList();
-        //    int numberOfRoomsForAllClass = Math.Max(listGroupNameAlternatingA.Count, listGroupNameAlternatingB.Count);
-
-        //    var listRooms = await _roomService.GetNumberOfRoom(numberOfRoomsForAllClass);
-
-        //            if (listRooms == null || !listRooms.Any()) return sessionSchedules;
-
-        //            //var typeOfSlot = ScheduleConstants.DefaultSlotStatus ? "NewSlot" : "OldSlot";
-
-        //            // *** TỐI ƯU CRITICAL: Chạy song song việc xây dựng cây cho tất cả các phòng ***
-        //            var buildTreeTasks = listRooms.Select(room =>
-        //                _treeNode.BuildTreeForRoom(room.RoomId, room.RoomName)
-        //            ).ToList();
-
-        //    // Get the result of the tasks, which will be a List of TreeForSchedule
-        //    var result = await Task.WhenAll(buildTreeTasks);
-
-        //    // Convert the result to a List and assign it to roomNodes
-        //    roomNodes = result.ToList();
-
-        //        }
-        //        else
-        //        {
-        //            // Lấy phòng và xây dựng cây song song
-        //            var listRooms = await _roomService.GetNumberOfRoom(context.GroupNames.Count());
-        //            if (listRooms == null || !listRooms.Any()) return sessionSchedules;
-
-        //            //var typeOfSlot = ScheduleConstants.DefaultSlotStatus ? "NewSlot" : "OldSlot";
-
-        //            // *** TỐI ƯU CRITICAL: Chạy song song việc xây dựng cây cho tất cả các phòng ***
-        //            var buildTreeTasks = listRooms.Select(room =>
-        //                _treeNode.BuildTreeForRoom(room.RoomId, room.RoomName)
-        //            ).ToList();
-
-        //// Get the result of the tasks, which will be a List of TreeForSchedule
-        //var result = await Task.WhenAll(buildTreeTasks);
-
-        //// Convert the result to a List and assign it to roomNodes
-        //roomNodes = result.ToList();
-        //        }
-
-        //bool isOffline = GetSlotTypeForWeek(week, dayOfWeek, slotTypeCode);
-        //string statusSlot = (isOffline ? ScheduleConstants.StatusSlotIsOffline : ScheduleConstants.StatusSlotIsOnline);
-
-
         private async Task<List<TreeForSchedule>> BuildRoomTreeForSchedulesFullOff(int numberOfRooms)
         {
             var listRoomNodes = new List<TreeForSchedule>();
@@ -330,22 +314,20 @@ namespace SchedulerWpfApp.Algorithm
             return (result.ToList(), listGroupNameAlternatingA.ToList(), listGroupNameAlternatingB.ToList());
         }
 
-
-
-        public async Task<List<Schedule>> GenerateSchedulesFullOffAsync(SchedulePartOfDayContext dataContextInPartOfDay, IEnumerable<int> weeksToProcess, string statusSlot)
+        public async Task<List<Schedule>> GenerateSchedulesOnOffAsync(SchedulePartOfDayContext dataContextInPartOfDay,
+                                                                        List<GroupClass> listGroupNameAlternatingA,
+                                                                        List<GroupClass> listGroupNameAlternatingB)
         {
             try
             {
                 var sessionSchedules = new List<Schedule>();  // Tạo danh sách với dung lượng đủ
                 var subjectAppearanceOrder = new Dictionary<string, int>(); // Trạng thái cho mỗi luồng
-                int slotStart = dataContextInPartOfDay.PartOfDay == ScheduleConstants.PartOfDayIsAM ? ScheduleConstants.NewSlotStartTimeAM : ScheduleConstants.NewSlotStartTimePM;
 
                 // Tiền xử lý dữ liệu
-                var scheduleSubjectForClass = PreprocessSubjects();
 
                 // Sử dụng Parallel để tối ưu việc xử lý đồng thời các phòng học
                 var tasks = dataContextInPartOfDay.TreeForSchedules.Select((roomNode, indexRoom) => Task.Run(() =>
-                    GenerateRoomSchedules(indexRoom, dataContextInPartOfDay, weeksToProcess, scheduleSubjectForClass, slotStart, subjectAppearanceOrder, statusSlot)
+                    GenerateRoomSchedulesOnlOff(indexRoom, dataContextInPartOfDay, listGroupNameAlternatingA, listGroupNameAlternatingB, ScheduleConstants.MidTermWeeks, subjectAppearanceOrder)
                 ));
 
                 var results = await Task.WhenAll(tasks);
@@ -363,25 +345,119 @@ namespace SchedulerWpfApp.Algorithm
             }
         }
 
-        // Phương thức để tiền xử lý các môn học
-        private Dictionary<string, CurriculumSubject[,,]> PreprocessSubjects()
+        private List<Schedule> GenerateRoomSchedulesOnlOff(
+            int indexRoom,
+            SchedulePartOfDayContext dataContextInPartOfDay,
+            List<GroupClass> listGroupNameAlternatingA,
+            List<GroupClass> listGroupNameAlternatingB,
+            IEnumerable<int> weeksToProcess,
+            Dictionary<string, int> subjectAppearanceOrder)
         {
-            var subjectLookup = new Dictionary<string, CurriculumSubject[,,]>();
-            foreach (var group in _context.GroupNames)
+            int slotStart = dataContextInPartOfDay.PartOfDay == ScheduleConstants.PartOfDayIsAM ? ScheduleConstants.NewSlotStartTimeAM : ScheduleConstants.NewSlotStartTimePM;
+
+            var sessionSchedules = new List<Schedule>();
+            var roomNode = dataContextInPartOfDay.TreeForSchedules[indexRoom];
+
+            var groupNameA = listGroupNameAlternatingA[indexRoom];
+            var groupNameB = listGroupNameAlternatingB[indexRoom];
+
+            var scheduleSubjectOfGroupNameAForRoom = _context.SchedulesFourSubjectsLookup[groupNameA.GroupName];
+            var scheduleSubjectOfGroupNameBForRoom = _context.SchedulesFourSubjectsLookup[groupNameB.GroupName];
+
+            var (classIndex, cycleLevel) = MapToCycle(indexRoom + 1);
+
+            foreach (int week in weeksToProcess)
             {
-                var subjectOfClass = _context.CurriculumLookup[(group.CurriculumCode, group.Term.GetValueOrDefault())].ToList();
-                var sortedSubjects = _sortSubjectsOneSession.SortSubjectFourClass(subjectOfClass);
-                subjectLookup.Add(group.GroupName, sortedSubjects);
+                for (int dayOfWeek = 1; dayOfWeek <= ScheduleConstants.DaysInWeek; dayOfWeek++)
+                {
+                    DateTime currentDate = dataContextInPartOfDay.StartDate.AddDays((week - 1) * 7 + (dayOfWeek - 1));
+
+                    for (int slotIndex = 0; slotIndex < ScheduleConstants.SlotsPerSession; slotIndex++)
+                    {
+                        var subjectGroupNameA = scheduleSubjectOfGroupNameAForRoom[dayOfWeek, classIndex, slotIndex];
+                        var subjectGroupNameB = scheduleSubjectOfGroupNameBForRoom[dayOfWeek, classIndex, slotIndex];
+
+                        if (subjectGroupNameA == null && subjectGroupNameB == null) continue;
+
+                        string typeSlot = ScheduleConstants.TypeSlotIsNew;
+                        
+                        string slotTypeCodeA = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, dataContextInPartOfDay.PartOfDay, subjectGroupNameA.TeachingMode);
+                        string slotTypeCodeB = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, dataContextInPartOfDay.PartOfDay, subjectGroupNameB.TeachingMode);
+                        
+                        string statusSLotGroupNameA = "";
+                        string statusSLotGroupNameB = "";
+
+                        if (GetSlotTypeForWeek(week, dayOfWeek, slotTypeCodeA))
+                        {
+                            statusSLotGroupNameA = ScheduleConstants.StatusSlotIsOffline;
+                            statusSLotGroupNameB = ScheduleConstants.StatusSlotIsOnline;
+                        }
+                        else
+                        {
+                            statusSLotGroupNameA = ScheduleConstants.StatusSlotIsOnline;
+                            statusSLotGroupNameB = ScheduleConstants.StatusSlotIsOffline;
+                        }
+
+                        // Hợp nhất logic gọi hàm GetSessionNo
+                        int sessionNoA = GetSessionNoForWeeks(subjectAppearanceOrder, subjectGroupNameA);
+                        int sessionNoB = GetSessionNoForWeeks(subjectAppearanceOrder, subjectGroupNameB);
+
+
+                        var (lecturerIdOfGroupNameA, lecturerNameOfGroupNameA, lecturerAccoutOfGroupNameA) = _getLecturerForSubject.FindLecturerForSubject(subjectGroupNameA.SubjectCode, dataContextInPartOfDay.LecturersTeachSubjects, cycleLevel);
+                        var (lecturerIdOfGroupNameB, lecturerNameOfGroupNameB, lecturerAccoutOfGroupNameB) = _getLecturerForSubject.FindLecturerForSubject(subjectGroupNameB.SubjectCode, dataContextInPartOfDay.LecturersTeachSubjects, cycleLevel);
+
+                        int slotLabel = slotIndex + slotStart;
+
+                        var schedulesItemOfGroupNameA = _treeNode.CollectSchedules(roomNode, subjectGroupNameA.SubjectCode, currentDate, groupNameA.GroupName, slotLabel, lecturerIdOfGroupNameA, lecturerNameOfGroupNameA, slotTypeCodeA, typeSlot, sessionNoA, dataContextInPartOfDay.PartOfDay, statusSLotGroupNameA);
+                        var schedulesItemOfGroupNameB = _treeNode.CollectSchedules(roomNode, subjectGroupNameB.SubjectCode, currentDate, groupNameB.GroupName, slotLabel, lecturerIdOfGroupNameB, lecturerNameOfGroupNameB, slotTypeCodeB, typeSlot, sessionNoB, dataContextInPartOfDay.PartOfDay, statusSLotGroupNameB);
+
+                        sessionSchedules.AddRange(schedulesItemOfGroupNameA);
+                        sessionSchedules.AddRange(schedulesItemOfGroupNameB);
+                    }
+                }
             }
-            return subjectLookup;
+            return sessionSchedules;
         }
 
+        public async Task<List<Schedule>> GenerateSchedulesFullOffAsync(SchedulePartOfDayContext dataContextInPartOfDay)
+        {
+            try
+            {
+                var sessionSchedules = new List<Schedule>();  // Tạo danh sách với dung lượng đủ
+                var subjectAppearanceOrder = new Dictionary<string, int>(); // Trạng thái cho mỗi luồng
+                int slotStart = dataContextInPartOfDay.PartOfDay == ScheduleConstants.PartOfDayIsAM ? ScheduleConstants.NewSlotStartTimeAM : ScheduleConstants.NewSlotStartTimePM;
+
+                // Tiền xử lý dữ liệu
+
+                string statusSlot = ScheduleConstants.StatusSlotIsOffline; // Mặc định là Offline
+
+                // Sử dụng Parallel để tối ưu việc xử lý đồng thời các phòng học
+                var tasks = dataContextInPartOfDay.TreeForSchedules.Select((roomNode, indexRoom) => Task.Run(() =>
+                    GenerateRoomSchedulesFullOff(indexRoom, dataContextInPartOfDay, ScheduleConstants.FirstAndFinalWeeks, slotStart, subjectAppearanceOrder, statusSlot)
+                ));
+
+                var results = await Task.WhenAll(tasks);
+                foreach (var result in results)
+                {
+                    sessionSchedules.AddRange(result);
+                }
+
+                return sessionSchedules;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating schedules");
+                return new List<Schedule>();  // Trả về danh sách rỗng nếu có lỗi
+            }
+        }
+
+
+
         // Phương thức để tạo lịch cho từng phòng học
-        private List<Schedule> GenerateRoomSchedules(
+        private List<Schedule> GenerateRoomSchedulesFullOff(
             int indexRoom,
             SchedulePartOfDayContext dataContextInPartOfDay,
             IEnumerable<int> weeksToProcess,
-            Dictionary<string, CurriculumSubject[,,]> scheduleSubjectForClass,
             int slotStart,
             Dictionary<string, int> subjectAppearanceOrder,
             string statusSlot)
@@ -390,7 +466,7 @@ namespace SchedulerWpfApp.Algorithm
             var roomNode = dataContextInPartOfDay.TreeForSchedules[indexRoom];
             var group = dataContextInPartOfDay.GroupNames[indexRoom];
 
-            var scheduleSubjectForClassForRoom = scheduleSubjectForClass[group.GroupName];
+            var scheduleSubjectForClassForRoom = _context.SchedulesFourSubjectsLookup[group.GroupName];
 
             var (classIndex, cycleLevel) = MapToCycle(indexRoom + 1);
 
@@ -418,7 +494,7 @@ namespace SchedulerWpfApp.Algorithm
                             ? GetSessionNoForFirstWeeksAndFinal(subjectAppearanceOrder, subject, week)
                             : GetSessionNoForWeeks(subjectAppearanceOrder, subject);
 
-                        var (lecturerId, lecturerName) = _getLecturerForSubject.FindLecturerForSubject(subject.SubjectCode, dataContextInPartOfDay.LecturersTeachSubjects, cycleLevel);
+                        var (lecturerId, lecturerName, lecturerAccount) = _getLecturerForSubject.FindLecturerForSubject(subject.SubjectCode, dataContextInPartOfDay.LecturersTeachSubjects, cycleLevel);
                         int slotLabel = slotIndex + slotStart;
 
                         var schedulesItem = _treeNode.CollectSchedules(roomNode, subject.SubjectCode, currentDate, group.GroupName, slotLabel, lecturerId, lecturerName, slotTypeCode, typeSlot, sessionNo, dataContextInPartOfDay.PartOfDay, statusSlot);

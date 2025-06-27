@@ -175,7 +175,7 @@ namespace SchedulerWpfApp.ViewModel
             var schedules = await _createScheduleTree.GenerateSchedules(startDate);
 
             LoadMockSchedules(); // Reload schedules after generating new ones
-            PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
+            //PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
 
             if (schedules == null || !schedules.Any())
                 MessageBox.Show("Không có lịch nào được tạo.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
