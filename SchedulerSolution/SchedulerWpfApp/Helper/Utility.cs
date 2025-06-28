@@ -18,17 +18,14 @@ namespace SchedulerWpfApp.Helper
         /// If empty cells are found, an exception is thrown with details about which rows contain empty cells.
         /// </remarks>
         /// <exception cref="Exception">Thrown when empty cells are found in the Excel worksheet, with details about which rows have empty cells.</exception>
-        public static void IsEmptyExcelRow(IWorksheet worksheet)
+        public static void IsEmptyExcelRow(IWorksheet worksheet, int totalRow, int totalCol)
         {
             var errorRows = new List<int>();
 
-            int rowCount = worksheet.UsedRange.LastRow;
-            int colCount = worksheet.UsedRange.LastColumn;
-
-            for (int row = 2; row <= rowCount; row++)
+            for (int row = 2; row <= totalRow; row++)
             {
                 bool hasNull = false;
-                for (int col = 1; col <= colCount; col++)
+                for (int col = 1; col <= totalCol; col++)
                 {
                     var cellValue = worksheet[row, col].Value;
                     if (string.IsNullOrWhiteSpace(cellValue))
@@ -65,18 +62,15 @@ namespace SchedulerWpfApp.Helper
         /// If duplicates are found, an exception is thrown with details about which rows are duplicates.
         /// </remarks>
         /// <exception cref="Exception">Thrown when duplicate rows are found in the Excel worksheet, with details about which rows are duplicates.</exception>
-        public static void IsDuplicatedExcelRow(IWorksheet worksheet)
+        public static void IsDuplicatedExcelRow(IWorksheet worksheet, int totalRow, int totalCol)
         {
             var duplicatedMap = new Dictionary<string, int>();
             var duplicates = new List<(int duplicateRow, int originalRow)>();
 
-            int rowCount = worksheet.UsedRange.LastRow;
-            int colCount = worksheet.UsedRange.LastColumn;
-
-            for (int row = 2; row <= rowCount; row++)
+            for (int row = 2; row <= totalRow; row++)
             {
                 var rowData = new StringBuilder();
-                for (int col = 1; col <= colCount; col++)
+                for (int col = 1; col <= totalCol; col++)
                 {
                     rowData.Append(worksheet[row, col].Value);
                     rowData.Append('|');

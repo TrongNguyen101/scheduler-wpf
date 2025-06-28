@@ -162,24 +162,26 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         {
             var curriculums = new List<Curriculum>();
             var curriculumLineMap = new Dictionary<string, List<int>>();
+            Dictionary<string, int> headerMap = new();
+
             using (ExcelEngine excelEngine = new ExcelEngine())
             {
                 IApplication application = excelEngine.Excel;
                 using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
                     IWorkbook workbook = application.Workbooks.Open(fileStream);
-                    IWorksheet sheet = workbook.Worksheets[0];
+                    IWorksheet worksheet = workbook.Worksheets[0];
 
-                    int rowCount = sheet.UsedRange.LastRow;
-                    int colCount = sheet.UsedRange.LastColumn;
+                    int rowCount = worksheet.UsedRange.LastRow;
+                    int colCount = worksheet.UsedRange.LastColumn;
 
-                    Utility.IsEmptyExcelRow(sheet);
-                    Utility.IsDuplicatedExcelRow(sheet);
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, colCount);
 
-                    Dictionary<string, int> headerMap = new();
                     for (int c = 1; c <= colCount; c++)
                     {
-                        string header = sheet[1, c].Value?.Trim() ?? "";
+                        string header = worksheet[1, c].Value?.Trim() ?? "";
+                        
                         if (!string.IsNullOrWhiteSpace(header))
                             headerMap[header] = c;
                     }
@@ -191,18 +193,20 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
 
                     for (int r = 2; r <= rowCount; r++)
                     {
-                        bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
+                        bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(worksheet[r, headerMap[h]].Value));
+                        
                         if (isEmptyRow)
                             continue;
 
                         bool isActive = true; // Default value for IsActive
-                        string curriculumCode = sheet[r, headerMap["CurriculumCode"]].Value;
+                        string curriculumCode = worksheet[r, headerMap["CurriculumCode"]].Value;
                         var curriculum = new Curriculum
                         {
-                            CurriculumCode = sheet[r, headerMap["CurriculumCode"]].Value,
-                            IsActive = bool.TryParse(sheet[r, headerMap["IsActive"]].Value?.ToString(), out isActive)
+                            CurriculumCode = worksheet[r, headerMap["CurriculumCode"]].Value,
+                            IsActive = bool.TryParse(worksheet[r, headerMap["IsActive"]].Value?.ToString(), out isActive)
                         };
                         curriculums.Add(curriculum);
+
                         if (!curriculumLineMap.ContainsKey(curriculumCode))
                         {
                             curriculumLineMap[curriculumCode] = new List<int>();
