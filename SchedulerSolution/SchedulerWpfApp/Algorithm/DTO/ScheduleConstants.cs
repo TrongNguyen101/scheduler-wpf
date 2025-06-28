@@ -35,6 +35,8 @@
         public const int NewSlotStartTimeAM = 1; // new slot start time in AM is 1
         public const int NewSlotStartTimePM = 3; // new slot strart time in PM is 3
 
+        public const int TotalSlotsNomal = 20;
+
 
     }
 }

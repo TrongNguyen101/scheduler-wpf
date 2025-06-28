@@ -131,32 +131,32 @@ namespace SchedulerWpfApp.Algorithm
                             if (subject == null) continue;
 
                             // Lấy mã loại slot dựa trên ngày, slot và buổi
-                            string slotTypeCode = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, sessionFilter, subject.TeachingMode);
+                            //string slotTypeCode = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, sessionFilter, subject.TeachingMode);
 
-                            if (GetSlotTypeForWeek(week, dayOfWeek, slotTypeCode))
-                            {
-                                slotType = "offline";
-                            }
+                            //if (GetSlotTypeForWeek(week, dayOfWeek, slotTypeCode))
+                            //{
+                            //    slotType = "offline";
+                            //}
 
-                            // Lấy thứ tự buổi học trong kỳ
-                            int sessionNo = GetSessionNoForFirstWeeksAndFinal(subjectAppearanceOrder, subject, week);
+                            //// Lấy thứ tự buổi học trong kỳ
+                            //int sessionNo = GetSessionNoForFirstWeeksAndFinal(subjectAppearanceOrder, subject, week);
 
-                            // lấy tên giảng viên để thêm vào lịch
-                            var (lecturerId, lecturerName, lecturerAccount) = _getLecturerForSubject.FindLecturerForSubject(
-                                subject?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
+                            //// lấy tên giảng viên để thêm vào lịch
+                            //var (lecturerId, lecturerName, lecturerAccount) = _getLecturerForSubject.FindLecturerForSubject(
+                            //    subject?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
 
-                            int slotLabel = slotIndex + slotStart;
+                            //int slotLabel = slotIndex + slotStart;
 
-                            var schedulesItem = _treeNode.CollectSchedules(roomNode, subject.SubjectCode, currentDate, groupName, slotLabel, lecturerId, lecturerName, slotTypeCode, "NewSlot", sessionNo, sessionFilter, slotType);
+                            //var schedulesItem = _treeNode.CollectSchedules(roomNode, subject.SubjectCode, currentDate, groupName, slotLabel, lecturerId, lecturerName, slotTypeCode, "NewSlot", sessionNo, sessionFilter, slotType);
 
-                            allSchedules.AddRange(schedulesItem);
+                            //allSchedules.AddRange(schedulesItem);
                         }
                     }
                 }
             }
             return allSchedules;
         }
-
+        
         private async Task<List<Schedule>> CreateSchedulesForWeek(List<CurriculumSubject> curriculumSubjects,
                                       Dictionary<string, List<LecturerSubject>> lecturersTeachSubjectSession,
                                       List<GroupClass> listGroupName,
@@ -230,38 +230,38 @@ namespace SchedulerWpfApp.Algorithm
                             if (subjectBBA == null && subjectBIT_NN == null) continue;
 
                             // Lấy mã loại slot dựa trên ngày, slot và buổi
-                            string slotTypeCode = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, sessionFilter, subjectBBA.TeachingMode);
+                            //string slotTypeCode = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, sessionFilter, subjectBBA.TeachingMode);
 
-                            if (GetSlotTypeForWeek(week, dayOfWeek, slotTypeCode))
-                            {
-                                slotTypeBBA = "offline";
-                                slotTypeBIT_NN = "online";
-                            }
-                            else
-                            {
-                                slotTypeBBA = "online";
-                                slotTypeBIT_NN = "offline";
-                            }
-
-
-                            // Lấy thứ tự buổi học trong kỳ
-                            int sessionNoBBA = GetSessionNoForWeeks(subjectAppearanceOrder, subjectBBA);
-                            int sessionNoBIT_NN = GetSessionNoForWeeks(subjectAppearanceOrder, subjectBIT_NN);
-
-                            // lấy tên giảng viên để thêm vào lịch
-                            var (lecturerBBAId, lecturerBBAName, lecturerBBAAccount) = _getLecturerForSubject.FindLecturerForSubject(
-                                subjectBBA?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
-                            var (lecturerBITId, lecturerBITName, lecturerBITAccount) = _getLecturerForSubject.FindLecturerForSubject(
-                                subjectBIT_NN?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
-
-                            int slotLabel = slotIndex + slotStart;
+                            //if (GetSlotTypeForWeek(week, dayOfWeek, slotTypeCode))
+                            //{
+                            //    slotTypeBBA = "offline";
+                            //    slotTypeBIT_NN = "online";
+                            //}
+                            //else
+                            //{
+                            //    slotTypeBBA = "online";
+                            //    slotTypeBIT_NN = "offline";
+                            //}
 
 
-                            var schedulesItemBBA = _treeNode.CollectSchedules(roomNode, subjectBBA.SubjectCode, currentDate, groupNameInGroupBBA, slotLabel, lecturerBBAId, lecturerBBAName, slotTypeCode, "NewSlot", sessionNoBBA, sessionFilter, slotTypeBBA);
-                            var schedulesItemBIT_NN = _treeNode.CollectSchedules(roomNode, subjectBIT_NN.SubjectCode, currentDate, groupNameInGroupBIT_NN, slotLabel, lecturerBITId, lecturerBITName, slotTypeCode, "NewSlot", sessionNoBIT_NN, sessionFilter, slotTypeBIT_NN);
+                        //    // Lấy thứ tự buổi học trong kỳ
+                        //    int sessionNoBBA = GetSessionNoForWeeks(subjectAppearanceOrder, subjectBBA);
+                        //    int sessionNoBIT_NN = GetSessionNoForWeeks(subjectAppearanceOrder, subjectBIT_NN);
 
-                            allSchedules.AddRange(schedulesItemBBA);
-                            allSchedules.AddRange(schedulesItemBIT_NN);
+                        //    // lấy tên giảng viên để thêm vào lịch
+                        //    var (lecturerBBAId, lecturerBBAName, lecturerBBAAccount) = _getLecturerForSubject.FindLecturerForSubject(
+                        //        subjectBBA?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
+                        //    var (lecturerBITId, lecturerBITName, lecturerBITAccount) = _getLecturerForSubject.FindLecturerForSubject(
+                        //        subjectBIT_NN?.SubjectCode, lecturersTeachSubjectSession, cycleLevel);
+
+                        //    int slotLabel = slotIndex + slotStart;
+
+
+                        //    var schedulesItemBBA = _treeNode.CollectSchedules(roomNode, subjectBBA.SubjectCode, currentDate, groupNameInGroupBBA, slotLabel, lecturerBBAId, lecturerBBAName, slotTypeCode, "NewSlot", sessionNoBBA, sessionFilter, slotTypeBBA);
+                        //    var schedulesItemBIT_NN = _treeNode.CollectSchedules(roomNode, subjectBIT_NN.SubjectCode, currentDate, groupNameInGroupBIT_NN, slotLabel, lecturerBITId, lecturerBITName, slotTypeCode, "NewSlot", sessionNoBIT_NN, sessionFilter, slotTypeBIT_NN);
+
+                        //    allSchedules.AddRange(schedulesItemBBA);
+                        //    allSchedules.AddRange(schedulesItemBIT_NN);
                         }
                     }
                 }
