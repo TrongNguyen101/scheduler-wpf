@@ -27,7 +27,7 @@ namespace SchedulerWpfApp.Helper
                 bool hasNull = false;
                 for (int col = 1; col <= totalCol; col++)
                 {
-                    var cellValue = worksheet[row, col].Value;
+                    var cellValue = worksheet[row, col].Value.ToString();
                     if (string.IsNullOrWhiteSpace(cellValue))
                     {
                         hasNull = true;
