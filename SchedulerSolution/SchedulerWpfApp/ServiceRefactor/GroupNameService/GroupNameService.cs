@@ -164,8 +164,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         public List<GroupClass> ReadGroupNameFromExcel(string filePath)
         {
             var groupnames = new List<GroupClass>();
-            var groupNameLineMap = new Dictionary<string, List<int>>();
-            Dictionary<string, int> headerMap = new();
+            Dictionary<string, int> headerMap = new Dictionary<string, int>();
 
             using (ExcelEngine excelEngine = new ExcelEngine())
             {
@@ -196,7 +195,6 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
 
                     for (int r = 2; r <= rowCount; r++)
                     {
-                        string groupName = worksheet[r, headerMap["GroupName"]].Value;
                         var groupname = new GroupClass
                         {
                             GroupName = worksheet[r, headerMap["GroupName"]].Value,
@@ -206,24 +204,6 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                             Term = int.TryParse(worksheet[r, headerMap["Kỳ"]].Value, out int term) ? term : 0
                         };
                         groupnames.Add(groupname);
-
-                        //remember line for GroupName
-                        if (!groupNameLineMap.ContainsKey(groupName))
-                        {
-                            groupNameLineMap[groupName] = new List<int>();
-                        }
-                        groupNameLineMap[groupName].Add(r);
-                    }
-
-                    var duplicateGroupName = groupNameLineMap
-                        .Where(gn => gn.Value.Count > 1)
-                        .ToDictionary(gn => gn.Key, gn => gn.Value);
-
-                    if (duplicateGroupName.Count > 0)
-                    {
-                        var errorMessage = duplicateGroupName
-                            .Select(dlc => $"GroupName '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                        throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
                     }
                 }
             }

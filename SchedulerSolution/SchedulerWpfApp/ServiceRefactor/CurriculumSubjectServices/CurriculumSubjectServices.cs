@@ -269,17 +269,6 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                         }
                         curriculumSubjectLineMap[key].Add(r);
                     }
-
-                    var duplicateCurriculumSubjects = curriculumSubjectLineMap
-                        .Where(ccs => ccs.Value.Count > 1)
-                        .ToDictionary(ccs => ccs.Key, ccs => ccs.Value);
-
-                    if (duplicateCurriculumSubjects.Count > 0)
-                    {
-                        var errorMessage = duplicateCurriculumSubjects
-                           .Select(dlc => $"CurriculumSubjects bị trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                        throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
-                    }
                 }
             }
             return curriculumSubjects;
