@@ -386,7 +386,7 @@ namespace SchedulerWpfApp.ViewModel
 
                 foreach (var day in WeekDays)
                 {
-                    var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slotStr); // Check if there is a schedule for this day and slot
+                    var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slot); // Check if there is a schedule for this day and slot
                     string slotTime = "";
                     if (match != null)
                     {
@@ -396,7 +396,7 @@ namespace SchedulerWpfApp.ViewModel
                     cells.Add(new TimetableCellViewModel
                     {
                         DayOfWeek = day,
-                        SlotNumber = slotStr,
+                        SlotNumber = slot,
                         SlotTime = slotTime,
                         Schedule = match,
                         ParentViewModel = this // Set the parent view model for drag-and-drop functionality
@@ -505,7 +505,7 @@ namespace SchedulerWpfApp.ViewModel
                 // Update UI
                 targetCell.Schedule = updatedSourceSchedule;
 
-                int slotTargetCellInt = int.Parse(targetCell.SlotNumber.Split(' ')[1]);
+                int slotTargetCellInt = targetCell.SlotNumber;
                 targetCell.SlotTime = CalculatorTime(slotTargetCellInt, updatedSourceSchedule.TypeSlot);
                 sourceCell.Schedule = targetSchedule; // This might be null (empty slot) or another schedule
 
@@ -514,7 +514,7 @@ namespace SchedulerWpfApp.ViewModel
                 {
                     var updatedTargetSchedule = CreateUpdatedSchedule(targetSchedule, sourceCell.DayOfWeek, sourceCell.SlotNumber);
                     sourceCell.Schedule = updatedTargetSchedule;
-                    int slotSourceCellInt = int.Parse(sourceCell.SlotNumber.Split(' ')[1]);
+                    int slotSourceCellInt = sourceCell.SlotNumber;
                     sourceCell.SlotTime = CalculatorTime(slotSourceCellInt, updatedTargetSchedule.TypeSlot);
 
                     // Update in AllSchedules collection
