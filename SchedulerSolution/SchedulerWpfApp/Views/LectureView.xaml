@@ -175,6 +175,9 @@
                         <syncfusion:GridTextColumn HeaderText="Bộ Môn"
                                                    MappingName="Department"
                                                    AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="AccGV" 
+                                                   MappingName="LecturerAccount" 
+                                                   AllowResizing="True" />
                         <syncfusion:GridTemplateColumn HeaderText="Action"
                                                        Width="90"
                                                        AllowFiltering="False"

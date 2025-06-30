@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.IO;
+using AutoMapper;
+using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 using Syncfusion.XlsIO;
@@ -39,63 +41,50 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         public List<Room> ReadRoomListFromExcel(string filePath)
         {
             var rooms = new List<Room>();
-            // key: RoomName, value: list of line numbers where this room appears
             var roomLineMap = new Dictionary<string, List<int>>();
-            using ExcelEngine excelEngine = new();
-            var app = excelEngine.Excel;
-            app.DefaultVersion = ExcelVersion.Xlsx;
-
-            var workbook = app.Workbooks.Open(filePath);
-            var sheet = workbook.Worksheets[0];
-
-            int rowCount = sheet.UsedRange.LastRow;
-            int colCount = sheet.UsedRange.LastColumn;
-
             Dictionary<string, int> headerMap = new();
-            for (int c = 1; c <= colCount; c++)
-            {
-                string header = sheet[1, c].Value?.Trim() ?? "";
-                if (!string.IsNullOrWhiteSpace(header))
-                    headerMap[header] = c;
-            }
-            string[] requiredHeaders = {"RoomName", "Loại phòng", "Tầng", "Tòa", "SLSV", "Status" };
-            foreach (var h in requiredHeaders)
-                if (!headerMap.ContainsKey(h))
-                    throw new Exception($"Missing required column: {h}");
 
-            for (int r = 2; r <= rowCount; r++)
+            using (ExcelEngine excelEngine = new ExcelEngine())
             {
-                // get RoomName from the header map
-                string roomName = sheet[r, headerMap["RoomName"]].Value;
-                var room = new Room
+                IApplication application = excelEngine.Excel;
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    Building = sheet[r, headerMap["Tòa"]].Value?.Trim(),
-                    Floor = int.TryParse(sheet[r, headerMap["Tầng"]].Value, out var floor) ? floor : 0,
-                    RoomName = sheet[r, headerMap["RoomName"]].Value?.Trim(),
-                    Status = sheet[r, headerMap["Status"]].Value?.Trim() ?? "available", // Default to "available" if not specified
-                    TotalPersons = int.TryParse(sheet[r, headerMap["SLSV"]].Value, out var totalPersons) ? totalPersons : 0,
-                    TypeOfRoom = sheet[r, headerMap["Loại phòng"]].Value,
-                };
-                rooms.Add(room);
-                // If roomName already exists, create a new position in its place.
-                if (!roomLineMap.ContainsKey(roomName))
-                {
-                    roomLineMap[roomName] = new List<int>();
+                    IWorkbook workbook = application.Workbooks.Open(fileStream);
+                    IWorksheet worksheet = workbook.Worksheets[0];
+
+                    int rowCount = worksheet.UsedRange.LastRow;
+                    int colCount = worksheet.UsedRange.LastColumn;
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    var listColCheck = new List<int> { 1 };
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+
+                    for (int c = 1; c <= colCount; c++)
+                    {
+                        string header = worksheet[1, c].Value?.Trim() ?? "";
+                        if (!string.IsNullOrWhiteSpace(header))
+                            headerMap[header] = c;
+                    }
+
+                    string[] requiredHeaders = { "RoomName", "Loại phòng", "Tầng", "Tòa", "SLSV", "Status" };
+
+                    foreach (var h in requiredHeaders)
+                        if (!headerMap.ContainsKey(h))
+                            throw new Exception($"Missing required column: {h}");
+
+                    for (int r = 2; r <= rowCount; r++)
+                    {
+                        var room = new Room
+                        {
+                            Building = worksheet[r, headerMap["Tòa"]].Value?.Trim(),
+                            Floor = int.TryParse(worksheet[r, headerMap["Tầng"]].Value, out var floor) ? floor : 0,
+                            RoomName = worksheet[r, headerMap["RoomName"]].Value?.Trim(),
+                            Status = worksheet[r, headerMap["Status"]].Value?.Trim() ?? "available", // Default to "available" if not specified
+                            TotalPersons = int.TryParse(worksheet[r, headerMap["SLSV"]].Value, out var totalPersons) ? totalPersons : 0,
+                            TypeOfRoom = worksheet[r, headerMap["Loại phòng"]].Value,
+                        };
+                        rooms.Add(room);
+                    }
                 }
-                // Add the current row number to the list for this roomName
-                roomLineMap[roomName].Add(r);
-            }
-            var duplicateRooms = roomLineMap
-            //Filter out RoomNames that appear more than once.
-            .Where(r => r.Value.Count > 1)
-            // get key and value as a dictionary
-            .ToDictionary(r => r.Key, r => r.Value);
-            if (duplicateRooms.Count > 0)
-            {
-                // Create an error message for each duplicate room.
-                var errorMessage = duplicateRooms
-                    .Select(dlc => $"RoomName '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return rooms;
         }

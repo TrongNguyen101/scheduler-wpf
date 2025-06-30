@@ -2,6 +2,8 @@
 using SchedulerWpfApp.Model;
 using AutoMapper;
 using Syncfusion.XlsIO;
+using System.IO;
+using SchedulerWpfApp.Helper;
 namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
 {
     public class GroupNameService : IGroupNameService
@@ -162,56 +164,50 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         public List<GroupClass> ReadGroupNameFromExcel(string filePath)
         {
             var groupnames = new List<GroupClass>();
-            var groupNameLineMap = new Dictionary<string, List<int>>();
-            using ExcelEngine excelEngine = new();
-            var app = excelEngine.Excel;
-            app.DefaultVersion = ExcelVersion.Xlsx;
+            Dictionary<string, int> headerMap = new Dictionary<string, int>();
 
-            var workbook = app.Workbooks.Open(filePath);
-            var sheet = workbook.Worksheets[0];
-
-            int rowCount = sheet.UsedRange.LastRow;
-            int colCount = sheet.UsedRange.LastColumn;
-
-            Dictionary<string, int> headerMap = new();
-            for (int c = 1; c <= colCount; c++)
+            using (ExcelEngine excelEngine = new ExcelEngine())
             {
-                string header = sheet[1, c].Value?.Trim() ?? "";
-                if (!string.IsNullOrWhiteSpace(header))
-                    headerMap[header] = c;
-            }
-            string[] requiredHeaders = { "GroupName", "Khóa", "Kỳ", "BM", "Ngành" };
-            foreach (var h in requiredHeaders)
-                if (!headerMap.ContainsKey(h))
-                    throw new Exception($"Missing required column: {h}");
+                IApplication application = excelEngine.Excel;
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    IWorkbook workbook = application.Workbooks.Open(fileStream);
+                    IWorksheet worksheet = workbook.Worksheets[0];
 
-            for (int r = 2; r <= rowCount; r++)
-            {
-                string groupName = sheet[r, headerMap["GroupName"]].Value;
-                var groupname = new GroupClass
-                {
-                    GroupName = sheet[r, headerMap["GroupName"]].Value,
-                    CurriculumCode = sheet[r, headerMap["Khóa"]].Value,
-                    Department = sheet[r, headerMap["BM"]].Value,
-                    Major = sheet[r, headerMap["Ngành"]].Value,
-                    Term = int.TryParse(sheet[r, headerMap["Kỳ"]].Value, out int term) ? term : 0
-                };
-                groupnames.Add(groupname);
-                //remember line for GroupName
-                if (!groupNameLineMap.ContainsKey(groupName))
-                {
-                    groupNameLineMap[groupName] = new List<int>();
+                    int rowCount = worksheet.UsedRange.LastRow;
+                    int colCount = worksheet.UsedRange.LastColumn;
+
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    var listColCheck = new List<int> { 1 };
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+
+                    for (int c = 1; c <= colCount; c++)
+                    {
+                        string header = worksheet[1, c].Value?.Trim() ?? "";
+                        if (!string.IsNullOrWhiteSpace(header))
+                            headerMap[header] = c;
+                    }
+
+                    string[] requiredHeaders = { "GroupName", "Khóa", "Kỳ", "BM", "Ngành" };
+
+                    foreach (var h in requiredHeaders)
+                        if (!headerMap.ContainsKey(h))
+                            throw new Exception($"Missing required column: {h}");
+
+                    for (int r = 2; r <= rowCount; r++)
+                    {
+                        var groupname = new GroupClass
+                        {
+                            GroupName = worksheet[r, headerMap["GroupName"]].Value,
+                            CurriculumCode = worksheet[r, headerMap["Khóa"]].Value,
+                            Department = worksheet[r, headerMap["BM"]].Value,
+                            Major = worksheet[r, headerMap["Ngành"]].Value,
+                            Term = int.TryParse(worksheet[r, headerMap["Kỳ"]].Value, out int term) ? term : 0
+                        };
+                        groupnames.Add(groupname);
+                    }
                 }
-                groupNameLineMap[groupName].Add(r);
-            }
-            var duplicateGroupName = groupNameLineMap
-                .Where(gn => gn.Value.Count > 1)
-                .ToDictionary(gn => gn.Key, gn => gn.Value);
-            if (duplicateGroupName.Count > 0)
-            {
-                var errorMessage = duplicateGroupName
-                    .Select(dlc => $"GroupName '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return groupnames;
         }
