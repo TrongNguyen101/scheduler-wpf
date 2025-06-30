@@ -203,7 +203,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                     int colCount = worksheet.UsedRange.LastColumn;
 
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    var listColCheck = new List<int> { 1,2,5 };
+                    var listColCheck = new List<int> { 1,2,3,5 };
                     Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
                     for (int c = 1; c <= colCount; c++)
                     {
@@ -227,6 +227,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                         var subjectCode = worksheet[r, headerMap["SubjectCode"]].Value?.ToString();
                         var subjectNameEnglish = worksheet[r, headerMap["SubjectName"]].Value?.ToString();
                         var subjectNameVietnamese = worksheet[r, headerMap["SubjectV"]].Value?.ToString();
+                        var teachingMode = worksheet[r, headerMap["TeachingMode"]].Value?.ToString();
 
                         // TermNo
                         int termNo = 0;
@@ -258,7 +259,8 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                             TermNo = termNo,
                             IsCombo = isCombo,
                             Credit = credit,
-                            TotalSlots = totalSlots
+                            TotalSlots = totalSlots,
+                            TeachingMode = teachingMode
                         };
 
                         curriculumSubjects.Add(curriculumSubject);
