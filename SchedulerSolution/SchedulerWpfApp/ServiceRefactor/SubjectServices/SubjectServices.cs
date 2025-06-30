@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 using Syncfusion.XlsIO;
@@ -177,7 +178,9 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
 
                     int rowCount = worksheet.UsedRange.LastRow;
                     int colCount = worksheet.UsedRange.LastColumn;
-
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    var listColCheck = new List<int> { 1 };
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
                     Dictionary<string, int> headerMap = new();
                     for (int c = 1; c <= colCount; c++)
                     {
@@ -194,11 +197,10 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
                     for (int r = 2; r <= rowCount; r++)
                     {
                         bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(worksheet[r, headerMap[h]].Value));
-                        
+
                         if (isEmptyRow)
                             continue;
-                        
-                        string subjectCode = worksheet[r, headerMap["SubjectCode"]].Value;
+
                         var subject = new Subject
                         {
                             SubjectCode = worksheet[r, headerMap["SubjectCode"]].Value,
@@ -208,13 +210,6 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
                             TotalCredits = int.TryParse(worksheet[r, headerMap["TotalCredits"]].Value, out int SlotsPerWeek) ? SlotsPerWeek : 0
                         };
 
-                        if (!subjectLineMap.ContainsKey(subjectCode))
-                        {
-                            subjectLineMap[subjectCode] = new List<int>();
-
-                        }
-
-                        subjectLineMap[subjectCode].Add(r);
                         subjects.Add(subject);
                     }
                 }

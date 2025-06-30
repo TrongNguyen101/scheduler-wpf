@@ -62,7 +62,7 @@ namespace SchedulerWpfApp.Helper
         /// If duplicates are found, an exception is thrown with details about which rows are duplicates.
         /// </remarks>
         /// <exception cref="Exception">Thrown when duplicate rows are found in the Excel worksheet, with details about which rows are duplicates.</exception>
-        public static void IsDuplicatedExcelRow(IWorksheet worksheet, int totalRow, int totalCol)
+        public static void IsDuplicatedExcelRow(IWorksheet worksheet, int totalRow, List< int > listColCheck)
         {
             var duplicatedMap = new Dictionary<string, int>();
             var duplicates = new List<(int duplicateRow, int originalRow)>();
@@ -70,7 +70,7 @@ namespace SchedulerWpfApp.Helper
             for (int row = 2; row <= totalRow; row++)
             {
                 var rowData = new StringBuilder();
-                for (int col = 1; col <= totalCol; col++)
+                foreach (int col in listColCheck)
                 {
                     rowData.Append(worksheet[row, col].Value);
                     rowData.Append('|');

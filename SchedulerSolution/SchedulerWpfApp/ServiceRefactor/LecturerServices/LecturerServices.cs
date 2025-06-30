@@ -140,10 +140,9 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
 
                     int rowCount = worksheet.UsedRange.LastRow;
                     int colCount = worksheet.UsedRange.LastColumn;
-
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, colCount);
-
+                    var listColCheck = new List<int> { 1 };
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
                     for (int c = 1; c <= colCount; c++)
                     {
                         string header = worksheet[1, c].Value?.Trim() ?? "";
@@ -151,7 +150,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                             headerMap[header] = c;
                     }
 
-                    string[] requiredHeaders = { "MaNV", "Fullname", "Bomon", "LoaiGV" };
+                    string[] requiredHeaders = { "MaNV", "Fullname", "Bomon", "LoaiGV", "accGV" };
 
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
@@ -163,13 +162,14 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
 
                         if (isEmptyRow)
                             continue;
-                        string lecturerId = worksheet[r, headerMap["MaNV"]].Value;
+
                         var lecturer = new Lecturer
                         {
                             LecturerId = worksheet[r, headerMap["MaNV"]].Value,
                             LecturerName = worksheet[r, headerMap["Fullname"]].Value,
                             Role = worksheet[r, headerMap["LoaiGV"]].Value,
-                            Department = worksheet[r, headerMap["Bomon"]].Value
+                            Department = worksheet[r, headerMap["Bomon"]].Value,
+                            LecturerAccount = worksheet[r, headerMap["accGV"]].Value
                         };
 
                         lectures.Add(lecturer);

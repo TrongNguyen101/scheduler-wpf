@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using AutoMapper;
+using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 using Syncfusion.XlsIO;
@@ -53,6 +54,9 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
 
                     int rowCount = worksheet.UsedRange.LastRow;
                     int colCount = worksheet.UsedRange.LastColumn;
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    var listColCheck = new List<int> { 1 };
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
 
                     for (int c = 1; c <= colCount; c++)
                     {
@@ -69,7 +73,6 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
 
                     for (int r = 2; r <= rowCount; r++)
                     {
-                        string roomName = worksheet[r, headerMap["RoomName"]].Value;
                         var room = new Room
                         {
                             Building = worksheet[r, headerMap["Tòa"]].Value?.Trim(),
@@ -80,13 +83,6 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
                             TypeOfRoom = worksheet[r, headerMap["Loại phòng"]].Value,
                         };
                         rooms.Add(room);
-
-                        if (!roomLineMap.ContainsKey(roomName))
-                        {
-                            roomLineMap[roomName] = new List<int>();
-                        }
-
-                        roomLineMap[roomName].Add(r);
                     }
                 }
             }
