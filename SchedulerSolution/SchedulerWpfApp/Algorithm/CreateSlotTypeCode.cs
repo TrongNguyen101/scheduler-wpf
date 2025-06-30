@@ -1,4 +1,6 @@
-﻿namespace SchedulerWpfApp.Algorithm
+﻿using SchedulerWpfApp.Algorithm.DTO;
+
+namespace SchedulerWpfApp.Algorithm
 {
     public class CreateSlotTypeCode
     {
@@ -8,7 +10,6 @@
             { 3, "35" },
             { 4, "42" },
             { 5, "53" },
-            { 6, "C" }
         };
 
         private static readonly Dictionary<int, string> Slot2Map = new()
@@ -17,7 +18,6 @@
             { 3, "53" },
             { 4, "24" },
             { 5, "35" },
-            { 6, "C" }
         };
 
         /// Sinh mã loại slot (slotTypeCode) dựa trên ngày, slot và buổi học (AM/PM).
@@ -30,10 +30,15 @@
         /// <param name="slot">Slot trong buổi học (1 hoặc 2).</param>
         /// <param name="sessionFilter">Buổi học ("A" cho AM, "P" cho PM).</param>
         /// <returns>Mã loại slot (slotTypeCode) hoặc chuỗi rỗng nếu không khớp quy tắc.</returns>
-        public string GetSlotTypeCode(int day, int slot, string sessionFilter)
+        public string GetSlotTypeCode(int day, int slot, string sessionFilter, string teachingMode)
         {
             if ((slot != 1 && slot != 2) || string.IsNullOrWhiteSpace(sessionFilter))
                 return string.Empty;
+
+            if (teachingMode == ScheduleConstants.TechingModeIsCoursera)
+            {
+                return $"{sessionFilter}C";
+            }
 
             var map = slot == 1 ? Slot1Map : Slot2Map;
 
