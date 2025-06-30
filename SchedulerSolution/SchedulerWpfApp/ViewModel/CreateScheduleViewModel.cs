@@ -386,12 +386,18 @@ namespace SchedulerWpfApp.ViewModel
 
                 foreach (var day in WeekDays)
                 {
-                    var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slot); // Check if there is a schedule for this day and slot
+                    var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slotStr); // Check if there is a schedule for this day and slot
+                    string slotTime = "";
+                    if (match != null)
+                    {
+                        slotTime = CalculatorTime(slot, match.TypeSlot); // Calculate time for new slot
+                    }
 
                     cells.Add(new TimetableCellViewModel
                     {
                         DayOfWeek = day,
-                        SlotNumber = slot,
+                        SlotNumber = slotStr,
+                        SlotTime = slotTime,
                         Schedule = match,
                         ParentViewModel = this // Set the parent view model for drag-and-drop functionality
                     });
@@ -403,6 +409,35 @@ namespace SchedulerWpfApp.ViewModel
                     Cells = cells
                 });
             }
+        }
+
+        /// <summary>
+        /// Calculator start time and end time for each slot
+        /// </summary>
+        /// <param name="slot"></param>
+        /// <param name="typeSlot"></param>
+        /// <returns></returns>
+        private string CalculatorTime(int slot, string typeSlot)
+        {
+            int minutesPerSlot = 135; // Default slot duration of NewSlot
+            int minutesPerBreak = 60; // Default break duration of NewSlot
+
+            if (typeSlot == "OldSlot")
+            {
+                minutesPerSlot = 90; // Old slots have a different duration
+                minutesPerBreak = 30; // Shorter break for old slots
+            }
+
+            // Calculate the start and end times based on the slot number
+            double startHour = ((slot - 1) * minutesPerSlot) + ((slot - 1) * 15) + (minutesPerSlot == 135 && slot >= 3 ? minutesPerBreak : slot >= 4 ? minutesPerBreak : 0);
+            // Start hour of slot
+            DateTime startDate = new DateTime(2025, 1, 1, 7, 0, 0).AddMinutes(startHour);
+
+            double endHour = startHour + minutesPerSlot;
+            //End hour of slot
+            DateTime endDate = new DateTime(2025, 1, 1, 7, 0, 0).AddMinutes(endHour);
+
+            return $"{startDate:HH:mm} - {endDate:HH:mm}"; // Return the formatted time range
         }
 
         /// <summary>
@@ -469,6 +504,9 @@ namespace SchedulerWpfApp.ViewModel
 
                 // Update UI
                 targetCell.Schedule = updatedSourceSchedule;
+
+                int slotTargetCellInt = int.Parse(targetCell.SlotNumber.Split(' ')[1]);
+                targetCell.SlotTime = CalculatorTime(slotTargetCellInt, updatedSourceSchedule.TypeSlot);
                 sourceCell.Schedule = targetSchedule; // This might be null (empty slot) or another schedule
 
                 // Update the schedule in the underlying data if targetSchedule is not null
@@ -476,6 +514,8 @@ namespace SchedulerWpfApp.ViewModel
                 {
                     var updatedTargetSchedule = CreateUpdatedSchedule(targetSchedule, sourceCell.DayOfWeek, sourceCell.SlotNumber);
                     sourceCell.Schedule = updatedTargetSchedule;
+                    int slotSourceCellInt = int.Parse(sourceCell.SlotNumber.Split(' ')[1]);
+                    sourceCell.SlotTime = CalculatorTime(slotSourceCellInt, updatedTargetSchedule.TypeSlot);
 
                     // Update in AllSchedules collection
                     var targetIndex = AllSchedules.IndexOf(targetSchedule);

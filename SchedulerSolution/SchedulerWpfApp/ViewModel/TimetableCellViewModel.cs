@@ -12,11 +12,18 @@ namespace SchedulerWpfApp.ViewModel
         private Schedule? _schedule;
         private bool _isDragOver;
         private bool _isDragSource;
+        private string _slotTime;
         #endregion
 
         #region Constructors
         public DateTime DayOfWeek { get; set; }
-        public int SlotNumber { get; set; }
+
+        public string SlotNumber { get; set; }
+        public string SlotTime
+        {
+            get => _slotTime;
+            set => SetProperty(ref _slotTime, value);
+        }
 
         public Schedule? Schedule
         {
