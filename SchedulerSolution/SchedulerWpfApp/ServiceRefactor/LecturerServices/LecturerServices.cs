@@ -128,7 +128,6 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
         public List<Lecturer> ReadLecturersFromExcel(string filePath)
         {
             var lectures = new List<Lecturer>();
-            var lecturerLineMap = new Dictionary<string, List<int>>();
             Dictionary<string, int> headerMap = new();
 
             using (ExcelEngine excelEngine = new ExcelEngine())
@@ -153,7 +152,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                     }
 
                     string[] requiredHeaders = { "MaNV", "Fullname", "Bomon", "LoaiGV" };
-                    
+
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
                             throw new Exception($"Missing required column: {h}");
@@ -161,7 +160,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                     for (int r = 2; r <= rowCount; r++)
                     {
                         bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(worksheet[r, headerMap[h]].Value));
-                        
+
                         if (isEmptyRow)
                             continue;
                         string lecturerId = worksheet[r, headerMap["MaNV"]].Value;
@@ -174,23 +173,6 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                         };
 
                         lectures.Add(lecturer);
-                        
-                        if (!lecturerLineMap.ContainsKey(lecturerId))
-                        {
-                            lecturerLineMap[lecturerId] = new List<int>();
-                        }
-                        lecturerLineMap[lecturerId].Add(r);
-                    }
-
-                    var dulicateLecturerId = lecturerLineMap
-                        .Where(l => l.Value.Count > 1)
-                        .ToDictionary(l => l.Key, l => l.Value);
-                    
-                    if (dulicateLecturerId.Count > 0)
-                    {
-                        var errorMessage = dulicateLecturerId
-                          .Select(dlc => $"Lecturer '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                        throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
                     }
                 }
             }

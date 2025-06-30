@@ -172,7 +172,6 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         public List<LecturerSubject> ReadLecturerSubjectFromExcel(string filePath)
         {
             var lecturerSubjects = new List<LecturerSubject>();
-            var lecturerSubjecLineMap = new Dictionary<string, List<int>>();
             Dictionary<string, int> headerMap = new();
 
             using (ExcelEngine excelEngine = new ExcelEngine())
@@ -188,7 +187,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
                     Utility.IsDuplicatedExcelRow(worksheet, rowCount, colCount);
-                    
+
                     for (int c = 1; c <= colCount; c++)
                     {
                         string header = worksheet[1, c].Value?.Trim() ?? "";
@@ -197,7 +196,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     }
 
                     string[] requiredHeaders = { "MAGV", "GIANGVIEN", "MAMH", "TENMH", "NGANH", "KY", "SLL", "TONGSLOT" };
-                    
+
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
                             throw new Exception($"Missing required column: {h}");
@@ -205,10 +204,10 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     for (int r = 2; r <= rowCount; r++)
                     {
                         bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(worksheet[r, headerMap[h]].Value));
-                        
+
                         if (isEmptyRow)
                             continue;
-                        
+
                         string lecturerId = worksheet[r, headerMap["MAGV"]].Value;
                         string subjectCode = worksheet[r, headerMap["MAMH"]].Value;
                         string term = worksheet[r, headerMap["KY"]].Value;
@@ -225,23 +224,6 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                             TotalSlots = int.TryParse(worksheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
                         };
                         lecturerSubjects.Add(lecturerSubject);
-
-                        if (!lecturerSubjecLineMap.ContainsKey(key))
-                        {
-                            lecturerSubjecLineMap[key] = new List<int>();
-                        }
-                        lecturerSubjecLineMap[key].Add(r);
-                    }
-                    
-                    var duplicateLecturerSubjects = lecturerSubjecLineMap
-                        .Where(ls => ls.Value.Count > 1)
-                        .ToDictionary(ls => ls.Key, ls => ls.Value);
-                    
-                    if (duplicateLecturerSubjects.Count > 0)
-                    {
-                        var errorMessage = duplicateLecturerSubjects
-                           .Select(dlc => $"LecturerSubject bị trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                        throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
                     }
                 }
             }

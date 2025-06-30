@@ -161,8 +161,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         public List<Curriculum> ReadCurriculumsFromExcel(string filePath)
         {
             var curriculums = new List<Curriculum>();
-            var curriculumLineMap = new Dictionary<string, List<int>>();
-            Dictionary<string, int> headerMap = new();
+            Dictionary<string, int> headerMap = new Dictionary<string, int>();
 
             using (ExcelEngine excelEngine = new ExcelEngine())
             {
@@ -206,12 +205,6 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
                             IsActive = bool.TryParse(worksheet[r, headerMap["IsActive"]].Value?.ToString(), out isActive)
                         };
                         curriculums.Add(curriculum);
-
-                        if (!curriculumLineMap.ContainsKey(curriculumCode))
-                        {
-                            curriculumLineMap[curriculumCode] = new List<int>();
-                        }
-                        curriculumLineMap[curriculumCode].Add(r);
                     }
                 }
             }
