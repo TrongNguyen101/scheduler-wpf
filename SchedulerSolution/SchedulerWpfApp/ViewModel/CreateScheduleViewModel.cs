@@ -175,7 +175,7 @@ namespace SchedulerWpfApp.ViewModel
             var schedules = await _createScheduleTree.GenerateSchedules(startDate);
 
             LoadMockSchedules(); // Reload schedules after generating new ones
-            PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
+            //PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
 
             if (schedules == null || !schedules.Any())
                 MessageBox.Show("Không có lịch nào được tạo.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -281,7 +281,7 @@ namespace SchedulerWpfApp.ViewModel
                     {
                         // Mỗi slot có 3 dòng (Subject, Lecturer, Status)
                         string[] rowLines = new string[8];
-                        rowLines[0] = slot.PadRight(10) + "| "; // Dòng đầu tiên bắt đầu bằng slot
+                        rowLines[0] = $"Slot {slot}".PadRight(10) + "| "; // Dòng đầu tiên bắt đầu bằng slot
                         rowLines[1] = "".PadRight(10) + "| ";   // Dòng thứ hai và ba để trống ở cột slot
                         rowLines[2] = "".PadRight(10) + "| ";
                         rowLines[3] = "".PadRight(10) + "| ";
@@ -382,14 +382,12 @@ namespace SchedulerWpfApp.ViewModel
 
             foreach (var slot in Slots)
             {
-                string slotStr = $"slot {slot}";
                 var cells = new ObservableCollection<TimetableCellViewModel>();
 
                 foreach (var day in WeekDays)
                 {
                     var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slotStr); // Check if there is a schedule for this day and slot
                     string slotTime = "";
-
                     if (match != null)
                     {
                         slotTime = CalculatorTime(slot, match.TypeSlot); // Calculate time for new slot
@@ -575,7 +573,7 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Creates a new schedule with updated date and slot time
         /// </summary>
-        private Schedule CreateUpdatedSchedule(Schedule originalSchedule, DateTime newDate, string newSlotTime)
+        private Schedule CreateUpdatedSchedule(Schedule originalSchedule, DateTime newDate, int newSlotTime)
         {
             return new Schedule
             {

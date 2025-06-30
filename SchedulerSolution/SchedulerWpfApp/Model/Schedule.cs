@@ -20,7 +20,7 @@ namespace SchedulerWpfApp.Model
         public string? PartOfDay { get; set; } // Session of the schedule in a day (AM - PM)
 
         [Column("SlotTime")]
-        public string? SlotTime { get; set; } // Time of the schedule in a day (1, 2, 3, 4)
+        public int? SlotTime { get; set; } // Time of the schedule in a day (1, 2, 3, 4)
 
         [Column("StatusSlot")]
         public string? StatusSlot { get; set; } // Status of the schedule (Online - Offline)

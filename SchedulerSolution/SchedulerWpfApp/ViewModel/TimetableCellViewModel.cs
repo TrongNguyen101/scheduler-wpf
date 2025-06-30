@@ -17,6 +17,7 @@ namespace SchedulerWpfApp.ViewModel
 
         #region Constructors
         public DateTime DayOfWeek { get; set; }
+
         public string SlotNumber { get; set; }
         public string SlotTime
         {

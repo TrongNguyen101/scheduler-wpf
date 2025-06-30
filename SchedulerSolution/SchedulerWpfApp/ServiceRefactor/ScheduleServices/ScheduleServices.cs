@@ -146,7 +146,7 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
                 sheet[row, 2].Text = s.GroupName ?? "";
                 sheet[row, 3].Text = s.SubjectCode ?? "";
                 sheet[row, 4].Text = s.Date?.ToString("yyyy-MM-dd") ?? "";
-                sheet[row, 5].Text = s.SlotTime ?? "";
+                sheet[row, 5].Number = s.SlotTime ?? 0;
                 sheet[row, 6].Text = s.RoomName ?? "";
                 sheet[row, 7].Number = s.SessionNo ?? 0;
                 sheet[row, 8].Text = s.LecturerName ?? "";
