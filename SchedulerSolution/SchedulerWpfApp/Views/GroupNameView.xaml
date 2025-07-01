@@ -199,6 +199,7 @@
                         <syncfusion:GridTextColumn HeaderText="Chuyên ngành" MappingName="Major" AllowResizing="True" />
                         <syncfusion:GridTextColumn HeaderText="Bộ môn" MappingName="Department" AllowResizing="True"/>
                         <syncfusion:GridTextColumn HeaderText="Kỳ học" MappingName="Term" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Tổ chức" MappingName="TeachingMode" AllowResizing="True" />
 
                         <syncfusion:GridTemplateColumn HeaderText="Action"
                                 Width="90"
