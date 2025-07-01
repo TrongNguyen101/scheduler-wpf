@@ -204,6 +204,7 @@ namespace SchedulerWpfApp
             services.AddTransient<LecturerSubjectViewModel>();
             services.AddTransient<CurriculumViewModel>();
             services.AddTransient<CurriculumSubjectViewModel>();
+            services.AddTransient<ProcessBarViewModel>();
 
             // Add factories
             services.AddSingleton<Func<SubjectViewModel>>(sp => () => sp.GetRequiredService<SubjectViewModel>());

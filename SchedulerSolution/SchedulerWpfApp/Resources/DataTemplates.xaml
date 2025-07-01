@@ -42,4 +42,9 @@
     <DataTemplate DataType="{x:Type vm:CurriculumSubjectViewModel}">
         <views:CurriculumSubjectView />
     </DataTemplate>
+
+    <!-- DataTemplate for ProcessBarViewModel -->
+    <DataTemplate DataType="{x:Type vm:ProcessBarViewModel}">
+        <views:ProcessBar />
+    </DataTemplate>
 </ResourceDictionary>
