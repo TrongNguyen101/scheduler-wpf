@@ -178,7 +178,8 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                     int colCount = worksheet.UsedRange.LastColumn;
 
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    Utility.IsRowDuplicated(worksheet, rowCount, colCount);
+                    var listColCheck = new List<int> { 1 };
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
 
                     for (int c = 1; c <= colCount; c++)
                     {
@@ -187,7 +188,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                             headerMap[header] = c;
                     }
 
-                    string[] requiredHeaders = { "GroupName", "Khóa", "Kỳ", "BM", "Ngành" };
+                    string[] requiredHeaders = { "GroupName", "Khóa", "Kỳ", "BM", "Ngành", "Tổ chức" };
 
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
@@ -201,7 +202,8 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                             CurriculumCode = worksheet[r, headerMap["Khóa"]].Value,
                             Department = worksheet[r, headerMap["BM"]].Value,
                             Major = worksheet[r, headerMap["Ngành"]].Value,
-                            Term = int.TryParse(worksheet[r, headerMap["Kỳ"]].Value, out int term) ? term : 0
+                            Term = int.TryParse(worksheet[r, headerMap["Kỳ"]].Value, out int term) ? term : 0,
+                            TeachingMode = worksheet[r, headerMap["Tổ chức"]].Value
                         };
                         groupnames.Add(groupname);
                     }
