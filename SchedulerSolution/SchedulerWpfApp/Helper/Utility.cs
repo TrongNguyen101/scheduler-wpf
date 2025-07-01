@@ -8,6 +8,17 @@ namespace SchedulerWpfApp.Helper
     /// </summary>
     public static class Utility
     {
+        /// <summary>
+        /// Validates that an Excel worksheet contains data beyond just the header row.
+        /// </summary>
+        /// <param name="worksheet">The Excel worksheet to be validated.</param>
+        /// <remarks>
+        /// This method checks if the worksheet has rows beyond the header (row 1) and 
+        /// verifies that at least one data row contains non-empty values.
+        /// If the worksheet only contains a header row or if all data rows are empty,
+        /// an exception is thrown to alert the user.
+        /// </remarks>
+        /// <exception cref="Exception">Thrown when the worksheet only contains a header row or when all data rows are empty.</exception>
         public static void IsOnlyHeader(IWorksheet worksheet)
         {
             int totalRow = worksheet.UsedRange.LastRow;
@@ -21,17 +32,17 @@ namespace SchedulerWpfApp.Helper
             bool allDataRowsEmpty = true;
             for (int row = 2; row <= totalRow; row++)
             {
-                bool rowHasData = false;
+                bool rowEmpty = false;
                 for (int col = 1; col <= totalCol; col++)
                 {
                     var value = worksheet[row, col].Value;
-                    if (!string.IsNullOrEmpty(value?.Trim()))
+                    if (!string.IsNullOrEmpty(value?.ToString().Trim()))
                     {
-                        rowHasData = true;
+                        rowEmpty = true;
                         break;
                     }
                 }
-                if (rowHasData)
+                if (rowEmpty)
                 {
                     allDataRowsEmpty = false;
                     break;
@@ -43,6 +54,7 @@ namespace SchedulerWpfApp.Helper
                 throw new Exception("File chỉ chứa tiêu đề cột, vui lòng nhập lại!");
             }
         }
+
         /// <summary>
         /// Checks for empty cells in an Excel worksheet and throws an exception if any are found.
         /// </summary>
