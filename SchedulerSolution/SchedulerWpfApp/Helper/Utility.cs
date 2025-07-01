@@ -8,9 +8,40 @@ namespace SchedulerWpfApp.Helper
     /// </summary>
     public static class Utility
     {
-        public static void IsEmptyExcelFile(IWorksheet worksheet)
+        public static void IsOnlyHeader(IWorksheet worksheet)
         {
+            int totalRow = worksheet.UsedRange.LastRow;
+            int totalCol = worksheet.UsedRange.LastColumn;
 
+            if (totalRow < 2)
+            {
+                throw new Exception("File chỉ chứa tiêu đề cột, vui lòng nhập lại!");
+            }
+
+            bool allDataRowsEmpty = true;
+            for (int row = 2; row <= totalRow; row++)
+            {
+                bool rowHasData = false;
+                for (int col = 1; col <= totalCol; col++)
+                {
+                    var value = worksheet[row, col].Value;
+                    if (!string.IsNullOrEmpty(value?.Trim()))
+                    {
+                        rowHasData = true;
+                        break;
+                    }
+                }
+                if (rowHasData)
+                {
+                    allDataRowsEmpty = false;
+                    break;
+                }
+            }
+
+            if (allDataRowsEmpty)
+            {
+                throw new Exception("File chỉ chứa tiêu đề cột, vui lòng nhập lại!");
+            }
         }
         /// <summary>
         /// Checks for empty cells in an Excel worksheet and throws an exception if any are found.
