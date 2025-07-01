@@ -13,6 +13,9 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isDragOver;
         private bool _isDragSource;
         private string _slotTime;
+        private DateTime _lastClickTime;
+        private bool _isMousePressed = false;
+        private Point _startPoint;
         #endregion
 
         #region Constructors
@@ -50,6 +53,7 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand DragLeaveCommand { get; }
         public ICommand DropCommand { get; }
         public ICommand DragOverCommand { get; }
+        public ICommand EditScheduleCommand { get; }
 
         // Reference to parent ViewModel for handling drag operations
         public CreateScheduleViewModel ParentViewModel { get; set; }
@@ -62,10 +66,8 @@ namespace SchedulerWpfApp.ViewModel
             DragLeaveCommand = new RelayCommandGeneric<DragEventArgs>(OnDragLeave);
             DropCommand = new RelayCommandGeneric<DragEventArgs>(OnDrop);
             DragOverCommand = new RelayCommandGeneric<DragEventArgs>(OnDragOver);
+            EditScheduleCommand = new RelayCommandGeneric<MouseButtonEventArgs>(OnMouseLeftButtonDown);
         }
-
-        private bool _isMousePressed = false;
-        private Point _startPoint;
         #endregion
 
         #region Methods
@@ -181,6 +183,48 @@ namespace SchedulerWpfApp.ViewModel
 
             // Additional validation can be added here
             return true;
+        }
+
+        private void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            var now = DateTime.Now;
+            if ((now - _lastClickTime).TotalMilliseconds <= 300)
+            {
+                // Đây là double click
+                OpenEditPopup();
+            }
+            _lastClickTime = now;
+        }
+
+        private void OpenEditPopup()
+        {
+            ParentViewModel.IsEditScheduleFormOpen = true;
+            var selectedSchedule = Schedule;
+
+            if (Schedule != null)
+            {
+                selectedSchedule = new Schedule
+                {
+                    ScheduleId = Schedule.ScheduleId,
+                    RoomId = Schedule.RoomId,
+                    RoomName = Schedule.RoomName,
+                    PartOfDay = Schedule.PartOfDay,
+                    SlotTime = Schedule.SlotTime,
+                    StatusSlot = Schedule.StatusSlot,
+                    Date = Schedule.Date,
+                    Major = Schedule.Major,
+                    SubjectCode = Schedule.SubjectCode,
+                    GroupName = Schedule.GroupName,
+                    LecturerId = Schedule.LecturerId,
+                    LecturerName = Schedule.LecturerName,
+                    LecturerAccount = Schedule.LecturerAccount,
+                    TypeSlot = Schedule.TypeSlot,
+                    SessionNo = Schedule.SessionNo,
+                    SlotTypeCode = Schedule.SlotTypeCode,
+                    TermInYear = Schedule.TermInYear
+                };
+            }
+            ParentViewModel.EditingSchedule = selectedSchedule;
         }
         #endregion
     }

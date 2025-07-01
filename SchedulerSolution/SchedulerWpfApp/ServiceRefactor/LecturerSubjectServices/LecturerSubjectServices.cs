@@ -97,6 +97,16 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         }
 
         /// <summary>
+        /// Retrieves a lecturer subject by its subject code asynchronously.
+        /// </summary>
+        /// <param name="subjectCode"></param>
+        /// <returns></returns>
+        public async Task<List<LecturerSubject>> GetBySubjectCodeAsync(string subjectCode)
+        {
+            return await _unitOfWork.LecturerSubjectRepository.GetLecturerSubjectBySubjectCodeAsync(subjectCode);
+        }
+
+        /// <summary>
         /// Adds a new lecturer subject to the database asynchronously.
         /// </summary>
         public async Task AddAsync(LecturerSubject lecturerSubject)
