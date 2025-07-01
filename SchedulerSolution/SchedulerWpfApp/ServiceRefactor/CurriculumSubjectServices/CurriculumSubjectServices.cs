@@ -203,8 +203,9 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                     int colCount = worksheet.UsedRange.LastColumn;
 
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    var listColCheck = new List<int> { 1,2,5 };
-                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+                    Utility.IsColumnDuplicatedCSExcel(worksheet);
+                    // Utility.CheckDuplicateRowsByColumns(worksheet, new List<string> { "CurriculumCode", "SubjectCode", "TermNo" });
+
                     for (int c = 1; c <= colCount; c++)
                     {
                         string header = worksheet[1, c].Value?.Trim() ?? "";

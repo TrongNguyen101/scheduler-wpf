@@ -173,9 +173,9 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
 
                     int rowCount = worksheet.UsedRange.LastRow;
                     int colCount = worksheet.UsedRange.LastColumn;
-                    var listColCheck = new List<int> { 1 };
+                 
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+                    Utility.IsRowDuplicated(worksheet, rowCount, colCount);
 
                     for (int c = 1; c <= colCount; c++)
                     {
