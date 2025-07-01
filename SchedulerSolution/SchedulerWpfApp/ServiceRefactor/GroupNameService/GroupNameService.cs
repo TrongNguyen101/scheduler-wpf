@@ -178,8 +178,6 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                     int colCount = worksheet.UsedRange.LastColumn;
 
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    var listColCheck = new List<int> { 1 };
-                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
 
                     for (int c = 1; c <= colCount; c++)
                     {
