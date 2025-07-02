@@ -4,7 +4,6 @@ using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.ServiceRefactor.GroupNameService;
 using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
-using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -20,7 +19,6 @@ namespace SchedulerWpfApp.ViewModel
         private readonly CreateScheduleTree _createScheduleTree;
         private readonly IScheduleServices _implementScheduleServices;
         private readonly IGroupNameService _groupNameService;
-        private readonly ISubjectServices _subjectServices;
 
         private int _selectedYear;
         private string _selectedWeek;
@@ -31,14 +29,9 @@ namespace SchedulerWpfApp.ViewModel
         private ObservableCollection<string> _listSubjects;
         private string _selectedMajorFirstCombo;
         private string _selectedMajorSecondCombo;
-        private string _selectedSubjectFullOnl;
-        private string _selectedSubjectFullOff;
-
 
         private ObservableCollection<string> _majorFirstList;
         private ObservableCollection<string> _majorSecondList;
-        private ObservableCollection<string> _subjectFullOnl;
-        private ObservableCollection<string> _subjectFullOff;
 
         private ObservableCollection<string> _allMajorsBackup;
         private ObservableCollection<string> _allSubjectsBackup;
@@ -84,12 +77,6 @@ namespace SchedulerWpfApp.ViewModel
             set => SetProperty(ref _listMajors, value);
         }
 
-        public ObservableCollection<string> ListSubjects
-        {
-            get => _listSubjects;
-            set => SetProperty(ref _listSubjects, value);
-        }
-
         public ObservableCollection<string> MajorFirstList
         {
             get => _majorFirstList;
@@ -100,18 +87,6 @@ namespace SchedulerWpfApp.ViewModel
         {
             get => _majorSecondList;
             set => SetProperty(ref _majorSecondList, value);
-        }
-
-        public ObservableCollection<string> SubjectFullOnlList
-        {
-            get => _subjectFullOnl;
-            set => SetProperty(ref _subjectFullOnl, value);
-        }
-
-        public ObservableCollection<string> SubjectFullOffList
-        {
-            get => _subjectFullOff;
-            set => SetProperty(ref _subjectFullOff, value);
         }
 
         public string SelectedMajorFirstCombo
@@ -134,30 +109,6 @@ namespace SchedulerWpfApp.ViewModel
                 if (SetProperty(ref _selectedMajorSecondCombo, value) && !string.IsNullOrEmpty(value))
                 {
                     AddMajorToB(value);
-                }
-            }
-        }
-
-        public string SelectedSubjectFullOnl
-        {
-            get => _selectedSubjectFullOnl;
-            set
-            {
-                if (SetProperty(ref _selectedSubjectFullOnl, value) && !string.IsNullOrEmpty(value))
-                {
-                    AddSubjectFullOnl(value);
-                }
-            }
-        }
-
-        public string SelectedSubjectFullOff
-        {
-            get => _selectedSubjectFullOff;
-            set
-            {
-                if (SetProperty(ref _selectedSubjectFullOff, value) && !string.IsNullOrEmpty(value))
-                {
-                    AddSubjectFullOff(value);
                 }
             }
         }
@@ -193,26 +144,11 @@ namespace SchedulerWpfApp.ViewModel
             RefreshFilteredMajors();
         });
 
-        public ICommand RemoveSubjectFullOnlItemCommand => new RelayCommandGeneric<string>(subject =>
-        {
-            SubjectFullOnlList.Remove(subject);
-            AddSubjectToAvailable(subject);
-            RefreshFilteredSubjects();
-        });
-
-        public ICommand RemoveSubjectFullOffItemCommand => new RelayCommandGeneric<string>(subject =>
-        {
-            SubjectFullOffList.Remove(subject);
-            AddSubjectToAvailable(subject);
-            RefreshFilteredSubjects();
-        });
-
-        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices, IGroupNameService groupNameService, ISubjectServices subjectServices)
+        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices, IGroupNameService groupNameService)
         {
             _createScheduleTree = createScheduleTree;
             _implementScheduleServices = implementScheduleServices;
             _groupNameService = groupNameService;
-            _subjectServices = subjectServices;
 
             SelectedYear = DateTime.Now.Year; // Default to current year
             CreateScheduleCommand = new RelayCommand(async () => await CreateScheduleDemo());
@@ -222,8 +158,6 @@ namespace SchedulerWpfApp.ViewModel
 
             MajorFirstList = new ObservableCollection<string>();
             MajorSecondList = new ObservableCollection<string>();
-            SubjectFullOnlList = new ObservableCollection<string>();
-            SubjectFullOffList = new ObservableCollection<string>();
             _allMajorsBackup = new ObservableCollection<string>();
             _allSubjectsBackup = new ObservableCollection<string>();
 
@@ -231,7 +165,6 @@ namespace SchedulerWpfApp.ViewModel
             InitCurrentWeekDays(); // Initialize current week days
             FilterSchedules(); // Filter schedules based on initial selections
             InitListMajors();
-            InitListSubjects();
         }
         #endregion
 
@@ -247,22 +180,10 @@ namespace SchedulerWpfApp.ViewModel
             _allMajorsBackup = new ObservableCollection<string>(allMajors);
         }
 
-        /// <summary>
-        /// Initializes the ListSubjects collection with all available subjects from the service.
-        /// </summary>
-        private async void InitListSubjects()
-        {
-            var allSubjects = await _subjectServices.GetAllAsync();
-            var subjectCodes = allSubjects.Select(s => s.SubjectCode).Distinct().OrderBy(name => name).ToList();
-            ListSubjects = new ObservableCollection<string>(subjectCodes);
-            _allSubjectsBackup = new ObservableCollection<string>(subjectCodes);
-        }
-
         private void OpenScheduleForm()
         {
             // Reset major selections when opening form
             RestoreAllMajors();
-            RestoreAllSubjects();
             IsScheduleFormOpen = true;
         }
 
@@ -270,7 +191,6 @@ namespace SchedulerWpfApp.ViewModel
         {
             // Reset major selections when canceling
             RestoreAllMajors();
-            RestoreAllSubjects();
             IsScheduleFormOpen = false;
         }
 
@@ -296,28 +216,6 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
-        private void AddSubjectFullOnl(string subject)
-        {
-            if (!SubjectFullOnlList.Contains(subject))
-            {
-                SubjectFullOnlList.Add(subject);
-                ListSubjects.Remove(subject);
-                SelectedSubjectFullOnl = null;
-                RefreshFilteredSubjects();
-            }
-        }
-
-        private void AddSubjectFullOff(string subject)
-        {
-            if (!SubjectFullOffList.Contains(subject))
-            {
-                SubjectFullOffList.Add(subject);
-                ListSubjects.Remove(subject);
-                SelectedSubjectFullOff = null;
-                RefreshFilteredSubjects();
-            }
-        }
-
         private void RefreshFilteredMajors()
         {
             FilteredMajorFirst = new ObservableCollection<string>(
@@ -331,34 +229,12 @@ namespace SchedulerWpfApp.ViewModel
             OnPropertyChanged(nameof(FilteredMajorSecond));
         }
 
-        private void RefreshFilteredSubjects()
-        {
-            FilteredSubjectFullOnl = new ObservableCollection<string>(
-                ListSubjects.Where(s => !SubjectFullOnlList.Contains(s))
-            );
-            FilteredSubjectFullOff = new ObservableCollection<string>(
-                ListSubjects.Where(s => !SubjectFullOffList.Contains(s))
-            );
-
-            OnPropertyChanged(nameof(FilteredSubjectFullOnl));
-            OnPropertyChanged(nameof(FilteredSubjectFullOff));
-        }
-
         private void RestoreAllMajors()
         {
             MajorFirstList.Clear();
             MajorSecondList.Clear();
             ListMajors = new ObservableCollection<string>(_allMajorsBackup);
             RefreshFilteredMajors();
-        }
-
-        private void RestoreAllSubjects()
-        {
-            SubjectFullOffList.Clear();
-            SubjectFullOnlList.Clear();
-            ListSubjects = new ObservableCollection<string>(_allSubjectsBackup.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct());
-
-            RefreshFilteredSubjects();
         }
 
         private void AddMajorSecondToAvailable(string major)
@@ -372,19 +248,6 @@ namespace SchedulerWpfApp.ViewModel
 
                 var index = sortedList.IndexOf(major);
                 ListMajors.Insert(index, major);
-            }
-        }
-
-        private void AddSubjectToAvailable(string subject)
-        {
-            if (!ListSubjects.Contains(subject))
-            {
-                var sortedList = ListSubjects.ToList();
-                sortedList.Add(subject);
-                sortedList.Sort();
-
-                var index = sortedList.IndexOf(subject);
-                ListSubjects.Insert(index, subject);
             }
         }
 
@@ -490,7 +353,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             DateTime startDate = new DateTime(2025, 01, 06);
 
-            if (MajorFirstList.Count <= 0 || MajorSecondList.Count <= 0 || SubjectFullOffList.Count <= 0 || SubjectFullOnlList.Count <= 0)
+            if (MajorFirstList.Count <= 0 || MajorSecondList.Count <= 0)
             {
                 MessageBox.Show("Vui lòng chọn đầy đủ thông tin trước khi tạo lịch.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsScheduleFormOpen = true;
