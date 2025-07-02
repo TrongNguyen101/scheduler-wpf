@@ -389,8 +389,8 @@
                 </Grid>
             </Border>
         </Popup>
-        <Popup IsOpen="{Binding IsProgressPopupOpen}" StaysOpen="True" Placement="Center" AllowsTransparency="True">
-            <local:ProcessBar DataContext="{Binding}" />
+        <Popup IsOpen="{Binding ProgressVM.IsOpen}" Placement="Center" StaysOpen="False" AllowsTransparency="True">
+            <local:ProcessBar DataContext="{Binding ProgressVM}" />
         </Popup>
 
     </Grid>

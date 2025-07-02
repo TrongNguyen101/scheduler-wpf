@@ -36,6 +36,8 @@ namespace SchedulerWpfApp.ViewModel
         private void OnCancel()
         {
             ProgressMessage = "Đã hủy tiến trình.";
+            ProgressValue = 0;
+            IsOpen = false;
         }
   
         public void Start(string message)
