@@ -1,4 +1,6 @@
-﻿using SchedulerWpfApp.Model;
+﻿using System.IO;
+using SchedulerWpfApp.Helper;
+using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 using Syncfusion.XlsIO;
 
@@ -164,58 +166,53 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
         {
             var subjects = new List<Subject>();
             var subjectLineMap = new Dictionary<string, List<int>>();
-            using ExcelEngine excelEngine = new();
-            var app = excelEngine.Excel;
-            app.DefaultVersion = ExcelVersion.Xlsx;
 
-            var workbook = app.Workbooks.Open(filePath);
-            var sheet = workbook.Worksheets[0];
-
-            int rowCount = sheet.UsedRange.LastRow;
-            int colCount = sheet.UsedRange.LastColumn;
-
-            Dictionary<string, int> headerMap = new();
-            for (int c = 1; c <= colCount; c++)
+            using (ExcelEngine excelEngine = new ExcelEngine())
             {
-                string header = sheet[1, c].Value?.Trim() ?? "";
-                if (!string.IsNullOrWhiteSpace(header))
-                    headerMap[header] = c;
-            }
-
-            string[] requiredHeaders = { "SubjectCode", "SubjectNameEnglish", "SubjectNameVietnamese", "TotalTime", "TotalCredits" };
-            foreach (var h in requiredHeaders)
-                if (!headerMap.ContainsKey(h))
-                    throw new Exception($"Missing required column: {h}");
-
-            for (int r = 2; r <= rowCount; r++)
-            {
-                bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
-                if (isEmptyRow)
-                    continue;
-                string subjectCode = sheet[r, headerMap["SubjectCode"]].Value;
-                var subject = new Subject
+                IApplication application = excelEngine.Excel;
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    SubjectCode = sheet[r, headerMap["SubjectCode"]].Value,
-                    SubjectNameEnglish = sheet[r, headerMap["SubjectNameEnglish"]].Value,
-                    SubjectNameVietnamese = sheet[r, headerMap["SubjectNameVietnamese"]].Value,
-                    TotalTime = int.TryParse(sheet[r, headerMap["TotalTime"]].Value, out int totalSessions) ? totalSessions : 0,
-                    TotalCredits = int.TryParse(sheet[r, headerMap["TotalCredits"]].Value, out int SlotsPerWeek) ? SlotsPerWeek : 0
-                };
-                if (!subjectLineMap.ContainsKey(subjectCode))
-                {
-                    subjectLineMap[subjectCode] = new List<int>();
+                    IWorkbook workbook = application.Workbooks.Open(fileStream);
+                    IWorksheet worksheet = workbook.Worksheets[0];
+
+
+                    int rowCount = worksheet.UsedRange.LastRow;
+                    int colCount = worksheet.UsedRange.LastColumn;
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    var listColCheck = new List<int> { 1 };
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+                    Dictionary<string, int> headerMap = new();
+                    for (int c = 1; c <= colCount; c++)
+                    {
+                        string header = worksheet[1, c].Value?.Trim() ?? "";
+                        if (!string.IsNullOrWhiteSpace(header))
+                            headerMap[header] = c;
+                    }
+
+                    string[] requiredHeaders = { "SubjectCode", "SubjectNameEnglish", "SubjectNameVietnamese", "TotalTime", "TotalCredits" };
+                    foreach (var h in requiredHeaders)
+                        if (!headerMap.ContainsKey(h))
+                            throw new Exception($"Missing required column: {h}");
+
+                    for (int r = 2; r <= rowCount; r++)
+                    {
+                        bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(worksheet[r, headerMap[h]].Value));
+
+                        if (isEmptyRow)
+                            continue;
+
+                        var subject = new Subject
+                        {
+                            SubjectCode = worksheet[r, headerMap["SubjectCode"]].Value,
+                            SubjectNameEnglish = worksheet[r, headerMap["SubjectNameEnglish"]].Value,
+                            SubjectNameVietnamese = worksheet[r, headerMap["SubjectNameVietnamese"]].Value,
+                            TotalTime = int.TryParse(worksheet[r, headerMap["TotalTime"]].Value, out int totalSessions) ? totalSessions : 0,
+                            TotalCredits = int.TryParse(worksheet[r, headerMap["TotalCredits"]].Value, out int SlotsPerWeek) ? SlotsPerWeek : 0
+                        };
+
+                        subjects.Add(subject);
+                    }
                 }
-                subjectLineMap[subjectCode].Add(r);
-                subjects.Add(subject);
-            }
-            var duplicateSubjects = subjectLineMap
-                 .Where(s => s.Value.Count > 1)
-                 .ToDictionary(s => s.Key, s => s.Value);
-            if (duplicateSubjects.Count > 0)
-            {
-                var errorMessage = duplicateSubjects
-                  .Select(dlc => $"SubjectCode '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return subjects;
         }

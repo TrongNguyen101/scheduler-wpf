@@ -1,7 +1,9 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 using Syncfusion.XlsIO;
+using SchedulerWpfApp.Helper;
 
 namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 {
@@ -170,65 +172,61 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         public List<LecturerSubject> ReadLecturerSubjectFromExcel(string filePath)
         {
             var lecturerSubjects = new List<LecturerSubject>();
-            var lecturerSubjecLineMap = new Dictionary<string, List<int>>();
-            using ExcelEngine excelEngine = new();
-            var app = excelEngine.Excel;
-            app.DefaultVersion = ExcelVersion.Xlsx;
-
-            var workbook = app.Workbooks.Open(filePath);
-            var sheet = workbook.Worksheets[0];
-
-            int rowCount = sheet.UsedRange.LastRow;
-            int colCount = sheet.UsedRange.LastColumn;
-
             Dictionary<string, int> headerMap = new();
-            for (int c = 1; c <= colCount; c++)
-            {
-                string header = sheet[1, c].Value?.Trim() ?? "";
-                if (!string.IsNullOrWhiteSpace(header))
-                    headerMap[header] = c;
-            }
 
-            string[] requiredHeaders = { "MAGV", "GIANGVIEN", "MAMH", "TENMH", "NGANH", "KY", "SLL", "TONGSLOT" };
-            foreach (var h in requiredHeaders)
-                if (!headerMap.ContainsKey(h))
-                    throw new Exception($"Missing required column: {h}");
-
-            for (int r = 2; r <= rowCount; r++)
+            using (ExcelEngine excelEngine = new ExcelEngine())
             {
-                bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
-                if (isEmptyRow)
-                    continue;
-                string lecturerId = sheet[r, headerMap["MAGV"]].Value;
-                string subjectCode = sheet[r, headerMap["MAMH"]].Value;
-                string term = sheet[r, headerMap["KY"]].Value;
-                string key = $"{lecturerId}-{subjectCode}-{term}";
-                var lecturerSubject = new LecturerSubject
+                IApplication application = excelEngine.Excel;
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    LecturerId = sheet[r, headerMap["MAGV"]].Value,
-                    LecturerName = sheet[r, headerMap["GIANGVIEN"]].Value,
-                    SubjectCode = sheet[r, headerMap["MAMH"]].Value,
-                    SubjectName = sheet[r, headerMap["TENMH"]].Value,
-                    Major = sheet[r, headerMap["NGANH"]].Value,
-                    Term = int.TryParse(sheet[r, headerMap["KY"]].Value, out int termValue) ? termValue : 0,
-                    NumberOfClasses = int.TryParse(sheet[r, headerMap["SLL"]].Value, out int totalslots) ? totalslots : 0,
-                    TotalSlots = int.TryParse(sheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
-                };
-                lecturerSubjects.Add(lecturerSubject);
-                if (!lecturerSubjecLineMap.ContainsKey(key))
-                {
-                    lecturerSubjecLineMap[key] = new List<int>();
+                    IWorkbook workbook = application.Workbooks.Open(fileStream);
+                    IWorksheet worksheet = workbook.Worksheets[0];
+
+                    int rowCount = worksheet.UsedRange.LastRow;
+                    int colCount = worksheet.UsedRange.LastColumn;
+
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    var listColCheck = new List<int> { 1, 3, 5, 6 };
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+
+                    for (int c = 1; c <= colCount; c++)
+                    {
+                        string header = worksheet[1, c].Value?.Trim() ?? "";
+                        if (!string.IsNullOrWhiteSpace(header))
+                            headerMap[header] = c;
+                    }
+
+                    string[] requiredHeaders = { "MAGV", "GIANGVIEN", "MAMH", "TENMH", "NGANH", "KY", "SLL", "TONGSLOT" };
+
+                    foreach (var h in requiredHeaders)
+                        if (!headerMap.ContainsKey(h))
+                            throw new Exception($"Missing required column: {h}");
+
+                    for (int r = 2; r <= rowCount; r++)
+                    {
+                        bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(worksheet[r, headerMap[h]].Value));
+
+                        if (isEmptyRow)
+                            continue;
+
+                        string lecturerId = worksheet[r, headerMap["MAGV"]].Value;
+                        string subjectCode = worksheet[r, headerMap["MAMH"]].Value;
+                        string term = worksheet[r, headerMap["KY"]].Value;
+                        string key = $"{lecturerId}-{subjectCode}-{term}";
+                        var lecturerSubject = new LecturerSubject
+                        {
+                            LecturerId = worksheet[r, headerMap["MAGV"]].Value,
+                            LecturerName = worksheet[r, headerMap["GIANGVIEN"]].Value,
+                            SubjectCode = worksheet[r, headerMap["MAMH"]].Value,
+                            SubjectName = worksheet[r, headerMap["TENMH"]].Value,
+                            Major = worksheet[r, headerMap["NGANH"]].Value,
+                            Term = int.TryParse(worksheet[r, headerMap["KY"]].Value, out int termValue) ? termValue : 0,
+                            NumberOfClasses = int.TryParse(worksheet[r, headerMap["SLL"]].Value, out int totalslots) ? totalslots : 0,
+                            TotalSlots = int.TryParse(worksheet[r, headerMap["TONGSLOT"]].Value, out int numberOfClasses) ? numberOfClasses : 0
+                        };
+                        lecturerSubjects.Add(lecturerSubject);
+                    }
                 }
-                lecturerSubjecLineMap[key].Add(r);
-            }
-            var duplicateLecturerSubjects = lecturerSubjecLineMap
-                .Where(ls => ls.Value.Count > 1)
-                .ToDictionary(ls => ls.Key, ls => ls.Value);
-            if (duplicateLecturerSubjects.Count > 0)
-            {
-                var errorMessage = duplicateLecturerSubjects
-                   .Select(dlc => $"LecturerSubject bị trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return lecturerSubjects;
         }
@@ -278,6 +276,42 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         public Task<LecturerSubject> CheckLecturerSubjectExits(LecturerSubject lecturerSubject)
         {
             return _unitOfWork.LecturerSubjectRepository.GetLecturerSubjectAsync(lecturerSubject);
+        }
+
+        private async Task<List<int>> IsNullValueAsync(string filePath)
+        {
+            List<int> nullRows = new List<int>();
+            using (ExcelEngine excelEngine = new ExcelEngine())
+            {
+                IApplication application = excelEngine.Excel;
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    IWorkbook workbook = application.Workbooks.Open(fileStream);
+                    IWorksheet worksheet = workbook.Worksheets[0];
+
+                    int rowCount = worksheet.UsedRange.LastRow;
+                    int colCount = worksheet.UsedRange.LastColumn;
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        bool hasNull = false;
+                        for (int col = 1; col <= colCount; col++)
+                        {
+                            var cellValue = worksheet[row, col].Value;
+                            if (string.IsNullOrWhiteSpace(cellValue))
+                            {
+                                hasNull = true;
+                                break;
+                            }
+                        }
+
+                        if (hasNull)
+                        {
+                            nullRows.Add(row);
+                        }
+                    }
+                }
+            }
+            return nullRows;
         }
         #endregion
     }

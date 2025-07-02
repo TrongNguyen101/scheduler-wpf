@@ -28,6 +28,7 @@ using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
+using SchedulerWpfApp.Algorithm.DTO;
 namespace SchedulerWpfApp
 {
     /// <summary>
@@ -220,6 +221,8 @@ namespace SchedulerWpfApp
             services.AddScoped<GetLecturerForSubject>(); // Register GetLecturerForSubject with a scoped lifetime
             services.AddScoped<GenerateScheduleForAllDate>(); // Register GenerateScheduleForAllDate with a scoped lifetime
             services.AddScoped<CreateSlotTypeCode>(); // Register CreateSlotTypeCode with a scoped lifetime
+            services.AddScoped<Version2CreateSchedule>(); // Register Version2CreateSchedule with a scoped lifetime
+            services.AddScoped<SchedulingContext>(); // Register SchedulingContext with a scoped lifetime
         }
 
         /// <summary>

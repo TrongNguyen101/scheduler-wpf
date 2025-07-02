@@ -1,10 +1,11 @@
-﻿using SchedulerWpfApp.Model;
+﻿using SchedulerWpfApp.Algorithm.DTO;
+using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Algorithm
 {
     public class SortSubjectsOneSession
     {
-        public CurriculumSubject[,,] SortSubjectFourClass(List<CurriculumSubject> allSubjects, int numClasses = 4)
+        public CurriculumSubjectWithCount[,,] SortSubjectFourClass(List<CurriculumSubject> allSubjects, int numClasses = 4)
         {
 
             // trong một tuần, trong 1 buổi, một thầy dạy được tối đa 4 lớp mỗi lớp 2 slot cho 1 môn
@@ -27,7 +28,7 @@ namespace SchedulerWpfApp.Algorithm
             }
 
             // Khởi tạo lịch học: [Ngày, Lớp, Slot]
-            CurriculumSubject[,,] schedule = new CurriculumSubject[8, numClasses, 2];
+            CurriculumSubjectWithCount[,,] schedule = new CurriculumSubjectWithCount[8, numClasses, 2];
 
             // Mẫu xoay vòng cho 4 lớp (chỉ số môn học: 0, 1, 2, 3)
             int[,] mondayPattern = new int[4, 2] {
@@ -47,29 +48,66 @@ namespace SchedulerWpfApp.Algorithm
             // Gán lịch cho thứ 2
             for (int classIndex = 0; classIndex < numClasses; classIndex++)
             {
-                schedule[1, classIndex, 0] = subjects[mondayPattern[classIndex, 0]]; // Slot 1
-                schedule[1, classIndex, 1] = subjects[mondayPattern[classIndex, 1]]; // Slot 2
+                schedule[1, classIndex, 0] = new CurriculumSubjectWithCount
+                                                {
+                                                    Subject = subjects[mondayPattern[classIndex, 0]],
+                                                    Count = 1 // slot thứ 1 trong tuần
+                                                }; // Slot 1
+                schedule[1, classIndex, 1] = new CurriculumSubjectWithCount
+                                                {
+                                                    Subject = subjects[mondayPattern[classIndex, 1]], // Slot 2
+                                                    Count = 1 // slot thứ 1 trong tuần
+                                                }; // Slot 2
             }
 
             // Gán lịch cho thứ 3
             for (int classIndex = 0; classIndex < numClasses; classIndex++)
             {
-                schedule[2, classIndex, 0] = subjects[tuesdayPattern[classIndex, 0]]; // Slot 1
-                schedule[2, classIndex, 1] = subjects[tuesdayPattern[classIndex, 1]]; // Slot 2
+                schedule[2, classIndex, 0] = new CurriculumSubjectWithCount
+                                                {
+                                                    Subject = subjects[tuesdayPattern[classIndex, 0]],
+                                                    Count = 1 // slot thứ 1 trong tuần
+                                                }; // Slot 1
+
+                schedule[2, classIndex, 1] = new CurriculumSubjectWithCount
+                                                {
+                                                    Subject = subjects[tuesdayPattern[classIndex, 1]], // Slot 2
+                                                    Count = 1 // slot thứ 1 trong tuần
+                                                }; // Slot 2 
             }
 
             // Thứ 4: Lặp lại thứ 2 nhưng đổi slot
             for (int classIndex = 0; classIndex < numClasses; classIndex++)
             {
-                schedule[3, classIndex, 0] = schedule[1, classIndex, 1]; // Slot 1 thứ 4 = Slot 2 thứ 2
-                schedule[3, classIndex, 1] = schedule[1, classIndex, 0]; // Slot 2 thứ 4 = Slot 1 thứ 2
+                schedule[3, classIndex, 0] = new CurriculumSubjectWithCount
+                                                {
+                                                    Subject = subjects[mondayPattern[classIndex, 1]], // Slot 1
+                                                    Count = 2 // slot thứ 2 trong tuần
+                                                }; // Slot 1 thứ 4 = Slot 2 thứ 2
+
+
+                schedule[3, classIndex, 1] = new CurriculumSubjectWithCount
+                                                {
+                                                    Subject = subjects[mondayPattern[classIndex, 0]],  // Slot 2
+                                                    Count = 2 // slot thứ 2 trong tuần
+                                                }; // Slot  2 thứ 4 = Slot 1 thứ 2
             }
 
             // Thứ 5: Lặp lại thứ 3 nhưng đổi slot
             for (int classIndex = 0; classIndex < numClasses; classIndex++)
             {
-                schedule[4, classIndex, 0] = schedule[2, classIndex, 1]; // Slot 1 thứ 5 = Slot 2 thứ 3
-                schedule[4, classIndex, 1] = schedule[2, classIndex, 0]; // Slot 2 thứ 5 = Slot 1 thứ 3
+                schedule[4, classIndex, 0] = new CurriculumSubjectWithCount
+                                            {
+                                                Subject = subjects[tuesdayPattern[classIndex, 1]], // Slot 1
+                                                Count = 2 // slot thứ 2 trong tuần
+                                            }; // Slot 1 thứ 5 = Slot 2 thứ 3
+
+                schedule[4, classIndex, 1] = new CurriculumSubjectWithCount
+                                            {
+                                                Subject = subjects[tuesdayPattern[classIndex, 0]], // Slot 2
+                                                Count = 2 // slot thứ 1 trong tuần
+                                            }; // Slot 2 thứ 5 = Slot 1 thứ 3
+
             }
 
             // Gán môn thứ 5 vào thứ 6 hoặc thứ 7, slot 1 hoặc slot 2
@@ -84,7 +122,11 @@ namespace SchedulerWpfApp.Algorithm
             for (int classIndex = 0; classIndex < numClasses; classIndex++)
             {
                 var (day, slot) = fifthCourseSlots[classIndex];
-                schedule[day, classIndex, slot] = subjectOneSlot[0]; // Gán môn thứ 5
+                schedule[day, classIndex, slot] = new CurriculumSubjectWithCount
+                                                {
+                                                    Subject = subjectOneSlot[0],
+                                                    Count = 1 // slot thứ 1 trong tuần
+                                                };
             }
 
             return schedule;

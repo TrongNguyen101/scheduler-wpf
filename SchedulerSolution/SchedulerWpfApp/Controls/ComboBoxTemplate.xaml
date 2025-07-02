@@ -10,6 +10,7 @@
               SelectedItem="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"
               Text="{Binding SearchText, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
               IsEditable="True"
+              SelectionChanged="ComboBox_SelectionChanged"
               IsTextSearchEnabled="False"
               StaysOpenOnEdit="True"
               Padding="4"

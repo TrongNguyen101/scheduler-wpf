@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchedulerWpfApp.Data;
 
@@ -10,9 +11,11 @@ using SchedulerWpfApp.Data;
 namespace SchedulerWpfApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250625081017_UpdateModelGroupClassCurriculumSubject")]
+    partial class UpdateModelGroupClassCurriculumSubject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
@@ -362,8 +365,8 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("SessionNo");
 
-                    b.Property<int?>("SlotTime")
-                        .HasColumnType("INTEGER")
+                    b.Property<string>("SlotTime")
+                        .HasColumnType("TEXT")
                         .HasColumnName("SlotTime");
 
                     b.Property<string>("SlotTypeCode")

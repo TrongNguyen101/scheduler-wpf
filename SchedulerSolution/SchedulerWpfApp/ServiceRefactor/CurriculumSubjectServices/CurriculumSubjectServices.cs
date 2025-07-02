@@ -2,6 +2,9 @@
 using SchedulerWpfApp.Model;
 using Syncfusion.XlsIO;
 using System.Windows;
+using System.IO;
+using System.Resources;
+using SchedulerWpfApp.Helper;
 
 namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
 {
@@ -31,8 +34,16 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         public async Task AddCurriculumSubject(CurriculumSubject curriculumSubject)
         {
             await _unitOfWork.BeginTransactionAsync();
-            await _unitOfWork.Repository<CurriculumSubject>().AddAsync(curriculumSubject);
-            await _unitOfWork.CommitAsync();
+            try
+            {
+                await _unitOfWork.Repository<CurriculumSubject>().AddAsync(curriculumSubject);
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while adding the curriculum subject.", ex);
+            }
         }
 
         /// <summary>
@@ -43,11 +54,20 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// <remarks>If no curriculumSubject with the specified ID exists, no action is taken</remarks>
         public async Task DeleteCurriculumSubject(int id)
         {
-            var existingCurriculumSubject = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
-            if (existingCurriculumSubject != null)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                await _unitOfWork.CurriculumSubjectsRepository.DeleteAsync(id);
-                await _unitOfWork.SaveChangesAsync();
+                var existingCurriculumSubject = await _unitOfWork.Repository<CurriculumSubject>().GetByIdAsync(id);
+                if (existingCurriculumSubject != null)
+                {
+                    await _unitOfWork.CurriculumSubjectsRepository.DeleteAsync(id);
+                    await _unitOfWork.CommitAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while deleting the curriculum subject.", ex);
             }
         }
 
@@ -93,8 +113,15 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// <returns>Task<List<CurriculumSubject>></returns>
         public async Task<List<CurriculumSubject>> GetAllCurriculumSubjectAsync()
         {
-            var curriList = await _unitOfWork.Repository<CurriculumSubject>().GetAllAsync();
-            return curriList;
+            try
+            {
+                var curriculums = await _unitOfWork.Repository<CurriculumSubject>().GetAllAsync();
+                return curriculums;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving curriculum subjects.", ex);
+            }
         }
 
         /// <summary>
@@ -162,86 +189,89 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         {
             var curriculumSubjects = new List<CurriculumSubject>();
             var curriculumSubjectLineMap = new Dictionary<string, List<int>>();
-            using ExcelEngine excelEngine = new();
-            var app = excelEngine.Excel;
-            app.DefaultVersion = ExcelVersion.Xlsx;
-
-            var workbook = app.Workbooks.Open(filePath);
-            var sheet = workbook.Worksheets[0];
-
-            int rowCount = sheet.UsedRange.LastRow;
-            int colCount = sheet.UsedRange.LastColumn;
-
             Dictionary<string, int> headerMap = new();
-            for (int c = 1; c <= colCount; c++)
+
+            using (ExcelEngine excelEngine = new ExcelEngine())
             {
-                string header = sheet[1, c].Value?.Trim() ?? "";
-                if (!string.IsNullOrWhiteSpace(header))
-                    headerMap[header] = c;
-            }
-
-            string[] requiredHeaders = { "CurriculumCode", "SubjectCode", "SubjectName", "SubjectV", "TermNo", "IsCombo", "Credits", "TotalSLots" };
-            foreach (var h in requiredHeaders)
-                if (!headerMap.ContainsKey(h))
-                    throw new Exception($"Missing required column: {h}");
-
-            for (int r = 2; r <= rowCount; r++)
-            {
-                bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
-                if (isEmptyRow)
-                    continue;
-
-                var curriculumCode = sheet[r, headerMap["CurriculumCode"]].Value?.ToString();
-                var subjectCode = sheet[r, headerMap["SubjectCode"]].Value?.ToString();
-                var subjectNameEnglish = sheet[r, headerMap["SubjectName"]].Value?.ToString();
-                var subjectNameVietnamese = sheet[r, headerMap["SubjectV"]].Value?.ToString();
-
-                // TermNo
-                int termNo = 0;
-                int.TryParse(sheet[r, headerMap["TermNo"]].Value?.ToString(), out termNo);
-
-                // IsCombo
-                bool isCombo = false;
-                bool.TryParse(sheet[r, headerMap["IsCombo"]].Value?.ToString(), out isCombo);
-
-                // Credit
-                int credit = 0;
-                int.TryParse(sheet[r, headerMap["Credits"]].Value?.ToString(), out credit);
-
-                // TotalSlots
-                int? totalSlots = null;
-                if (int.TryParse(sheet[r, headerMap["TotalSLots"]].Value?.ToString(), out int slots))
+                IApplication application = excelEngine.Excel;
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    totalSlots = slots;
+                    IWorkbook workbook = application.Workbooks.Open(fileStream);
+                    IWorksheet worksheet = workbook.Worksheets[0];
+
+                    int rowCount = worksheet.UsedRange.LastRow;
+                    int colCount = worksheet.UsedRange.LastColumn;
+
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    var listColCheck = new List<int> { 1,2,3,5 };
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+                    for (int c = 1; c <= colCount; c++)
+                    {
+                        string header = worksheet[1, c].Value?.Trim() ?? "";
+                        if (!string.IsNullOrWhiteSpace(header))
+                            headerMap[header] = c;
+                    }
+
+                    string[] requiredHeaders = { "CurriculumCode", "SubjectCode", "SubjectName", "SubjectV", "TermNo", "IsCombo", "Credits", "TotalSLots" };
+                    foreach (var h in requiredHeaders)
+                        if (!headerMap.ContainsKey(h))
+                            throw new Exception($"Missing required column: {h}");
+
+                    for (int r = 2; r <= rowCount; r++)
+                    {
+                        bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(worksheet[r, headerMap[h]].Value));
+                        if (isEmptyRow)
+                            continue;
+
+                        var curriculumCode = worksheet[r, headerMap["CurriculumCode"]].Value?.ToString();
+                        var subjectCode = worksheet[r, headerMap["SubjectCode"]].Value?.ToString();
+                        var subjectNameEnglish = worksheet[r, headerMap["SubjectName"]].Value?.ToString();
+                        var subjectNameVietnamese = worksheet[r, headerMap["SubjectV"]].Value?.ToString();
+                        var teachingMode = worksheet[r, headerMap["TeachingMode"]].Value?.ToString();
+
+                        // TermNo
+                        int termNo = 0;
+                        int.TryParse(worksheet[r, headerMap["TermNo"]].Value?.ToString(), out termNo);
+
+                        // IsCombo
+                        bool isCombo = false;
+                        bool.TryParse(worksheet[r, headerMap["IsCombo"]].Value?.ToString(), out isCombo);
+
+                        // Credit
+                        int credit = 0;
+                        int.TryParse(worksheet[r, headerMap["Credits"]].Value?.ToString(), out credit);
+
+                        // TotalSlots
+                        int? totalSlots = null;
+
+                        if (int.TryParse(worksheet[r, headerMap["TotalSLots"]].Value?.ToString(), out int slots))
+                        {
+                            totalSlots = slots;
+                        }
+
+                        string key = $"{curriculumCode}-{subjectCode}-{termNo}";
+                        var curriculumSubject = new CurriculumSubject
+                        {
+                            CurriculumCode = curriculumCode,
+                            SubjectCode = subjectCode,
+                            SubjectNameEnglish = subjectNameEnglish,
+                            SubjectNameVietnamese = subjectNameVietnamese,
+                            TermNo = termNo,
+                            IsCombo = isCombo,
+                            Credit = credit,
+                            TotalSlots = totalSlots,
+                            TeachingMode = teachingMode
+                        };
+
+                        curriculumSubjects.Add(curriculumSubject);
+
+                        if (!curriculumSubjectLineMap.ContainsKey(key))
+                        {
+                            curriculumSubjectLineMap[key] = new List<int>();
+                        }
+                        curriculumSubjectLineMap[key].Add(r);
+                    }
                 }
-                string key = $"{curriculumCode}-{subjectCode}-{termNo}";
-                var curriculumSubject = new CurriculumSubject
-                {
-                    CurriculumCode = curriculumCode,
-                    SubjectCode = subjectCode,
-                    SubjectNameEnglish = subjectNameEnglish,
-                    SubjectNameVietnamese = subjectNameVietnamese,
-                    TermNo = termNo,
-                    IsCombo = isCombo,
-                    Credit = credit,
-                    TotalSlots = totalSlots
-                };
-
-                curriculumSubjects.Add(curriculumSubject);
-                if (!curriculumSubjectLineMap.ContainsKey(key))
-                {
-                    curriculumSubjectLineMap[key] = new List<int>();
-                }
-                curriculumSubjectLineMap[key].Add(r);
-            }
-            var duplicateCurriculumSubjects = curriculumSubjectLineMap
-                .Where(ccs => ccs.Value.Count > 1)
-                .ToDictionary(ccs => ccs.Key, ccs => ccs.Value);
-            if (duplicateCurriculumSubjects.Count > 0)
-            {
-                var errorMessage = duplicateCurriculumSubjects
-                   .Select(dlc => $"CurriculumSubjects bị trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return curriculumSubjects;
         }

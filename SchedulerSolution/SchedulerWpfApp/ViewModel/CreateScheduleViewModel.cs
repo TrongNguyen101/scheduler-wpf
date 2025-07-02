@@ -41,6 +41,7 @@ namespace SchedulerWpfApp.ViewModel
         private ObservableCollection<string> _subjectFullOff;
 
         private ObservableCollection<string> _allMajorsBackup;
+        private ObservableCollection<string> _allSubjectsBackup;
         private DateTime _selectedDate = DateTime.Now;
         #endregion
 
@@ -181,14 +182,14 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand RemoveMajorFirstItemCommand => new RelayCommandGeneric<string>(major =>
         {
             MajorFirstList.Remove(major);
-            AddMajorSecondackToAvailable(major);
+            AddMajorSecondToAvailable(major);
             RefreshFilteredMajors();
         });
 
         public ICommand RemoveMajorSecondItemCommand => new RelayCommandGeneric<string>(major =>
         {
             MajorSecondList.Remove(major);
-            AddMajorSecondackToAvailable(major);
+            AddMajorSecondToAvailable(major);
             RefreshFilteredMajors();
         });
 
@@ -224,6 +225,7 @@ namespace SchedulerWpfApp.ViewModel
             SubjectFullOnlList = new ObservableCollection<string>();
             SubjectFullOffList = new ObservableCollection<string>();
             _allMajorsBackup = new ObservableCollection<string>();
+            _allSubjectsBackup = new ObservableCollection<string>();
 
             LoadMockSchedules(); // Load initial schedules from the service
             InitCurrentWeekDays(); // Initialize current week days
@@ -253,6 +255,7 @@ namespace SchedulerWpfApp.ViewModel
             var allSubjects = await _subjectServices.GetAllAsync();
             var subjectCodes = allSubjects.Select(s => s.SubjectCode).Distinct().OrderBy(name => name).ToList();
             ListSubjects = new ObservableCollection<string>(subjectCodes);
+            _allSubjectsBackup = new ObservableCollection<string>(subjectCodes);
         }
 
         private void OpenScheduleForm()
@@ -318,10 +321,10 @@ namespace SchedulerWpfApp.ViewModel
         private void RefreshFilteredMajors()
         {
             FilteredMajorFirst = new ObservableCollection<string>(
-                ListMajors.Where(m => !MajorSecondList.Contains(m))
+                ListMajors.Where(m => !MajorFirstList.Contains(m))  // Loại bỏ items đã chọn trong First
             );
             FilteredMajorSecond = new ObservableCollection<string>(
-                ListMajors.Where(m => !MajorFirstList.Contains(m))
+                ListMajors.Where(m => !MajorSecondList.Contains(m)) // Loại bỏ items đã chọn trong Second
             );
 
             OnPropertyChanged(nameof(FilteredMajorFirst));
@@ -331,10 +334,10 @@ namespace SchedulerWpfApp.ViewModel
         private void RefreshFilteredSubjects()
         {
             FilteredSubjectFullOnl = new ObservableCollection<string>(
-                ListSubjects.Where(m => !SubjectFullOffList.Contains(m))
+                ListSubjects.Where(s => !SubjectFullOnlList.Contains(s))
             );
             FilteredSubjectFullOff = new ObservableCollection<string>(
-                ListSubjects.Where(m => !SubjectFullOnlList.Contains(m))
+                ListSubjects.Where(s => !SubjectFullOffList.Contains(s))
             );
 
             OnPropertyChanged(nameof(FilteredSubjectFullOnl));
@@ -353,29 +356,36 @@ namespace SchedulerWpfApp.ViewModel
         {
             SubjectFullOffList.Clear();
             SubjectFullOnlList.Clear();
+            ListSubjects = new ObservableCollection<string>(_allSubjectsBackup.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct());
+
             RefreshFilteredSubjects();
         }
 
-        private void AddMajorSecondackToAvailable(string major)
+        private void AddMajorSecondToAvailable(string major)
         {
-            // Find the correct position to insert the major to maintain sorted order
-            var sortedList = ListMajors.ToList();
-            sortedList.Add(major);
-            sortedList.Sort();
+            // Kiểm tra xem major đã tồn tại chưa
+            if (!ListMajors.Contains(major))
+            {
+                var sortedList = ListMajors.ToList();
+                sortedList.Add(major);
+                sortedList.Sort();
 
-            var index = sortedList.IndexOf(major);
-            ListMajors.Insert(index, major);
+                var index = sortedList.IndexOf(major);
+                ListMajors.Insert(index, major);
+            }
         }
 
         private void AddSubjectToAvailable(string subject)
         {
-            // Find the correct position to insert the subject to maintain sorted order
-            var sortedList = ListSubjects.ToList();
-            sortedList.Add(subject);
-            sortedList.Sort();
+            if (!ListSubjects.Contains(subject))
+            {
+                var sortedList = ListSubjects.ToList();
+                sortedList.Add(subject);
+                sortedList.Sort();
 
-            var index = sortedList.IndexOf(subject);
-            ListSubjects.Insert(index, subject);
+                var index = sortedList.IndexOf(subject);
+                ListSubjects.Insert(index, subject);
+            }
         }
 
         /// <summary>
@@ -491,8 +501,7 @@ namespace SchedulerWpfApp.ViewModel
                 var schedules = await _createScheduleTree.GenerateSchedules(startDate);
 
                 LoadMockSchedules(); // Reload schedules after generating new ones
-                PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
-
+                // PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
                 if (schedules == null || !schedules.Any())
                     MessageBox.Show("Không có lịch nào được tạo.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 else
@@ -598,7 +607,7 @@ namespace SchedulerWpfApp.ViewModel
                     {
                         // Mỗi slot có 3 dòng (Subject, Lecturer, Status)
                         string[] rowLines = new string[8];
-                        rowLines[0] = slot.PadRight(10) + "| "; // Dòng đầu tiên bắt đầu bằng slot
+                        rowLines[0] = $"Slot {slot}".PadRight(10) + "| "; // Dòng đầu tiên bắt đầu bằng slot
                         rowLines[1] = "".PadRight(10) + "| ";   // Dòng thứ hai và ba để trống ở cột slot
                         rowLines[2] = "".PadRight(10) + "| ";
                         rowLines[3] = "".PadRight(10) + "| ";
@@ -699,14 +708,12 @@ namespace SchedulerWpfApp.ViewModel
 
             foreach (var slot in Slots)
             {
-                string slotStr = $"slot {slot}";
                 var cells = new ObservableCollection<TimetableCellViewModel>();
 
                 foreach (var day in WeekDays)
                 {
-                    var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slotStr); // Check if there is a schedule for this day and slot
+                    var match = filtered.FirstOrDefault(s => s.Date?.Date == day.Date && s.SlotTime == slot); // Check if there is a schedule for this day and slot
                     string slotTime = "";
-
                     if (match != null)
                     {
                         slotTime = CalculatorTime(slot, match.TypeSlot); // Calculate time for new slot
@@ -715,7 +722,7 @@ namespace SchedulerWpfApp.ViewModel
                     cells.Add(new TimetableCellViewModel
                     {
                         DayOfWeek = day,
-                        SlotNumber = slotStr,
+                        SlotNumber = slot,
                         SlotTime = slotTime,
                         Schedule = match,
                         ParentViewModel = this // Set the parent view model for drag-and-drop functionality
@@ -824,7 +831,7 @@ namespace SchedulerWpfApp.ViewModel
                 // Update UI
                 targetCell.Schedule = updatedSourceSchedule;
 
-                int slotTargetCellInt = int.Parse(targetCell.SlotNumber.Split(' ')[1]);
+                int slotTargetCellInt = targetCell.SlotNumber;
                 targetCell.SlotTime = CalculatorTime(slotTargetCellInt, updatedSourceSchedule.TypeSlot);
                 sourceCell.Schedule = targetSchedule; // This might be null (empty slot) or another schedule
 
@@ -833,7 +840,7 @@ namespace SchedulerWpfApp.ViewModel
                 {
                     var updatedTargetSchedule = CreateUpdatedSchedule(targetSchedule, sourceCell.DayOfWeek, sourceCell.SlotNumber);
                     sourceCell.Schedule = updatedTargetSchedule;
-                    int slotSourceCellInt = int.Parse(sourceCell.SlotNumber.Split(' ')[1]);
+                    int slotSourceCellInt = sourceCell.SlotNumber;
                     sourceCell.SlotTime = CalculatorTime(slotSourceCellInt, updatedTargetSchedule.TypeSlot);
 
                     // Update in AllSchedules collection
@@ -892,7 +899,7 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Creates a new schedule with updated date and slot time
         /// </summary>
-        private Schedule CreateUpdatedSchedule(Schedule originalSchedule, DateTime newDate, string newSlotTime)
+        private Schedule CreateUpdatedSchedule(Schedule originalSchedule, DateTime newDate, int newSlotTime)
         {
             return new Schedule
             {
