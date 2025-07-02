@@ -13,11 +13,11 @@ namespace SchedulerWpfApp.Algorithm
             //  get all subjects with 2 slots per week
 
             //Hãy sửa lại chỗ này để chọn đúng môn
-            var subjects = allSubjects.Where(subject => subject.TotalSlots == 20).ToList();
-            var subjectOneSlot = allSubjects.Where(subject => subject.TotalSlots == 10).ToList();
+            var subjects = allSubjects.Where(subject => subject.TeachingMode == "ON/OFF").ToList();
+            var subjectOneSlot = allSubjects.Where(subject => subject.TeachingMode == "C-ON").ToList();
 
 
-            // Kiểm tra đầu vào
+            //Kiểm tra đầu vào
             if (subjects == null || subjects.Count != 4)
             {
                 throw new ArgumentException("Course array must contain exactly 4 courses.");
@@ -203,5 +203,141 @@ namespace SchedulerWpfApp.Algorithm
 
             return schedule;
         }
+
+        public CurriculumSubjectWithCount[,,] SortSubjectFourClassFlexibleSubject(List<CurriculumSubject> allSubjects, int numClasses = 4)
+        {
+            // Lọc môn học theo teaching mode
+            var twoSlotSubjects = allSubjects.Where(s => s.TeachingMode == "ON/OFF").ToList();
+            var oneSlotSubjects = allSubjects.Where(s => s.TeachingMode == "C-ON").ToList();
+
+            // Kiểm tra đầu vào tối thiểu
+            if (twoSlotSubjects.Count < 2)
+                throw new ArgumentException("Cần ít nhất 2 môn học ON/OFF để phân phối lịch.");
+
+            // Tạo lịch: [Ngày (0-7), Lớp, Slot (0,1)]
+            var schedule = new CurriculumSubjectWithCount[8, numClasses, 2];
+
+            // --- TẠO PATTERN CHO THỨ 2 ---
+            var mondayPattern = GenerateFlexiblePattern(numClasses, twoSlotSubjects.Count);
+
+            for (int classIndex = 0; classIndex < numClasses; classIndex++)
+            {
+                schedule[1, classIndex, 0] = new CurriculumSubjectWithCount
+                {
+                    Subject = twoSlotSubjects[mondayPattern[classIndex][0]],
+                    Count = 1
+                };
+
+                schedule[1, classIndex, 1] = new CurriculumSubjectWithCount
+                {
+                    Subject = twoSlotSubjects[mondayPattern[classIndex][1]],
+                    Count = 1
+                };
+            }
+
+            // --- TẠO PATTERN CHO THỨ 3 BẰNG CÁCH XOAY PATTERN CŨ ---
+            var tuesdayPattern = RotatePattern(mondayPattern, 2, twoSlotSubjects.Count);
+
+            for (int classIndex = 0; classIndex < numClasses; classIndex++)
+            {
+                schedule[2, classIndex, 0] = new CurriculumSubjectWithCount
+                {
+                    Subject = twoSlotSubjects[tuesdayPattern[classIndex][0]],
+                    Count = 1
+                };
+
+                schedule[2, classIndex, 1] = new CurriculumSubjectWithCount
+                {
+                    Subject = twoSlotSubjects[tuesdayPattern[classIndex][1]],
+                    Count = 1
+                };
+            }
+
+            // --- THỨ 4: ĐẢO SLOT CỦA THỨ 2 ---
+            for (int classIndex = 0; classIndex < numClasses; classIndex++)
+            {
+                schedule[3, classIndex, 0] = new CurriculumSubjectWithCount
+                {
+                    Subject = schedule[1, classIndex, 1].Subject,
+                    Count = 2
+                };
+
+                schedule[3, classIndex, 1] = new CurriculumSubjectWithCount
+                {
+                    Subject = schedule[1, classIndex, 0].Subject,
+                    Count = 2
+                };
+            }
+
+            // --- THỨ 5: ĐẢO SLOT CỦA THỨ 3 ---
+            for (int classIndex = 0; classIndex < numClasses; classIndex++)
+            {
+                schedule[4, classIndex, 0] = new CurriculumSubjectWithCount
+                {
+                    Subject = schedule[2, classIndex, 1].Subject,
+                    Count = 2
+                };
+
+                schedule[4, classIndex, 1] = new CurriculumSubjectWithCount
+                {
+                    Subject = schedule[2, classIndex, 0].Subject,
+                    Count = 2
+                };
+            }
+
+            // --- PHÂN MÔN 1 SLOT CHO THỨ 6 & THỨ 7 ---
+            var slotPositions = new (int day, int slot)[] { (5, 0), (5, 1), (6, 0), (6, 1) };
+
+            for (int classIndex = 0; classIndex < numClasses; classIndex++)
+            {
+                var (day, slot) = slotPositions[classIndex % slotPositions.Length];
+
+                schedule[day, classIndex, slot] = new CurriculumSubjectWithCount
+                {
+                    Subject = oneSlotSubjects[classIndex % oneSlotSubjects.Count],
+                    Count = 1
+                };
+            }
+
+            return schedule;
+        }
+
+        private List<int[]> GenerateFlexiblePattern(int numClasses, int numSubjects)
+        {
+            var pattern = new List<int[]>();
+
+            for (int i = 0; i < numClasses; i++)
+            {
+                int first = i % numSubjects;
+                int second = (i + 1) % numSubjects;
+
+                // Tránh trùng slot
+                if (first == second)
+                    second = (second + 1) % numSubjects;
+
+                pattern.Add(new int[] { first, second });
+            }
+
+            return pattern;
+        }
+
+        private List<int[]> RotatePattern(List<int[]> originalPattern, int offset, int numSubjects)
+        {
+            var newPattern = new List<int[]>();
+
+            for (int i = 0; i < originalPattern.Count; i++)
+            {
+                int[] old = originalPattern[(i + offset) % originalPattern.Count];
+
+                int rotated0 = (old[0] + offset) % numSubjects;
+                int rotated1 = (old[1] + offset) % numSubjects;
+
+                newPattern.Add(new int[] { rotated0, rotated1 });
+            }
+
+            return newPattern;
+        }
+
+
     }
 }

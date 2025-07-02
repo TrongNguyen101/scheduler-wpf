@@ -7,8 +7,6 @@ using SchedulerWpfApp.ServiceRefactor.LecturerServices;
 using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 using SchedulerWpfApp.ServiceRefactor.RoomService;
 using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
-using System;
-using System.Windows.Controls;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -190,6 +188,11 @@ namespace SchedulerWpfApp.Algorithm
             foreach (var groupName in listGroupName)
             {
                 var subjectOfClass = curriculumLookup[(groupName.CurriculumCode, groupName.Term.GetValueOrDefault())].ToList();
+                if (subjectOfClass.Count < 4)
+                {
+                    _logger.LogWarning($"No enough subjects found for group {groupName.GroupName} with CurriculumCode {groupName.CurriculumCode} and Term {groupName.Term}");
+                    continue; // Bỏ qua nếu không có môn học
+                }
                 var sortedSubjects = _sortSubjectsOneSession.SortSubjectFourClass(subjectOfClass);
                 subjectLookup.Add(groupName.GroupName, sortedSubjects);
             }
