@@ -1,4 +1,5 @@
-﻿using SchedulerWpfApp.Model;
+﻿using SchedulerWpfApp.Algorithm.DTO;
+using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -14,7 +15,7 @@ namespace SchedulerWpfApp.Algorithm
             var lecturerId = lecturers.ElementAtOrDefault(lecturerIndex - 1)?.LecturerId; // Get the lecturer's ID at the specified index
             var lecturerAccount = lecturers.ElementAtOrDefault(lecturerIndex - 1)?.Lecturer?.LecturerAccount; // Get the lecturer's account at the specified index
 
-            return (lecturerId ?? "No lecturer", lecturername ?? "No lecturer", lecturerAccount ?? "No lecturer"); // Return the first lecturer's name or "No lecturer" if not found
+            return (lecturerId ?? ScheduleConstants.LecturerIdDefault, lecturername ?? "No lecturer", lecturerAccount ?? "No lecturer"); // Return the first lecturer's name or "No lecturer" if not found
         }
 
         public Dictionary<string, List<LecturerSubject>> FilterLecturerInSession(

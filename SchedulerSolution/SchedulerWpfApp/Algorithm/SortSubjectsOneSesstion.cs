@@ -286,18 +286,23 @@ namespace SchedulerWpfApp.Algorithm
             }
 
             // --- PHÂN MÔN 1 SLOT CHO THỨ 6 & THỨ 7 ---
-            var slotPositions = new (int day, int slot)[] { (5, 0), (5, 1), (6, 0), (6, 1) };
-
-            for (int classIndex = 0; classIndex < numClasses; classIndex++)
+            (int day, int slot)[] fifthCourseSlots = new (int, int)[]
             {
-                var (day, slot) = slotPositions[classIndex % slotPositions.Length];
+            (5, 0), // Thứ 6, Slot 1
+            (5, 1), // Thứ 6, Slot 2
+            (6, 0), // Thứ 7, Slot 1
+            (6, 1)  // Thứ 7, Slot 2
+            };
 
-                schedule[day, classIndex, slot] = new CurriculumSubjectWithCount
-                {
-                    Subject = oneSlotSubjects[classIndex % oneSlotSubjects.Count],
-                    Count = 1
-                };
-            }
+            //for (int classIndex = 0; classIndex < numClasses; classIndex++)
+            //{
+            //    var (day, slot) = fifthCourseSlots[classIndex];
+            //    schedule[day, classIndex, slot] = new CurriculumSubjectWithCount
+            //    {
+            //        Subject = oneSlotSubjects[0],
+            //        Count = 1 // slot thứ 1 trong tuần
+            //    };
+            //}
 
             return schedule;
         }
