@@ -510,8 +510,8 @@ namespace SchedulerWpfApp.ViewModel
                 // Validate the drop operation
                 if (!ValidateScheduleMove(sourceCell, targetCell, droppedSchedule))
                 {
-                    MessageBox.Show("Đã bị trùng lịch. Không thể duy chuyển slot này.",
-                                  "Duy chuyển thất bại", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Đã bị trùng lịch. Không thể di chuyển slot này.",
+                                  "Di chuyển thất bại", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 if (targetCell.Schedule != null)

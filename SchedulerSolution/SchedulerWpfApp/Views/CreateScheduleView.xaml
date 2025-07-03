@@ -29,6 +29,8 @@
                     Value="Transparent" />
             <Setter Property="Cursor"
                     Value="Hand" />
+            <Setter Property="FontSize"
+                    Value="14" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -368,7 +370,7 @@
                         Style="{StaticResource TabButtonStyle}" />
 
                 <Button Content="Hiển thị theo giảng viên"
-                        Width="150"
+                        Width="200"
                         Command="{Binding SetDisplayModeCommand}"
                         CommandParameter="LECTURER"
                         Background="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=LECTURER}"
@@ -417,7 +419,7 @@
                                   SelectedItem="{Binding SelectedRoom}"
                                   Width="150"
                                   Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=ROOM}" />
-                        
+
                         <!-- ComboBox lecturer -->
                         <ComboBox ItemsSource="{Binding Lecturers}"
                                   SelectedItem="{Binding SelectedLecturer}"
