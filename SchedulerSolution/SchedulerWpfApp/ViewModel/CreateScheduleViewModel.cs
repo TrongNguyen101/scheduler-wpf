@@ -21,7 +21,11 @@ namespace SchedulerWpfApp.ViewModel
         private int _selectedYear;
         private string _selectedWeek;
         private string _selectedGroupName;
+        private string _selectedRoom;
+        private string _selectedLecturer;
         private ObservableCollection<string> _groupNames;
+        private ObservableCollection<string> _rooms;
+        private ObservableCollection<string> _lecturers; // List of lecturers to display in the timetable
         #endregion
 
         #region Constructor
@@ -30,8 +34,33 @@ namespace SchedulerWpfApp.ViewModel
         public ObservableCollection<int> Years { get; set; } = new(Enumerable.Range(DateTime.Now.Year - 2, 5)); // List of years from 2 years ago to next 2 years
         public ObservableCollection<string> Weeks { get; set; } = new(); // List of weeks in "dd/MM - dd/MM" format
         public ObservableCollection<string> GroupNames { get => _groupNames; set => SetProperty(ref _groupNames, value); }// List of group names to filter schedules
+        public ObservableCollection<string> Rooms { get => _rooms; set => SetProperty(ref _rooms, value); } // List of rooms to filter schedules
+        public ObservableCollection<string> Lecturers
+        {
+            get => _lecturers;
+            set => SetProperty(ref _lecturers, value); // List of lecturers to filter schedules
+        }
         public ObservableCollection<SlotRowViewModel> SlotRows { get; set; } = new(); // List of slot rows for the timetable
         private ObservableCollection<Schedule> AllSchedules { get; set; } = new(); // All schedules loaded from the service
+
+        public enum DisplayMode
+        {
+            CLASS,
+            ROOM,
+            LECTURER
+        }
+
+        private DisplayMode _currentDisplayMode = DisplayMode.CLASS;
+
+        public DisplayMode CurrentDisplayMode
+        {
+            get => _currentDisplayMode;
+            set
+            {
+                SetProperty(ref _currentDisplayMode, value); // Set the current display mode and notify property change
+                FilterSchedules();
+            }
+        }
 
         public int SelectedYear
         {
@@ -51,8 +80,21 @@ namespace SchedulerWpfApp.ViewModel
             set { SetProperty(ref _selectedGroupName, value); FilterSchedules(); } // Filter schedules based on the selected group name
         }
 
+        public string SelectedRoom
+        {
+            get => _selectedRoom;
+            set { SetProperty(ref _selectedRoom, value); FilterSchedules(); } // Filter schedules based on the selected room
+        }
+
+        public string SelectedLecturer
+        {
+            get => _selectedLecturer;
+            set { SetProperty(ref _selectedLecturer, value); FilterSchedules(); } // Filter schedules based on the selected lecturer
+        }
+
         public ICommand CreateScheduleCommand { get; }
         public ICommand ExportExcelCommand { get; }
+        public ICommand SetDisplayModeCommand { get; }
 
         public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices)
         {
@@ -62,6 +104,7 @@ namespace SchedulerWpfApp.ViewModel
             SelectedYear = DateTime.Now.Year; // Default to current year
             CreateScheduleCommand = new RelayCommand(async () => await CreateScheduleDemo());
             ExportExcelCommand = new RelayCommand(async () => await ExportSchedulesToExcel());
+            SetDisplayModeCommand = new RelayCommandGeneric<string>(ChangeDisplayMode);
 
             LoadMockSchedules(); // Load initial schedules from the service
             InitCurrentWeekDays(); // Initialize current week days
@@ -70,6 +113,13 @@ namespace SchedulerWpfApp.ViewModel
         #endregion
 
         #region Methods
+        private void ChangeDisplayMode(string mode)
+        {
+            if (mode == "CLASS") CurrentDisplayMode = DisplayMode.CLASS;
+            else if (mode == "ROOM") CurrentDisplayMode = DisplayMode.ROOM;
+            else CurrentDisplayMode = DisplayMode.LECTURER; // Change the display mode based on the selected option
+        }
+
         /// <summary>
         /// Initializes the WeekDays collection with the current week's dates starting from Monday.
         /// </summary>
@@ -123,7 +173,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             SlotRows.Clear();
 
-            if (string.IsNullOrEmpty(SelectedGroupName) || string.IsNullOrEmpty(SelectedWeek))
+            if (string.IsNullOrEmpty(SelectedWeek) || (CurrentDisplayMode == DisplayMode.CLASS && string.IsNullOrEmpty(SelectedGroupName)) || (CurrentDisplayMode == DisplayMode.ROOM && string.IsNullOrEmpty(SelectedRoom)) || (CurrentDisplayMode == DisplayMode.LECTURER && string.IsNullOrEmpty(SelectedLecturer)))
             {
                 // If no group or week is selected, create empty rows
                 GenerateTimetableCellsAndSlotRows(new List<Schedule>());
@@ -135,7 +185,12 @@ namespace SchedulerWpfApp.ViewModel
             WeekDays.Clear();
             for (int i = 0; i < 7; i++) WeekDays.Add(start.AddDays(i)); // Add each day of the week starting from the start date
 
-            var filtered = AllSchedules.Where(s => s.GroupName == SelectedGroupName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
+            var filtered = new List<Schedule>();
+            if (CurrentDisplayMode == DisplayMode.ROOM)
+                filtered = AllSchedules.Where(s => s.RoomName == SelectedRoom && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
+            else if (CurrentDisplayMode == DisplayMode.CLASS)
+                filtered = AllSchedules.Where(s => s.GroupName == SelectedGroupName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
+            else filtered = AllSchedules.Where(s => s.LecturerId == SelectedLecturer && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by lecturer and date range
             GenerateTimetableCellsAndSlotRows(filtered); // Generate timetable cells and slot rows based on the filtered schedules
         }
 
@@ -162,6 +217,8 @@ namespace SchedulerWpfApp.ViewModel
             if (schedules?.Any() == true)
             {
                 GroupNames = new ObservableCollection<string>(schedules.Select(s => s.GroupName).Distinct().OrderBy(name => name)); // Get distinct group names from the schedules
+                Rooms = new ObservableCollection<string>(schedules.Select(s => s.RoomName).Distinct().OrderBy(name => name)); // Get distinct room names from the schedules
+                Lecturers = new ObservableCollection<string>(schedules.Select(s => s.LecturerId).Distinct().OrderBy(name => name)); // Get distinct lecturer IDs from the schedules
             }
         }
 
@@ -556,7 +613,7 @@ namespace SchedulerWpfApp.ViewModel
 
             // Check for lecturer conflicts (same lecturer can't be in two places at same time)
             var conflictingSchedule = AllSchedules.FirstOrDefault(s =>
-                s.LecturerId == schedule.LecturerId &&
+                (s.LecturerId == schedule.LecturerId || s.RoomId == schedule.RoomId) &&
                 s.Date == targetCell.DayOfWeek.Date &&
                 s.SlotTime == targetCell.SlotNumber &&
                 s.ScheduleId != schedule.ScheduleId);
