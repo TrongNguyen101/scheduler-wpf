@@ -7,6 +7,9 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         // Get a list of all classes
         Task<List<GroupClass>> GetAllAsync();
 
+        // Get a list of all major in group class
+        Task<List<string>> GetAllMajorAsync();
+
         // Add a new class to the system
         Task AddGroupName(GroupClass groupName);
 

@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:SchedulerWpfApp.Views"
              mc:Ignorable="d"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:helper="clr-namespace:SchedulerWpfApp.Helper">
+             xmlns:helper="clr-namespace:SchedulerWpfApp.Helper"
+             xmlns:controls="clr-namespace:SchedulerWpfApp.Controls">
 
     <UserControl.Resources>
         <helper:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -340,7 +341,7 @@
                 <!-- Add Person Button -->
                 <Button Grid.Column="3"
                         Style="{StaticResource SuccessButtonStyle}"
-                        Command="{Binding CreateScheduleCommand}">
+                        Command="{Binding OpenPopupCreateCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕"
                                    VerticalAlignment="Center" />
@@ -750,5 +751,171 @@
                 </StackPanel>
             </ScrollViewer>
         </Grid>
+
+        <Popup x:Name="ScheduleFormPopup"
+               StaysOpen="False"
+               Placement="Center"
+               IsOpen="{Binding IsScheduleFormOpen}"
+               AllowsTransparency="True"
+               PopupAnimation="Fade">
+
+            <Border Background="#F0F4F8"
+                    BorderBrush="#DDD"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="20"
+                    Width="520"
+                    SnapsToDevicePixels="True">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15"
+                                      ShadowDepth="2"
+                                      Opacity="0.2" />
+                </Border.Effect>
+
+                <StackPanel>
+                    <!-- Tiêu đề -->
+                    <TextBlock Text="Chọn chuyên ngành ghép buổi"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="#2c3e50"
+                               Margin="0,0,0,20"
+                               TextAlignment="Center" />
+
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="Chọn ngày bắt đầu lịch"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,5"
+                                   Foreground="#333" />
+                        <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}" Language="vi-VN">
+                            <DatePicker.Resources>
+                                <Style TargetType="DatePickerTextBox">
+                                    <Setter Property="IsReadOnly"
+                                            Value="True" />
+                                </Style>
+                            </DatePicker.Resources>
+                        </DatePicker>
+
+                    </StackPanel>
+                    <!-- Major first -->
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="Nhóm chuyên ngành A"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,5"
+                                   Foreground="#333" />
+
+                        <!-- Tag -->
+                        <ItemsControl ItemsSource="{Binding MajorFirstList}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#e0f7fa"
+                                            BorderBrush="#00acc1"
+                                            BorderThickness="1"
+                                            Margin="3"
+                                            Padding="6,4"
+                                            CornerRadius="8">
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding}"
+                                                       FontSize="12"
+                                                       Foreground="#007c91" />
+                                            <Button Content="x"
+                                                    FontSize="10"
+                                                    Width="16"
+                                                    Height="16"
+                                                    Margin="5,0,0,0"
+                                                    Padding="0"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    Foreground="Gray"
+                                                    Cursor="Hand"
+                                                    Command="{Binding DataContext.RemoveMajorFirstItemCommand, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                    CommandParameter="{Binding}" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <controls:ComboBoxTemplate ItemsSource="{Binding FilteredMajorFirst}"
+                                                   SelectedItem="{Binding SelectedMajorFirstCombo, Mode=TwoWay}" />
+                    </StackPanel>
+
+                    <!-- Major second -->
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="Nhóm chuyên ngành B"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,5"
+                                   Foreground="#333" />
+
+                        <ItemsControl ItemsSource="{Binding MajorSecondList}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#f1f8e9"
+                                            BorderBrush="#8bc34a"
+                                            BorderThickness="1"
+                                            Margin="3"
+                                            Padding="6,4"
+                                            CornerRadius="8">
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding}"
+                                                       FontSize="12"
+                                                       Foreground="#558b2f" />
+                                            <Button Content="x"
+                                                    FontSize="10"
+                                                    Width="16"
+                                                    Height="16"
+                                                    Margin="5,0,0,0"
+                                                    Padding="0"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    Foreground="Gray"
+                                                    Cursor="Hand"
+                                                    Command="{Binding DataContext.RemoveMajorSecondItemCommand, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                    CommandParameter="{Binding}" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <controls:ComboBoxTemplate ItemsSource="{Binding FilteredMajorSecond}"
+                                                   SelectedItem="{Binding SelectedMajorSecondCombo, Mode=TwoWay}" />
+                    </StackPanel>
+
+                    <!-- Action buttons -->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+                        <Button Content="Hủy"
+                                Command="{Binding CancelCreateScheduleCommand}"
+                                Margin="0,0,10,0"
+                                Padding="12,6"
+                                Background="#bdc3c7"
+                                Foreground="White"
+                                BorderBrush="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand" />
+                        <Button Content="Tạo"
+                                Command="{Binding CreateScheduleCommand}"
+                                Padding="12,6"
+                                Background="#3498db"
+                                Foreground="White"
+                                BorderBrush="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Popup>
     </Grid>
 </UserControl>
