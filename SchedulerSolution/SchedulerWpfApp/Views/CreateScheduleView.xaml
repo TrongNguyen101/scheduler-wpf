@@ -432,7 +432,7 @@
 
                         <!-- ComboBox room -->
                         <ComboBox ItemsSource="{Binding Rooms}"
-                                  SelectedItem="{Binding SelectedRoom}"
+                                  SelectedItem="{Binding SelectedRoomName}"
                                   Width="150"
                                   IsEditable="True"
                                   Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=ROOM}" />
@@ -820,20 +820,23 @@
                                    Margin="0,0,0,5" />
                         <ComboBox ItemsSource="{Binding ListRooms}"
                                   SelectedItem="{Binding SelectedRoom, Mode=TwoWay}"
+                                  IsEditable="True"
                                   DisplayMemberPath="RoomName" />
 
                         <TextBlock Text="Giảng viên"
                                    FontWeight="Bold"
                                    Margin="10,10,0,5" />
                         <ComboBox ItemsSource="{Binding LecturerSubjects}"
-                                  SelectedItem="{Binding SelectedLecturer, Mode=TwoWay}"
+                                  SelectedItem="{Binding SelectedLecturerSubject, Mode=TwoWay}"
+                                  IsEditable="True"
                                   DisplayMemberPath="LecturerName" />
 
                         <TextBlock Text="Trạng thái"
                                    FontWeight="Bold"
                                    Margin="10,10,0,5" />
                         <ComboBox ItemsSource="{Binding SlotStatusList}"
-                                  SelectedItem="{Binding EditingSchedule.StatusSlot, Mode=TwoWay}" />
+                                  SelectedItem="{Binding EditingSchedule.StatusSlot, Mode=TwoWay}" 
+                                  IsEditable="True"/>
                     </StackPanel>
 
                     <!-- Form Actions -->
@@ -862,7 +865,8 @@
                 </Grid>
               </Border>
         </Popup>
-   
+
+        <!-- Popup for creating schedule -->
         <Popup x:Name="ScheduleFormPopup"
                StaysOpen="False"
                Placement="Center"
@@ -1026,7 +1030,7 @@
                                 BorderThickness="0"
                                 Cursor="Hand" />
                     </StackPanel>
-                </StackPanel
+                </StackPanel>
             </Border>
         </Popup>
     </Grid>

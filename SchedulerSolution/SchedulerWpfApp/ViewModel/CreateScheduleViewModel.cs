@@ -27,7 +27,7 @@ namespace SchedulerWpfApp.ViewModel
         private int _selectedYear;
         private string _selectedWeek;
         private string _selectedGroupName;
-        private string _selectedRoom;
+        private string _selectedRoomName;
         private string _selectedLecturer;
         private ObservableCollection<string> _groupNames;
         private bool _isEditScheduleFormOpen = false; // Flag to track if the cell is being edited
@@ -35,7 +35,7 @@ namespace SchedulerWpfApp.ViewModel
         private ObservableCollection<Room> _listRooms;
         private ObservableCollection<LecturerSubject> _lecturerSubjects; // All rooms loaded from the service
         private Room _selectedRoom;
-        private LecturerSubject _selectedLecturer;
+        private LecturerSubject _selectedLecturerSubject;
         private ObservableCollection<string> _rooms;
         private ObservableCollection<string> _lecturers; // List of lecturers to display in the timetable
 
@@ -134,7 +134,7 @@ namespace SchedulerWpfApp.ViewModel
                     _ = GetAllRooms();
                     _ = GetAllLecturerBySubjectCode(value.SubjectCode); // Load lecturers for the selected subject code
                     SelectedRoom = ListRooms.FirstOrDefault(r => r.RoomName == EditingSchedule?.RoomName);
-                    SelectedLecturer = LecturerSubjects.FirstOrDefault(l => l.LecturerName == EditingSchedule?.LecturerName);
+                    SelectedLecturerSubject = LecturerSubjects.FirstOrDefault(l => l.LecturerId == EditingSchedule?.LecturerId);
                 }
             }
         }
@@ -153,12 +153,12 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
-        public LecturerSubject SelectedLecturer
+        public LecturerSubject SelectedLecturerSubject
         {
-            get => _selectedLecturer;
+            get => _selectedLecturerSubject;
             set
             {
-                SetProperty(ref _selectedLecturer, value);
+                SetProperty(ref _selectedLecturerSubject, value);
                 if (EditingSchedule != null && value != null)
                 {
                     EditingSchedule.LecturerName = value.LecturerName;
@@ -167,10 +167,10 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
-        public string SelectedRoom
+        public string SelectedRoomName
         {
-            get => _selectedRoom;
-            set { SetProperty(ref _selectedRoom, value); FilterSchedules(); } // Filter schedules based on the selected room
+            get => _selectedRoomName;
+            set { SetProperty(ref _selectedRoomName, value); FilterSchedules(); } // Filter schedules based on the selected room
         }
 
         public string SelectedLecturer
@@ -434,7 +434,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             SlotRows.Clear();
 
-            if (string.IsNullOrEmpty(SelectedWeek) || (CurrentDisplayMode == DisplayMode.CLASS && string.IsNullOrEmpty(SelectedGroupName)) || (CurrentDisplayMode == DisplayMode.ROOM && string.IsNullOrEmpty(SelectedRoom)) || (CurrentDisplayMode == DisplayMode.LECTURER && string.IsNullOrEmpty(SelectedLecturer)))
+            if (string.IsNullOrEmpty(SelectedWeek) || (CurrentDisplayMode == DisplayMode.CLASS && string.IsNullOrEmpty(SelectedGroupName)) || (CurrentDisplayMode == DisplayMode.ROOM && string.IsNullOrEmpty(SelectedRoomName)) || (CurrentDisplayMode == DisplayMode.LECTURER && string.IsNullOrEmpty(SelectedLecturer)))
             {
                 // If no group or week is selected, create empty rows
                 GenerateTimetableCellsAndSlotRows(new List<Schedule>());
@@ -448,7 +448,7 @@ namespace SchedulerWpfApp.ViewModel
 
             var filtered = new List<Schedule>();
             if (CurrentDisplayMode == DisplayMode.ROOM)
-                filtered = AllSchedules.Where(s => s.RoomName == SelectedRoom && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
+                filtered = AllSchedules.Where(s => s.RoomName == SelectedRoomName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
             else if (CurrentDisplayMode == DisplayMode.CLASS)
                 filtered = AllSchedules.Where(s => s.GroupName == SelectedGroupName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
             else filtered = AllSchedules.Where(s => s.Lecturer?.LecturerAccount == SelectedLecturer && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by lecturer and date range
@@ -497,7 +497,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             else
             {
-                //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, MajorFirstList, MajorSecondList, SubjectFullOnlList, SubjectFullOffList, ListSubjects);
+                //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, MajorFirstList, MajorSecondList);
                 var schedules = await _createScheduleTree.GenerateSchedules(startDate);
 
                 LoadMockSchedules(); // Reload schedules after generating new ones
