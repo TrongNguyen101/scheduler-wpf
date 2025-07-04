@@ -242,6 +242,18 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             }
             workbook.SaveAs(filePath);
         }
+
+        public async Task <List<string>> GetAllMajorAsync()
+        {
+            try
+            {
+                return await _unitOfWork.GroupNameRepository.GetAllMajorAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi lấy danh sách ngành học", ex);
+            }
+        }
         #endregion
     }
 }
