@@ -1,6 +1,8 @@
 ﻿using SchedulerWpfApp.Repository;
 using SchedulerWpfApp.Model;
 using Syncfusion.XlsIO;
+using SchedulerWpfApp.Helper;
+using System.IO;
 
 namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
 {
@@ -28,7 +30,14 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <returns>Task<List<Curriculum>></returns>
         public async Task<List<Curriculum>> GetAllCurriculumAsync()
         {
-            return await _unitOfWork.Repository<Curriculum>().GetAllAsync();
+            try
+            {
+                return await _unitOfWork.Repository<Curriculum>().GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving curriculums", ex);
+            }
         }
 
         /// <summary>
@@ -38,8 +47,16 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         public async Task AddCurriculum(Curriculum curriculum)
         {
             await _unitOfWork.BeginTransactionAsync();
-            await _unitOfWork.Repository<Curriculum>().AddAsync(curriculum);
-            await _unitOfWork.CommitAsync();
+            try
+            {
+                await _unitOfWork.Repository<Curriculum>().AddAsync(curriculum);
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while adding the curriculum", ex);
+            }
         }
 
         /// <summary>
@@ -50,11 +67,20 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <remarks>If no curriculum with the specified ID exists, no action is taken</remarks>
         public async Task DeleteCurriculum(string curriculumCode)
         {
-            var existingCurriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculumCode);
-            if (existingCurriculum != null)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                await _unitOfWork.CurriculumRepository.DeleteCurriculum(curriculumCode);
-                await _unitOfWork.SaveChangesAsync();
+                var existingCurriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculumCode);
+                if (existingCurriculum != null)
+                {
+                    await _unitOfWork.CurriculumRepository.DeleteCurriculum(curriculumCode);
+                    await _unitOfWork.CommitAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while deleting the curriculum", ex);
             }
         }
 
@@ -65,7 +91,14 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <returns>The curriculum with the specified ID, or null if not found</returns>
         public async Task<Curriculum?> GetByCurriculumCodeAsync(string CurriculumCode)
         {
-            return await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(CurriculumCode);
+            try
+            {
+                return await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(CurriculumCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving the curriculum", ex);
+            }
         }
 
         /// <summary>
@@ -74,15 +107,23 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// <param name="Curriculum">The curriculum specified ID exists, no action is taken</remarks>
         public async Task UpdateCurriculum(Curriculum curriculum)
         {
-            var existingCurriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculum.CurriculumCode);
-            if (existingCurriculum != null)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                existingCurriculum.CurriculumCode = curriculum.CurriculumCode;
-                existingCurriculum.IsActive = curriculum.IsActive;
+                var existingCurriculum = await _unitOfWork.CurriculumRepository.GetByCurriculumCodeAsync(curriculum.CurriculumCode);
+                if (existingCurriculum != null)
+                {
+                    existingCurriculum.CurriculumCode = curriculum.CurriculumCode;
+                    existingCurriculum.IsActive = curriculum.IsActive;
 
-                await _unitOfWork.BeginTransactionAsync();
-                await _unitOfWork.Repository<Curriculum>().UpdateAsync(existingCurriculum);
-                await _unitOfWork.CommitAsync();
+                    await _unitOfWork.Repository<Curriculum>().UpdateAsync(existingCurriculum);
+                    await _unitOfWork.CommitAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("An error occurred while updating the curriculum", ex);
             }
         }
 
@@ -120,58 +161,52 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         public List<Curriculum> ReadCurriculumsFromExcel(string filePath)
         {
             var curriculums = new List<Curriculum>();
-            var curriculumLineMap = new Dictionary<string, List<int>>();
-            using ExcelEngine excelEngine = new();
-            var app = excelEngine.Excel;
-            app.DefaultVersion = ExcelVersion.Xlsx;
+            Dictionary<string, int> headerMap = new Dictionary<string, int>();
 
-            var workbook = app.Workbooks.Open(filePath);
-            var sheet = workbook.Worksheets[0];
-
-            int rowCount = sheet.UsedRange.LastRow;
-            int colCount = sheet.UsedRange.LastColumn;
-
-            Dictionary<string, int> headerMap = new();
-            for (int c = 1; c <= colCount; c++)
+            using (ExcelEngine excelEngine = new ExcelEngine())
             {
-                string header = sheet[1, c].Value?.Trim() ?? "";
-                if (!string.IsNullOrWhiteSpace(header))
-                    headerMap[header] = c;
-            }
-
-            string[] requiredHeaders = { "CurriculumCode", "IsActive" };
-            foreach (var h in requiredHeaders)
-                if (!headerMap.ContainsKey(h))
-                    throw new Exception($"Missing required column: {h}");
-
-            for (int r = 2; r <= rowCount; r++)
-            {
-                bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
-                if (isEmptyRow)
-                    continue;
-
-                bool isActive = true; // Default value for IsActive
-                string curriculumCode = sheet[r, headerMap["CurriculumCode"]].Value;
-                var curriculum = new Curriculum
+                IApplication application = excelEngine.Excel;
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    CurriculumCode = sheet[r, headerMap["CurriculumCode"]].Value,
-                    IsActive = bool.TryParse(sheet[r, headerMap["IsActive"]].Value?.ToString(), out isActive)
-                };
-                curriculums.Add(curriculum);
-                if (!curriculumLineMap.ContainsKey(curriculumCode))
-                {
-                    curriculumLineMap[curriculumCode] = new List<int>();
+                    IWorkbook workbook = application.Workbooks.Open(fileStream);
+                    IWorksheet worksheet = workbook.Worksheets[0];
+
+                    int rowCount = worksheet.UsedRange.LastRow;
+                    int colCount = worksheet.UsedRange.LastColumn;
+                    var listColCheck = new List<int> { 1 };
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+
+                    for (int c = 1; c <= colCount; c++)
+                    {
+                        string header = worksheet[1, c].Value?.Trim() ?? "";
+                        
+                        if (!string.IsNullOrWhiteSpace(header))
+                            headerMap[header] = c;
+                    }
+
+                    string[] requiredHeaders = { "CurriculumCode", "IsActive" };
+                    foreach (var h in requiredHeaders)
+                        if (!headerMap.ContainsKey(h))
+                            throw new Exception($"Missing required column: {h}");
+
+                    for (int r = 2; r <= rowCount; r++)
+                    {
+                        bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(worksheet[r, headerMap[h]].Value));
+                        
+                        if (isEmptyRow)
+                            continue;
+
+                        bool isActive = true; // Default value for IsActive
+                        string curriculumCode = worksheet[r, headerMap["CurriculumCode"]].Value;
+                        var curriculum = new Curriculum
+                        {
+                            CurriculumCode = worksheet[r, headerMap["CurriculumCode"]].Value,
+                            IsActive = bool.TryParse(worksheet[r, headerMap["IsActive"]].Value?.ToString(), out isActive)
+                        };
+                        curriculums.Add(curriculum);
+                    }
                 }
-                curriculumLineMap[curriculumCode].Add(r);
-            }
-            var duplicateCurriculums = curriculumLineMap
-                .Where(kvp => kvp.Value.Count > 1)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            if (duplicateCurriculums.Count > 0)
-            {
-                var errorMessage = duplicateCurriculums
-                   .Select(dlc => $"Curriculum '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return curriculums;
         }

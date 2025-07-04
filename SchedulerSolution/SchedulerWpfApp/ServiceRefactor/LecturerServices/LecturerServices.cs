@@ -1,4 +1,6 @@
-﻿using SchedulerWpfApp.Model;
+﻿using System.IO;
+using SchedulerWpfApp.Helper;
+using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 using Syncfusion.XlsIO;
 
@@ -126,59 +128,53 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
         public List<Lecturer> ReadLecturersFromExcel(string filePath)
         {
             var lectures = new List<Lecturer>();
-            var lecturerLineMap = new Dictionary<string, List<int>>();
-            using ExcelEngine excelEngine = new();
-            var app = excelEngine.Excel;
-            app.DefaultVersion = ExcelVersion.Xlsx;
-
-            var workbook = app.Workbooks.Open(filePath);
-            var sheet = workbook.Worksheets[0];
-
-            int rowCount = sheet.UsedRange.LastRow;
-            int colCount = sheet.UsedRange.LastColumn;
-
             Dictionary<string, int> headerMap = new();
-            for (int c = 1; c <= colCount; c++)
+
+            using (ExcelEngine excelEngine = new ExcelEngine())
             {
-                string header = sheet[1, c].Value?.Trim() ?? "";
-                if (!string.IsNullOrWhiteSpace(header))
-                    headerMap[header] = c;
-            }
-
-            string[] requiredHeaders = { "MaNV", "Fullname", "Bomon", "LoaiGV" };
-            foreach (var h in requiredHeaders)
-                if (!headerMap.ContainsKey(h))
-                    throw new Exception($"Missing required column: {h}");
-
-            for (int r = 2; r <= rowCount; r++)
-            {
-                bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(sheet[r, headerMap[h]].Value));
-                if (isEmptyRow)
-                    continue;
-                string lecturerId = sheet[r, headerMap["MaNV"]].Value;
-                var lecturer = new Lecturer
+                IApplication application = excelEngine.Excel;
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
-                    LecturerId = sheet[r, headerMap["MaNV"]].Value,
-                    LecturerName = sheet[r, headerMap["Fullname"]].Value,
-                    Role = sheet[r, headerMap["LoaiGV"]].Value,
-                    Department = sheet[r, headerMap["Bomon"]].Value
-                };
+                    IWorkbook workbook = application.Workbooks.Open(fileStream);
+                    IWorksheet worksheet = workbook.Worksheets[0];
 
-                lectures.Add(lecturer);
-                if (!lecturerLineMap.ContainsKey(lecturerId))
-                {
-                    lecturerLineMap[lecturerId] = new List<int>();
+                    int rowCount = worksheet.UsedRange.LastRow;
+                    int colCount = worksheet.UsedRange.LastColumn;
+                    Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    var listColCheck = new List<int> { 1 };
+                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+                    for (int c = 1; c <= colCount; c++)
+                    {
+                        string header = worksheet[1, c].Value?.Trim() ?? "";
+                        if (!string.IsNullOrWhiteSpace(header))
+                            headerMap[header] = c;
+                    }
+
+                    string[] requiredHeaders = { "MaNV", "Fullname", "Bomon", "LoaiGV", "accGV" };
+
+                    foreach (var h in requiredHeaders)
+                        if (!headerMap.ContainsKey(h))
+                            throw new Exception($"Missing required column: {h}");
+
+                    for (int r = 2; r <= rowCount; r++)
+                    {
+                        bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(worksheet[r, headerMap[h]].Value));
+
+                        if (isEmptyRow)
+                            continue;
+
+                        var lecturer = new Lecturer
+                        {
+                            LecturerId = worksheet[r, headerMap["MaNV"]].Value,
+                            LecturerName = worksheet[r, headerMap["Fullname"]].Value,
+                            Role = worksheet[r, headerMap["LoaiGV"]].Value,
+                            Department = worksheet[r, headerMap["Bomon"]].Value,
+                            LecturerAccount = worksheet[r, headerMap["accGV"]].Value
+                        };
+
+                        lectures.Add(lecturer);
+                    }
                 }
-                lecturerLineMap[lecturerId].Add(r);
-            }
-            var dulicateLecturerId = lecturerLineMap
-                .Where(l => l.Value.Count > 1)
-                .ToDictionary(l => l.Key, l => l.Value);
-            if (dulicateLecturerId.Count > 0)
-            {
-                var errorMessage = dulicateLecturerId
-                  .Select(dlc => $"Lecturer '{dlc.Key}' trùng tại các dòng: {string.Join(", ", dlc.Value)}");
-                throw new Exception("Phát hiện dữ liệu trùng trong file Excel:\n " + string.Join("\n", errorMessage));
             }
             return lectures;
         }

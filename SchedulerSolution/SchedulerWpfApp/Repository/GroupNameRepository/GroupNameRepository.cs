@@ -91,6 +91,21 @@ namespace SchedulerWpfApp.Repository.GroupNameRepository
                 throw new Exception($"Xóa không thành công cho GroupClass với groupname '{groupname}'.", ex);
             }
         }
+
+        public async Task<List<string>> GetAllMajorAsync()
+        {
+            try
+            {
+                return await _context.GroupName
+                    .Select(gc => gc.Major)
+                    .Distinct()
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi lấy danh sách chuyên ngành.", ex);
+            }
+        }
         #endregion
     }
 }

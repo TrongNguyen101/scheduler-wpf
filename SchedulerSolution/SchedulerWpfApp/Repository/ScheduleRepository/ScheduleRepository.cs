@@ -1,4 +1,6 @@
-﻿using SchedulerWpfApp.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Repository.ScheduleRepository
@@ -14,6 +16,26 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Retrieves all schedules from the database, including related Room and Lecturer entities.
+        /// </summary>
+        /// <returns></returns>
+        public override async Task<List<Schedule>> GetAllAsync()
+        {
+            try
+            {
+                var schedules = await _context.Schedules
+                     .Include(s => s.Room)
+                     .Include(s => s.Lecturer)
+                     .ToListAsync();
+                return schedules;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                return new List<Schedule>();
+            }
+        }
         /// <summary>
         /// Adds a list of schedules to the database.
         /// </summary>
