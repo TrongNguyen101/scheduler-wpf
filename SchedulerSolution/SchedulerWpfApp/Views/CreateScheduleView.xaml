@@ -11,6 +11,53 @@
 
     <UserControl.Resources>
         <helper:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <helper:DisplayModeToVisibilityConverter x:Key="DisplayModeToVisibilityConverter" />
+        <helper:DisplayModeToBrushConverter x:Key="DisplayModeToBrushConverter" />
+
+        <Style x:Key="TabButtonStyle"
+               TargetType="Button">
+            <Setter Property="Padding"
+                    Value="10,5" />
+            <Setter Property="Margin"
+                    Value="0,0,10,0" />
+            <Setter Property="FontWeight"
+                    Value="SemiBold" />
+            <Setter Property="Foreground"
+                    Value="White" />
+            <Setter Property="BorderBrush"
+                    Value="Transparent" />
+            <Setter Property="Cursor"
+                    Value="Hand" />
+            <Setter Property="FontSize"
+                    Value="14" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="border"
+                                        Property="Opacity"
+                                        Value="0.9" />
+                            </Trigger>
+                            <Trigger Property="IsPressed"
+                                     Value="True">
+                                <Setter TargetName="border"
+                                        Property="Opacity"
+                                        Value="0.8" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
         <Style x:Key="ScheduleContentStyle"
                TargetType="StackPanel">
@@ -204,6 +251,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -302,9 +350,49 @@
                 </Button>
             </Grid>
 
-            <!-- Filter Controls -->
             <StackPanel Grid.Row="1"
                         Orientation="Horizontal"
+                        Margin="10">
+                <Border BorderThickness="2"
+                        BorderBrush="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=CLASS}"
+                        CornerRadius="6"
+                        Margin="0,0,10,0">
+                    <Button Content="Hiển thị theo lớp"
+                            Command="{Binding SetDisplayModeCommand}"
+                            CommandParameter="CLASS"
+                            FontSize="14"
+                            Style="{StaticResource ExportButtonStyle}" />
+                </Border>
+
+                <Border BorderThickness="2"
+                        BorderBrush="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=ROOM}"
+                        CornerRadius="6"
+                        Margin="0,0,10,0">
+                    <Button Content="Hiển thị theo phòng"
+                            Command="{Binding SetDisplayModeCommand}"
+                            FontSize="14"
+                            CommandParameter="ROOM"
+                            Style="{StaticResource ActionButtonStyle}" />
+                </Border>
+
+                <Border BorderThickness="2"
+                        BorderBrush="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=LECTURER}"
+                        CornerRadius="6"
+                        Margin="0,0,10,0">
+                    <Button Content="Hiển thị theo giảng viên"
+                            Command="{Binding SetDisplayModeCommand}"
+                            FontSize="14"
+                            CommandParameter="LECTURER"
+                            Style="{StaticResource SuccessButtonStyle}" />
+                </Border>
+
+            </StackPanel>
+
+            <!-- Filter Controls -->
+            <StackPanel Grid.Row="
+                        2"
+                        Orientation="
+                        Horizontal"
                         Margin="20,10">
                 <StackPanel Orientation="Horizontal"
                             Margin="0,0,10,0">
@@ -312,6 +400,7 @@
                                VerticalAlignment="Center"
                                Margin="0,0,5,0" />
                     <ComboBox Width="100"
+                              IsEditable="True"
                               ItemsSource="{Binding Years}"
                               SelectedItem="{Binding SelectedYear}" />
                 </StackPanel>
@@ -322,22 +411,44 @@
                                VerticalAlignment="Center"
                                Margin="0,0,5,0" />
                     <ComboBox Width="150"
+                              IsEditable="True"
                               ItemsSource="{Binding Weeks}"
                               SelectedItem="{Binding SelectedWeek}" />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="CLASS "
+                    <TextBlock Text="{Binding CurrentDisplayMode}"
                                VerticalAlignment="Center"
                                Margin="0,0,5,0" />
-                    <ComboBox Width="150"
-                              ItemsSource="{Binding GroupNames}"
-                              SelectedItem="{Binding SelectedGroupName}" />
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,0,10,0">
+                        <!-- ComboBox class -->
+                        <ComboBox ItemsSource="{Binding GroupNames}"
+                                  SelectedItem="{Binding SelectedGroupName}"
+                                  Width="150"
+                                  IsEditable="True"
+                                  Margin="0,0,10,0"
+                                  Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=CLASS}" />
+
+                        <!-- ComboBox room -->
+                        <ComboBox ItemsSource="{Binding Rooms}"
+                                  SelectedItem="{Binding SelectedRoom}"
+                                  Width="150"
+                                  IsEditable="True"
+                                  Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=ROOM}" />
+
+                        <!-- ComboBox lecturer -->
+                        <ComboBox ItemsSource="{Binding Lecturers}"
+                                  SelectedItem="{Binding SelectedLecturer}"
+                                  Width="150"
+                                  IsEditable="True"
+                                  Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=LECTURER}" />
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
 
             <!-- Timetable Grid -->
-            <ScrollViewer Grid.Row="2"
+            <ScrollViewer Grid.Row="3"
                           HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto"
                           Background="#FAFBFC">
@@ -692,7 +803,8 @@
                                    FontWeight="Bold"
                                    Margin="0,0,0,5"
                                    Foreground="#333" />
-                        <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}" Language="vi-VN">
+                        <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
+                                    Language="vi-VN">
                             <DatePicker.Resources>
                                 <Style TargetType="DatePickerTextBox">
                                     <Setter Property="IsReadOnly"
