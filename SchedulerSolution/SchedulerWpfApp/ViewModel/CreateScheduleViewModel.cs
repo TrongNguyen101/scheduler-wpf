@@ -30,9 +30,7 @@ namespace SchedulerWpfApp.ViewModel
         private ObservableCollection<string> _lecturers; // List of lecturers to display in the timetable
 
         private bool _isScheduleFormOpen;
-        private ObservableCollection<string> _groupNames;
         private ObservableCollection<string> _listMajors;
-        private ObservableCollection<string> _listSubjects;
         private string _selectedMajorFirstCombo;
         private string _selectedMajorSecondCombo;
 
@@ -40,7 +38,6 @@ namespace SchedulerWpfApp.ViewModel
         private ObservableCollection<string> _majorSecondList;
 
         private ObservableCollection<string> _allMajorsBackup;
-        private ObservableCollection<string> _allSubjectsBackup;
         private DateTime _selectedDate = DateTime.Now;
         #endregion
 
@@ -208,7 +205,6 @@ namespace SchedulerWpfApp.ViewModel
             MajorFirstList = new ObservableCollection<string>();
             MajorSecondList = new ObservableCollection<string>();
             _allMajorsBackup = new ObservableCollection<string>();
-            _allSubjectsBackup = new ObservableCollection<string>();
 
             LoadMockSchedules(); // Load initial schedules from the service
             InitCurrentWeekDays(); // Initialize current week days
@@ -377,7 +373,7 @@ namespace SchedulerWpfApp.ViewModel
                 filtered = AllSchedules.Where(s => s.RoomName == SelectedRoom && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
             else if (CurrentDisplayMode == DisplayMode.CLASS)
                 filtered = AllSchedules.Where(s => s.GroupName == SelectedGroupName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
-            else filtered = AllSchedules.Where(s => s.LecturerId == SelectedLecturer && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by lecturer and date range
+            else filtered = AllSchedules.Where(s => s.Lecturer?.LecturerAccount == SelectedLecturer && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by lecturer and date range
             GenerateTimetableCellsAndSlotRows(filtered); // Generate timetable cells and slot rows based on the filtered schedules
         }
 
@@ -405,7 +401,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 GroupNames = new ObservableCollection<string>(schedules.Select(s => s.GroupName).Distinct().OrderBy(name => name)); // Get distinct group names from the schedules
                 Rooms = new ObservableCollection<string>(schedules.Select(s => s.RoomName).Distinct().OrderBy(name => name)); // Get distinct room names from the schedules
-                Lecturers = new ObservableCollection<string>(schedules.Select(s => s.LecturerId).Distinct().OrderBy(name => name)); // Get distinct lecturer IDs from the schedules
+                Lecturers = new ObservableCollection<string>(schedules.Select(s => s.Lecturer?.LecturerAccount).Distinct().OrderBy(name => name)); // Get distinct lecturer IDs from the schedules
             }
         }
 

@@ -12,9 +12,7 @@
     <UserControl.Resources>
         <helper:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <helper:DisplayModeToVisibilityConverter x:Key="DisplayModeToVisibilityConverter" />
-        <helper:DisplayModeToBrushConverter x:Key="DisplayModeToBrushConverter"
-                                            ActiveBrush="DodgerBlue"
-                                            InactiveBrush="LightGray" />
+        <helper:DisplayModeToBrushConverter x:Key="DisplayModeToBrushConverter" />
 
         <Style x:Key="TabButtonStyle"
                TargetType="Button">
@@ -355,32 +353,46 @@
             <StackPanel Grid.Row="1"
                         Orientation="Horizontal"
                         Margin="10">
-                <Button Content="Hiển thị theo lớp"
-                        Margin="0,0,10,0"
-                        Width="150"
-                        Command="{Binding SetDisplayModeCommand}"
-                        CommandParameter="CLASS"
-                        Background="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=CLASS}"
-                        Style="{StaticResource TabButtonStyle}" />
+                <Border BorderThickness="2"
+                        BorderBrush="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=CLASS}"
+                        CornerRadius="6"
+                        Margin="0,0,10,0">
+                    <Button Content="Hiển thị theo lớp"
+                            Command="{Binding SetDisplayModeCommand}"
+                            CommandParameter="CLASS"
+                            FontSize="14"
+                            Style="{StaticResource ExportButtonStyle}" />
+                </Border>
 
-                <Button Content="Hiển thị theo phòng"
-                        Width="150"
-                        Command="{Binding SetDisplayModeCommand}"
-                        CommandParameter="ROOM"
-                        Background="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=ROOM}"
-                        Style="{StaticResource TabButtonStyle}" />
+                <Border BorderThickness="2"
+                        BorderBrush="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=ROOM}"
+                        CornerRadius="6"
+                        Margin="0,0,10,0">
+                    <Button Content="Hiển thị theo phòng"
+                            Command="{Binding SetDisplayModeCommand}"
+                            FontSize="14"
+                            CommandParameter="ROOM"
+                            Style="{StaticResource ActionButtonStyle}" />
+                </Border>
 
-                <Button Content="Hiển thị theo giảng viên"
-                        Width="200"
-                        Command="{Binding SetDisplayModeCommand}"
-                        CommandParameter="LECTURER"
-                        Background="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=LECTURER}"
-                        Style="{StaticResource TabButtonStyle}" />
+                <Border BorderThickness="2"
+                        BorderBrush="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=LECTURER}"
+                        CornerRadius="6"
+                        Margin="0,0,10,0">
+                    <Button Content="Hiển thị theo giảng viên"
+                            Command="{Binding SetDisplayModeCommand}"
+                            FontSize="14"
+                            CommandParameter="LECTURER"
+                            Style="{StaticResource SuccessButtonStyle}" />
+                </Border>
+
             </StackPanel>
 
             <!-- Filter Controls -->
-            <StackPanel Grid.Row="2"
-                        Orientation="Horizontal"
+            <StackPanel Grid.Row="
+                        2"
+                        Orientation="
+                        Horizontal"
                         Margin="20,10">
                 <StackPanel Orientation="Horizontal"
                             Margin="0,0,10,0">
@@ -388,6 +400,7 @@
                                VerticalAlignment="Center"
                                Margin="0,0,5,0" />
                     <ComboBox Width="100"
+                              IsEditable="True"
                               ItemsSource="{Binding Years}"
                               SelectedItem="{Binding SelectedYear}" />
                 </StackPanel>
@@ -398,6 +411,7 @@
                                VerticalAlignment="Center"
                                Margin="0,0,5,0" />
                     <ComboBox Width="150"
+                              IsEditable="True"
                               ItemsSource="{Binding Weeks}"
                               SelectedItem="{Binding SelectedWeek}" />
                 </StackPanel>
@@ -412,6 +426,7 @@
                         <ComboBox ItemsSource="{Binding GroupNames}"
                                   SelectedItem="{Binding SelectedGroupName}"
                                   Width="150"
+                                  IsEditable="True"
                                   Margin="0,0,10,0"
                                   Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=CLASS}" />
 
@@ -419,12 +434,14 @@
                         <ComboBox ItemsSource="{Binding Rooms}"
                                   SelectedItem="{Binding SelectedRoom}"
                                   Width="150"
+                                  IsEditable="True"
                                   Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=ROOM}" />
 
                         <!-- ComboBox lecturer -->
                         <ComboBox ItemsSource="{Binding Lecturers}"
                                   SelectedItem="{Binding SelectedLecturer}"
                                   Width="150"
+                                  IsEditable="True"
                                   Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=LECTURER}" />
                     </StackPanel>
                 </StackPanel>
@@ -786,7 +803,8 @@
                                    FontWeight="Bold"
                                    Margin="0,0,0,5"
                                    Foreground="#333" />
-                        <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}" Language="vi-VN">
+                        <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
+                                    Language="vi-VN">
                             <DatePicker.Resources>
                                 <Style TargetType="DatePickerTextBox">
                                     <Setter Property="IsReadOnly"

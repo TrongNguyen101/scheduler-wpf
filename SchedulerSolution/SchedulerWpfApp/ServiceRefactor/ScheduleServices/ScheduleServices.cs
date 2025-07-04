@@ -107,7 +107,7 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
         {
             try
             {
-                return await _unitOfWork.Repository<Schedule>().GetAllAsync();
+                return await _unitOfWork.ScheduleRepository.GetAllAsync();
             }
             catch (Exception ex)
             {
