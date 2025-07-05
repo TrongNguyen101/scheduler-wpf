@@ -432,7 +432,7 @@
 
                         <!-- ComboBox room -->
                         <ComboBox ItemsSource="{Binding Rooms}"
-                                  SelectedItem="{Binding SelectedRoom}"
+                                  SelectedItem="{Binding SelectedRoomName}"
                                   Width="150"
                                   IsEditable="True"
                                   Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=ROOM}" />
@@ -611,6 +611,10 @@
                                                             <i:InvokeCommandAction Command="{Binding DropCommand}"
                                                                                    PassEventArgsToCommand="True" />
                                                         </i:EventTrigger>
+                                                        <i:EventTrigger EventName="MouseLeftButtonDown">
+                                                            <i:InvokeCommandAction Command="{Binding EditScheduleCommand}"
+                                                                                   PassEventArgsToCommand="True" />
+                                                        </i:EventTrigger>
                                                     </i:Interaction.Triggers>
 
                                                     <!-- Content Grid -->
@@ -769,6 +773,100 @@
             </ScrollViewer>
         </Grid>
 
+        <Popup x:Name="EditScheduleFormPopup"
+               StaysOpen="False"
+               Placement="Center"
+               IsOpen="{Binding IsEditScheduleFormOpen}"
+               AllowsTransparency="True">
+            <Border Background="#F0F4F8"
+                    BorderThickness="0"
+                    CornerRadius="8"
+                    Padding="25"
+                    Width="500">
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="2"
+                                      BlurRadius="15"
+                                      Opacity="0.2"
+                                      Color="Black" />
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Form Header -->
+                    <Grid Grid.Row="0"
+                          Margin="0,0,0,20">
+                        <TextBlock x:Name="formTitle"
+                                   Text="Chỉnh sửa lịch học"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextColor}" />
+                    </Grid>
+
+                    <!-- Form Fields -->
+                    <StackPanel Grid.Row="1"
+                                Margin="0,0,0,20">
+                        <TextBlock Text="Mã môn học"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,5" />
+                        <TextBox Text="{Binding EditingSchedule.SubjectCode}"
+                                 IsEnabled="False" />
+                        <TextBlock Text="Tên phòng học"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,5" />
+                        <ComboBox ItemsSource="{Binding ListRooms}"
+                                  SelectedItem="{Binding SelectedRoom, Mode=TwoWay}"
+                                  IsEditable="True"
+                                  DisplayMemberPath="RoomName" />
+
+                        <TextBlock Text="Giảng viên"
+                                   FontWeight="Bold"
+                                   Margin="10,10,0,5" />
+                        <ComboBox ItemsSource="{Binding LecturerSubjects}"
+                                  SelectedItem="{Binding SelectedLecturerSubject, Mode=TwoWay}"
+                                  IsEditable="True"
+                                  DisplayMemberPath="LecturerName" />
+
+                        <TextBlock Text="Trạng thái"
+                                   FontWeight="Bold"
+                                   Margin="10,10,0,5" />
+                        <ComboBox ItemsSource="{Binding SlotStatusList}"
+                                  SelectedItem="{Binding EditingSchedule.StatusSlot, Mode=TwoWay}" 
+                                  IsEditable="True"/>
+                    </StackPanel>
+
+                    <!-- Form Actions -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="1"
+                                Content="Hủy"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Background="#95a5a6"
+                                Margin="0,0,10,0"
+                                Padding="20,8"
+                                Command="{Binding CancelEditScheduleCommand}" />
+
+                        <Button Grid.Column="2"
+                                x:Name="btnSaveLecturer"
+                                Content="Lưu"
+                                Style="{StaticResource SuccessButtonStyle}"
+                                Padding="20,8"
+                                Command="{Binding UpdateScheduleCommand}" />
+                    </Grid>
+                </Grid>
+              </Border>
+        </Popup>
+
+        <!-- Popup for creating schedule -->
         <Popup x:Name="ScheduleFormPopup"
                StaysOpen="False"
                Placement="Center"

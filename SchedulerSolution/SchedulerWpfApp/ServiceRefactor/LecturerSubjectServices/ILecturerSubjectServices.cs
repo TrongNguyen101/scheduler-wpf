@@ -7,6 +7,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         Task ImportLecturerSubjectFromExcel(List<LecturerSubject> listLectuerSubjectFromExcel);
         Task<List<LecturerSubject>> GetAllAsync();
         Task<LecturerSubject> GetByIdAsync(int id);
+        Task<List<LecturerSubject>> GetBySubjectCodeAsync(string subjectCode);
         Task AddAsync(LecturerSubject lecturerSubject);
         Task UpdateAsync(LecturerSubject lecturerSubject);
         Task DeleteAsync(int id);
