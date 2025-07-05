@@ -39,9 +39,8 @@ namespace SchedulerWpfApp.Algorithm
             _version2CreateSchedule = version2CreateSchedule;
         }
 
-        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate)
+        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
         {
-            _version2CreateSchedule.GenerateSchedules(startDate);
 
             //var listMajorA = new List<string> { "FN", "HM", "MC", "BA", "TM" };
             //var listMajorB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
@@ -67,7 +66,7 @@ namespace SchedulerWpfApp.Algorithm
             //allSchedules.AddRange(schedulesForBITAndBBAAndNN);
              List<Schedule> schedulesTest = new List<Schedule>();
 
-            schedulesTest = await _version2CreateSchedule.GenerateSchedules(startDate);
+            schedulesTest = await _version2CreateSchedule.GenerateSchedules(startDate, listMajorGroupA, listMajorGroupB);
 
             await _scheduleServices.AddScheduleAsync(schedulesTest);
 

@@ -44,8 +44,8 @@ namespace SchedulerWpfApp.ViewModel
         private string _selectedMajorFirstCombo;
         private string _selectedMajorSecondCombo;
 
-        private ObservableCollection<string> _majorFirstList;
-        private ObservableCollection<string> _majorSecondList;
+        private ObservableCollection<string> _listMajorGroupA;
+        private ObservableCollection<string> _listMajorGroupB;
 
         private ObservableCollection<string> _allMajorsBackup;
         private DateTime _selectedDate = DateTime.Now;
@@ -191,16 +191,16 @@ namespace SchedulerWpfApp.ViewModel
             set => SetProperty(ref _listMajors, value);
         }
 
-        public ObservableCollection<string> MajorFirstList
+        public ObservableCollection<string> ListMajorGroupA
         {
-            get => _majorFirstList;
-            set => SetProperty(ref _majorFirstList, value);
+            get => _listMajorGroupA;
+            set => SetProperty(ref _listMajorGroupA, value);
         }
 
-        public ObservableCollection<string> MajorSecondList
+        public ObservableCollection<string> ListMajorGroupB
         {
-            get => _majorSecondList;
-            set => SetProperty(ref _majorSecondList, value);
+            get => _listMajorGroupB;
+            set => SetProperty(ref _listMajorGroupB, value);
         }
 
         public string SelectedMajorFirstCombo
@@ -250,14 +250,14 @@ namespace SchedulerWpfApp.ViewModel
 
         public ICommand RemoveMajorFirstItemCommand => new RelayCommandGeneric<string>(major =>
         {
-            MajorFirstList.Remove(major);
+            ListMajorGroupA.Remove(major);
             AddMajorSecondToAvailable(major);
             RefreshFilteredMajors();
         });
 
         public ICommand RemoveMajorSecondItemCommand => new RelayCommandGeneric<string>(major =>
         {
-            MajorSecondList.Remove(major);
+            ListMajorGroupB.Remove(major);
             AddMajorSecondToAvailable(major);
             RefreshFilteredMajors();
         });
@@ -280,8 +280,8 @@ namespace SchedulerWpfApp.ViewModel
             OpenPopupCreateCommand = new RelayCommand(OpenScheduleForm); // Command to open the schedule creation popup
             CancelCreateScheduleCommand = new RelayCommand(CancelScheduleForm); // Command to close the schedule creation popup
 
-            MajorFirstList = new ObservableCollection<string>();
-            MajorSecondList = new ObservableCollection<string>();
+            ListMajorGroupA = new ObservableCollection<string>();
+            ListMajorGroupB = new ObservableCollection<string>();
             _allMajorsBackup = new ObservableCollection<string>();
 
             LoadMockSchedules(); // Load initial schedules from the service
@@ -326,9 +326,9 @@ namespace SchedulerWpfApp.ViewModel
 
         private void AddMajorToA(string major)
         {
-            if (!MajorFirstList.Contains(major))
+            if (!ListMajorGroupA.Contains(major))
             {
-                MajorFirstList.Add(major);
+                ListMajorGroupA.Add(major);
                 ListMajors.Remove(major);
                 SelectedMajorFirstCombo = null;
                 RefreshFilteredMajors();
@@ -337,9 +337,9 @@ namespace SchedulerWpfApp.ViewModel
 
         private void AddMajorToB(string major)
         {
-            if (!MajorSecondList.Contains(major))
+            if (!ListMajorGroupB.Contains(major))
             {
-                MajorSecondList.Add(major);
+                ListMajorGroupB.Add(major);
                 ListMajors.Remove(major);
                 SelectedMajorSecondCombo = null;
                 RefreshFilteredMajors();
@@ -349,10 +349,10 @@ namespace SchedulerWpfApp.ViewModel
         private void RefreshFilteredMajors()
         {
             FilteredMajorFirst = new ObservableCollection<string>(
-                ListMajors.Where(m => !MajorFirstList.Contains(m))  // Loại bỏ items đã chọn trong First
+                ListMajors.Where(m => !ListMajorGroupA.Contains(m))  // Loại bỏ items đã chọn trong First
             );
             FilteredMajorSecond = new ObservableCollection<string>(
-                ListMajors.Where(m => !MajorSecondList.Contains(m)) // Loại bỏ items đã chọn trong Second
+                ListMajors.Where(m => !ListMajorGroupB.Contains(m)) // Loại bỏ items đã chọn trong Second
             );
 
             OnPropertyChanged(nameof(FilteredMajorFirst));
@@ -361,8 +361,8 @@ namespace SchedulerWpfApp.ViewModel
 
         private void RestoreAllMajors()
         {
-            MajorFirstList.Clear();
-            MajorSecondList.Clear();
+            ListMajorGroupA.Clear();
+            ListMajorGroupB.Clear();
             ListMajors = new ObservableCollection<string>(_allMajorsBackup);
             RefreshFilteredMajors();
         }
@@ -490,15 +490,14 @@ namespace SchedulerWpfApp.ViewModel
         {
             DateTime startDate = new DateTime(2025, 01, 06);
 
-            if (MajorFirstList.Count <= 0 || MajorSecondList.Count <= 0)
+            if (ListMajorGroupA.Count <= 0 || ListMajorGroupB.Count <= 0)
             {
                 MessageBox.Show("Vui lòng chọn đầy đủ thông tin trước khi tạo lịch.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsScheduleFormOpen = true;
             }
             else
             {
-                //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, MajorFirstList, MajorSecondList);
-                var schedules = await _createScheduleTree.GenerateSchedules(startDate);
+                var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, ListMajorGroupA.ToList(), ListMajorGroupB.ToList());
 
                 LoadMockSchedules(); // Reload schedules after generating new ones
                 // PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes

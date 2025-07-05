@@ -343,7 +343,7 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕"
                                    VerticalAlignment="Center" />
-                        <TextBlock Text=" Create lịch"
+                        <TextBlock Text=" Tạo lịch"
                                    Margin="5,0,0,0"
                                    VerticalAlignment="Center" />
                     </StackPanel>

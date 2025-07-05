@@ -56,12 +56,10 @@ namespace SchedulerWpfApp.Algorithm
             _context = context;
         }
 
-        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate)
+        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
         {
             try
             {
-                var listMajorA = new List<string> { "FN", "HM", "MC", "BA", "TM" };
-                var listMajorB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
                 var listMajorFullOff = new List<string> { "GD" };
                 _context = await PrepareSchedulingDataAsync();
 
@@ -98,8 +96,8 @@ namespace SchedulerWpfApp.Algorithm
                     TreeForSchedules = roomNodesPMFirstAndFinalWeek
                 };
 
-                var (roomNodesAMOnOff, listGroupNameAlternatingAmA, listGroupNameAlternatingAmB) = await BuildRoomTreeForSchedulesOnOffAlternative(listGroupNameAm, listMajorA, listMajorB);
-                var (roomNodesPMOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB) = await BuildRoomTreeForSchedulesOnOffAlternative(listGroupNamePm, listMajorA, listMajorB);
+                var (roomNodesAMOnOff, listGroupNameAlternatingAmA, listGroupNameAlternatingAmB) = await BuildRoomTreeForSchedulesOnOffAlternative(listGroupNameAm, listMajorGroupA, listMajorGroupB);
+                var (roomNodesPMOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB) = await BuildRoomTreeForSchedulesOnOffAlternative(listGroupNamePm, listMajorGroupA, listMajorGroupB);
 
                 var dataContextInAmOnOff = new SchedulePartOfDayContext
                 {
