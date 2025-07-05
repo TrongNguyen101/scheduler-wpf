@@ -1,7 +1,9 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using SchedulerWpfApp.Algorithm;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
+using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
+using SchedulerWpfApp.ServiceRefactor.RoomService;
 using SchedulerWpfApp.ServiceRefactor.GroupNameService;
 using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
 using System.Collections.ObjectModel;
@@ -18,14 +20,22 @@ namespace SchedulerWpfApp.ViewModel
         #region Fields
         private readonly CreateScheduleTree _createScheduleTree;
         private readonly IScheduleServices _implementScheduleServices;
+        private readonly IRoomService _roomService;
+        private readonly ILecturerSubjectServices _lecturerSubjectServices;
         private readonly IGroupNameService _groupNameService;
 
         private int _selectedYear;
         private string _selectedWeek;
         private string _selectedGroupName;
-        private string _selectedRoom;
+        private string _selectedRoomName;
         private string _selectedLecturer;
         private ObservableCollection<string> _groupNames;
+        private bool _isEditScheduleFormOpen = false; // Flag to track if the cell is being edited
+        private Schedule _editingSchedule;
+        private ObservableCollection<Room> _listRooms;
+        private ObservableCollection<LecturerSubject> _lecturerSubjects; // All rooms loaded from the service
+        private Room _selectedRoom;
+        private LecturerSubject _selectedLecturerSubject;
         private ObservableCollection<string> _rooms;
         private ObservableCollection<string> _lecturers; // List of lecturers to display in the timetable
 
@@ -55,6 +65,18 @@ namespace SchedulerWpfApp.ViewModel
         }
         public ObservableCollection<SlotRowViewModel> SlotRows { get; set; } = new(); // List of slot rows for the timetable
         private ObservableCollection<Schedule> AllSchedules { get; set; } = new(); // All schedules loaded from the service
+        public ObservableCollection<string> SlotStatusList { get; set; } = new() { "ON", "OFF" };
+        public ObservableCollection<Room> ListRooms
+        {
+            get => _listRooms;
+            set => SetProperty(ref _listRooms, value);
+        }
+
+        public ObservableCollection<LecturerSubject> LecturerSubjects
+        {
+            get => _lecturerSubjects;
+            set => SetProperty(ref _lecturerSubjects, value);
+        }
 
         public enum DisplayMode
         {
@@ -93,11 +115,62 @@ namespace SchedulerWpfApp.ViewModel
             set { SetProperty(ref _selectedGroupName, value); FilterSchedules(); } // Filter schedules based on the selected group name
         }
 
+        public bool IsEditScheduleFormOpen
+        {
+            get => _isEditScheduleFormOpen;
+            set => SetProperty(ref _isEditScheduleFormOpen, value);
+        }
 
-        public string SelectedRoom
+        public Schedule EditingSchedule
+        {
+            get => _editingSchedule;
+            set
+            {
+                SetProperty(ref _editingSchedule, value);
+                IsEditScheduleFormOpen = value != null; // Open edit form if a schedule is being edited
+                if (value != null)
+                {
+                    // Load the rooms for the selected schedule
+                    _ = GetAllRooms();
+                    _ = GetAllLecturerBySubjectCode(value.SubjectCode); // Load lecturers for the selected subject code
+                    SelectedRoom = ListRooms.FirstOrDefault(r => r.RoomName == EditingSchedule?.RoomName);
+                    SelectedLecturerSubject = LecturerSubjects.FirstOrDefault(l => l.LecturerId == EditingSchedule?.LecturerId);
+                }
+            }
+        }
+
+        public Room SelectedRoom
         {
             get => _selectedRoom;
-            set { SetProperty(ref _selectedRoom, value); FilterSchedules(); } // Filter schedules based on the selected room
+            set
+            {
+                SetProperty(ref _selectedRoom, value);
+                if (EditingSchedule != null && value != null)
+                {
+                    EditingSchedule.RoomName = value.RoomName;
+                    EditingSchedule.RoomId = value.RoomId;
+                }
+            }
+        }
+
+        public LecturerSubject SelectedLecturerSubject
+        {
+            get => _selectedLecturerSubject;
+            set
+            {
+                SetProperty(ref _selectedLecturerSubject, value);
+                if (EditingSchedule != null && value != null)
+                {
+                    EditingSchedule.LecturerName = value.LecturerName;
+                    EditingSchedule.LecturerId = value.LecturerId;
+                }
+            }
+        }
+
+        public string SelectedRoomName
+        {
+            get => _selectedRoomName;
+            set { SetProperty(ref _selectedRoomName, value); FilterSchedules(); } // Filter schedules based on the selected room
         }
 
         public string SelectedLecturer
@@ -162,7 +235,8 @@ namespace SchedulerWpfApp.ViewModel
 
         public ICommand CreateScheduleCommand { get; }
         public ICommand ExportExcelCommand { get; }
-
+        public ICommand UpdateScheduleCommand { get; }
+        public ICommand CancelEditScheduleCommand { get; }
         public ICommand SetDisplayModeCommand { get; }
 
         public ICommand OpenPopupCreateCommand { get; }
@@ -187,16 +261,20 @@ namespace SchedulerWpfApp.ViewModel
             AddMajorSecondToAvailable(major);
             RefreshFilteredMajors();
         });
-
-        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices, IGroupNameService groupNameService)
+        
+        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices, IRoomService roomService, ILecturerSubjectServices lecturerSubjectServices, IGroupNameService groupNameService)
         {
             _createScheduleTree = createScheduleTree;
             _implementScheduleServices = implementScheduleServices;
+            _roomService = roomService;
+            _lecturerSubjectServices = lecturerSubjectServices;
             _groupNameService = groupNameService;
 
             SelectedYear = DateTime.Now.Year; // Default to current year
             CreateScheduleCommand = new RelayCommand(async () => await CreateScheduleDemo());
             ExportExcelCommand = new RelayCommand(async () => await ExportSchedulesToExcel());
+            UpdateScheduleCommand = new RelayCommand(async () => await UpdateSchedule());
+            CancelEditScheduleCommand = new RelayCommand(() => CancelEditSchedule());
 
             SetDisplayModeCommand = new RelayCommandGeneric<string>(ChangeDisplayMode);
             OpenPopupCreateCommand = new RelayCommand(OpenScheduleForm); // Command to open the schedule creation popup
@@ -356,7 +434,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             SlotRows.Clear();
 
-            if (string.IsNullOrEmpty(SelectedWeek) || (CurrentDisplayMode == DisplayMode.CLASS && string.IsNullOrEmpty(SelectedGroupName)) || (CurrentDisplayMode == DisplayMode.ROOM && string.IsNullOrEmpty(SelectedRoom)) || (CurrentDisplayMode == DisplayMode.LECTURER && string.IsNullOrEmpty(SelectedLecturer)))
+            if (string.IsNullOrEmpty(SelectedWeek) || (CurrentDisplayMode == DisplayMode.CLASS && string.IsNullOrEmpty(SelectedGroupName)) || (CurrentDisplayMode == DisplayMode.ROOM && string.IsNullOrEmpty(SelectedRoomName)) || (CurrentDisplayMode == DisplayMode.LECTURER && string.IsNullOrEmpty(SelectedLecturer)))
             {
                 // If no group or week is selected, create empty rows
                 GenerateTimetableCellsAndSlotRows(new List<Schedule>());
@@ -370,7 +448,7 @@ namespace SchedulerWpfApp.ViewModel
 
             var filtered = new List<Schedule>();
             if (CurrentDisplayMode == DisplayMode.ROOM)
-                filtered = AllSchedules.Where(s => s.RoomName == SelectedRoom && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
+                filtered = AllSchedules.Where(s => s.RoomName == SelectedRoomName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
             else if (CurrentDisplayMode == DisplayMode.CLASS)
                 filtered = AllSchedules.Where(s => s.GroupName == SelectedGroupName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
             else filtered = AllSchedules.Where(s => s.Lecturer?.LecturerAccount == SelectedLecturer && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by lecturer and date range
@@ -419,7 +497,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             else
             {
-                //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, MajorFirstList, MajorSecondList, SubjectFullOnlList, SubjectFullOffList, ListSubjects);
+                //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, MajorFirstList, MajorSecondList);
                 var schedules = await _createScheduleTree.GenerateSchedules(startDate);
 
                 LoadMockSchedules(); // Reload schedules after generating new ones
@@ -809,7 +887,7 @@ namespace SchedulerWpfApp.ViewModel
                 s.SlotTime == targetCell.SlotNumber &&
                 s.ScheduleId != schedule.ScheduleId);
 
-            if (conflictingSchedule != null && targetCell.Schedule == null)
+            if (conflictingSchedule != null)
             {
                 return false; // Lecturer conflict
             }
@@ -841,6 +919,117 @@ namespace SchedulerWpfApp.ViewModel
                 TypeSlot = originalSchedule.TypeSlot,
                 SessionNo = originalSchedule.SessionNo
             };
+        }
+
+        /// <summary>
+        /// Updates the selected schedule with new values and saves it to the service.
+        /// </summary>
+        /// <returns></returns>
+        private async Task UpdateSchedule()
+        {
+            try
+            {
+                if (EditingSchedule == null)
+                {
+                    MessageBox.Show("Không có lịch nào để cập nhật.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                else
+                {
+                    // Validate the selected room before updating
+                    if (EditingSchedule.StatusSlot == "OFF")
+                    {
+                        var checkRoom = AllSchedules.Any(schedule => schedule.RoomId == EditingSchedule.RoomId &&
+                        schedule.Date == EditingSchedule.Date &&
+                        schedule.SlotTime == EditingSchedule.SlotTime &&
+                        schedule.StatusSlot == "OFF" &&
+                        schedule.ScheduleId != EditingSchedule.ScheduleId);
+
+                        if (checkRoom)
+                        {
+                            MessageBox.Show("Phòng học này đã bị trùng lịch.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+                    }
+
+                    // Validate the selected lecturer before updating
+                    var checkLecturer = AllSchedules.Any(schedule => schedule.LecturerId == EditingSchedule.LecturerId &&
+                           schedule.Date == EditingSchedule.Date &&
+                           schedule.SlotTime == EditingSchedule.SlotTime &&
+                           schedule.ScheduleId != EditingSchedule.ScheduleId);
+                    if (checkLecturer)
+                    {
+                        MessageBox.Show("Giảng viên này đã bị trùng lịch.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+                bool result = await _implementScheduleServices.UpdateScheduleAsync(EditingSchedule);
+
+                if (result)
+                {
+                    var existing = AllSchedules.FirstOrDefault(s => s.ScheduleId == EditingSchedule.ScheduleId);
+                    if (existing != null)
+                    {
+                        int index = AllSchedules.IndexOf(existing);
+                        if (index >= 0)
+                        {
+                            AllSchedules[index] = EditingSchedule; // Gán lại để UI nhận biết
+                        }
+                    }
+
+                    FilterSchedules(); // Refresh the filtered schedules
+                    MessageBox.Show("Cập nhật lịch thành công.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else throw new Exception("Cập nhật lịch không thành công. Vui lòng thử lại sau.");
+
+                IsEditScheduleFormOpen = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Cập nhật lịch thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Cancels the edit operation and closes the edit schedule form.
+        /// </summary>
+        private void CancelEditSchedule()
+        {
+            IsEditScheduleFormOpen = false; // Close the edit form
+            EditingSchedule = null; // Clear the editing schedule
+        }
+
+        /// <summary>
+        /// Fetches all rooms from the service and populates the ListRooms collection.
+        /// </summary>
+        /// <returns></returns>
+        private async Task GetAllRooms()
+        {
+            try
+            {
+                ListRooms = new ObservableCollection<Room>(await _roomService.GetAllAsync());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading rooms: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Fetches all lecturers by subject code from the service and populates the LecturerSubjects collection.
+        /// </summary>
+        /// <param name="SubjectCode"></param>
+        /// <returns></returns>
+        private async Task GetAllLecturerBySubjectCode(string SubjectCode)
+        {
+            try
+            {
+                LecturerSubjects = new ObservableCollection<LecturerSubject>(await _lecturerSubjectServices.GetBySubjectCodeAsync(SubjectCode));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading lecturers: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         #endregion
     }

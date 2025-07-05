@@ -23,6 +23,21 @@ namespace SchedulerWpfApp.Repository.LecturerSubjectRepository
             }
         }
 
+        public async Task<List<LecturerSubject>> GetLecturerSubjectBySubjectCodeAsync(string subjectCode)
+        {
+            try
+            {
+                return await _context.LecturerSubjects
+                    .Where(ls => ls.SubjectCode == subjectCode)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+
+            {
+                throw new Exception("An error occurred while retrieving the LecturerSubject by subject code.", ex);
+            }
+        }
+
         public Task<bool> CheckLecturerSubjectExits(LecturerSubject lecturerSubject)
         {
             try
