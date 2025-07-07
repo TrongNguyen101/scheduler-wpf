@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchedulerWpfApp.Data;
 
@@ -10,9 +11,11 @@ using SchedulerWpfApp.Data;
 namespace SchedulerWpfApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250705144302_AddPropertyOfGroupClassEntity")]
+    partial class AddPropertyOfGroupClassEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
@@ -107,9 +110,9 @@ namespace SchedulerWpfApp.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("Major");
 
-                    b.Property<string>("PartOfDayInTheFirstTerm")
+                    b.Property<string>("PartOfDay")
                         .HasColumnType("TEXT")
-                        .HasColumnName("PartOfDayInTheFirstTerm");
+                        .HasColumnName("PartOfDay");
 
                     b.Property<string>("TeachingMode")
                         .HasColumnType("TEXT")

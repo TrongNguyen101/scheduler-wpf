@@ -657,6 +657,14 @@
                                                                 </Style>
                                                             </StackPanel.Style>
 
+                                                            <TextBlock Text="{Binding Schedule.GroupName}"
+                                                                       HorizontalAlignment="Center"
+                                                                       FontWeight="Bold"
+                                                                       FontSize="14"
+                                                                       Foreground="#1A1A1A"
+                                                                       TextWrapping="Wrap"
+                                                                       LineHeight="16" />       
+
                                                             <TextBlock Text="{Binding Schedule.SubjectCode}"
                                                                        HorizontalAlignment="Center"
                                                                        FontWeight="Bold"
@@ -920,7 +928,7 @@
                                    Foreground="#333" />
 
                         <!-- Tag -->
-                        <ItemsControl ItemsSource="{Binding MajorFirstList}">
+                        <ItemsControl ItemsSource="{Binding ListMajorGroupA}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel />
@@ -968,7 +976,7 @@
                                    Margin="0,0,0,5"
                                    Foreground="#333" />
 
-                        <ItemsControl ItemsSource="{Binding MajorSecondList}">
+                        <ItemsControl ItemsSource="{Binding ListMajorGroupB}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel />

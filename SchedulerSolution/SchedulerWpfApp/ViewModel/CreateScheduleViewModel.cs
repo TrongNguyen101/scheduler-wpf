@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using SchedulerWpfApp.Algorithm.DTO;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -448,7 +449,7 @@ namespace SchedulerWpfApp.ViewModel
 
             var filtered = new List<Schedule>();
             if (CurrentDisplayMode == DisplayMode.ROOM)
-                filtered = AllSchedules.Where(s => s.RoomName == SelectedRoomName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
+                filtered = AllSchedules.Where(s => s.RoomName == SelectedRoomName && s.StatusSlot == ScheduleConstants.StatusSlotIsOffline && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
             else if (CurrentDisplayMode == DisplayMode.CLASS)
                 filtered = AllSchedules.Where(s => s.GroupName == SelectedGroupName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
             else filtered = AllSchedules.Where(s => s.Lecturer?.LecturerAccount == SelectedLecturer && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by lecturer and date range

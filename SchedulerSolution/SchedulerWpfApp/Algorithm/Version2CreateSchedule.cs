@@ -71,12 +71,15 @@ namespace SchedulerWpfApp.Algorithm
                 // phân chia lớp học sáng chiều
                 var (listGroupNameAm, listGroupNamePm) = BalancedSplitWithGreedySwap(_context.GroupNames);
 
+                var testListGroupNameAm = _context.GroupNames.Where(g => g.PartOfDayInTheFirstTerm == "A").ToList();
+                var testListGroupNamePm = _context.GroupNames.Where(g => g.PartOfDayInTheFirstTerm == "P").ToList();
+
                 // lọc giảng viên theo buổi
                 var lecturersAM = _getLecturerForSubject.FilterLecturerInSession(_context.LecturersTeachSubjects, _context.LecturerRequests, "AM");
                 var lecturersPM = _getLecturerForSubject.FilterLecturerInSession(_context.LecturersTeachSubjects, _context.LecturerRequests, "PM");
 
-                var roomNodesAMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(listGroupNameAm.Count);
-                var roomNodesPMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(listGroupNamePm.Count);
+                var roomNodesAMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(testListGroupNameAm.Count);
+                var roomNodesPMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(testListGroupNamePm.Count);
 
                 var dataContextInAmFullOff = new SchedulePartOfDayContext
                 {
@@ -183,6 +186,7 @@ namespace SchedulerWpfApp.Algorithm
         private Dictionary<string, CurriculumSubjectWithCount[,,]> ScheduleFourSubjectsLookup(ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup, List<GroupClass> listGroupName)
         {
             var subjectLookup = new Dictionary<string, CurriculumSubjectWithCount[,,]>();
+            //var listGroupNameFive
             foreach (var groupName in listGroupName)
             {
                 var subjectOfClass = curriculumLookup[(groupName.CurriculumCode, groupName.Term.GetValueOrDefault())].ToList();
