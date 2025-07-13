@@ -26,6 +26,8 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isConfirmationOpen;
         private bool _isEdit;
         private bool _isSubjectCodeEdit;
+        private int _progressValue;
+        private bool _isProgressBarOpen;
         private ObservableCollection<Subject> _allSubjects;
         public string Title => SelectedSubject?.SubjectCode != null ? "Chỉnh Sửa Môn Học" : "Thêm Mới Môn Học";
         #endregion
@@ -106,6 +108,19 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
+
+        public int ProgressValue
+        {
+            get => _progressValue;
+            set { _progressValue = value; OnPropertyChanged(); }
+        }
+
+        public bool IsProgressBarOpen
+        {
+            get => _isProgressBarOpen;
+            set => SetProperty(ref _isProgressBarOpen, value);
+        }
+
         // Commands exposed to the View
         public ICommand LoadSubjectCommand { get; }
         public ICommand ExportSubjectCommand { get; }
@@ -386,13 +401,21 @@ namespace SchedulerWpfApp.ViewModel
                 Filter = "Excel Files (*.xlsx)|*.xlsx"
             };
 
+            var progress = new Progress<int>(percentCompleted =>
+            {
+                ProgressValue = percentCompleted;
+            });
+
             if (dialog.ShowDialog() == true)
             {
                 try
                 {
                     var data = _subjectService.ReadSubjectsFromExcel(dialog.FileName);
-                    // Validate the imported data
-                    await _subjectService.ImportSubjectFromExcel(data);
+
+                    IsProgressBarOpen = true;
+                    await _subjectService.ImportSubjectFromExcel(data, progress);
+                    IsProgressBarOpen = false;
+
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadSubjectAsync();
                 }

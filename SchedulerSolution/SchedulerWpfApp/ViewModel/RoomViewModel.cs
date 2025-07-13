@@ -30,6 +30,8 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isEditing;
         // check if ClassId is edited
         private bool _isRoomNameEditable = true;
+        private int _progressValue;
+        private bool _isProgressBarOpen;
         #endregion
 
         #region Contrucstor
@@ -98,6 +100,19 @@ namespace SchedulerWpfApp.ViewModel
             get => _isRoomNameEditable;
             set => SetProperty(ref _isRoomNameEditable, value);
         }
+
+        public int ProgressValue
+        {
+            get => _progressValue;
+            set { _progressValue = value; OnPropertyChanged(); }
+        }
+
+        public bool IsProgressBarOpen
+        {
+            get => _isProgressBarOpen;
+            set => SetProperty(ref _isProgressBarOpen, value);
+        }
+
         public ICommand ImportRoomListCommand { get; }
         public ICommand ExportRoomListCommand { get; }
         public ICommand EditRoomListCommand { get; }
@@ -163,15 +178,22 @@ namespace SchedulerWpfApp.ViewModel
             {
                 Filter = "Excel Files (*.xlsx)|*.xlsx"
             };
+            
+            var progress = new Progress<int>(percentCompleted =>
+            {
+                ProgressValue = percentCompleted;
+            });
 
             if (dialog.ShowDialog() == true)
             {
                 try
                 {
-                    // call ReadRoomFromExcel function to process file and read file when importing
                     var data = _roomService.ReadRoomListFromExcel(dialog.FileName);
-                    // call ImportGroupNameFromExcel function to add new data to database
-                    await _roomService.ImportRoomFromExcel(data);
+                    
+                    IsProgressBarOpen = true;
+                    await _roomService.ImportRoomFromExcel(data, progress);
+                    IsProgressBarOpen = false;
+
                     MessageBox.Show("Nhập thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadRoomAsync();
                 }

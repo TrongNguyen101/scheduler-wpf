@@ -131,11 +131,13 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         /// Imports a list of curriculums from an Excel file into the database
         /// </summary>
         /// <param name="listCurriculumFromExcel"></param>
-        public async Task ImportCurriculumFromExcel(List<Curriculum> listCurriculumFromExcel)
+        public async Task ImportCurriculumFromExcel(List<Curriculum> listCurriculumFromExcel, IProgress<int> progress)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
+                var index = 0;
+
                 foreach (var curriculum in listCurriculumFromExcel)
                 {
                     var existingCurriculum = await _unitOfWork.CurriculumRepository.CheckCurriculumCodeExistsAsync(curriculum.CurriculumCode);
@@ -143,7 +145,14 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
                     {
                         await _unitOfWork.CurriculumRepository.AddAsync(curriculum);
                     }
+
+                    await Task.Delay(10);
+
+                    index++;
+                    var percentCompleted = (int)((double)index / listCurriculumFromExcel.Count * 100);
+                    progress?.Report(percentCompleted);
                 }
+
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
@@ -173,14 +182,14 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
 
                     int rowCount = worksheet.UsedRange.LastRow;
                     int colCount = worksheet.UsedRange.LastColumn;
-                 
+
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
                     Utility.IsRowDuplicated(worksheet, rowCount, colCount);
 
                     for (int c = 1; c <= colCount; c++)
                     {
                         string header = worksheet[1, c].Value?.Trim() ?? "";
-                        
+
                         if (!string.IsNullOrWhiteSpace(header))
                             headerMap[header] = c;
                     }
@@ -193,7 +202,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
                     for (int r = 2; r <= rowCount; r++)
                     {
                         bool isEmptyRow = requiredHeaders.All(h => string.IsNullOrWhiteSpace(worksheet[r, headerMap[h]].Value));
-                        
+
                         if (isEmptyRow)
                             continue;
 
@@ -206,6 +215,8 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
                         };
                         curriculums.Add(curriculum);
                     }
+
+                    workbook.Close();
                 }
             }
             return curriculums;

@@ -432,5 +432,14 @@
                 </Grid>
             </Border>
         </Popup>
+        <Popup IsOpen="{Binding IsProgressBarOpen}" StaysOpen="True" Placement="Center" AllowsTransparency="True">
+            <Border Background="#CCFFFFFF" Padding="20" CornerRadius="8" 
+                BorderBrush="Gray" BorderThickness="1" >
+                <StackPanel>
+                    <TextBlock Text="Processing, please wait..." Margin="0,0,0,8" HorizontalAlignment="Center"/>
+                    <ProgressBar Height="24" Minimum="0" Maximum="99" Value="{Binding ProgressValue}" Width="200"/>
+                </StackPanel>
+            </Border>
+        </Popup>
     </Grid>
 </UserControl>

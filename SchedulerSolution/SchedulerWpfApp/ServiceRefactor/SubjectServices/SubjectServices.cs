@@ -99,11 +99,13 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
         /// </summary>
         /// <param name="listSubjectFromExcel"></param>
         /// <returns></returns>
-        public async Task ImportSubjectFromExcel(List<Subject> listSubjectFromExcel)
+        public async Task ImportSubjectFromExcel(List<Subject> listSubjectFromExcel, IProgress<int> progress)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
+                var index = 0;
+
                 foreach (var subject in listSubjectFromExcel)
                 {
                     var existingSubject = await _unitOfWork.SubjectRepository.CheckSubjectCodeExistsAsync(subject.SubjectCode);
@@ -111,7 +113,14 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
                     {
                         await _unitOfWork.SubjectRepository.AddAsync(subject);
                     }
+
+                    await Task.Delay(10);
+
+                    index++;
+                    var percentCompleted = (int)((double)index / listSubjectFromExcel.Count * 100);
+                    progress?.Report(percentCompleted);
                 }
+
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
@@ -212,6 +221,8 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
 
                         subjects.Add(subject);
                     }
+
+                    workbook.Close();
                 }
             }
             return subjects;

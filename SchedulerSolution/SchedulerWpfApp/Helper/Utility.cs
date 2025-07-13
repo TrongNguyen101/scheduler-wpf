@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Syncfusion.XlsIO;
 
 namespace SchedulerWpfApp.Helper
@@ -333,6 +334,12 @@ namespace SchedulerWpfApp.Helper
 
                 throw new Exception(message.ToString());
             }
+        }
+
+        public static void TrackingProcess(int row, int totalRow, IProgress<int> process)
+        {
+            int percent = (int)((double)row / totalRow * 100);
+            process?.Report(percent);
         }
     }
 }

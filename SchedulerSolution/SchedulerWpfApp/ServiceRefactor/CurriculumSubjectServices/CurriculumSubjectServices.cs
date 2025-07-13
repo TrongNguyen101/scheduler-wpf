@@ -128,11 +128,12 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// Imports a list of curriculum subjects from an Excel file into the database
         /// </summary>
         /// <param name="listCurriculumSubjectFromExcel"></param>
-        public async Task ImportCurriculumSubjectFromExcel(List<CurriculumSubject> listCurriculumSubjectFromExcel)
+        public async Task ImportCurriculumSubjectFromExcel(List<CurriculumSubject> listCurriculumSubjectFromExcel, IProgress<int> progress)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
+                var index = 0;
                 var curriculumMissList = new List<string>();
                 var subjectMissList = new List<string>();
 
@@ -156,8 +157,16 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                     if (!existingCurriculumSubject)
                     {
                         await _unitOfWork.CurriculumSubjectsRepository.AddAsync(curriculumSubject);
+
                     }
+
+                    await Task.Delay(10);
+
+                    index++;
+                    var percentCompleted = (int)((double)index / listCurriculumSubjectFromExcel.Count * 100);
+                    progress?.Report(percentCompleted);
                 }
+
                 await _unitOfWork.CommitAsync();
 
                 if (curriculumMissList.Count > 0 && subjectMissList.Count > 0)

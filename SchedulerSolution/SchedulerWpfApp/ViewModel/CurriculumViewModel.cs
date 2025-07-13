@@ -26,6 +26,8 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isConfirmationOpen;
         private bool _isEdit;
         private bool _isCurriculumCodeEdit;
+        private int _progressValue;
+        private bool _isProgressBarOpen;
         private ObservableCollection<Curriculum> _allCurriculums;
         public string Title => SelectedCurriculum?.CurriculumCode != null ? "Chỉnh Sửa Khung Chương Trình" : "Thêm Mới Khung Chương Trình";
         #endregion
@@ -106,6 +108,18 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
+        public int ProgressValue
+        {
+            get => _progressValue;
+            set { _progressValue = value; OnPropertyChanged(); }
+        }
+
+        public bool IsProgressBarOpen
+        {
+            get => _isProgressBarOpen;
+            set => SetProperty(ref _isProgressBarOpen, value);
+        }
+
         // Commands exposed to the View
         public ICommand LoadCurriculumCommand { get; }
         public ICommand ExportCurriculumCommand { get; }
@@ -367,19 +381,29 @@ namespace SchedulerWpfApp.ViewModel
                 Filter = "Excel Files (*.xlsx)|*.xlsx"
             };
 
+            var progress = new Progress<int>(percentCompleted =>
+            {
+                ProgressValue = percentCompleted;
+            });
+
             if (dialog.ShowDialog() == true)
             {
                 try
                 {
                     var data = _curriculumService.ReadCurriculumsFromExcel(dialog.FileName);
-                    // Validate the imported data
-                    await _curriculumService.ImportCurriculumFromExcel(data);
+
+                    IsProgressBarOpen = true;
+                    await _curriculumService.ImportCurriculumFromExcel(data, progress);
+                    IsProgressBarOpen = false;
+
                     MessageBox.Show("Import thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+
                     await LoadCurriculumAsync();
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
                 }
             }
         }
