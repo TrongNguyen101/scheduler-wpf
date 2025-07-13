@@ -39,33 +39,13 @@ namespace SchedulerWpfApp.Algorithm
             _version2CreateSchedule = version2CreateSchedule;
         }
 
-        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
+        public async Task<List<Schedule>> GenerateSchedules()
         {
-
-            //var listMajorA = new List<string> { "FN", "HM", "MC", "BA", "TM" };
-            //var listMajorB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
-
-
-            //var listMajorOnOff = new List<string>();
-            //listMajorOnOff.AddRange(listMajorA);
-            //listMajorOnOff.AddRange(listMajorB);
-
-            //List<Schedule> allSchedules = new List<Schedule>();
-            //List<Lecturer> lecturers = await _lecturerServices.GetAllLecturerAsync();
-            //List<CurriculumSubject> curriculumSubjects = await _curriculumSubjectServices.GetAllCurriculumSubjectAsync();
-            //List<GroupClass> listGroupName = await _groupNameService.GetAllAsync();
-            //List<LecturerSubject> lecturerSubjects = await _lecturerSubjectServices.GetAllAsync();
-            //List<LecturerRequest> lecturerRequests = new List<LecturerRequest>();
-
-            //List<GroupClass> listGroupNameBITAndBBAAndNN = listGroupName.Where(g => g.Department == "BIT" || g.Department == "BBA" || g.Department == "NN").ToList();
-
-            //List<Schedule> schedulesForBITAndBBAAndNN = new List<Schedule>();
-
-            //schedulesForBITAndBBAAndNN = await _generateScheduleForAllDate.CreateSchedules(curriculumSubjects, listGroupNameBITAndBBAAndNN, lecturerSubjects, startDate, lecturerRequests);
-
-            //allSchedules.AddRange(schedulesForBITAndBBAAndNN);
-             List<Schedule> schedulesTest = new List<Schedule>();
-
+            var listMajorGroupA = new List<string> { "FN", "HM", "MC", "BA", "TM", "IB", "EC", };
+            var listMajorGroupB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
+            
+            List<Schedule> schedulesTest = new List<Schedule>();
+            DateTime startDate = new DateTime(2025, 01, 06);
             schedulesTest = await _version2CreateSchedule.GenerateSchedules(startDate, listMajorGroupA, listMajorGroupB);
 
             await _scheduleServices.AddScheduleAsync(schedulesTest);

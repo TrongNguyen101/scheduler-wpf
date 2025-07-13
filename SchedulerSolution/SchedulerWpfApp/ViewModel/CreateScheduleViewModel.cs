@@ -498,7 +498,8 @@ namespace SchedulerWpfApp.ViewModel
             }
             else
             {
-                var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, ListMajorGroupA.ToList(), ListMajorGroupB.ToList());
+                //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, ListMajorGroupA.ToList(), ListMajorGroupB.ToList());
+                var schedules = await _createScheduleTree.GenerateSchedules();
 
                 LoadMockSchedules(); // Reload schedules after generating new ones
                 // PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
