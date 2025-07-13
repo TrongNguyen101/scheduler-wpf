@@ -607,6 +607,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 catch (Exception ex)
                 {
+                    IsProgressBarOpen = false;
                     MessageBox.Show($"Import thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }

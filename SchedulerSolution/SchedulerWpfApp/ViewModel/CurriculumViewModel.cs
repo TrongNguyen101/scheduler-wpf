@@ -402,8 +402,8 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 catch (Exception ex)
                 {
+                    IsProgressBarOpen = false;
                     MessageBox.Show($"{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-
                 }
             }
         }

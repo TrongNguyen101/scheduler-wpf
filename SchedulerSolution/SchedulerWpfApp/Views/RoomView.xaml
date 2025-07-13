@@ -251,8 +251,8 @@
             <Border Background="#CCFFFFFF" Padding="20" CornerRadius="8" 
              BorderBrush="Gray" BorderThickness="1" >
                 <StackPanel>
-                    <TextBlock Text="Processing, please wait..." Margin="0,0,0,8" HorizontalAlignment="Center"/>
-                    <ProgressBar Height="24" Minimum="0" Maximum="99" Value="{Binding ProgressValue}" Width="200"/>
+                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..." Margin="0,0,0,8" HorizontalAlignment="Center"/>
+                    <ProgressBar Height="24" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" Width="300"/>
                 </StackPanel>
             </Border>
         </Popup>
