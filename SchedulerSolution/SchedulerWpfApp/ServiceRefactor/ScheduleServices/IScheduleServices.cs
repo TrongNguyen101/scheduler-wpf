@@ -8,5 +8,6 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
         Task<bool> UpdateScheduleAsync(Schedule schedule);
         Task<List<Schedule>> GetAllAsync();
         void ExportToExcel(List<Schedule> schedules, string filePath);
+        Task DeleteAllAsync();
     }
 }

@@ -178,8 +178,8 @@ namespace SchedulerWpfApp.ViewModel
         {
             get => _selectedLecturer;
             set { SetProperty(ref _selectedLecturer, value); FilterSchedules(); } // Filter schedules based on the selected lecturer
-        }   
-        
+        }
+
         public bool IsScheduleFormOpen
         {
             get => _isScheduleFormOpen;
@@ -262,7 +262,7 @@ namespace SchedulerWpfApp.ViewModel
             AddMajorSecondToAvailable(major);
             RefreshFilteredMajors();
         });
-        
+
         public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices, IRoomService roomService, ILecturerSubjectServices lecturerSubjectServices, IGroupNameService groupNameService)
         {
             _createScheduleTree = createScheduleTree;
@@ -872,6 +872,36 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
+        /// Checks if there is a conflict with the room for the given schedule, date, and slot time.
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <param name="date"></param>
+        /// <param name="slotTime"></param>
+        /// <returns></returns>
+        private bool CheckConflictRoom(Schedule schedule, DateTime date, int slotTime)
+        {
+            return AllSchedules.Any(s => s.RoomId == schedule.RoomId &&
+                                         s.Date == date &&
+                                         s.SlotTime == slotTime &&
+                                         s.StatusSlot == "OFF" &&
+                                         s.ScheduleId != schedule.ScheduleId);
+        }
+
+        /// <summary>
+        /// Checks if there is a conflict with the lecturer for the given schedule, date, and slot time.
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <param name="date"></param>
+        /// <param name="slotTime"></param>
+        /// <returns></returns>
+        private bool CheckConflictLecturer(Schedule schedule, DateTime date, int slotTime)
+        {
+            return AllSchedules.Any(s => s.LecturerId == schedule.LecturerId &&
+                                         s.Date == date &&
+                                         s.SlotTime == slotTime &&
+                                         s.ScheduleId != schedule.ScheduleId);
+        }
+        /// <summary>
         /// Validates if a schedule can be moved to the target cell
         /// </summary>
         private bool ValidateScheduleMove(TimetableCellViewModel sourceCell, TimetableCellViewModel targetCell, Schedule schedule)
@@ -880,14 +910,40 @@ namespace SchedulerWpfApp.ViewModel
             if (sourceCell == targetCell)
                 return false;
 
-            // Check for lecturer conflicts (same lecturer can't be in two places at same time)
-            var conflictingSchedule = AllSchedules.FirstOrDefault(s =>
-                (s.LecturerId == schedule.LecturerId || s.RoomId == schedule.RoomId) &&
-                s.Date == targetCell.DayOfWeek.Date &&
-                s.SlotTime == targetCell.SlotNumber &&
-                s.ScheduleId != schedule.ScheduleId);
+            if (schedule.StatusSlot == "OFF")
+            {
+                var checkRoom = CheckConflictRoom(schedule, targetCell.DayOfWeek.Date, targetCell.SlotNumber);
 
-            if (conflictingSchedule != null)
+                if (checkRoom)
+                {
+                    return false;
+                }
+            }
+
+            if (targetCell.Schedule != null)
+            {
+                var targetSchedule = targetCell.Schedule;
+                if (targetSchedule.StatusSlot == "OFF")
+                {
+                    var checkRoom = CheckConflictRoom(targetSchedule, sourceCell.DayOfWeek.Date, sourceCell.SlotNumber);
+
+                    if (checkRoom)
+                    {
+                        return false;
+                    }
+                }
+
+                var conflictingTargetSchedule = CheckConflictLecturer(targetSchedule, sourceCell.DayOfWeek.Date, sourceCell.SlotNumber);
+
+                if (conflictingTargetSchedule)
+                {
+                    return false; // Lecturer conflict
+                }
+            }
+
+            var conflictingSchedule = CheckConflictLecturer(schedule, targetCell.DayOfWeek.Date, targetCell.SlotNumber);
+
+            if (conflictingSchedule)
             {
                 return false; // Lecturer conflict
             }
@@ -917,7 +973,9 @@ namespace SchedulerWpfApp.ViewModel
                 LecturerName = originalSchedule.LecturerName,
                 SlotTypeCode = originalSchedule.SlotTypeCode,
                 TypeSlot = originalSchedule.TypeSlot,
-                SessionNo = originalSchedule.SessionNo
+                SessionNo = originalSchedule.SessionNo,
+                Lecturer = originalSchedule.Lecturer,
+                Room = originalSchedule.Room
             };
         }
 
@@ -939,11 +997,7 @@ namespace SchedulerWpfApp.ViewModel
                     // Validate the selected room before updating
                     if (EditingSchedule.StatusSlot == "OFF")
                     {
-                        var checkRoom = AllSchedules.Any(schedule => schedule.RoomId == EditingSchedule.RoomId &&
-                        schedule.Date == EditingSchedule.Date &&
-                        schedule.SlotTime == EditingSchedule.SlotTime &&
-                        schedule.StatusSlot == "OFF" &&
-                        schedule.ScheduleId != EditingSchedule.ScheduleId);
+                        var checkRoom = CheckConflictRoom(EditingSchedule, EditingSchedule.Date ?? new DateTime(), EditingSchedule.SlotTime ?? 0);
 
                         if (checkRoom)
                         {

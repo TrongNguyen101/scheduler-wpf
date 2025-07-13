@@ -41,6 +41,9 @@ namespace SchedulerWpfApp.Model
         [Column("TeachingMode ")]
         public string? TeachingMode { get; set; }
 
+        [Column("PartOfTerm")]
+        public string? PartOfTerm { get; set; }
+
         // === Navigation properties ===
 
         public Subject? Subject { get; set; }

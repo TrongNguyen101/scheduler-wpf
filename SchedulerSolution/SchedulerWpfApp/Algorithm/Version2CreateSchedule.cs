@@ -69,17 +69,17 @@ namespace SchedulerWpfApp.Algorithm
                     return new List<Schedule>(); // Trả về danh sách rỗng nếu không có phòng
                 }
                 // phân chia lớp học sáng chiều
-                var (listGroupNameAm, listGroupNamePm) = BalancedSplitWithGreedySwap(_context.GroupNames);
+                //var (listGroupNameAm, listGroupNamePm) = BalancedSplitWithGreedySwap(_context.GroupNames);
 
-                var testListGroupNameAm = _context.GroupNames.Where(g => g.PartOfDayInTheFirstTerm == "A").ToList();
-                var testListGroupNamePm = _context.GroupNames.Where(g => g.PartOfDayInTheFirstTerm == "P").ToList();
+                List<GroupClass> listGroupNameAm = _context.GroupNames.Where(g => g.PartOfDayInTheFirstTerm == "A" && g.TeachingMode != "OJT").ToList();
+                List<GroupClass> listGroupNamePm = _context.GroupNames.Where(g => g.PartOfDayInTheFirstTerm == "P" && g.TeachingMode != "OJT").ToList();
 
                 // lọc giảng viên theo buổi
                 var lecturersAM = _getLecturerForSubject.FilterLecturerInSession(_context.LecturersTeachSubjects, _context.LecturerRequests, "AM");
                 var lecturersPM = _getLecturerForSubject.FilterLecturerInSession(_context.LecturersTeachSubjects, _context.LecturerRequests, "PM");
 
-                var roomNodesAMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(testListGroupNameAm.Count);
-                var roomNodesPMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(testListGroupNamePm.Count);
+                var roomNodesAMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(listGroupNameAm.Count);
+                var roomNodesPMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(listGroupNamePm.Count);
 
                 var dataContextInAmFullOff = new SchedulePartOfDayContext
                 {
@@ -149,9 +149,10 @@ namespace SchedulerWpfApp.Algorithm
             var groupNameTask = _groupNameService.GetAllAsync();
             var lecturerSubjectTask = _lecturerSubjectServices.GetAllAsync();
             var curriculumSubjectTask = _curriculumSubjectServices.GetAllCurriculumSubjectAsync();
+            var deleteAllSchedulesTask = _scheduleServices.DeleteAllAsync();
 
             // Chờ tất cả các Task hoàn thành
-            await Task.WhenAll(lecturerTask, roomTask, groupNameTask, lecturerSubjectTask, curriculumSubjectTask);
+            await Task.WhenAll(lecturerTask, roomTask, groupNameTask, lecturerSubjectTask, curriculumSubjectTask, deleteAllSchedulesTask);
 
             // Lấy kết quả từ các Task
             var listLecturer = await lecturerTask;
@@ -167,7 +168,6 @@ namespace SchedulerWpfApp.Algorithm
             var curriculumLookup = curriculumSubjects.ToLookup(s => (s.CurriculumCode, s.TermNo));
 
             var scheduleFourSubjectsLookup = ScheduleFourSubjectsLookup(curriculumLookup, listGroupName);
-
 
             return new SchedulingContext
             {
@@ -195,8 +195,18 @@ namespace SchedulerWpfApp.Algorithm
                     _logger.LogWarning($"No enough subjects found for group {groupName.GroupName} with CurriculumCode {groupName.CurriculumCode} and Term {groupName.Term}");
                     continue; // Bỏ qua nếu không có môn học
                 }
-                var sortedSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(subjectOfClass);
-                subjectLookup.Add(groupName.GroupName, sortedSubjects);
+                else
+                {
+                    var listSubjectOnOff = subjectOfClass.Where(s => s.TeachingMode == ScheduleConstants.TechingModeIsOnOff).ToList();
+                    if (listSubjectOnOff.Count == 4)
+                    {
+                        var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(subjectOfClass);
+                        subjectLookup.Add(groupName.GroupName, sortedFourSubjects);
+                    } else if (listSubjectOnOff.Count == 5)
+                    {
+                        var sortedFiveSubjects =
+                    }
+                }
             }
             return subjectLookup;
         }
