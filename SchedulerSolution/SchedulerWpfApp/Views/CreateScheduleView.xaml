@@ -691,6 +691,19 @@
                                                                            VerticalAlignment="Center" />
                                                             </StackPanel>
 
+                                                            <StackPanel HorizontalAlignment="Center"
+                                                                        Orientation="Horizontal"
+                                                                        Margin="0,2,0,0">
+                                                                <TextBlock Text="👥"
+                                                                           FontSize="11"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="0,0,3,0" />
+                                                                <TextBlock Text="{Binding Schedule.GroupName}"
+                                                                           FontSize="13"
+                                                                           Foreground="#6C757D"
+                                                                           VerticalAlignment="Center" />
+                                                            </StackPanel>
+
                                                             <Border Background="#5cb85c"
                                                                     CornerRadius="3"
                                                                     Padding="4,2"
@@ -835,8 +848,8 @@
                                    FontWeight="Bold"
                                    Margin="10,10,0,5" />
                         <ComboBox ItemsSource="{Binding SlotStatusList}"
-                                  SelectedItem="{Binding EditingSchedule.StatusSlot, Mode=TwoWay}" 
-                                  IsEditable="True"/>
+                                  SelectedItem="{Binding EditingSchedule.StatusSlot, Mode=TwoWay}"
+                                  IsEditable="True" />
                     </StackPanel>
 
                     <!-- Form Actions -->
@@ -863,7 +876,7 @@
                                 Command="{Binding UpdateScheduleCommand}" />
                     </Grid>
                 </Grid>
-              </Border>
+            </Border>
         </Popup>
 
         <!-- Popup for creating schedule -->
