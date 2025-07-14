@@ -60,7 +60,6 @@ namespace SchedulerWpfApp.Algorithm
         {
             try
             {
-                var listMajorFullOff = new List<string> { "GD" };
                 _context = await PrepareSchedulingDataAsync();
 
                 if (_context == null || !_context.Rooms.Any() || !_context.GroupNames.Any() || !_context.CurriculumSubjects.Any())
@@ -186,31 +185,39 @@ namespace SchedulerWpfApp.Algorithm
         private Dictionary<string, CurriculumSubjectWithCount[,,]> ScheduleSubjectsLookup(ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup, List<GroupClass> listGroupName)
         {
             var subjectLookup = new Dictionary<string, CurriculumSubjectWithCount[,,]>();
-            //var listGroupNameFive
             foreach (var groupName in listGroupName)
             {
-                //var subjectOfClass = curriculumLookup[(groupName.CurriculumCode, groupName.Term.GetValueOrDefault())].ToList();
-                var subjectOfClass = curriculumLookup[("BIT_AI_20B", 1)].ToList();
+                var subjectOfClass = curriculumLookup[(groupName.CurriculumCode, groupName.Term.GetValueOrDefault())].ToList();
+                //var subjectOfClass = curriculumLookup[("BIT_GD_MCD_18A", 8)].ToList();
 
-                if (subjectOfClass.Count < 4)
+                if (subjectOfClass.Count < 3)
                 {
                     _logger.LogWarning($"No enough subjects found for group {groupName.GroupName} with CurriculumCode {groupName.CurriculumCode} and Term {groupName.Term}");
                     continue; // Bỏ qua nếu không có môn học
                 }
                 else
                 {
-                    var listSubjectOnOff = subjectOfClass.Where(s => s.TeachingMode == ScheduleConstants.TechingModeIsOnOff).ToList();
+                    var listSubjectOnOffNomalAndHalfOne = subjectOfClass.Where(s => s.TeachingMode == ScheduleConstants.TechingModeIsOnOff && (s.PartOfTerm.Contains("H1") || s.PartOfTerm == "All")).ToList();
 
-                    if (listSubjectOnOff.Count == 4)
+
+
+
+                    if (listSubjectOnOffNomalAndHalfOne.Count == 4)
                     {
-                        var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(subjectOfClass);
+                        var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(listSubjectOnOffNomalAndHalfOne);
                         subjectLookup.Add(groupName.GroupName, sortedFourSubjects);
                     }
-                    else
+                    else if (listSubjectOnOffNomalAndHalfOne.Count == 5)
                     {
-                        var sortedFiveSubjects = _sortSubjectsOneSession.SortFiveSubjectForClass(subjectOfClass);
+                        var sortedFiveSubjects = _sortSubjectsOneSession.SortFiveSubjectForClass(listSubjectOnOffNomalAndHalfOne);
                         subjectLookup.Add(groupName.GroupName, sortedFiveSubjects);
                     }
+                    else 
+                    {
+                        var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(listSubjectOnOffNomalAndHalfOne);
+                        subjectLookup.Add(groupName.GroupName, sortedFourSubjects);
+                    } 
+                        
                 }
             }
             return subjectLookup;
@@ -292,7 +299,7 @@ namespace SchedulerWpfApp.Algorithm
             var listRooms = await _roomService.GetNumberOfRoom(numberOfRooms);
             if (listRooms == null || !listRooms.Any()) return listRoomNodes;
 
-            // *** TỐI ƯU CRITICAL: Chạy song song việc xây dựng cây cho tất cả các phòng ***
+            // Chạy song song việc xây dựng cây cho tất cả các phòng
             var buildTreeTasks = listRooms.Select(room =>
                 _treeNode.BuildTreeForRoom(room.RoomId, room.RoomName)
             ).ToList();
@@ -394,8 +401,6 @@ namespace SchedulerWpfApp.Algorithm
 
             string groupNameA = groupClassA == null ? "" : groupClassA.GroupName;
             string groupNameB = groupClassB == null ? "" : groupClassB.GroupName;
-            //var scheduleSubjectOfGroupNameAForRoom = _context.SchedulesFourSubjectsLookup[groupNameA.GroupName];
-            //var scheduleSubjectOfGroupNameBForRoom = _context.SchedulesFourSubjectsLookup[groupNameB.GroupName];
 
             // Kiểm tra groupNameA trong _context.SchedulesFourSubjectsLookup
             var scheduleSubjectOfGroupNameAForRoom = _context.SchedulesSubjectsLookup.ContainsKey(groupNameA)

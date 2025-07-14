@@ -657,14 +657,6 @@
                                                                 </Style>
                                                             </StackPanel.Style>
 
-                                                            <TextBlock Text="{Binding Schedule.GroupName}"
-                                                                       HorizontalAlignment="Center"
-                                                                       FontWeight="Bold"
-                                                                       FontSize="14"
-                                                                       Foreground="#1A1A1A"
-                                                                       TextWrapping="Wrap"
-                                                                       LineHeight="16" />       
-
                                                             <TextBlock Text="{Binding Schedule.SubjectCode}"
                                                                        HorizontalAlignment="Center"
                                                                        FontWeight="Bold"

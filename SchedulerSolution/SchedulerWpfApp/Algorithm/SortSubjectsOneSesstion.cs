@@ -239,49 +239,45 @@ namespace SchedulerWpfApp.Algorithm
 
         public CurriculumSubjectWithCount[,,] SortSubjectFourClassFlexibleSubject(List<CurriculumSubject> allSubjects, int numClasses = 4)
         {
-            // Lọc môn học theo teaching mode
-            var twoSlotSubjects = allSubjects.Where(s => s.TeachingMode == "ON/OFF").ToList();
-            var oneSlotSubjects = allSubjects.Where(s => s.TeachingMode == "C-ON").ToList();
-
             // Kiểm tra đầu vào tối thiểu
-            if (twoSlotSubjects.Count < 2)
+            if (allSubjects.Count < 2)
                 throw new ArgumentException("Cần ít nhất 2 môn học ON/OFF để phân phối lịch.");
 
             // Tạo lịch: [Ngày (0-7), Lớp, Slot (0,1)]
             var schedule = new CurriculumSubjectWithCount[8, numClasses, 2];
 
             // --- TẠO PATTERN CHO THỨ 2 ---
-            var mondayPattern = GenerateFlexiblePattern(numClasses, twoSlotSubjects.Count);
+            var mondayPattern = GenerateFlexiblePattern(numClasses, allSubjects.Count);
 
             for (int classIndex = 0; classIndex < numClasses; classIndex++)
             {
                 schedule[1, classIndex, 0] = new CurriculumSubjectWithCount
                 {
-                    Subject = twoSlotSubjects[mondayPattern[classIndex][0]],
+                    Subject = allSubjects[mondayPattern[classIndex][0]],
                     Count = 1
                 };
 
                 schedule[1, classIndex, 1] = new CurriculumSubjectWithCount
                 {
-                    Subject = twoSlotSubjects[mondayPattern[classIndex][1]],
+                    Subject = allSubjects[mondayPattern[classIndex][1]],
                     Count = 1
                 };
             }
 
             // --- TẠO PATTERN CHO THỨ 3 BẰNG CÁCH XOAY PATTERN CŨ ---
-            var tuesdayPattern = RotatePattern(mondayPattern, 2, twoSlotSubjects.Count);
+            var tuesdayPattern = RotatePattern(mondayPattern, 2, allSubjects.Count);
 
             for (int classIndex = 0; classIndex < numClasses; classIndex++)
             {
                 schedule[2, classIndex, 0] = new CurriculumSubjectWithCount
                 {
-                    Subject = twoSlotSubjects[tuesdayPattern[classIndex][0]],
+                    Subject = allSubjects[tuesdayPattern[classIndex][0]],
                     Count = 1
                 };
 
                 schedule[2, classIndex, 1] = new CurriculumSubjectWithCount
                 {
-                    Subject = twoSlotSubjects[tuesdayPattern[classIndex][1]],
+                    Subject = allSubjects[tuesdayPattern[classIndex][1]],
                     Count = 1
                 };
             }
@@ -317,25 +313,6 @@ namespace SchedulerWpfApp.Algorithm
                     Count = 2
                 };
             }
-
-            // --- PHÂN MÔN 1 SLOT CHO THỨ 6 & THỨ 7 ---
-            (int day, int slot)[] fifthCourseSlots = new (int, int)[]
-            {
-            (5, 0), // Thứ 6, Slot 1
-            (5, 1), // Thứ 6, Slot 2
-            (6, 0), // Thứ 7, Slot 1
-            (6, 1)  // Thứ 7, Slot 2
-            };
-
-            //for (int classIndex = 0; classIndex < numClasses; classIndex++)
-            //{
-            //    var (day, slot) = fifthCourseSlots[classIndex];
-            //    schedule[day, classIndex, slot] = new CurriculumSubjectWithCount
-            //    {
-            //        Subject = oneSlotSubjects[0],
-            //        Count = 1 // slot thứ 1 trong tuần
-            //    };
-            //}
 
             return schedule;
         }
