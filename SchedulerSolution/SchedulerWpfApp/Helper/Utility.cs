@@ -336,10 +336,81 @@ namespace SchedulerWpfApp.Helper
             }
         }
 
-        public static void TrackingProcess(int row, int totalRow, IProgress<int> process)
+        public static void IsColumnDuplicatedLsExcel(IWorksheet worksheet)
         {
-            int percent = (int)((double)row / totalRow * 100);
-            process?.Report(percent);
+            int colIndex1 = -1;
+            int colIndex2 = -1;
+            int colIndex3 = -1;
+            int colIndex4 = -1;
+
+            int rowCount = worksheet.UsedRange.LastRow;
+            int colCount = worksheet.UsedRange.LastColumn;
+
+            var duplicatedMap = new Dictionary<string, int>();
+            var duplicates = new List<(int duplicateRow, int originalRow, string value1, string value2, string value3, string value4)>();
+
+            string lectureId = "MAGV";
+            string subjectCode = "MAMH";
+            string major = "NGANH";
+            string term = "KY";
+
+            for (int col = 1; col <= colCount; col++)
+            {
+                string header = worksheet[1, col].Value?.ToString().Trim();
+
+                if (string.Equals(header, lectureId, StringComparison.OrdinalIgnoreCase))
+                {
+                    colIndex1 = col;
+                }
+                if (string.Equals(header, subjectCode, StringComparison.OrdinalIgnoreCase))
+                {
+                    colIndex2 = col;
+                }
+                if (string.Equals(header, major, StringComparison.OrdinalIgnoreCase))
+                {
+                    colIndex3 = col;
+                }
+                if (string.Equals(header, term, StringComparison.OrdinalIgnoreCase))
+                {
+                    colIndex4 = col;
+                }
+            }
+
+            if (colIndex1 == -1 || colIndex2 == -1 || colIndex3 == -1 || colIndex4 == -1)
+            {
+                throw new Exception($"Không tìm thấy cột '{lectureId}, {subjectCode}, {major}, {term}' trong file Excel.");
+            }
+
+            for (int row = 2; row <= rowCount; row++)
+            {
+                string value1 = worksheet[row, colIndex1].Value?.ToString().Trim() ?? string.Empty;
+                string value2 = worksheet[row, colIndex2].Value?.ToString().Trim() ?? string.Empty;
+                string value3 = worksheet[row, colIndex3].Value?.ToString().Trim() ?? string.Empty;
+                string value4 = worksheet[row, colIndex3].Value?.ToString().Trim() ?? string.Empty;
+
+
+                string compositeKey = $"{value1}\u001F{value2}\u001F{value3}\u001F{value4}";
+
+                if (duplicatedMap.TryGetValue(compositeKey, out int origRow))
+                {
+                    duplicates.Add((row, origRow, value1, value2, value3, value4));
+                }
+                else
+                {
+                    duplicatedMap[compositeKey] = row;
+                }
+            }
+
+            if (duplicates.Count > 0)
+            {
+                var message = new StringBuilder();
+                message.AppendLine($"Import thất bại, phát hiện các dòng trùng lặp cùng giá trị ở cột '{lectureId}', '{subjectCode}', '{major}, {term}':");
+                foreach (var (dupRow, origRow, value1, value2, value3, value4) in duplicates)
+                {
+                    message.AppendLine($"- Dòng {dupRow} ({lectureId}: '{value1}', {subjectCode}: '{value2}', {major}: '{value3}, {term}: {value4}') trùng với dòng {origRow}");
+                }
+                throw new Exception(message.ToString());
+            }
         }
     }
 }

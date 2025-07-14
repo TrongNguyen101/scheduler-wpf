@@ -203,6 +203,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     int colCount = worksheet.UsedRange.LastColumn;
 
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
+                    Utility.IsColumnDuplicatedLsExcel(worksheet);
 
                     for (int c = 1; c <= colCount; c++)
                     {
