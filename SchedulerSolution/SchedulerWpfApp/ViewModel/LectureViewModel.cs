@@ -16,7 +16,6 @@ namespace SchedulerWpfApp.ViewModel
         #region Fields
         // Dependencies injected via constructor
         private readonly ILecturerServices _lecturerService;
-
         // Internal data fields
         private ObservableCollection<Lecturer> _lecturers;
         private Lecturer? _selectedLecture;
@@ -29,7 +28,9 @@ namespace SchedulerWpfApp.ViewModel
         private ObservableCollection<Lecturer> _allLectures;
         public string Title => SelectedLecture?.LecturerId != null ? "Chỉnh Sửa Giảng Viên" : "Thêm Mới Giảng Viên";
         #endregion
-
+        private double _progressValue;
+        private string _progressMessage;
+        private bool _isProgressPopupOpen;
         #region Constructor
         /// <summary>
         /// ViewModel for managing lecturers, including adding, editing, deleting, and exporting lecturers.
@@ -38,6 +39,24 @@ namespace SchedulerWpfApp.ViewModel
         {
             get => _isLectureCodeEdit;
             set => SetProperty(ref _isLectureCodeEdit, value);
+        }
+
+        public double ProgressValue
+        {
+            get => _progressValue;
+            set => SetProperty(ref _progressValue, value);
+        }
+
+        public string ProgressMessage
+        {
+            get => _progressMessage;
+            set => SetProperty(ref _progressMessage, value);
+        }
+
+        public bool IsProgressPopupOpen
+        {
+            get => _isProgressPopupOpen;
+            set => SetProperty(ref _isProgressPopupOpen, value);
         }
 
         /// <summary>
@@ -117,15 +136,17 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand CancelEditLectureCommand { get; }
         public ICommand ConfirmDeleteCommand { get; }
         public ICommand CancelDeleteLectureCommand { get; }
+        public ProcessBarViewModel ProgressVM { get; }
         #endregion
 
         #region Methods
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public LectureViewModel(ILecturerServices lecturerService)
+        public LectureViewModel(ILecturerServices lecturerService, ProcessBarViewModel processBarViewModel)
         {
             _lecturerService = lecturerService;
+            ProgressVM = processBarViewModel;
 
             Lectures = new ObservableCollection<Lecturer>();
 
@@ -383,14 +404,29 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
+                    ProgressVM.Start("Đang thực hiện Import list Lecturers...");
                     var data = _lecturerService.ReadLecturersFromExcel(dialog.FileName);
-                    await _lecturerService.ImportLecturerFromExcel(data);
+                    int total = data.Count;
+                    var progressTask = Task.Run(async () =>
+                    {
+                        for (int i = 0; i <= 100; i += 2)
+                        {
+                            ProgressVM.ProgressValue = i;
+                            await Task.Delay(40); // mô phỏng hiển thị
+                        }
+                    });
+                    await _lecturerService.ImportLecturerFromExcel(data); // hàm xử lý từng phần tử
+                    await progressTask; // chờ animation xong
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadLectureAsync();
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Import failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    ProgressVM.Finish();
                 }
             }
         }
