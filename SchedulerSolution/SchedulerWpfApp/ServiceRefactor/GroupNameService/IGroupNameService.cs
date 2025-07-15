@@ -20,7 +20,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         Task DeleteGroupName(string groupname);
 
         // Import class list from Excel file
-        Task ImportGroupNameFromExcel(List<GroupClass> listGroupNameFromExcel);
+        Task ImportGroupNameFromExcel(List<GroupClass> listGroupNameFromExcel, IProgress<int> progress);
 
         // Check if the class code exists in the system (true = exists)
         Task<bool> CheckGroupNameExistsAsync(string groupname);

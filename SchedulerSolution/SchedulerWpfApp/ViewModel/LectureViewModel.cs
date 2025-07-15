@@ -26,6 +26,8 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isConfirmationOpen;
         private bool _isEdit;
         private bool _isLectureCodeEdit;
+        private int _progressValue;
+        private bool _isProgressBarOpen;
         private ObservableCollection<Lecturer> _allLectures;
         public string Title => SelectedLecture?.LecturerId != null ? "Chỉnh Sửa Giảng Viên" : "Thêm Mới Giảng Viên";
         #endregion
@@ -106,6 +108,19 @@ namespace SchedulerWpfApp.ViewModel
                 }
             }
         }
+
+        public int ProgressValue
+        {
+            get => _progressValue;
+            set { _progressValue = value; OnPropertyChanged(); }
+        }
+
+        public bool IsProgressBarOpen
+        {
+            get => _isProgressBarOpen;
+            set => SetProperty(ref _isProgressBarOpen, value);
+        }
+
         // Commands exposed to the View
         public ICommand LoadLecturerCommand { get; }
         public ICommand ExportLectureCommand { get; }
@@ -379,17 +394,27 @@ namespace SchedulerWpfApp.ViewModel
                 Filter = "Excel Files (*.xlsx)|*.xlsx"
             };
 
+            var progress = new Progress<int>(percentCompleted =>
+            {
+                ProgressValue = percentCompleted;
+            });
+
             if (dialog.ShowDialog() == true)
             {
                 try
                 {
                     var data = _lecturerService.ReadLecturersFromExcel(dialog.FileName);
-                    await _lecturerService.ImportLecturerFromExcel(data);
+
+                    IsProgressBarOpen = true;
+                    await _lecturerService.ImportLecturerFromExcel(data, progress);
+                    IsProgressBarOpen = false;
+
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadLectureAsync();
                 }
                 catch (Exception ex)
                 {
+                    IsProgressBarOpen = false;
                     MessageBox.Show($"Import failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }

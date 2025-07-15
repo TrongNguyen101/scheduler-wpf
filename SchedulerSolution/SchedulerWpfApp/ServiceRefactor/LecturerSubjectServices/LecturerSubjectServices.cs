@@ -37,11 +37,12 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// <summary>
         /// Imports a list of lecturer subjects from an Excel file into the database.
         /// </summary>
-        public async Task ImportLecturerSubjectFromExcel(List<LecturerSubject> listLecturerSubjectFromExcel)
+        public async Task ImportLecturerSubjectFromExcel(List<LecturerSubject> listLecturerSubjectFromExcel, IProgress<int> progress)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
+                var index = 0;
                 var lecturerMissList = new List<string>();
                 var subjectMissList = new List<string>();
 
@@ -66,6 +67,12 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     {
                         await _unitOfWork.Repository<LecturerSubject>().AddAsync(lecturerSubject);
                     }
+
+                    await Task.Delay(10);
+
+                    index++;
+                    var percentCompleted = (int)((double)index / listLecturerSubjectFromExcel.Count * 100);
+                    progress?.Report(percentCompleted);
                 }
 
                 await _unitOfWork.CommitAsync();
@@ -196,8 +203,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
                     int colCount = worksheet.UsedRange.LastColumn;
 
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    var listColCheck = new List<int> { 1, 3, 5, 6 };
-                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+                    Utility.IsColumnDuplicatedLsExcel(worksheet);
 
                     for (int c = 1; c <= colCount; c++)
                     {

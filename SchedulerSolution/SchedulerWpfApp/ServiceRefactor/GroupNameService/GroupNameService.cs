@@ -84,11 +84,13 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
         /// Import group names (classes) from an Excel file.
         /// This method takes a list of GroupName objects as input and adds them to the database.
         /// </summary>
-        public async Task ImportGroupNameFromExcel(List<GroupClass> listGroupNameFromExcel)
+        public async Task ImportGroupNameFromExcel(List<GroupClass> listGroupNameFromExcel, IProgress<int> progress)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
+                var index = 0;
+
                 foreach (var groupname in listGroupNameFromExcel)
                 {
                     var existing = await _unitOfWork.GroupNameRepository.CheckGroupNameExistsAsync(groupname.GroupName);
@@ -96,7 +98,14 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                     {
                         await _unitOfWork.GroupNameRepository.AddAsync(groupname);
                     }
+
+                    await Task.Delay(10);
+
+                    index++;
+                    var percentCompleted = (int)((double)index / listGroupNameFromExcel.Count * 100);
+                    progress?.Report(percentCompleted);
                 }
+
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
@@ -178,8 +187,6 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                     int colCount = worksheet.UsedRange.LastColumn;
 
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    var listColCheck = new List<int> { 1 };
-                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
 
                     for (int c = 1; c <= colCount; c++)
                     {
@@ -245,7 +252,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             workbook.SaveAs(filePath);
         }
 
-        public async Task <List<string>> GetAllMajorAsync()
+        public async Task<List<string>> GetAllMajorAsync()
         {
             try
             {

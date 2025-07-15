@@ -54,9 +54,9 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
 
                     int rowCount = worksheet.UsedRange.LastRow;
                     int colCount = worksheet.UsedRange.LastColumn;
+
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    var listColCheck = new List<int> { 1 };
-                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+                    Utility.IsRowDuplicated(worksheet, rowCount, colCount);
 
                     for (int c = 1; c <= colCount; c++)
                     {
@@ -129,11 +129,13 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
         /// Imports a list of rooms from an Excel file into the database.
         /// This method iterates through the provided list of rooms and adds each room to the database context.
         /// </summary>
-        public async Task ImportRoomFromExcel(List<Room> listRoomFromExcel)
+        public async Task ImportRoomFromExcel(List<Room> listRoomFromExcel, IProgress<int> progress)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
+                var index = 0;
+
                 foreach (var room in listRoomFromExcel)
                 {
                     var existing = await _unitOfWork.RoomRepository.CheckRoomNameExistsAsync(room.RoomName);
@@ -141,7 +143,14 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
                     {
                         await _unitOfWork.RoomRepository.AddAsync(room);
                     }
+
+                    await Task.Delay(10);
+
+                    index++;
+                    var percentCompleted = (int)((double)index / listRoomFromExcel.Count * 100);
+                    progress.Report(percentCompleted);
                 }
+
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)

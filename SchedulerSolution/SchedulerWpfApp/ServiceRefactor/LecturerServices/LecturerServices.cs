@@ -41,11 +41,13 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
         /// </summary>
         /// <param name="listLectureFromExcel"></param>
         /// <returns></returns>
-        public async Task ImportLecturerFromExcel(List<Lecturer> listLecturerFromExcel)
+        public async Task ImportLecturerFromExcel(List<Lecturer> listLecturerFromExcel, IProgress<int> progress)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
+                var index = 0;
+
                 foreach (var lecturer in listLecturerFromExcel)
                 {
                     var existingLecturer = await _unitOfWork.LecturerRepository.CheckLecturerExistsAsync(lecturer.LecturerId);
@@ -53,7 +55,14 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                     {
                         await _unitOfWork.LecturerRepository.AddAsync(lecturer);
                     }
+
+                    await Task.Delay(10);
+
+                    index++;
+                    var percentCompleted = (int)((double)index / listLecturerFromExcel.Count * 100);
+                    progress.Report(percentCompleted);
                 }
+
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
@@ -141,8 +150,8 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                     int rowCount = worksheet.UsedRange.LastRow;
                     int colCount = worksheet.UsedRange.LastColumn;
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    var listColCheck = new List<int> { 1 };
-                    Utility.IsDuplicatedExcelRow(worksheet, rowCount, listColCheck);
+                    Utility.IsRowDuplicated(worksheet, rowCount, colCount);
+
                     for (int c = 1; c <= colCount; c++)
                     {
                         string header = worksheet[1, c].Value?.Trim() ?? "";
