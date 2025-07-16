@@ -26,7 +26,5 @@ namespace SchedulerWpfApp.Model
 
         [Column("PartOfDayInTheFirstTerm")]
         public string? PartOfDayInTheFirstTerm { get; set; }
-
-        public ICollection<Schedule>? Schedules { get; set; }
     }
 }

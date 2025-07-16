@@ -31,8 +31,8 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
             try
             {
                 var schedules = await _context.Schedules
-                     .Include(s => s.Room)
-                     .Include(s => s.Lecturer)
+                     //.Include(s => s.Room)
+                     //.Include(s => s.Lecturer)
                      .ToListAsync();
                 return schedules;
             }

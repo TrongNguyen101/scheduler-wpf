@@ -452,7 +452,7 @@ namespace SchedulerWpfApp.ViewModel
                 filtered = AllSchedules.Where(s => s.RoomName == SelectedRoomName && s.StatusSlot == ScheduleConstants.StatusSlotIsOffline && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
             else if (CurrentDisplayMode == DisplayMode.CLASS)
                 filtered = AllSchedules.Where(s => s.GroupName == SelectedGroupName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
-            else filtered = AllSchedules.Where(s => s.Lecturer?.LecturerAccount == SelectedLecturer && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by lecturer and date range
+            else filtered = AllSchedules.Where(s => s.LecturerAccount == SelectedLecturer && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by lecturer and date range
             GenerateTimetableCellsAndSlotRows(filtered); // Generate timetable cells and slot rows based on the filtered schedules
         }
 
@@ -480,7 +480,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 GroupNames = new ObservableCollection<string>(schedules.Select(s => s.GroupName).Distinct().OrderBy(name => name)); // Get distinct group names from the schedules
                 Rooms = new ObservableCollection<string>(schedules.Select(s => s.RoomName).Distinct().OrderBy(name => name)); // Get distinct room names from the schedules
-                Lecturers = new ObservableCollection<string>(schedules.Select(s => s.Lecturer?.LecturerAccount).Distinct().OrderBy(name => name)); // Get distinct lecturer IDs from the schedules
+                Lecturers = new ObservableCollection<string>(schedules.Select(s => s.LecturerAccount).Distinct().OrderBy(name => name)); // Get distinct lecturer IDs from the schedules
             }
         }
 
@@ -491,13 +491,13 @@ namespace SchedulerWpfApp.ViewModel
         {
             DateTime startDate = new DateTime(2025, 01, 06);
 
-            if (ListMajorGroupA.Count <= 0 || ListMajorGroupB.Count <= 0)
-            {
-                MessageBox.Show("Vui lòng chọn đầy đủ thông tin trước khi tạo lịch.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                IsScheduleFormOpen = true;
-            }
-            else
-            {
+            //if (ListMajorGroupA.Count <= 0 || ListMajorGroupB.Count <= 0)
+            //{
+            //    MessageBox.Show("Vui lòng chọn đầy đủ thông tin trước khi tạo lịch.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    IsScheduleFormOpen = true;
+            //}
+            //else
+            //{
                 //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, ListMajorGroupA.ToList(), ListMajorGroupB.ToList());
                 var schedules = await _createScheduleTree.GenerateSchedules();
 
@@ -507,7 +507,7 @@ namespace SchedulerWpfApp.ViewModel
                     MessageBox.Show("Không có lịch nào được tạo.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 else
                     MessageBox.Show("Tạo lịch thành công.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+            //}
         }
 
         /// <summary>
@@ -975,8 +975,8 @@ namespace SchedulerWpfApp.ViewModel
                 SlotTypeCode = originalSchedule.SlotTypeCode,
                 TypeSlot = originalSchedule.TypeSlot,
                 SessionNo = originalSchedule.SessionNo,
-                Lecturer = originalSchedule.Lecturer,
-                Room = originalSchedule.Room
+                //Lecturer = originalSchedule.Lecturer,
+                //Room = originalSchedule.Room
             };
         }
 

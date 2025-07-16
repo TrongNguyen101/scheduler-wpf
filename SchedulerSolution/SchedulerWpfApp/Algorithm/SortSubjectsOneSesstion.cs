@@ -17,15 +17,15 @@ namespace SchedulerWpfApp.Algorithm
             var subjectOneSlot = allSubjects.Where(subject => subject.TeachingMode == "C-ON").ToList();
 
 
-            //Kiểm tra đầu vào
-            if (subjects == null || subjects.Count != 4)
-            {
-                throw new ArgumentException("Course array must contain exactly 4 courses.");
-            }
-            if (numClasses < 1 || numClasses > 4)
-            {
-                throw new ArgumentException("Number of classes must be between 1 and 4.");
-            }
+            ////Kiểm tra đầu vào
+            //if (subjects == null || subjects.Count != 4)
+            //{
+            //    throw new ArgumentException("Course array must contain exactly 4 courses.");
+            //}
+            //if (numClasses < 1 || numClasses > 4)
+            //{
+            //    throw new ArgumentException("Number of classes must be between 1 and 4.");
+            //}
 
             // Khởi tạo lịch học: [Ngày, Lớp, Slot]
             CurriculumSubjectWithCount[,,] schedule = new CurriculumSubjectWithCount[8, numClasses, 2];

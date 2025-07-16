@@ -212,7 +212,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                             headerMap[header] = c;
                     }
 
-                    string[] requiredHeaders = { "CurriculumCode", "SubjectCode", "SubjectName", "SubjectV", "TermNo", "IsCombo", "Credits", "TotalSLots" };
+                    string[] requiredHeaders = { "CurriculumCode", "SubjectCode", "SubjectName", "SubjectV", "TermNo", "IsCombo", "Credits", "TotalSLots", "TeachingMode", "PartOfTerm" };
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
                             throw new Exception($"Missing required column: {h}");
@@ -228,6 +228,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                         var subjectNameEnglish = worksheet[r, headerMap["SubjectName"]].Value?.ToString();
                         var subjectNameVietnamese = worksheet[r, headerMap["SubjectV"]].Value?.ToString();
                         var teachingMode = worksheet[r, headerMap["TeachingMode"]].Value?.ToString();
+                        var partOfTerm = worksheet[r, headerMap["PartOfTerm"]].Value?.ToString();
 
                         // TermNo
                         int termNo = 0;
@@ -260,7 +261,8 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                             IsCombo = isCombo,
                             Credit = credit,
                             TotalSlots = totalSlots,
-                            TeachingMode = teachingMode
+                            TeachingMode = teachingMode, 
+                            PartOfTerm = partOfTerm
                         };
 
                         curriculumSubjects.Add(curriculumSubject);
@@ -299,6 +301,8 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
             sheet[1, 6].Text = "IsCombo";
             sheet[1, 7].Text = "Credits";
             sheet[1, 8].Text = "TotalSLots";
+            sheet[1, 9].Text = "TeachingMode";
+            sheet[1, 10].Text = "PartOfTerm";
 
             int row = 2;
             foreach (var curriculumSubject in curriculumSubjects)
@@ -311,6 +315,8 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                 sheet[row, 6].Text = curriculumSubject.IsCombo.ToString() ?? "";
                 sheet[row, 7].Text = curriculumSubject.Credit.ToString() ?? "";
                 sheet[row, 8].Text = curriculumSubject.TotalSlots.ToString() ?? "";
+                sheet[row, 9].Text = curriculumSubject.TeachingMode ?? "";
+                sheet[row, 10].Text = curriculumSubject.PartOfTerm ?? "";
                 row++;
             }
             workbook.SaveAs(filePath);

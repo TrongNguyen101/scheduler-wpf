@@ -36,12 +36,5 @@
         public const int NewSlotStartTimePM = 3; // new slot strart time in PM is 3
 
         public const int TotalSlotsNomal = 20;
-
-        public const string SubjectCodeDefault = "SubjectCodeDefault";
-        public const string GroupNameDefault = "GroupNameDefault";
-        public const string LecturerIdDefault = "LecturerIdDefault";
-
-
-
     }
 }

@@ -76,6 +76,7 @@ namespace SchedulerWpfApp.Algorithm
                                                 int slotTime,
                                                 string lecturerId,
                                                 string lecturerName,
+                                                string lecturerAccount,
                                                 string slotTypeCode,
                                                 string typeSlot,
                                                 int sessionNo,
@@ -123,19 +124,20 @@ namespace SchedulerWpfApp.Algorithm
                         GroupName = groupName,
                         LecturerId = lecturerId,
                         LecturerName = lecturerName,
+                        LecturerAccount = lecturerAccount,
                         SlotTypeCode = slotTypeCode,
                         TypeSlot = typeSlot,
-                        SessionNo = sessionNo
+                        SessionNo = sessionNo,
                     });
             }
 
             // Đệ quy các nhánh con và gộp kết quả
             schedules.AddRange(CollectSchedules(node.Left, subjectCode, date, groupName,
-                slotTime, lecturerId, lecturerName, slotTypeCode, typeSlot, sessionNo,
+                slotTime, lecturerId, lecturerName, lecturerAccount, slotTypeCode, typeSlot, sessionNo,
                 partOfDayFilter, statusSlot));
 
             schedules.AddRange(CollectSchedules(node.Right, subjectCode, date, groupName,
-                slotTime, lecturerId, lecturerName, slotTypeCode, typeSlot, sessionNo,
+                slotTime, lecturerId, lecturerName, lecturerAccount, slotTypeCode, typeSlot, sessionNo,
                 partOfDayFilter, statusSlot));
 
             return schedules;

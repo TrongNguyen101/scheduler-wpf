@@ -28,7 +28,5 @@ namespace SchedulerWpfApp.Model
 
         [Column("Floor")]
         public int Floor { get; set; } // Floor of the room
-
-        public ICollection<Schedule>? Schedules { get; set; } // Navigation property to Schedule
     }
 }
