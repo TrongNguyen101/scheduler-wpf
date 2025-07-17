@@ -4,6 +4,7 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
 using SchedulerWpfApp.ServiceRefactor.RoomService;
 
 namespace SchedulerWpfApp.ViewModel
@@ -15,6 +16,7 @@ namespace SchedulerWpfApp.ViewModel
     {
         #region Fields
         private readonly IRoomService _roomService;
+        private readonly INotificationService _notificationService;
         private ObservableCollection<Room> _roomlist;
         private Room? _selectedRoom;
         public string FormTitle => SelectedRoom?.RoomId == 0 ? "Thêm phòng mới" : "Chỉnh sửa thông tin phòng";
@@ -133,9 +135,10 @@ namespace SchedulerWpfApp.ViewModel
         /// <param name="roomService"></param>
         /// <param name="excelroomImporter"></param>
         /// <param name="excelroomExporter"></param>
-        public RoomViewModel(IRoomService roomService)
+        public RoomViewModel(IRoomService roomService, INotificationService notificationService)
         {
             _roomService = roomService;
+            _notificationService = notificationService; 
             // Initialize commands for various actions related to room management
             ImportRoomListCommand = new RelayCommand(async () => await ImportRoomListAsync());
             ExportRoomListCommand = new RelayCommand(async () => await ExportRoomAsync());
@@ -165,7 +168,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Không tải được phòng: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Lấy danh sách phòng học không thành công: {ex.Message}");
             }
         }
         /// <summary>
@@ -193,14 +196,13 @@ namespace SchedulerWpfApp.ViewModel
                     IsProgressBarOpen = true;
                     await _roomService.ImportRoomFromExcel(data, progress);
                     IsProgressBarOpen = false;
-
-                    MessageBox.Show("Nhập thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Nhập danh sách phòng học thành công!");
                     await LoadRoomAsync();
                 }
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    MessageBox.Show($"Nhập thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError($"Nhập danh sách phòng học không thành công: {ex.Message}");
                 }
             }
         }
@@ -213,7 +215,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (Rooms == null || Rooms.Count == 0)
             {
-                MessageBox.Show("Không có chỗ để xuất.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có phòng học để xuất.");
                 return;
             }
 
@@ -231,11 +233,11 @@ namespace SchedulerWpfApp.ViewModel
                     var roomList = Rooms.Where(p => p != null).ToList();
                     // call ExportToExcelRoom function to export file
                     _roomService.ExportRoomToExcel(roomList, dialog.FileName);
-                    MessageBox.Show("Xuất thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Xuất danh sách phòng học thành công!");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Xuất thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError($"Xuất danh sách phòng học không thành công: {ex.Message}");
                 }
             }
         }
@@ -322,18 +324,18 @@ namespace SchedulerWpfApp.ViewModel
                 if (SelectedRoom != null)
                 {
                     await _roomService.DeleteRoom(SelectedRoom.RoomId);
-                    MessageBox.Show("Xóa Thành Công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Xóa phòng thành công!");
                     await LoadRoomAsync();
                     IsOpenDialog = false;
                 }
                 else
                 {
-                    MessageBox.Show("Vui lòng chọn trước khi xóa");
+                    _notificationService.ShowWarning("Vui lòng chọn phòng trước khi xóa");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Xóa thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Xóa phòng không thành công: {ex.Message}");
             }
         }
 
@@ -363,19 +365,19 @@ namespace SchedulerWpfApp.ViewModel
                 string.IsNullOrWhiteSpace(SelectedRoom.Building) ||
                 string.IsNullOrWhiteSpace(SelectedRoom.Status))
             {
-                MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Dữ liệu phòng học không được để trống");
                 IsRoomFormOpen = true;
                 return;
             }
             else if (SelectedRoom.TotalPersons <= 0 || SelectedRoom.TotalPersons > 50)
             {
-                MessageBox.Show("Số người trong phòng không vượt quá 50 người và không được nhỏ hơn bằng 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Số người trong phòng không vượt quá 50 người và không được nhỏ hơn bằng 0");
                 IsRoomFormOpen = true;
                 return;
             }
             else if (SelectedRoom.Floor <= 0 || SelectedRoom.Floor > 6)
             {
-                MessageBox.Show("Số tầng không được vượt quá 5 và không được nhỏ hơn bằng 0", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Số tầng không được vượt quá 5 và không được nhỏ hơn bằng 0");
                 IsRoomFormOpen = true;
                 return;
             }
@@ -384,19 +386,19 @@ namespace SchedulerWpfApp.ViewModel
                 if (_isEditing)
                 {
                     await _roomService.UpdateRoom(SelectedRoom);
-                    MessageBox.Show("Cập nhật thông tin phòng thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Cập nhật thông tin phòng thành công!");
                 }
                 else
                 {
                     var exists = await _roomService.CheckRoomNameExistsAsync(SelectedRoom.RoomName);
                     if (exists)
                     {
-                        MessageBox.Show("Tên phòng đã tồn tại. Vui lòng chọn tên khác.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Phòng đã tồn tại. Vui lòng điền dữ liệu khác.");
                         IsRoomFormOpen = true;
                         return;
                     }
                     await _roomService.AddRoom(SelectedRoom);
-                    MessageBox.Show("Thêm phòng mới thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Thêm phòng mới thành công!");
                 }
                 IsRoomFormOpen = false;
                 SelectedRoom = null;
@@ -404,7 +406,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi lưu phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Lỗi khi lưu phòng: {ex.Message}");
             }
         }
     }
