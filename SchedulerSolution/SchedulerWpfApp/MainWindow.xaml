@@ -6,6 +6,7 @@
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
         xmlns:local="clr-namespace:SchedulerWpfApp.Helper"
         xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
+        xmlns:notifications="clr-namespace:Notifications.Wpf.Controls;assembly=Notifications.Wpf"
         WindowStyle="None"
         MinWidth="1000"
         MinHeight="600"
@@ -390,6 +391,9 @@
                         <ContentControl Content="{Binding CurrentViewModel}" />
                     </Border>
                 </Grid>
+                <notifications:NotificationArea x:Name="WindowArea"
+                                                Position="TopRight"
+                                                MaxItems="3" />
             </Grid>
         </Grid>
     </Grid>

@@ -29,6 +29,8 @@ using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 using SchedulerWpfApp.Algorithm.DTO;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
+
 namespace SchedulerWpfApp
 {
     /// <summary>
@@ -166,7 +168,7 @@ namespace SchedulerWpfApp
             services.AddScoped<ISubjectServices, SubjectServices>();
             services.AddScoped<ICurriculumServices, CurriculumServices>();
             services.AddScoped<ICurriculumSubjectServices, CurriculumSubjectServices>();
-
+            services.AddScoped<INotificationService, NotificationService>();
             //services.AddScoped<IPersonService, PersonService>();
             //services.AddScoped<ISubjectServices, SubjectServices>();
             //services.AddScoped<IGroupNameService, GroupNameService>();

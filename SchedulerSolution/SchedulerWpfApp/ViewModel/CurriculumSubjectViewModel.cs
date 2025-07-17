@@ -7,6 +7,7 @@ using SchedulerWpfApp.Model;
 using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -20,6 +21,7 @@ namespace SchedulerWpfApp.ViewModel
         private readonly ICurriculumSubjectServices _curriculumSubjectService;
         private readonly ISubjectServices _subjectServices;
         private readonly ICurriculumServices _curriculumServices;
+        private readonly INotificationService _notificationService;
 
         // Internal data fields
         private ObservableCollection<CurriculumSubject> _curriculumSubjects;
@@ -215,12 +217,12 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public CurriculumSubjectViewModel(ICurriculumSubjectServices curriculumSubjectService, ISubjectServices subjectServices, ICurriculumServices curriculumServices)
+        public CurriculumSubjectViewModel(ICurriculumSubjectServices curriculumSubjectService, ISubjectServices subjectServices, ICurriculumServices curriculumServices, INotificationService notificationService)
         {
             _curriculumSubjectService = curriculumSubjectService;
             _subjectServices = subjectServices;
             _curriculumServices = curriculumServices;
-
+            _notificationService = notificationService;
             CurriculumSubjects = new ObservableCollection<CurriculumSubject>();
 
             // Initialize commands with async methods
@@ -399,7 +401,7 @@ namespace SchedulerWpfApp.ViewModel
             // Validate the curriculumSubject before saving
             if (string.IsNullOrWhiteSpace(SelectedCurriculumSubject.CurriculumCode) || string.IsNullOrWhiteSpace(SelectedCurriculumSubject.SubjectCode))
             {
-                MessageBox.Show("Vui lòng điền đầy đủ thông tin khung môn.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Vui lòng điền đầy đủ thông tin khung môn.");
                 // Open the curriculumSubject form for user to fill in the details
                 IsCurriculumSubjectFormOpen = true;
                 return;
@@ -586,7 +588,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 Filter = "Excel Files (*.xlsx)|*.xlsx"
             };
-            
+
             var progress = new Progress<int>(percentCompleted =>
             {
                 ProgressValue = percentCompleted;
