@@ -30,6 +30,7 @@ using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
+
 namespace SchedulerWpfApp
 {
     /// <summary>
