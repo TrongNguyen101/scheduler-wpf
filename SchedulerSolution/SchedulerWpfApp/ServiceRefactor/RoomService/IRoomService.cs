@@ -3,7 +3,7 @@ namespace SchedulerWpfApp.ServiceRefactor.RoomService
 {
     public interface IRoomService
     {
-        Task ImportRoomFromExcel(List<Room> listRoomFromExcel);
+        Task ImportRoomFromExcel(List<Room> listRoomFromExcel, IProgress<int> progress);
         Task<List<Room>> GetAllAsync();
         Task<List<Room>> GetNumberOfRoom(int numberOfRoom);
         Task<Room?> GetByIdAsync(int id);

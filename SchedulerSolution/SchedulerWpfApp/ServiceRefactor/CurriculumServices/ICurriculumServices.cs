@@ -9,7 +9,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
         Task AddCurriculum(Curriculum curriculum);
         Task UpdateCurriculum(Curriculum curriculum);
         Task DeleteCurriculum(string curriculumCode);
-        Task ImportCurriculumFromExcel(List<Curriculum> listCurriculumFromExcel);
+        Task ImportCurriculumFromExcel(List<Curriculum> listCurriculumFromExcel, IProgress<int> progress);
         void ExportToExcel(List<Curriculum> curriculums, string filePath);
         List<Curriculum> ReadCurriculumsFromExcel(string filePath);
     }

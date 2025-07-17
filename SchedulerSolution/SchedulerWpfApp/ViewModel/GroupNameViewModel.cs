@@ -33,6 +33,8 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isEditing;
         // check if ClassId is edited
         private bool _IsGroupNameIdEditable = true;
+        private int _progressValue;
+        private bool _isProgressBarOpen;
         // used to set the title for the header bar of the popup when editing or adding
         public string FormTitle => SelectedGroupname?.GroupName == "" ? "Thêm lớp mới" : "Chỉnh sửa thông tin lớp";
 
@@ -109,6 +111,19 @@ namespace SchedulerWpfApp.ViewModel
             get => _IsGroupNameIdEditable;
             set => SetProperty(ref _IsGroupNameIdEditable, value);
         }
+
+        public int ProgressValue
+        {
+            get => _progressValue;
+            set { _progressValue = value; OnPropertyChanged(); }
+        }
+
+        public bool IsProgressBarOpen
+        {
+            get => _isProgressBarOpen;
+            set => SetProperty(ref _isProgressBarOpen, value);
+        }
+
         // declare commands that are triggered by events or view titles
         public ICommand AddGroupNameCommand { get; set; }
         public ICommand LoadGroupNameCommand { get; }
@@ -190,19 +205,27 @@ namespace SchedulerWpfApp.ViewModel
                 Filter = "Excel Files (*.xlsx)|*.xlsx"
             };
 
+            var progres = new Progress<int>(percentCompleted =>
+            {
+                ProgressValue = percentCompleted;
+            });
+
             if (dialog.ShowDialog() == true)
             {
                 try
                 {
-                    // call ReadgroupnameFromExcel function to process file and read file when importing
                     var data = _groupnamelistService.ReadGroupNameFromExcel(dialog.FileName);
-                    // call ImportGroupNameFromExcel function to add new data to database
-                    await _groupnamelistService.ImportGroupNameFromExcel(data);
+                    
+                    IsProgressBarOpen = true;
+                    await _groupnamelistService.ImportGroupNameFromExcel(data, progres);
+                    IsProgressBarOpen = false;
+
                     MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadGroupNameAsync();
                 }
                 catch (Exception ex)
                 {
+                    IsProgressBarOpen = false;
                     MessageBox.Show($"Import failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }

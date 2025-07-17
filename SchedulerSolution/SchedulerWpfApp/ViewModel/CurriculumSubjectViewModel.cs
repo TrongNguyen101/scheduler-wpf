@@ -30,13 +30,15 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isConfirmationOpen;
         private bool _isEdit;
         private bool _isCurriculumSubjectCodeEdit;
-        private ObservableCollection<CurriculumSubject> _allCurriculumSubjects;
-        private ObservableCollection<string> _allSubjectCodes;
-        private ObservableCollection<string> _allCurriculumCodes;
         private Subject _selectedSubject;
         private Curriculum _selectedCurriculum;
         private string _selectedSubjectCode;
         private string _selectedCurriculumCode;
+        private int _progressValue;
+        private bool _isProgressBarOpen;
+        private ObservableCollection<CurriculumSubject> _allCurriculumSubjects;
+        private ObservableCollection<string> _allSubjectCodes;
+        private ObservableCollection<string> _allCurriculumCodes;
 
         public string Title => SelectedCurriculumSubject?.CurriculumCode != null ? "Chỉnh Sửa Khung Môn" : "Thêm Mới Khung Môn";
         #endregion
@@ -182,6 +184,18 @@ namespace SchedulerWpfApp.ViewModel
                     }
                 }
             }
+        }
+
+        public int ProgressValue
+        {
+            get => _progressValue;
+            set { _progressValue = value; OnPropertyChanged(); }
+        }
+
+        public bool IsProgressBarOpen
+        {
+            get => _isProgressBarOpen;
+            set => SetProperty(ref _isProgressBarOpen, value);
         }
 
         // Commands exposed to the View
@@ -550,7 +564,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             var curriculums = await _curriculumServices.GetAllCurriculumAsync();
             var subjects = await _subjectServices.GetAllAsync();
-            
+
             // Check if lecturers and subjects lists are empty before proceeding with import
             if (!curriculums.Any() && !subjects.Any())
             {
@@ -572,19 +586,28 @@ namespace SchedulerWpfApp.ViewModel
             {
                 Filter = "Excel Files (*.xlsx)|*.xlsx"
             };
+            
+            var progress = new Progress<int>(percentCompleted =>
+            {
+                ProgressValue = percentCompleted;
+            });
 
             if (dialog.ShowDialog() == true)
             {
                 try
                 {
                     var data = _curriculumSubjectService.ReadCurriculumSubjectsFromExcel(dialog.FileName);
-                    // Validate the imported data
-                    await _curriculumSubjectService.ImportCurriculumSubjectFromExcel(data);
+
+                    IsProgressBarOpen = true;
+                    await _curriculumSubjectService.ImportCurriculumSubjectFromExcel(data, progress);
+                    IsProgressBarOpen = false;
+
                     MessageBox.Show("Import thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadCurriculumSubjectAsync();
                 }
                 catch (Exception ex)
                 {
+                    IsProgressBarOpen = false;
                     MessageBox.Show($"Import thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }

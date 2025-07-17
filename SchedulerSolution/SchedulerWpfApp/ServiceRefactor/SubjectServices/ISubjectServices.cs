@@ -9,7 +9,7 @@ namespace SchedulerWpfApp.ServiceRefactor.SubjectServices
         Task AddSubject(Subject subject);
         Task UpdateSubject(Subject subject);
         Task DeleteSubject(string subjectCode);
-        Task ImportSubjectFromExcel(List<Subject> listSubjectFromExcel);
+        Task ImportSubjectFromExcel(List<Subject> listSubjectFromExcel, IProgress<int> progress);
         void ExportToExcel(List<Subject> subjects, string filePath);
         List<Subject> ReadSubjectsFromExcel(string filePath);
     }

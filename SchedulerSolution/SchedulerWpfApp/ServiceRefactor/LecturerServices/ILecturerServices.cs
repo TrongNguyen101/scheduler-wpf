@@ -9,7 +9,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
         Task AddLecturer(Lecturer lecturer);
         Task UpdateLecturer(Lecturer lecturer);
         Task DeleteLecturer(string lecturerId);
-        Task ImportLecturerFromExcel(List<Lecturer> listLecturerFromExcel);
+        Task ImportLecturerFromExcel(List<Lecturer> listLecturerFromExcel, IProgress<int> progress);
         void ExportToExcel(List<Lecturer> lecturers, string filePath);
         List<Lecturer> ReadLecturersFromExcel(string filePath);
     }
