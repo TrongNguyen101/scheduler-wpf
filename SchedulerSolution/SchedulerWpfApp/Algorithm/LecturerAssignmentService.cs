@@ -36,13 +36,14 @@ namespace SchedulerWpfApp.Algorithm
                         {
                             LecturerId = g.Key,
                             LecturerName = g.First().LecturerName ?? "",
-                            LecturerAccount = g.First().Lecturer.LecturerAccount ?? ""
+                            LecturerAccount = g.First().Lecturer.LecturerAccount ?? "",
                         };
 
                         foreach (var ls in g)
                         {
                             if (!string.IsNullOrEmpty(ls.SubjectCode))
                             {
+                                state.TotalAssignedGroupsAllSubjects += ls.NumberOfClasses ?? 0;
                                 state.MaxClassesPerSubject[ls.SubjectCode] = ls.NumberOfClasses ?? 0;
                                 state.RequiredSlotsPerSubject[ls.SubjectCode] = (ls.TotalSlots / ls.NumberOfClasses) ?? 0;
                             }
@@ -54,6 +55,18 @@ namespace SchedulerWpfApp.Algorithm
 
         public void AssignLecturers()
         {
+
+            var listLecturerHaveTwoClasses = _lecturerStateMap.Values
+                .Where(l => l.TotalAssignedGroupsAllSubjects == 2)
+                .ToList();
+            var listLecturerHave4Classes = _lecturerStateMap.Values
+                .Where(l => l.TotalAssignedGroupsAllSubjects == 4)
+                .ToList();
+
+
+
+
+
             var groupedSchedules = _schedules
                 .Where(s => string.IsNullOrEmpty(s.LecturerId) && !string.IsNullOrEmpty(s.SubjectCode) && !string.IsNullOrEmpty(s.GroupName))
                 .GroupBy(s => (s.GroupName!, s.SubjectCode!));
@@ -67,21 +80,17 @@ namespace SchedulerWpfApp.Algorithm
                 // Duyệt qua từng lịch học trong nhóm lớp-môn để gán giảng viên
                 foreach (var schedule in schedules)
                 {
-                    // Bổ sung kiểm tra: lọc ra những giảng viên đã được phân ít slot hơn số lượng yêu cầu cho môn học
-                    schedules = schedules.OrderBy(s => s.Date).ToList();
-
                     {
                         // Lọc ra danh sách giảng viên phù hợp với lịch này, theo các ràng buộc về môn học, thời gian, lớp
                         var candidates = _lecturerStateMap.Values
-                            .Where(l =>
-                                l.MaxClassesPerSubject.ContainsKey(subjectCode) // Giảng viên có được dạy môn này không
-                                && l.IsAvailable(schedule) // Giảng viên có rảnh không
-                                && l.CanTeachThisClassSubject(schedule) // Có được dạy lớp này không (chỉ dạy 1 môn/lớp)
-                                && l.IsValidDayOfWeekForTwoClasses(schedule) // Nếu chỉ dạy 2 lớp thì phải đúng cặp ngày
-                                && l.RequiredSlotsPerSubject[subjectCode] > l.UsedSlots.Count(slot => slot.date.Date == schedule.Date!.Value.Date && slot.partOfDay == schedule.PartOfDay && slot.slotTime == schedule.SlotTime) // Chưa dạy đủ số slot của môn
-                            )
-                            .OrderBy(l => l.GetAssignedGroupCount(subjectCode)) // Ưu tiên giảng viên dạy ít lớp hơn
-                            .ToList();
+                         .Where(l =>
+                             l.MaxClassesPerSubject.ContainsKey(subjectCode) // Giảng viên có được dạy môn này không
+                             && l.IsAvailable(schedule) // Giảng viên có rảnh không
+                             && l.CanTeachThisClassSubject(schedule) // Có được dạy lớp này không (chỉ dạy 1 môn/lớp)
+                             && l.IsValidDayOfWeekForTwoClasses(schedule) // Nếu chỉ dạy 2 lớp thì phải đúng cặp ngày
+                         )
+                         .OrderBy(l => l.GetAssignedGroupCount(subjectCode)) // Ưu tiên giảng viên dạy ít lớp hơn
+                         .ToList();
 
                         if (candidates.Any())
                         {

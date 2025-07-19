@@ -109,7 +109,7 @@ namespace SchedulerWpfApp.Algorithm
 
                 var subjectOfClass = curriculumSubjects.Where(s => s.CurriculumCode == listGroupName[indexRoom].CurriculumCode && s.TermNo == listGroupName[indexRoom].Term).ToList();
 
-                var scheduleSubjectForClass = _sortSubjectsOneSession.SortSubjectFourClass(subjectOfClass);
+                var scheduleSubjectForClass = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(subjectOfClass);
 
                 // tìm thầy cho mỗi 4 lớp
                 var (classIndex, cycleLevel) = MapToCycle(indexRoom + 1);

@@ -1,9 +1,4 @@
 ﻿using SchedulerWpfApp.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SchedulerWpfApp.Algorithm.DTO
 {
@@ -12,6 +7,9 @@ namespace SchedulerWpfApp.Algorithm.DTO
         public string LecturerId { get; set; }
         public string LecturerName { get; set; }
         public string LecturerAccount { get; set; } // Tài khoản giảng viên
+
+        // Tổng số lớp giảng viên đã dạy ở tất cả các môn
+        public int TotalAssignedGroupsAllSubjects { get; set; } = 0;
 
         // Số lớp tối đa mà giảng viên được dạy cho từng môn học
         public Dictionary<string, int> MaxClassesPerSubject { get; set; } = new();
@@ -31,9 +29,6 @@ namespace SchedulerWpfApp.Algorithm.DTO
         // Lưu lại môn mà giảng viên đã dạy cho mỗi lớp để tránh dạy nhiều môn trong cùng một lớp
         public Dictionary<string, string> ClassToSubjectTaught = new(); // [GroupName] = SubjectCode
 
-        // Tổng số lớp giảng viên đã dạy ở tất cả các môn
-        public int TotalAssignedGroupsAllSubjects => AssignedGroupsPerSubject.Values.Sum(g => g.Count);
-
         // Kiểm tra giảng viên có rảnh tại slot được yêu cầu không, đồng thời chưa dạy quá 2 lớp trong buổi đó
         public bool IsAvailable(Schedule schedule)
         {
@@ -45,6 +40,7 @@ namespace SchedulerWpfApp.Algorithm.DTO
         // Kiểm tra xem giảng viên có được dạy môn này ở lớp này không, đảm bảo không dạy nhiều môn trong 1 lớp
         public bool CanTeachThisClassSubject(Schedule s)
         {
+            // Kiểm tra xem lớp này đã có giảng viên dạy môn này chưa
             if (ClassToSubjectTaught.TryGetValue(s.GroupName!, out var subjectAlreadyTaught))
                 return subjectAlreadyTaught == s.SubjectCode;
 

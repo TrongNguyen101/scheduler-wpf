@@ -27,6 +27,9 @@
 
         public const string TechingModeIsFullOff = "OFF";
 
+        public const string TechingModeIsOJT = "OJT";
+
+
         public const string TechingModeIsCoursera = "C-ON";
 
         public const string PartOfDayIsAM = "A";

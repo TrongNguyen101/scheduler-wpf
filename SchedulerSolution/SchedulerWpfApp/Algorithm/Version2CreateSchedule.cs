@@ -165,6 +165,12 @@ namespace SchedulerWpfApp.Algorithm
 
             var lecturersTeachSubjects = lecturersSubjects.GroupBy(l => l.SubjectCode).ToDictionary(g => g.Key, g => g.ToList());
 
+            var listGroupNameOJT = listGroupName.Where(g => g.TeachingMode == ScheduleConstants.TechingModeIsOJT).ToList();
+
+            var listGroupNameOnOff = listGroupName.Where(g => g.TeachingMode == ScheduleConstants.TechingModeIsOnOff).ToList();
+
+            var listGroupNameFullOff = listGroupName.Where(g => g.TeachingMode == ScheduleConstants.TechingModeIsFullOff).ToList();
+
             // *** TỐI ƯU HIỆU SUẤT: Tiền xử lý dữ liệu để tra cứu nhanh (O(1)) ***
             // Chuyển List thành Lookup để tìm kiếm môn học không cần duyệt lại toàn bộ danh sách.
             var curriculumLookup = curriculumSubjects.ToLookup(s => (s.CurriculumCode, s.TermNo));
@@ -177,7 +183,7 @@ namespace SchedulerWpfApp.Algorithm
             {
                 Lecturers = listLecturer,
                 LecturerRequests = new List<LecturerRequest>(),
-                LecturerSubjects =lecturersSubjects,
+                LecturerSubjects = lecturersSubjects,
                 Rooms = listRoom,
                 CurriculumSubjects = curriculumSubjects,
                 GroupNames = listGroupName,
@@ -187,34 +193,60 @@ namespace SchedulerWpfApp.Algorithm
             };
         }
 
+
+
+
         // Phương thức để tiền xử lý các môn học
         private Dictionary<string, CurriculumSubjectWithCount[,,]> ScheduleSubjectsLookup(ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup, List<GroupClass> listGroupName)
         {
             var subjectLookup = new Dictionary<string, CurriculumSubjectWithCount[,,]>();
+            List<GroupClass> class5subject = new List<GroupClass>();
+            List<GroupClass> class4subject = new List<GroupClass>();
+            List<GroupClass> class3subject = new List<GroupClass>();
+            List<GroupClass> class2subject = new List<GroupClass>();
+            List<GroupClass> class1subject = new List<GroupClass>();
+
+
 
             foreach (var groupName in listGroupName)
             {
                 var subjectsOfClass = curriculumLookup[(groupName.CurriculumCode, groupName.Term.GetValueOrDefault())].ToList();
                 //var subjectOfClass = curriculumLookup[("BIT_GD_MCD_18A", 8)].ToList();
-                if (subjectsOfClass.Count < 4)
-                {
-                    //var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClass(listSubjectOnOffNomalAndHalfOne);
-                    //    subjectLookup.Add(groupName.GroupName, sortedFourSubjects);
-                }
-                else
-                {
-                    var listSubjectOnOffNomalAndHalfOne = subjectsOfClass.Where(s => s.TeachingMode == ScheduleConstants.TechingModeIsOnOff && (s.PartOfTerm.Contains("H1") || s.PartOfTerm == "All")).ToList();
 
-                    if (listSubjectOnOffNomalAndHalfOne.Count == 4)
-                    {
-                        var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(listSubjectOnOffNomalAndHalfOne);
-                        subjectLookup.Add(groupName.GroupName, sortedFourSubjects);
-                    }
-                    else if (listSubjectOnOffNomalAndHalfOne.Count == 5)
-                    {
-                        var sortedFiveSubjects = _sortSubjectsOneSession.SortFiveSubjectForClass(listSubjectOnOffNomalAndHalfOne);
-                        subjectLookup.Add(groupName.GroupName, sortedFiveSubjects);
-                    }
+                var listGroupNameOJT = listGroupName.Where(g => g.TeachingMode == ScheduleConstants.TechingModeIsOJT).ToList();
+
+
+
+                var listSubjectOnOffNomalAndHalfOne = subjectsOfClass
+                                                     .Where(s => s.TeachingMode == ScheduleConstants.TechingModeIsOnOff && (s.PartOfTerm.Contains("H1") || s.PartOfTerm == "All"))
+                                                     .ToList();
+
+                if (listSubjectOnOffNomalAndHalfOne.Count == 2)
+                {
+                    class2subject.Add(groupName);
+                    // Skip or process if there are fewer than 4 subjects
+                    continue;
+                }
+                if (listSubjectOnOffNomalAndHalfOne.Count == 3)
+                {
+                    class3subject.Add(groupName);
+                    var curriculumTemp = new CurriculumSubject();
+                    listSubjectOnOffNomalAndHalfOne.Add(curriculumTemp); // Thêm một môn học tạm thời để đảm bảo có đủ 4 môn
+
+                    var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(listSubjectOnOffNomalAndHalfOne);
+                    subjectLookup[groupName.GroupName] = sortedFourSubjects;
+                }
+                else if (listSubjectOnOffNomalAndHalfOne.Count == 4)
+                {
+                    class4subject.Add(groupName);
+                    var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(listSubjectOnOffNomalAndHalfOne);
+                    subjectLookup[groupName.GroupName] = sortedFourSubjects;
+                }
+                else if (listSubjectOnOffNomalAndHalfOne.Count == 5)
+                {
+                    class5subject.Add(groupName);
+                    var sortedFiveSubjects = _sortSubjectsOneSession.SortFiveSubjectForClass(listSubjectOnOffNomalAndHalfOne);
+                    subjectLookup[groupName.GroupName] = sortedFiveSubjects;
                 }
             }
             return subjectLookup;
@@ -631,7 +663,10 @@ namespace SchedulerWpfApp.Algorithm
                         if (scheduleSubjectForClassForRoom == null) continue; // Nếu không có lịch môn học cho lớp này thì bỏ qua
 
                         var subjectSorted = scheduleSubjectForClassForRoom[dayOfWeek, classIndex, slotIndex];
+
                         if (subjectSorted == null) continue;
+
+                        if (string.IsNullOrEmpty( subjectSorted.Subject.CurriculumCode)) continue;
 
                         string typeSlot = subjectSorted.Subject.TeachingMode == ScheduleConstants.TechingModeIsCoursera ? ScheduleConstants.TypeSlotIsOld : ScheduleConstants.TypeSlotIsNew;
                         if (subjectSorted.Subject.TeachingMode == ScheduleConstants.TechingModeIsCoursera)
