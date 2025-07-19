@@ -175,8 +175,8 @@
                         <syncfusion:GridTextColumn HeaderText="Bộ Môn"
                                                    MappingName="Department"
                                                    AllowResizing="True" />
-                        <syncfusion:GridTextColumn HeaderText="AccGV" 
-                                                   MappingName="LecturerAccount" 
+                        <syncfusion:GridTextColumn HeaderText="AccGV"
+                                                   MappingName="LecturerAccount"
                                                    AllowResizing="True" />
                         <syncfusion:GridTemplateColumn HeaderText="Action"
                                                        Width="90"
@@ -275,7 +275,12 @@
                                  Margin="0,0,0,15"
                                  Text="{Binding SelectedLecture.LecturerId}"
                                  IsReadOnly="{Binding IsLectureCodeEdit}" />
-
+                        <TextBlock Text="Account"
+                                   Margin="0,0,0,5"
+                                   Foreground="{StaticResource TextColor}" />
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}"
+                                 Margin="0,0,0,15"
+                                 Text="{Binding SelectedLecture.LecturerAccount, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBlock Text="Họ và Tên"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
@@ -389,12 +394,24 @@
                 </Grid>
             </Border>
         </Popup>
-        <Popup IsOpen="{Binding IsProgressBarOpen}" StaysOpen="True" Placement="Center" AllowsTransparency="True">
-            <Border Background="#CCFFFFFF" Padding="20" CornerRadius="8" 
-             BorderBrush="Gray" BorderThickness="1" >
+        <Popup IsOpen="{Binding IsProgressBarOpen}"
+               StaysOpen="True"
+               Placement="Center"
+               AllowsTransparency="True">
+            <Border Background="#CCFFFFFF"
+                    Padding="20"
+                    CornerRadius="8"
+                    BorderBrush="Gray"
+                    BorderThickness="1">
                 <StackPanel>
-                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..." Margin="0,0,0,8" HorizontalAlignment="Center"/>
-                    <ProgressBar Height="24" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" Width="300"/>
+                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..."
+                               Margin="0,0,0,8"
+                               HorizontalAlignment="Center" />
+                    <ProgressBar Height="24"
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="{Binding ProgressValue}"
+                                 Width="300" />
                 </StackPanel>
             </Border>
         </Popup>
