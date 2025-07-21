@@ -6,7 +6,7 @@
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
         xmlns:local="clr-namespace:SchedulerWpfApp.Helper"
         xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
-        xmlns:notifications="clr-namespace:Notifications.Wpf.Controls;assembly=Notifications.Wpf"
+        xmlns:notifications="clr-namespace:Notification.Wpf.Controls;assembly=Notification.Wpf"
         WindowStyle="None"
         MinWidth="1000"
         MinHeight="600"
@@ -392,7 +392,7 @@
                     </Border>
                 </Grid>
                 <notifications:NotificationArea x:Name="WindowArea"
-                                                Position="TopRight"
+                                                Position="BottomRight"
                                                 MaxItems="3" />
             </Grid>
         </Grid>
