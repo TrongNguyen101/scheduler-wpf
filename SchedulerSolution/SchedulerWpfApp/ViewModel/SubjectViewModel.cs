@@ -182,7 +182,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Lỗi khi lấy danh sách môn học: {ex.Message}");
+                _notificationService.ShowError("Lỗi khi lấy danh sách môn học.");
             }
         }
 
@@ -301,7 +301,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Lỗi khi lưu môn học: {ex.Message}");
+                _notificationService.ShowError("Lỗi khi lưu môn học.");
             }
             finally
             {
@@ -350,7 +350,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Xóa môn học thất bại: {ex.Message}");
+                _notificationService.ShowError("Xóa môn học thất bại.");
             }
             finally
             {
@@ -389,7 +389,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    _notificationService.ShowError($"Xuất môn học thất bại: {ex.Message}");
+                    _notificationService.ShowError("Xuất môn học thất bại.");
                 }
             }
         }
@@ -425,7 +425,7 @@ namespace SchedulerWpfApp.ViewModel
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Nhập môn học thất bại: {ex.Message}");
+                    _notificationService.ShowError("Nhập môn học thất bại.");
                 }
             }
         }

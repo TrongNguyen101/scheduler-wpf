@@ -180,7 +180,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Lỗi khi tải khung chương trình. {ex.Message}");
+                _notificationService.ShowError("Lỗi khi tải khung chương trình.");
             }
         }
 
@@ -281,7 +281,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Lỗi khi lưu khung chương trình: {ex.Message}");
+                _notificationService.ShowError("Lỗi khi lưu khung chương trình.");
             }
             finally
             {
@@ -330,7 +330,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Xóa khung chương trình thất bại: {ex.Message}");
+                _notificationService.ShowError("Xóa khung chương trình thất bại.");
             }
             finally
             {
@@ -369,7 +369,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    _notificationService.ShowError($"Xuất khung chương trình thất bại: {ex.Message}");
+                    _notificationService.ShowError("Xuất khung chương trình thất bại.");
                 }
             }
         }
@@ -406,7 +406,7 @@ namespace SchedulerWpfApp.ViewModel
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Nhập khung chương trình thất bại: {ex.Message}");
+                    _notificationService.ShowError("Nhập khung chương trình thất bại.");
                 }
             }
         }

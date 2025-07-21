@@ -273,7 +273,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Lỗi khi lấy danh sách khung môn: {ex.Message}");
+                _notificationService.ShowError("Lỗi khi lấy danh sách khung môn.");
             }
         }
 
@@ -295,7 +295,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Lỗi khi lấy thông tin khung chương trình: {ex.Message}");
+                _notificationService.ShowError("Lỗi khi lấy thông tin khung chương trình.");
             }
         }
 
@@ -317,7 +317,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Lỗi khi tải danh sách khung môn: {ex.Message}");
+                _notificationService.ShowError("Lỗi khi tải danh sách khung môn.");
             }
         }
 
@@ -462,7 +462,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Lỗi khi lưu khung môn: {ex.Message}");
+                _notificationService.ShowError("Lỗi khi lưu khung môn.");
             }
             finally
             {
@@ -515,7 +515,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Xóa khung môn thất bại: {ex.Message}");
+                _notificationService.ShowError("Xóa khung môn thất bại.");
             }
             finally
             {
@@ -554,7 +554,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    _notificationService.ShowError($"Xuất khung môn thất bại: {ex.Message}");
+                    _notificationService.ShowError("Xuất khung môn thất bại.");
                 }
             }
         }
@@ -610,7 +610,7 @@ namespace SchedulerWpfApp.ViewModel
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Nhập khung môn thất bại: {ex.Message}");
+                    _notificationService.ShowError("Nhập khung môn thất bại.");
                 }
             }
         }
