@@ -308,7 +308,7 @@
                Placement="Center"
                IsOpen="{Binding IsOpenDialog}"
                AllowsTransparency="True">
-            <Border Background="White"
+            <Border Background="#F0F4F8"
                     BorderThickness="0"
                     CornerRadius="8"
                     Padding="25"

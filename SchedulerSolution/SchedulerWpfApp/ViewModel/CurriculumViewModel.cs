@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -16,6 +17,7 @@ namespace SchedulerWpfApp.ViewModel
         #region Fields
         // Dependencies injected via constructor
         private readonly ICurriculumServices _curriculumService;
+        private readonly INotificationService _notificationService;
 
         // Internal data fields
         private ObservableCollection<Curriculum> _curriculums;
@@ -137,9 +139,10 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public CurriculumViewModel(ICurriculumServices curriculumService)
+        public CurriculumViewModel(ICurriculumServices curriculumService, INotificationService notificationService)
         {
             _curriculumService = curriculumService;
+            _notificationService = notificationService;
 
             Curriculums = new ObservableCollection<Curriculum>();
 
@@ -177,7 +180,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load Curriculums: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Lỗi khi tải khung chương trình. {ex.Message}");
             }
         }
 
@@ -232,7 +235,7 @@ namespace SchedulerWpfApp.ViewModel
             // Validate the curriculum before saving
             if (string.IsNullOrWhiteSpace(SelectedCurriculum.CurriculumCode))
             {
-                MessageBox.Show("Vui lòng điền đầy đủ thông tin khung chương trình.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Vui lòng điền đầy đủ thông tin khung chương trình.");
                 // Open the curriculum form for user to fill in the details
                 IsCurriculumFormOpen = true;
                 return;
@@ -250,11 +253,11 @@ namespace SchedulerWpfApp.ViewModel
                     {
                         // Add new curriculum
                         await _curriculumService.AddCurriculum(SelectedCurriculum);
-                        MessageBox.Show("Thêm khung chương trình thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                        _notificationService.ShowSuccess("Thêm khung chương trình thành công.");
                     }
                     else
                         // Warning
-                        MessageBox.Show("Khung chương trình đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Khung chương trình đã tồn tại. Vui lòng kiểm tra lại mã khung chương trình.");
                 }
                 else
                 {
@@ -267,18 +270,18 @@ namespace SchedulerWpfApp.ViewModel
 
                         // Update the curriculum in the data source
                         await _curriculumService.UpdateCurriculum(existingCurriculum);
-                        MessageBox.Show("Update khung chương trình thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                        _notificationService.ShowSuccess("Cập nhật khung chương trình thành công.");
                     }
                     else
                     {
                         // Warning
-                        MessageBox.Show("Khung chương trình không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Khung chương trình không tồn tại. Vui lòng kiểm tra lại mã khung chương trình.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lưu khung chương trình thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Lỗi khi lưu khung chương trình: {ex.Message}");
             }
             finally
             {
@@ -313,7 +316,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (SelectedCurriculum == null)
             {
-                MessageBox.Show("Không có khung chương trình nào được chọn để xóa.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có khung chương trình nào được chọn để xóa.");
                 IsOpenDialog = false;
                 return;
             }
@@ -323,11 +326,11 @@ namespace SchedulerWpfApp.ViewModel
                 // Delete the selected curriculum from the data source
                 await _curriculumService.DeleteCurriculum(SelectedCurriculum.CurriculumCode);
 
-                MessageBox.Show("Xóa khung chương trình thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                _notificationService.ShowSuccess("Xóa khung chương trình thành công.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Xóa khung chương trình thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Xóa khung chương trình thất bại: {ex.Message}");
             }
             finally
             {
@@ -344,7 +347,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (_allCurriculums == null || _allCurriculums.Count == 0)
             {
-                MessageBox.Show("Không có khung chương trình nào để xóa.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có khung chương trình nào để xuất.");
                 return;
             }
 
@@ -362,11 +365,11 @@ namespace SchedulerWpfApp.ViewModel
                     var curriculumList = _allCurriculums.Where(p => p != null).ToList();
                     // Use the Excel exporter service to export the curriculums to the selected file
                     _curriculumService.ExportToExcel(curriculumList, dialog.FileName);
-                    MessageBox.Show("Export thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Xuất khung chương trình thành công.");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Export thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError($"Xuất khung chương trình thất bại: {ex.Message}");
                 }
             }
         }
@@ -396,14 +399,14 @@ namespace SchedulerWpfApp.ViewModel
                     await _curriculumService.ImportCurriculumFromExcel(data, progress);
                     IsProgressBarOpen = false;
 
-                    MessageBox.Show("Import thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Nhập khung chương trình thành công.");
 
                     await LoadCurriculumAsync();
                 }
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    MessageBox.Show($"{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError($"Nhập khung chương trình thất bại: {ex.Message}");
                 }
             }
         }

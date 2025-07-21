@@ -1,7 +1,8 @@
-﻿using Notifications.Wpf;
+﻿using System.Windows.Media;
+using Notification.Wpf;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
 
-public class NotificationService: INotificationService
+public class NotificationService : INotificationService
 {
     private readonly NotificationManager _notificationManager;
 
@@ -16,7 +17,8 @@ public class NotificationService: INotificationService
         {
             Title = "Thành công",
             Message = message,
-            Type = NotificationType.Success
+            Type = NotificationType.Success,
+            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#34A853"))
         }, areaName: "WindowArea");
     }
 
@@ -26,7 +28,8 @@ public class NotificationService: INotificationService
         {
             Title = "Lỗi",
             Message = message,
-            Type = NotificationType.Error
+            Type = NotificationType.Error,
+            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EA4335"))
         }, areaName: "WindowArea");
     }
 
@@ -36,7 +39,8 @@ public class NotificationService: INotificationService
         {
             Title = "Cảnh báo",
             Message = message,
-            Type = NotificationType.Warning
+            Type = NotificationType.Warning,
+            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF9800"))
         }, areaName: "WindowArea");
     }
 
@@ -46,7 +50,8 @@ public class NotificationService: INotificationService
         {
             Title = "Thông tin",
             Message = message,
-            Type = NotificationType.Information
+            Type = NotificationType.Information,
+            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4285F4"))
         }, areaName: "WindowArea");
     }
 }
