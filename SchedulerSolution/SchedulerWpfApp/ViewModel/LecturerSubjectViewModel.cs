@@ -31,6 +31,8 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isLecturerSubjectOpen;
         private int _progressValue;
         private bool _isProgressBarOpen;
+        private string _searchKeyword;
+        private ObservableCollection<LecturerSubject> _allLecturerSubject;
         #endregion
 
         #region Construsctor
@@ -41,6 +43,22 @@ namespace SchedulerWpfApp.ViewModel
         {
             get => _lecturersubject;
             set => SetProperty(ref _lecturersubject, value);
+        }
+
+        /// <summary>
+        /// Search keyword, triggers filtering when updated
+        /// </summary>
+        public string SearchKeyword
+        {
+            get => _searchKeyword;
+            set
+            {
+                if (SetProperty(ref _searchKeyword, value))
+                {
+                    // use function fillter list by keyword
+                    FilterLecturerSubject();
+                }
+            }
         }
         public ObservableCollection<Lecturer> Lecturers { get; set; }
         public ObservableCollection<Subject> Subjects { get; set; }
@@ -186,15 +204,16 @@ namespace SchedulerWpfApp.ViewModel
             try
             {
                 var lecturesubjects = await _lecturerSubjectService.GetAllAsync();
+                _allLecturerSubject = new ObservableCollection<LecturerSubject>(lecturesubjects);
+                ResetToAllLecturerSubject();
                 var subjectList = await _subjectServices.GetAllAsync();
                 var lecturerlist = await _lectureService.GetAllLecturerAsync();
-                LecturerSubjects = new ObservableCollection<LecturerSubject>(lecturesubjects);
                 Subjects = new ObservableCollection<Subject>(subjectList);
                 Lecturers = new ObservableCollection<Lecturer>(lecturerlist);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _notificationService.ShowError($"Lấy danh sách phân công giảng dạy cho giảng viên không thành công: {ex.Message}");
+                _notificationService.ShowError($"Lấy danh sách phân công giảng dạy cho giảng viên không thành công");
             }
         }
 
@@ -239,18 +258,17 @@ namespace SchedulerWpfApp.ViewModel
                 {
                     // call ReadLectureSubjectFromExcel function to process file and read file when importing
                     var data = _lecturerSubjectService.ReadLecturerSubjectFromExcel(dialog.FileName);
-                    // call ImportGroupNameFromExcel function to add new data to database
-
+                    // call ImportLecturerSubjectFromExcel function to add new data to database
                     IsProgressBarOpen = true;
                     await _lecturerSubjectService.ImportLecturerSubjectFromExcel(data, progress);
                     IsProgressBarOpen = false;
                     _notificationService.ShowSuccess("Thêm mới danh sách phân công giảng dạy cho giảng viên thành công!");
                     await LoadLecturerSubjects();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Thêm mới danh sách phân công giảng dạy cho giảng viên không thành công!: {ex.Message}");
+                    _notificationService.ShowError($"Thêm mới danh sách phân công giảng dạy cho giảng viên không thành công.");
                 }
             }
         }
@@ -276,15 +294,15 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
-                    //Filter the GroupNames list to remove null elements
+                    //Filter the LecturerSubjects list to remove null elements
                     var lectureSubjectList = await _lecturerSubjectService.GetAllAsync();
                     // call ExportToLectureSubjectExcel function to export file
                     _lecturerSubjectService.ExportToLecturerSubjectExcel(lectureSubjectList, dialog.FileName);
                     _notificationService.ShowSuccess("Xuất danh sách phân công giảng dạy cho giảng viên thành công!");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    _notificationService.ShowError($"Xuất danh sách phân công giảng dạy cho giảng viên không thành công: {ex.Message}");
+                    _notificationService.ShowError($"Xuất danh sách phân công giảng dạy cho giảng viên không thành công.");
                 }
             }
         }
@@ -344,7 +362,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private void CancelDelete()
         {
-            // set SelectedGroupname null 
+            // set SelectedLecturerSubject null 
             SelectedLecturerSubject = null;
             IsOpenDialog = false;
         }
@@ -354,7 +372,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private void CancelEdit()
         {
-            // set SelectedGroupname null 
+            // set SelectedLecturerSubject null 
             SelectedLecturerSubject = null;
             IsLecturerSubjectFormOpen = false;
         }
@@ -417,9 +435,9 @@ namespace SchedulerWpfApp.ViewModel
                 IsLecturerSubjectFormOpen = false;
                 await LoadLecturerSubjects();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _notificationService.ShowError($"Lưu lịch phân công giảng dạy cho giảng viên không thành công: {ex.Message}");
+                _notificationService.ShowError($"Lưu lịch phân công giảng dạy cho giảng viên không thành công.");
             }
         }
 
@@ -437,10 +455,46 @@ namespace SchedulerWpfApp.ViewModel
                 IsOpenDialog = false;
                 await LoadLecturerSubjects();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _notificationService.ShowError($"Xóa lịch phân công giảng dạy cho giảng viên không thành công: {ex.Message}");
+                _notificationService.ShowError($"Xóa lịch phân công giảng dạy cho giảng viên không thành công");
             }
+        }
+
+        /// <summary>
+        /// Filters the LecturerSubject collection based on the search keyword.
+        /// If the search keyword is empty, it resets to show all LecturerSubject.
+        /// </summary>
+        private void FilterLecturerSubject()
+        {
+            if (string.IsNullOrWhiteSpace(SearchKeyword))
+            {
+                // If search keyword is empty, reset to all LecturerSubject
+                ResetToAllLecturerSubject();
+            }
+            else
+            {
+                // enter keyword from box
+                var lowerKeyword = SearchKeyword.ToLower();
+                // can search by LecturerSubjectcode
+                var filtered = _allLecturerSubject.Where(LecturerSubject =>
+                (!string.IsNullOrEmpty(LecturerSubject.LecturerId) && LecturerSubject.LecturerId.ToLower().Contains(lowerKeyword)) ||
+                (!string.IsNullOrEmpty(LecturerSubject.LecturerName) && LecturerSubject.LecturerName.ToLower().Contains(lowerKeyword)) ||
+                (!string.IsNullOrEmpty(LecturerSubject.SubjectCode) && LecturerSubject.SubjectCode.ToLower().Contains(lowerKeyword)) ||
+                (!string.IsNullOrEmpty(LecturerSubject.SubjectName) && LecturerSubject.SubjectName.ToLower().Contains(lowerKeyword)) ||
+                (!string.IsNullOrEmpty(LecturerSubject.Major) && LecturerSubject.Major.ToLower().Contains(lowerKeyword)) ||
+                (int.TryParse(SearchKeyword, out int floorKeyword) && LecturerSubject.Term == floorKeyword)
+                ).ToList();
+                LecturerSubjects = new ObservableCollection<LecturerSubject>(filtered);
+            }
+        }
+
+        /// <summary>
+        /// Reset LecturerSubject
+        /// </summary>
+        private void ResetToAllLecturerSubject()
+        {
+            LecturerSubjects = new ObservableCollection<LecturerSubject>(_allLecturerSubject);
         }
     }
     #endregion

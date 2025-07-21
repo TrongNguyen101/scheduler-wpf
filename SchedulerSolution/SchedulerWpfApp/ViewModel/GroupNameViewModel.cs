@@ -191,9 +191,9 @@ namespace SchedulerWpfApp.ViewModel
                 // call this function to render groupname list
                 ResetToAllGroupNames();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _notificationService.ShowError($"Lấy danh sách lớp học không thành công: {ex.Message}");
+                _notificationService.ShowError($"Lấy danh sách lớp học không thành công");
             }
         }
 
@@ -225,10 +225,10 @@ namespace SchedulerWpfApp.ViewModel
                     _notificationService.ShowSuccess("Nhập danh sách lớp học thành công!!");
                     await LoadGroupNameAsync();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Nhập danh sách lớp học thất bại: {ex.Message}");
+                    _notificationService.ShowError($"Nhập danh sách lớp học thất bại.");
                 }
             }
         }
@@ -261,9 +261,9 @@ namespace SchedulerWpfApp.ViewModel
                     _groupnamelistService.ExportToExcelGroupName(groupnameList, dialog.FileName);
                     _notificationService.ShowSuccess("Xuất danh sách lớp học thành công!");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    _notificationService.ShowError($"Xuất danh sách lớp học thất bại: {ex.Message}");
+                    _notificationService.ShowError($"Xuất danh sách lớp học thất bại.");
                 }
             }
         }
@@ -376,13 +376,13 @@ namespace SchedulerWpfApp.ViewModel
                     }
                     else
                     {
-                        _notificationService.ShowWarning("Lớp này đã tồn tại");
+                        _notificationService.ShowWarning("Lớp này đã tồn tại.");
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _notificationService.ShowError($"Lưu thất bại do lỗi hệ thống: {ex.Message}");
+                _notificationService.ShowError($"Lưu thất bại.");
             }
         }
 
@@ -423,9 +423,9 @@ namespace SchedulerWpfApp.ViewModel
                     _notificationService.ShowWarning("Vui lòng chọn lớp cần xóa trước khi xác nhận xóa.");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _notificationService.ShowError($"Xóa lớp thất bại: {ex.Message}");
+                _notificationService.ShowError($"Xóa lớp thất bại.");
             }
         }
 

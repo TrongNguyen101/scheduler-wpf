@@ -34,6 +34,7 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isRoomNameEditable = true;
         private int _progressValue;
         private bool _isProgressBarOpen;
+        private ObservableCollection<Room> _allRoom;
         #endregion
 
         #region Contrucstor
@@ -45,6 +46,22 @@ namespace SchedulerWpfApp.ViewModel
         {
             get => _roomlist;
             set => SetProperty(ref _roomlist, value);
+        }
+
+        /// <summary>
+        /// Search keyword, triggers filtering when updated
+        /// </summary>
+        public string SearchKeyword
+        {
+            get => _searchKeyword;
+            set
+            {
+                if (SetProperty(ref _searchKeyword, value))
+                {
+                    // use function fillter list by keyword
+                    FilterRoom();
+                }
+            }
         }
 
         /// <summary>
@@ -162,13 +179,13 @@ namespace SchedulerWpfApp.ViewModel
             try
             {
                 var roomlist = await _roomService.GetAllAsync();
-                // assign _allGroupNames to search and when deleting keywords, re-render the list
-                Rooms = new ObservableCollection<Room>(roomlist);
-                // call this function to render room list
+                // assign _allRoom to search and when deleting keywords, re-render the list
+                _allRoom = new ObservableCollection<Room>(roomlist);
+                ResetToAllRoom();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _notificationService.ShowError($"Lấy danh sách phòng học không thành công: {ex.Message}");
+                _notificationService.ShowError($"Lấy danh sách phòng học không thành công.");
             }
         }
         /// <summary>
@@ -181,7 +198,6 @@ namespace SchedulerWpfApp.ViewModel
             {
                 Filter = "Excel Files (*.xlsx)|*.xlsx"
             };
-            
             var progress = new Progress<int>(percentCompleted =>
             {
                 ProgressValue = percentCompleted;
@@ -192,17 +208,16 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     var data = _roomService.ReadRoomListFromExcel(dialog.FileName);
-                    
                     IsProgressBarOpen = true;
                     await _roomService.ImportRoomFromExcel(data, progress);
                     IsProgressBarOpen = false;
                     _notificationService.ShowSuccess("Nhập danh sách phòng học thành công!");
                     await LoadRoomAsync();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Nhập danh sách phòng học không thành công: {ex.Message}");
+                    _notificationService.ShowError($"Nhập danh sách phòng học không thành công.");
                 }
             }
         }
@@ -229,15 +244,15 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
-                    //Filter the GroupNames list to remove null elements
+                    //Filter the Rooms list to remove null elements
                     var roomList = Rooms.Where(p => p != null).ToList();
                     // call ExportToExcelRoom function to export file
                     _roomService.ExportRoomToExcel(roomList, dialog.FileName);
                     _notificationService.ShowSuccess("Xuất danh sách phòng học thành công!");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    _notificationService.ShowError($"Xuất danh sách phòng học không thành công: {ex.Message}");
+                    _notificationService.ShowError($"Xuất danh sách phòng học không thành công.");
                 }
             }
         }
@@ -307,7 +322,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private void CancelDelete()
         {
-            // set SelectedGroupname null 
+            // set SelectedRooms null 
             SelectedRoom = null;
             IsOpenDialog = false;
         }
@@ -333,9 +348,9 @@ namespace SchedulerWpfApp.ViewModel
                     _notificationService.ShowWarning("Vui lòng chọn phòng trước khi xóa");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _notificationService.ShowError($"Xóa phòng không thành công: {ex.Message}");
+                _notificationService.ShowError($"Xóa phòng không thành công.");
             }
         }
 
@@ -346,7 +361,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private void CancelEdit()
         {
-            // set SelectedGroupname null 
+            // set SelectedRoom null 
             SelectedRoom = null;
             IsRoomFormOpen = false;
         }
@@ -404,10 +419,44 @@ namespace SchedulerWpfApp.ViewModel
                 SelectedRoom = null;
                 await LoadRoomAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _notificationService.ShowError($"Lỗi khi lưu phòng: {ex.Message}");
+                _notificationService.ShowError($"Lỗi khi lưu phòng");
             }
+        }
+
+        /// <summary>
+        /// Filters the Rooms collection based on the search keyword.
+        /// If the search keyword is empty, it resets to show all Rooms.
+        /// </summary>
+        private void FilterRoom()
+        {
+            if (string.IsNullOrWhiteSpace(SearchKeyword))
+            {
+                // If search keyword is empty, reset to all Rooms
+                ResetToAllRoom();
+            }
+            else
+            {
+                // enter keyword from box
+                var lowerKeyword = SearchKeyword.ToLower();
+                // can search by RoomCode
+                var filtered = _allRoom.Where(Room =>
+                (!string.IsNullOrEmpty(Room.RoomName) && Room.RoomName.ToLower().Contains(lowerKeyword)) ||
+                (!string.IsNullOrEmpty(Room.Building) && Room.Building.ToLower().Contains(lowerKeyword)) ||
+                (int.TryParse(SearchKeyword, out int floorKeyword) && Room.Floor == floorKeyword)
+                ).ToList();
+
+                Rooms = new ObservableCollection<Room>(filtered);
+            }
+        }
+
+        /// <summary>
+        /// Reset Rooms
+        /// </summary>
+        private void ResetToAllRoom()
+        {
+            Rooms = new ObservableCollection<Room>(_allRoom);
         }
     }
     #endregion
