@@ -12,8 +12,7 @@
         MinHeight="600"
         mc:Ignorable="d"
         Title="MainWindow"
-        Height="650"
-        Width="1000">
+        WindowState="Maximized">
 
     <!-- Resources: Colors and Styles -->
     <Window.Resources>
