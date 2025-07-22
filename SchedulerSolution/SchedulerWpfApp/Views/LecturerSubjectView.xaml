@@ -1,12 +1,4 @@
-﻿<UserControl x:Class="SchedulerWpfApp.Views.LecturerSubjectView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:SchedulerWpfApp.Views"
-             xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
-             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
-             Background="White">
+﻿<UserControl x:Class="SchedulerWpfApp.Views.LecturerSubjectView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:SchedulerWpfApp.Views" xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel" xmlns:syncfusion="http://schemas.syncfusion.com/wpf" Background="White">
     <Grid Background="#f8f9fa">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -14,24 +6,14 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Grid Grid.Row="0"
-              Height="40"
-              Margin="0,0,0,0">
-            <Border Background="{StaticResource PrimaryColor}"
-                    CornerRadius="10, 10, 0 , 0">
-                <TextBlock Text="Lịch Phân Công Môn "
-                           FontWeight="Bold"
-                           FontSize="22"
-                           Foreground="White"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="center"
-                           Padding="0, 0, 0, 0" />
+        <Grid Grid.Row="0" Height="40" Margin="0,0,0,0">
+            <Border Background="{StaticResource PrimaryColor}" CornerRadius="10, 10, 0 , 0">
+                <TextBlock Text="Lịch Phân Công Môn " FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
             </Border>
         </Grid>
 
         <!-- Main Content -->
-        <Grid Grid.Row="1"
-              Margin="20">
+        <Grid Grid.Row="1" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -39,8 +21,7 @@
             </Grid.RowDefinitions>
 
             <!-- Top Controls -->
-            <Grid Grid.Row="0"
-                  Margin="0,0,0,15">
+            <Grid Grid.Row="0" Margin="0,0,0,15">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="Auto" />
@@ -49,39 +30,21 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Search Box -->
-                <Border Background="#EEF2F6"
-                        BorderBrush="#D0D0D0"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="10,5"
-                        Margin="0,0,10,0">
+                <Border Background="#EEF2F6" BorderBrush="#D0D0D0" BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,0,10,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="🔍"
-                                   FontSize="14"
-                                   VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1"
-                                 Margin="8,0,0,0"
-                                 BorderThickness="0"
-                                 Background="Transparent"
-                                 Foreground="{StaticResource TextColor}"
-                                 VerticalAlignment="Center"
-                                 Name="SearchBox"
-                                 Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
-                                 Padding="0,5">
+                        <TextBlock Text="🔍" FontSize="14" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Margin="8,0,0,0" BorderThickness="0" Background="Transparent" Foreground="{StaticResource TextColor}" VerticalAlignment="Center" Name="SearchBox" Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}" Padding="0,5">
                             <TextBox.Resources>
                                 <Style TargetType="{x:Type TextBox}">
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="{x:Type TextBox}">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}">
-                                                    <ScrollViewer x:Name="PART_ContentHost"
-                                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                                    <ScrollViewer x:Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                                 </Border>
                                             </ControlTemplate>
                                         </Setter.Value>
@@ -92,111 +55,54 @@
                     </Grid>
                 </Border>
 
-                <Button Grid.Column="1"
-                        Style="{StaticResource ExportButtonStyle}"
-                        Margin="0,0,10,0"
-                        Command="{Binding ExportLectureSubjectCommand}">
+                <Button Grid.Column="1" Style="{StaticResource ExportButtonStyle}" Margin="0,0,10,0" Command="{Binding ExportLectureSubjectCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📤"
-                                   VerticalAlignment="Center" />
-                        <TextBlock Text=" Export Dữ Liệu"
-                                   Margin="5,0,0,0"
-                                   VerticalAlignment="Center" />
+                        <TextBlock Text="📤" VerticalAlignment="Center" />
+                        <TextBlock Text=" Export Dữ Liệu" Margin="5,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
 
                 <!-- Import Button -->
-                <Button Grid.Column="2"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Margin="0,0,10,0"
-                        Command="{Binding ImportLectureSubjectCommand}">
+                <Button Grid.Column="2" Style="{StaticResource ActionButtonStyle}" Margin="0,0,10,0" Command="{Binding ImportLectureSubjectCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📥"
-                                   VerticalAlignment="Center" />
-                        <TextBlock Text=" Import Dữ Liệu"
-                                   Margin="5,0,0,0"
-                                   VerticalAlignment="Center" />
+                        <TextBlock Text="📥" VerticalAlignment="Center" />
+                        <TextBlock Text=" Import Dữ Liệu" Margin="5,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
 
                 <!-- Add Lecturer Button -->
-                <Button Grid.Column="3"
-                        Style="{StaticResource SuccessButtonStyle}"
-                        Command="{Binding AddLectureSubjectCommand}">
+                <Button Grid.Column="3" Style="{StaticResource SuccessButtonStyle}" Command="{Binding AddLectureSubjectCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="➕"
-                                   VerticalAlignment="Center" />
-                        <TextBlock Text="Thêm Phân Công"
-                                   Margin="5,0,0,0"
-                                   VerticalAlignment="Center" />
+                        <TextBlock Text="➕" VerticalAlignment="Center" />
+                        <TextBlock Text="Thêm Phân Công" Margin="5,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </Grid>
 
             <!-- Syncfusion DataGrid -->
-            <Border Grid.Row="1"
-                    Background="White"
-                    CornerRadius="8"
-                    Padding="0">
+            <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="0">
                 <Border.Effect>
-                    <DropShadowEffect ShadowDepth="1"
-                                      BlurRadius="10"
-                                      Opacity="0.1"
-                                      Color="Gray" />
+                    <DropShadowEffect ShadowDepth="1" BlurRadius="10" Opacity="0.1" Color="Gray" />
                 </Border.Effect>
 
-                <syncfusion:SfDataGrid x:Name="LecturersDataGrid"
-                                       ItemsSource="{Binding LecturerSubjects}"
-                                       AutoGenerateColumns="False"
-                                       AllowFiltering="True"
-                                       ShowRowHeader="False"
-                                       RowHeight="45"
-                                       HeaderRowHeight="50"
-                                       SelectionMode="Single"
-                                       AllowSorting="True"
-                                       GridLinesVisibility="Both"
-                                       ColumnSizer="Star"
-                                       HeaderStyle="{StaticResource GridHeaderStyle}"
-                                       CellStyle="{StaticResource GridCellStyle}"
-                                       Focusable="False"
-                                       FocusVisualStyle="{x:Null}"
-                                       CurrentCellBorderBrush="White">
+                <syncfusion:SfDataGrid x:Name="LecturersDataGrid" ItemsSource="{Binding LecturerSubjects}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
 
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Tên Giảng Viên"
-                                                   MappingName="LecturerName" />
-                        <syncfusion:GridTextColumn HeaderText="Mã Môn Học"
-                                                   MappingName="SubjectCode" />
-                        <syncfusion:GridTextColumn HeaderText="Chuyên Ngành"
-                                                   MappingName="Major" />
-                        <syncfusion:GridTextColumn HeaderText="Kỳ Học"
-                                                   MappingName="Term" />
-                        <syncfusion:GridTextColumn HeaderText="Sô Lượng Lớp"
-                                                   MappingName="NumberOfClasses" />
-                        <syncfusion:GridTextColumn HeaderText="Tổng Số Slots"
-                                                   MappingName="TotalSlots" />
-                        <syncfusion:GridTemplateColumn HeaderText="Action"
-                                                       Width="90"
-                                                       AllowFiltering="False"
-                                                       MappingName="ActionPlaceHolder">
+                        <syncfusion:GridTextColumn HeaderText="Tên Giảng Viên" MappingName="LecturerName" />
+                        <syncfusion:GridTextColumn HeaderText="Mã Môn Học" MappingName="SubjectCode" />
+                        <syncfusion:GridTextColumn HeaderText="Chuyên Ngành" MappingName="Major" />
+                        <syncfusion:GridTextColumn HeaderText="Kỳ Học" MappingName="Term" />
+                        <syncfusion:GridTextColumn HeaderText="Sô Lượng Lớp" MappingName="NumberOfClasses" />
+                        <syncfusion:GridTextColumn HeaderText="Tổng Số Slots" MappingName="TotalSlots" />
+                        <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False" MappingName="ActionPlaceHolder">
                             <syncfusion:GridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <StackPanel Orientation="Horizontal"
-                                                HorizontalAlignment="Center">
-                                        <Button Style="{StaticResource EditButtonStyle}"
-                                                Command="{Binding DataContext.EditLectureSubjectCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}"
-                                                CommandParameter="{Binding}">
-                                            <TextBlock Text="✏️"
-                                                       TextAlignment="Center"
-                                                       VerticalAlignment="Center" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Style="{StaticResource EditButtonStyle}" Command="{Binding DataContext.EditLectureSubjectCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}" CommandParameter="{Binding}">
+                                            <TextBlock Text="✏️" TextAlignment="Center" VerticalAlignment="Center" />
                                         </Button>
-                                        <Button Style="{StaticResource DeleteButtonStyle}"
-                                                Command="{Binding DataContext.DeleteLectureSubjectCommand,   RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}"
-                                                CommandParameter="{Binding}">
-                                            <TextBlock Text="🗑️"
-                                                       TextAlignment="Center"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center" />
+                                        <Button Style="{StaticResource DeleteButtonStyle}" Command="{Binding DataContext.DeleteLectureSubjectCommand,   RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}" CommandParameter="{Binding}">
+                                            <TextBlock Text="🗑️" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Button>
                                     </StackPanel>
                                 </DataTemplate>
@@ -207,42 +113,24 @@
             </Border>
 
             <!-- Pagination Controls -->
-            <Grid Grid.Row="2"
-                  Margin="0,15,0,0"
-                  HorizontalAlignment="Right"
-                  Width="760">
+            <Grid Grid.Row="2" Margin="0,15,0,0" HorizontalAlignment="Right" Width="760">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <!-- Pagination -->
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal">
-                    <syncfusion:SfDataPager x:Name="dataPager"
-                                            PageSize="10"
-                                            NumericButtonCount="5"
-                                            PagedSource="{Binding Lectures}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <syncfusion:SfDataPager x:Name="dataPager" PageSize="10" NumericButtonCount="5" PagedSource="{Binding Lectures}" />
                 </StackPanel>
             </Grid>
         </Grid>
 
         <!-- Lecturer Form Popup -->
-        <Popup x:Name="LecturerFormPopup"
-               StaysOpen="False"
-               Placement="Center"
-               IsOpen="{Binding IsLecturerSubjectFormOpen}"
-               AllowsTransparency="True">
-            <Border Background="#F0F4F8"
-                    BorderThickness="0"
-                    CornerRadius="8"
-                    Padding="25"
-                    Width="500">
+        <Popup x:Name="LecturerFormPopup" StaysOpen="False" Placement="Center" IsOpen="{Binding IsLecturerSubjectFormOpen}" AllowsTransparency="True">
+            <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="650">
                 <Border.Effect>
-                    <DropShadowEffect ShadowDepth="2"
-                                      BlurRadius="15"
-                                      Opacity="0.2"
-                                      Color="Black" />
+                    <DropShadowEffect ShadowDepth="2" BlurRadius="15" Opacity="0.2" Color="Black" />
                 </Border.Effect>
 
                 <Grid>
@@ -253,80 +141,68 @@
                     </Grid.RowDefinitions>
 
                     <!-- Form Header -->
-                    <Grid Grid.Row="0"
-                          Margin="0,0,0,20">
-                        <TextBlock x:Name="formTitle"
-                                   Text="{Binding FormTitle}"
-                                   FontSize="18"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource TextColor}" />
+                    <Grid Grid.Row="0" Margin="0,0,0,20">
+                        <TextBlock x:Name="formTitle" Text="{Binding FormTitle}" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextColor}" />
                     </Grid>
 
-                    <!-- Form Fields -->
-                    <StackPanel Grid.Row="1"
-                                Margin="0,0,0,20">
-                        <TextBlock Text="Mã Giảng Viên"
-                                   Margin="0,0,0,5"
-                                   Foreground="{StaticResource TextColor}" />
-                        <ComboBox Style="{StaticResource ModernComboBoxStyle}"
-                                  ItemsSource="{Binding Lecturers}"
-                                  SelectedValue="{Binding SelectedLecturerId, UpdateSourceTrigger=PropertyChanged}"
-                                  SelectedValuePath="LecturerId"
-                                  DisplayMemberPath="LecturerId"
-                                  Margin="0,0,0,15" />
+                    <!-- Form Fields với Layout 2 Cột -->
+                    <Grid Grid.Row="1" Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="15" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                        <TextBlock Text="Tên Giảng Viên"
-                                   Margin="0,0,0,5"
-                                   Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}"
-                                 Margin="0,0,0,15"
-                                 Text="{Binding SelectedLecturerSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <!-- Dòng 1: Mã Giảng Viên và Tên Giảng Viên -->
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,15">
+                            <TextBlock Text="Mã Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Lecturers}" SelectedValue="{Binding SelectedLecturerId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="LecturerId" DisplayMemberPath="LecturerId" />
+                        </StackPanel>
 
-                        <TextBlock Text="Mã Môn Học"
-                                   Margin="0,0,0,5"
-                                   Foreground="{StaticResource TextColor}" />
-                        <ComboBox Style="{StaticResource ModernComboBoxStyle}"
-                                  ItemsSource="{Binding Subjects}"
-                                  SelectedValue="{Binding SelectedSubjectId, UpdateSourceTrigger=PropertyChanged}"
-                                  SelectedValuePath="SubjectCode"
-                                  DisplayMemberPath="SubjectCode"
-                                  Margin="0,0,0,15" />
+                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,15">
+                            <TextBlock Text="Tên Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
 
-                        <TextBlock Text="Tên Môn Học"
-                                   Margin="0,0,0,5"
-                                   Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}"
-                                 Margin="0,0,0,15"
-                                 Text="{Binding SelectedLecturerSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
+                        <!-- Dòng 2: Mã Môn Học và Tên Môn Học -->
+                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,15">
+                            <TextBlock Text="Mã Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Subjects}" SelectedValue="{Binding SelectedSubjectId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="SubjectCode" DisplayMemberPath="SubjectCode" />
+                        </StackPanel>
 
-                        <TextBlock Text="Chuyên Ngành"
-                                   Margin="0,0,0,5"
-                                   Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}"
-                                 Margin="0,0,0,15"
-                                 Text="{Binding SelectedLecturerSubject.Major, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,15">
+                            <TextBlock Text="Tên Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
 
-                        <TextBlock Text="Kỳ Học"
-                                   Margin="0,0,0,5"
-                                   Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}"
-                                 Margin="0,0,0,15"
-                                 Text="{Binding SelectedLecturerSubject.Term, UpdateSourceTrigger=PropertyChanged}" />
+                        <!-- Dòng 3: Chuyên Ngành và Kỳ Học -->
+                        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,15">
+                            <TextBlock Text="Chuyên Ngành" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.Major, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
 
-                        <TextBlock Text="Số Lượng Lớp"
-                                   Margin="0,0,0,5"
-                                   Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}"
-                                 Margin="0,0,0,15"
-                                 Text="{Binding SelectedLecturerSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,15">
+                            <TextBlock Text="Kỳ Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.Term, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
 
-                        <TextBlock Text="Tổng Slots"
-                                   Margin="0,0,0,5"
-                                   Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}"
-                                 Margin="0,0,0,15"
-                                 Text="{Binding SelectedLecturerSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
+                        <!-- Dòng 4: Số Lượng Lớp và Tổng Slots -->
+                        <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,15">
+                            <TextBlock Text="Số Lượng Lớp" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,0,0,15">
+                            <TextBlock Text="Tổng Slots" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
 
                     <!-- Form Actions -->
                     <Grid Grid.Row="2">
@@ -336,41 +212,18 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="1"
-                                Content="Hủy"
-                                Style="{StaticResource ActionButtonStyle}"
-                                Background="#95a5a6"
-                                Margin="0,0,10,0"
-                                Padding="20,8"
-                                Command="{Binding CancelEditLectureSubjectCommand}" />
+                        <Button Grid.Column="1" Content="Hủy" Style="{StaticResource ActionButtonStyle}" Background="#95a5a6" Margin="0,0,10,0" Padding="20,8" Command="{Binding CancelEditLectureSubjectCommand}" />
 
-                        <Button Grid.Column="2"
-                                x:Name="btnSaveLecturer"
-                                Content="Lưu"
-                                Style="{StaticResource SuccessButtonStyle}"
-                                Padding="20,8"
-                                Command="{Binding SaveLectureSubjectCommand}" />
+                        <Button Grid.Column="2" x:Name="btnSaveLecturer" Content="Lưu" Style="{StaticResource SuccessButtonStyle}" Padding="20,8" Command="{Binding SaveLectureSubjectCommand}" />
                     </Grid>
                 </Grid>
             </Border>
         </Popup>
-
         <!-- Confirmation Dialog -->
-        <Popup x:Name="confirmationPopup"
-               StaysOpen="False"
-               Placement="Center"
-               IsOpen="{Binding IsOpenDialog}"
-               AllowsTransparency="True">
-            <Border Background="#F0F4F8"
-                    BorderThickness="0"
-                    CornerRadius="8"
-                    Padding="25"
-                    Width="400">
+        <Popup x:Name="confirmationPopup" StaysOpen="False" Placement="Center" IsOpen="{Binding IsOpenDialog}" AllowsTransparency="True">
+            <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="400">
                 <Border.Effect>
-                    <DropShadowEffect ShadowDepth="2"
-                                      BlurRadius="15"
-                                      Opacity="0.2"
-                                      Color="Black" />
+                    <DropShadowEffect ShadowDepth="2" BlurRadius="15" Opacity="0.2" Color="Black" />
                 </Border.Effect>
 
                 <Grid>
@@ -381,19 +234,10 @@
                     </Grid.RowDefinitions>
 
                     <!-- Dialog Header -->
-                    <TextBlock Grid.Row="0"
-                               Text="Xác nhận xóa"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource TextColor}"
-                               Margin="0,0,0,15" />
+                    <TextBlock Grid.Row="0" Text="Xác nhận xóa" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextColor}" Margin="0,0,0,15" />
 
                     <!-- Dialog Content -->
-                    <TextBlock Grid.Row="1"
-                               Text="Bạn có chắc chắn muốn xóa giảng viên này không?"
-                               TextWrapping="Wrap"
-                               Foreground="{StaticResource TextColor}"
-                               Margin="0,0,0,20" />
+                    <TextBlock Grid.Row="1" Text="Bạn có chắc chắn muốn xóa giảng viên này không?" TextWrapping="Wrap" Foreground="{StaticResource TextColor}" Margin="0,0,0,20" />
 
                     <!-- Dialog Actions -->
                     <Grid Grid.Row="2">
@@ -403,41 +247,19 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="1"
-                                Content="Hủy"
-                                Style="{StaticResource ActionButtonStyle}"
-                                Background="#95a5a6"
-                                Margin="0,0,10,0"
-                                Padding="20,8"
-                                Command="{Binding CancelDeleteLectureSubjectCommand}" />
+                        <Button Grid.Column="1" Content="Hủy" Style="{StaticResource ActionButtonStyle}" Background="#95a5a6" Margin="0,0,10,0" Padding="20,8" Command="{Binding CancelDeleteLectureSubjectCommand}" />
 
-                        <Button Grid.Column="2"
-                                Content="Xóa"
-                                Style="{StaticResource DeleteButtonStyle}"
-                                Padding="20,8"
-                                Command="{Binding ConfirmDeleteLectureSubjectCommand}" />
+                        <Button Grid.Column="2" Content="Xóa" Style="{StaticResource DeleteButtonStyle}" Padding="20,8" Command="{Binding ConfirmDeleteLectureSubjectCommand}" />
                     </Grid>
                 </Grid>
             </Border>
         </Popup>
-        <Popup IsOpen="{Binding IsProgressBarOpen}"
-               StaysOpen="True"
-               Placement="Center"
-               AllowsTransparency="True">
-            <Border Background="#CCFFFFFF"
-                    Padding="20"
-                    CornerRadius="8"
-                    BorderBrush="Gray"
-                    BorderThickness="1">
+        <Popup IsOpen="{Binding IsProgressBarOpen}" StaysOpen="True" Placement="Center" AllowsTransparency="True">
+            <Border Background="#CCFFFFFF" Padding="20" CornerRadius="8" 
+             BorderBrush="Gray" BorderThickness="1" >
                 <StackPanel>
-                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..."
-                               Margin="0,0,0,8"
-                               HorizontalAlignment="Center" />
-                    <ProgressBar Height="24"
-                                 Minimum="0"
-                                 Maximum="100"
-                                 Value="{Binding ProgressValue}"
-                                 Width="300" />
+                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..." Margin="0,0,0,8" HorizontalAlignment="Center"/>
+                    <ProgressBar Height="24" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" Width="300"/>
                 </StackPanel>
             </Border>
         </Popup>
