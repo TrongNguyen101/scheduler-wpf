@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.ServiceRefactor.GroupNameService;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
 namespace SchedulerWpfApp.ViewModel
 {
     /// <summary>
@@ -14,7 +15,7 @@ namespace SchedulerWpfApp.ViewModel
     {
         #region Fields
         private readonly IGroupNameService _groupnamelistService;
-
+        private readonly INotificationService _notificationService;
         // declare to list the groupnames
         private ObservableCollection<GroupClass> _groupnamelist;
         // declaration used to list the entire list and support search event when deleting keyword then the list will render again
@@ -143,10 +144,12 @@ namespace SchedulerWpfApp.ViewModel
         ///  Constructor initializes dependencies and commands.
         /// Initializes the GroupNameViewModel with services for managing group names and importing/exporting data.
         /// </summary>
-        public GroupNameViewModel(IGroupNameService groupnameService)
+        public GroupNameViewModel(IGroupNameService groupnameService, INotificationService notificationService)
         {
             // assign variables to the corresponding Service object
             _groupnamelistService = groupnameService;
+            // Initialize notification service
+            _notificationService = notificationService;
             // Execute command according to each event corresponding to the processing functions
             GroupNames = new ObservableCollection<GroupClass>();
             // add groupname
@@ -188,9 +191,9 @@ namespace SchedulerWpfApp.ViewModel
                 // call this function to render groupname list
                 ResetToAllGroupNames();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show($"Failed to load class: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Lấy danh sách lớp học không thành công");
             }
         }
 
@@ -215,18 +218,17 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     var data = _groupnamelistService.ReadGroupNameFromExcel(dialog.FileName);
-                    
+
                     IsProgressBarOpen = true;
                     await _groupnamelistService.ImportGroupNameFromExcel(data, progres);
                     IsProgressBarOpen = false;
-
-                    MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Nhập danh sách lớp học thành công!!");
                     await LoadGroupNameAsync();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     IsProgressBarOpen = false;
-                    MessageBox.Show($"Import failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError($"Nhập danh sách lớp học thất bại.");
                 }
             }
         }
@@ -240,7 +242,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (GroupNames == null || GroupNames.Count == 0)
             {
-                MessageBox.Show("Không có lớp nào để xuất.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có lớp nào để xuất.");
                 return;
             }
 
@@ -257,11 +259,11 @@ namespace SchedulerWpfApp.ViewModel
                     var groupnameList = GroupNames.Where(groupname => groupname != null).ToList();
                     // call ExportToExcelgroupname function to export file
                     _groupnamelistService.ExportToExcelGroupName(groupnameList, dialog.FileName);
-                    MessageBox.Show("Xuất thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Xuất danh sách lớp học thành công!");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    MessageBox.Show($"Xuất thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError($"Xuất danh sách lớp học thất bại.");
                 }
             }
         }
@@ -316,7 +318,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 if (SelectedGroupname == null)
                 {
-                    MessageBox.Show("Vui lòng nhập thông tin lớp học.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowWarning("Vui lòng nhập thông tin lớp học.");
                     IsGroupNameFormOpen = true; // Đóng form nếu không có dữ liệu
                     return;
                 }
@@ -326,13 +328,13 @@ namespace SchedulerWpfApp.ViewModel
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Department))
                 {
-                    MessageBox.Show("Dữ liệu không được để trống", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowWarning("Dữ liệu lớp học không được để trống");
                     IsGroupNameFormOpen = true; // Mở lại form nếu có dữ liệu trống
                     return;
                 }
                 if (SelectedGroupname.Term <= 0 || SelectedGroupname.Term > 9)
                 {
-                    MessageBox.Show("Học kỳ phải lớn hơn 0 và bé hơn 9", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowWarning("Học kỳ phải lớn hơn 0 và bé hơn 9");
                     IsGroupNameFormOpen = true; // Mở lại form nếu học kỳ không hợp lệ
                     return;
                 }
@@ -350,14 +352,14 @@ namespace SchedulerWpfApp.ViewModel
                         existingLecture.Term = SelectedGroupname.Term;
                         // Dữ liệu đã được validate ở trên rồi, an toàn để update
                         await _groupnamelistService.UpdateGroupName(existingLecture);
-                        MessageBox.Show("Cập nhật lớp thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                        _notificationService.ShowSuccess("Cập nhật lớp thành công");
                         await LoadGroupNameAsync();
                         IsGroupNameFormOpen = false; // Đóng form sau khi save thành công
                         _isEditing = false;
                     }
                     else
                     {
-                        MessageBox.Show("Lớp không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Lớp không tồn tại");
                     }
                 }
                 else // Add mode
@@ -367,20 +369,20 @@ namespace SchedulerWpfApp.ViewModel
                     if (!exists)
                     {
                         await _groupnamelistService.AddGroupName(SelectedGroupname);
-                        MessageBox.Show("Thêm lớp mới thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                        _notificationService.ShowSuccess("Thêm lớp mới thành công");
                         await LoadGroupNameAsync();
                         IsGroupNameFormOpen = false; // Đóng form sau khi save thành công
                         _isEditing = false;
                     }
                     else
                     {
-                        MessageBox.Show("Lớp này đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Lớp này đã tồn tại.");
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show($"Lưu thất bại: {ex.Message}");
+                _notificationService.ShowError($"Lưu thất bại.");
             }
         }
 
@@ -412,18 +414,18 @@ namespace SchedulerWpfApp.ViewModel
                 if (SelectedGroupname != null)
                 {
                     await _groupnamelistService.DeleteGroupName(SelectedGroupname.GroupName);
-                    MessageBox.Show("Xóa Thành Công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Xóa lớp thành công");
                     await LoadGroupNameAsync();
                     IsOpenDialog = false;
                 }
                 else
                 {
-                    MessageBox.Show("Vui lòng chọn trước khi xóa");
+                    _notificationService.ShowWarning("Vui lòng chọn lớp cần xóa trước khi xác nhận xóa.");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show($"Xóa thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Xóa lớp thất bại.");
             }
         }
 

@@ -273,7 +273,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load subject information: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Lỗi khi lấy danh sách khung môn.");
             }
         }
 
@@ -295,7 +295,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load curriculum information: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Lỗi khi lấy thông tin khung chương trình.");
             }
         }
 
@@ -317,7 +317,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load CurriculumSubjects: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Lỗi khi tải danh sách khung môn.");
             }
         }
 
@@ -419,11 +419,11 @@ namespace SchedulerWpfApp.ViewModel
                     {
                         // Add new curriculumSubject
                         await _curriculumSubjectService.AddCurriculumSubject(SelectedCurriculumSubject);
-                        MessageBox.Show("Thêm khung môn thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                        _notificationService.ShowSuccess("Thêm khung môn thành công.");
                     }
                     else
                         // Warning
-                        MessageBox.Show("Khung môn đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Khung môn đã tồn tại. Vui lòng kiểm tra lại thông tin khung môn.");
                 }
                 else
                 {
@@ -432,7 +432,7 @@ namespace SchedulerWpfApp.ViewModel
                     if (checkCurriculumSubject != null)
                     {
                         // Warning
-                        MessageBox.Show("Khung môn đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Khung môn đã tồn tại. Vui lòng kiểm tra lại thông tin khung môn.");
                         return;
                     }
 
@@ -451,18 +451,18 @@ namespace SchedulerWpfApp.ViewModel
 
                         // Update the curriculumSubject in the data source
                         await _curriculumSubjectService.UpdateCurriculumSubject(existingCurriculumSubject);
-                        MessageBox.Show("Cập nhật khung môn thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                        _notificationService.ShowSuccess("Cập nhật khung môn thành công.");
                     }
                     else
                     {
                         // Warning
-                        MessageBox.Show("Khung môn không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Khung môn không tồn tại. Vui lòng kiểm tra lại thông tin khung môn.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lưu khung môn thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Lỗi khi lưu khung môn.");
             }
             finally
             {
@@ -501,7 +501,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (SelectedCurriculumSubject == null)
             {
-                MessageBox.Show("Không có khung môn nào được chọn để xóa.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có khung môn nào được chọn để xóa.");
                 IsOpenDialog = false;
                 return;
             }
@@ -511,11 +511,11 @@ namespace SchedulerWpfApp.ViewModel
                 // Delete the selected curriculumSubject from the data source
                 await _curriculumSubjectService.DeleteCurriculumSubject(SelectedCurriculumSubject.Id);
 
-                MessageBox.Show("Xóa khung môn thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                _notificationService.ShowSuccess("Xóa khung môn thành công.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Xóa khung môn thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Xóa khung môn thất bại.");
             }
             finally
             {
@@ -532,7 +532,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (_allCurriculumSubjects == null || _allCurriculumSubjects.Count == 0)
             {
-                MessageBox.Show("Không có khung môn nào để xóa.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có khung môn nào để xuất.");
                 return;
             }
 
@@ -550,11 +550,11 @@ namespace SchedulerWpfApp.ViewModel
                     var curriculumSubjectList = _allCurriculumSubjects.Where(p => p != null).ToList();
                     // Use the Excel exporter service to export the CurriculumSubjects to the selected file
                     _curriculumSubjectService.ExportToExcel(curriculumSubjectList, dialog.FileName);
-                    MessageBox.Show("Export thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Xuất khung môn thành công.");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Export thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError("Xuất khung môn thất bại.");
                 }
             }
         }
@@ -570,17 +570,17 @@ namespace SchedulerWpfApp.ViewModel
             // Check if lecturers and subjects lists are empty before proceeding with import
             if (!curriculums.Any() && !subjects.Any())
             {
-                MessageBox.Show("Danh sách khung chương trình và môn học đều đang trống. Vui lòng thêm danh sách khung chương trình và môn học trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Danh sách khung chương trình và môn học đều đang trống. Vui lòng thêm danh sách khung chương trình và môn học trước");
                 return;
             }
             else if (!curriculums.Any())
             {
-                MessageBox.Show("Không có khung chương trình nào trong hệ thống. Vui lòng thêm danh sách khung chương trình trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+               _notificationService.ShowWarning("Không có khung chương trình nào trong hệ thống. Vui lòng thêm danh sách khung chương trình trước");
                 return;
             }
             else if (!subjects.Any())
             {
-                MessageBox.Show("Không có môn học nào trong hệ thống. Vui lòng thêm danh sách môn học trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có môn học nào trong hệ thống. Vui lòng thêm danh sách môn học trước");
                 return;
             }
 
@@ -604,13 +604,13 @@ namespace SchedulerWpfApp.ViewModel
                     await _curriculumSubjectService.ImportCurriculumSubjectFromExcel(data, progress);
                     IsProgressBarOpen = false;
 
-                    MessageBox.Show("Import thành công!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Nhập khung môn thành công.");
                     await LoadCurriculumSubjectAsync();
                 }
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    MessageBox.Show($"Import thất bại: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError("Nhập khung môn thất bại.");
                 }
             }
         }

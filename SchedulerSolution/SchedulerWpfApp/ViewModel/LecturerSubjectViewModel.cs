@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using System.Windows;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 using SchedulerWpfApp.ServiceRefactor.LecturerServices;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -19,6 +20,7 @@ namespace SchedulerWpfApp.ViewModel
         private readonly ILecturerSubjectServices _lecturerSubjectService;
         private readonly ISubjectServices _subjectServices;
         private readonly ILecturerServices _lectureService;
+        private readonly INotificationService _notificationService;
 
         private ObservableCollection<LecturerSubject> _lecturersubject;
         private LecturerSubject? _selectedSubject;
@@ -29,6 +31,8 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isLecturerSubjectOpen;
         private int _progressValue;
         private bool _isProgressBarOpen;
+        private string _searchKeyword;
+        private ObservableCollection<LecturerSubject> _allLecturerSubject;
         #endregion
 
         #region Construsctor
@@ -39,6 +43,22 @@ namespace SchedulerWpfApp.ViewModel
         {
             get => _lecturersubject;
             set => SetProperty(ref _lecturersubject, value);
+        }
+
+        /// <summary>
+        /// Search keyword, triggers filtering when updated
+        /// </summary>
+        public string SearchKeyword
+        {
+            get => _searchKeyword;
+            set
+            {
+                if (SetProperty(ref _searchKeyword, value))
+                {
+                    // use function fillter list by keyword
+                    FilterLecturerSubject();
+                }
+            }
         }
         public ObservableCollection<Lecturer> Lecturers { get; set; }
         public ObservableCollection<Subject> Subjects { get; set; }
@@ -158,11 +178,12 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Initializes a new instance of the LectureSubjectViewModel class, setting up commands and loading initial data.
         /// </summary>
-        public LecturerSubjectViewModel(ILecturerSubjectServices lectureSubjectService, ISubjectServices subjectServices, ILecturerServices lecturerServices)
+        public LecturerSubjectViewModel(ILecturerSubjectServices lectureSubjectService, ISubjectServices subjectServices, ILecturerServices lecturerServices, INotificationService notificationService)
         {
             _lecturerSubjectService = lectureSubjectService;
             _subjectServices = subjectServices;
             _lectureService = lecturerServices;
+            _notificationService = notificationService;
             LecturerSubjects = new ObservableCollection<LecturerSubject>();
             ImportLectureSubjectCommand = new RelayCommand(async () => await ImportLecturerSubjectListAsync());
             ExportLectureSubjectCommand = new RelayCommand(async () => await ExportLecturerSubjectAsync());
@@ -183,15 +204,16 @@ namespace SchedulerWpfApp.ViewModel
             try
             {
                 var lecturesubjects = await _lecturerSubjectService.GetAllAsync();
+                _allLecturerSubject = new ObservableCollection<LecturerSubject>(lecturesubjects);
+                ResetToAllLecturerSubject();
                 var subjectList = await _subjectServices.GetAllAsync();
                 var lecturerlist = await _lectureService.GetAllLecturerAsync();
-                LecturerSubjects = new ObservableCollection<LecturerSubject>(lecturesubjects);
                 Subjects = new ObservableCollection<Subject>(subjectList);
                 Lecturers = new ObservableCollection<Lecturer>(lecturerlist);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show($"Lấy dữ liệu không thành công: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Lấy danh sách phân công giảng dạy cho giảng viên không thành công");
             }
         }
 
@@ -206,17 +228,17 @@ namespace SchedulerWpfApp.ViewModel
             // Check if lecturers and subjects lists are empty before proceeding with import
             if (!lecturers.Any() && !subjects.Any())
             {
-                MessageBox.Show("Danh sách giảng viên và môn học đều đang trống. Vui lòng thêm danh sách giảng viên và môn học trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Danh sách giảng viên và môn học đều đang trống. Vui lòng thêm danh sách giảng viên và môn học trước");
                 return;
             }
             else if (!lecturers.Any())
             {
-                MessageBox.Show("Không có giảng viên nào trong hệ thống. Vui lòng thêm danh sách giảng viên trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có giảng viên nào trong hệ thống. Vui lòng thêm danh sách giảng viên trước");
                 return;
             }
             else if (!subjects.Any())
             {
-                MessageBox.Show("Không có môn học nào trong hệ thống. Vui lòng thêm danh sách môn học trước", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có môn học nào trong hệ thống. Vui lòng thêm danh sách môn học trước");
                 return;
             }
 
@@ -236,19 +258,17 @@ namespace SchedulerWpfApp.ViewModel
                 {
                     // call ReadLectureSubjectFromExcel function to process file and read file when importing
                     var data = _lecturerSubjectService.ReadLecturerSubjectFromExcel(dialog.FileName);
-                    // call ImportGroupNameFromExcel function to add new data to database
-
+                    // call ImportLecturerSubjectFromExcel function to add new data to database
                     IsProgressBarOpen = true;
                     await _lecturerSubjectService.ImportLecturerSubjectFromExcel(data, progress);
                     IsProgressBarOpen = false;
-
-                    MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Thêm mới danh sách phân công giảng dạy cho giảng viên thành công!");
                     await LoadLecturerSubjects();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     IsProgressBarOpen = false;
-                    MessageBox.Show($"Import failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError($"Thêm mới danh sách phân công giảng dạy cho giảng viên không thành công.");
                 }
             }
         }
@@ -260,7 +280,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (LecturerSubjects == null || LecturerSubjects.Count == 0)
             {
-                MessageBox.Show("No lecturesubject to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có phân công giảng dạy nào để xuất.");
                 return;
             }
 
@@ -274,15 +294,15 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
-                    //Filter the GroupNames list to remove null elements
+                    //Filter the LecturerSubjects list to remove null elements
                     var lectureSubjectList = await _lecturerSubjectService.GetAllAsync();
                     // call ExportToLectureSubjectExcel function to export file
                     _lecturerSubjectService.ExportToLecturerSubjectExcel(lectureSubjectList, dialog.FileName);
-                    MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Xuất danh sách phân công giảng dạy cho giảng viên thành công!");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    MessageBox.Show($"Export failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError($"Xuất danh sách phân công giảng dạy cho giảng viên không thành công.");
                 }
             }
         }
@@ -342,7 +362,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private void CancelDelete()
         {
-            // set SelectedGroupname null 
+            // set SelectedLecturerSubject null 
             SelectedLecturerSubject = null;
             IsOpenDialog = false;
         }
@@ -352,7 +372,7 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private void CancelEdit()
         {
-            // set SelectedGroupname null 
+            // set SelectedLecturerSubject null 
             SelectedLecturerSubject = null;
             IsLecturerSubjectFormOpen = false;
         }
@@ -369,20 +389,20 @@ namespace SchedulerWpfApp.ViewModel
                 !SelectedLecturerSubject.Term.HasValue ||
                 string.IsNullOrWhiteSpace(SelectedLecturerSubject.Major))
             {
-                MessageBox.Show("Dữ liệu không được để trống.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Dữ liệu không được để trống.");
                 IsLecturerSubjectFormOpen = true;
                 return;
             }
             if (SelectedLecturerSubject.NumberOfClasses <= 0 ||
                 SelectedLecturerSubject.TotalSlots <= 0)
             {
-                MessageBox.Show("Số lượng lớp học và tổng số tiết phải lớn hơn 0.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Số lượng lớp học và tổng số tiết phải lớn hơn 0.");
                 IsLecturerSubjectFormOpen = true;
                 return;
             }
             if (SelectedLecturerSubject.Term <= 0 || SelectedLecturerSubject.Term > 9)
             {
-                MessageBox.Show("Dữ liệu kỳ phải lớn hơn 0 và bé hơn 9.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Dữ liệu kỳ phải lớn hơn 0 và bé hơn 9.");
                 IsLecturerSubjectFormOpen = true;
                 return;
             }
@@ -393,31 +413,31 @@ namespace SchedulerWpfApp.ViewModel
                 {
                     if (existingLecturerSubject != null)
                     {
-                        MessageBox.Show("Lịch phân công cho giáo viên này đã bị trùng.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Lịch phân công cho giáo viên này đã bị trùng.");
                         IsLecturerSubjectFormOpen = true;
                         return;
                     }
                     await _lecturerSubjectService.UpdateAsync(SelectedLecturerSubject);
-                    MessageBox.Show("Lecturer subject saved successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Cập nhật lịch phân công giảng dạy cho giảng viên thành công!");
                 }
                 else
                 {
                     if (existingLecturerSubject != null)
                     {
-                        MessageBox.Show("Lịch phân công cho giáo viên này đã bị trùng.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Lịch phân công cho giáo viên này đã bị trùng.");
                         IsLecturerSubjectFormOpen = true;
                         return;
                     }
                     // Add new lecturer subject
                     await _lecturerSubjectService.AddAsync(SelectedLecturerSubject);
-                    MessageBox.Show("Add Lecturer subject saved successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Thêm mới lịch phân công giảng dạy cho giảng viên thành công!");
                 }
                 IsLecturerSubjectFormOpen = false;
                 await LoadLecturerSubjects();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show($"Error saving lecturer subject: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Lưu lịch phân công giảng dạy cho giảng viên không thành công.");
             }
         }
 
@@ -431,14 +451,50 @@ namespace SchedulerWpfApp.ViewModel
             try
             {
                 await _lecturerSubjectService.DeleteAsync(SelectedLecturerSubject.Id);
-                MessageBox.Show("Lecturer subject deleted successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                _notificationService.ShowSuccess("Xóa lịch phân công giảng dạy cho giảng viên thành công!");
                 IsOpenDialog = false;
                 await LoadLecturerSubjects();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show($"Error deleting lecturer subject: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Xóa lịch phân công giảng dạy cho giảng viên không thành công");
             }
+        }
+
+        /// <summary>
+        /// Filters the LecturerSubject collection based on the search keyword.
+        /// If the search keyword is empty, it resets to show all LecturerSubject.
+        /// </summary>
+        private void FilterLecturerSubject()
+        {
+            if (string.IsNullOrWhiteSpace(SearchKeyword))
+            {
+                // If search keyword is empty, reset to all LecturerSubject
+                ResetToAllLecturerSubject();
+            }
+            else
+            {
+                // enter keyword from box
+                var lowerKeyword = SearchKeyword.ToLower();
+                // can search by LecturerSubjectcode
+                var filtered = _allLecturerSubject.Where(LecturerSubject =>
+                (!string.IsNullOrEmpty(LecturerSubject.LecturerId) && LecturerSubject.LecturerId.ToLower().Contains(lowerKeyword)) ||
+                (!string.IsNullOrEmpty(LecturerSubject.LecturerName) && LecturerSubject.LecturerName.ToLower().Contains(lowerKeyword)) ||
+                (!string.IsNullOrEmpty(LecturerSubject.SubjectCode) && LecturerSubject.SubjectCode.ToLower().Contains(lowerKeyword)) ||
+                (!string.IsNullOrEmpty(LecturerSubject.SubjectName) && LecturerSubject.SubjectName.ToLower().Contains(lowerKeyword)) ||
+                (!string.IsNullOrEmpty(LecturerSubject.Major) && LecturerSubject.Major.ToLower().Contains(lowerKeyword)) ||
+                (int.TryParse(SearchKeyword, out int floorKeyword) && LecturerSubject.Term == floorKeyword)
+                ).ToList();
+                LecturerSubjects = new ObservableCollection<LecturerSubject>(filtered);
+            }
+        }
+
+        /// <summary>
+        /// Reset LecturerSubject
+        /// </summary>
+        private void ResetToAllLecturerSubject()
+        {
+            LecturerSubjects = new ObservableCollection<LecturerSubject>(_allLecturerSubject);
         }
     }
     #endregion

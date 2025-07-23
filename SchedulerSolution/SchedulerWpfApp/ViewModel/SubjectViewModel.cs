@@ -4,6 +4,7 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 
 namespace SchedulerWpfApp.ViewModel
@@ -16,6 +17,7 @@ namespace SchedulerWpfApp.ViewModel
         #region Fields
         // Dependencies injected via constructor
         private readonly ISubjectServices _subjectService;
+        private readonly INotificationService _notificationService;
 
         // Internal data fields
         private ObservableCollection<Subject> _subjects;
@@ -139,9 +141,10 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public SubjectViewModel(ISubjectServices courseService)
+        public SubjectViewModel(ISubjectServices courseService, INotificationService notificationService)
         {
             _subjectService = courseService;
+            _notificationService = notificationService;
 
             Subjects = new ObservableCollection<Subject>();
 
@@ -179,7 +182,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load subjects: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Lỗi khi lấy danh sách môn học.");
             }
         }
 
@@ -240,7 +243,7 @@ namespace SchedulerWpfApp.ViewModel
             string.IsNullOrWhiteSpace(SelectedSubject.SubjectNameVietnamese) ||
             string.IsNullOrWhiteSpace(SelectedSubject.SubjectNameEnglish))
             {
-                MessageBox.Show("Vui lòng điền đầy đủ thông tin môn học.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Vui lòng điền đầy đủ thông tin môn học.");
                 // Open the subject form for user to fill in the details
                 IsSubjectFormOpen = true;
                 return;
@@ -249,7 +252,7 @@ namespace SchedulerWpfApp.ViewModel
             // Validate the subject's total credits and total time
             if (SelectedSubject.TotalCredits <= 0 || SelectedSubject.TotalTime <= 0)
             {
-                MessageBox.Show("Số giờ học và số tín chỉ phải lớn hơn 0.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Số giờ học và số tín chỉ phải lớn hơn 0.");
                 // Open the subject form for user to fill in the details
                 IsSubjectFormOpen = true;
                 return;
@@ -267,11 +270,11 @@ namespace SchedulerWpfApp.ViewModel
                     {
                         // Add new subject
                         await _subjectService.AddSubject(SelectedSubject);
-                        MessageBox.Show("Thêm môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                        _notificationService.ShowSuccess("Thêm môn học thành công.");
                     }
                     else
                         // Warning
-                        MessageBox.Show("Môn học đã tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Môn học đã tồn tại. Vui lòng kiểm tra lại mã môn học.");
                 }
                 else
                 {
@@ -287,18 +290,18 @@ namespace SchedulerWpfApp.ViewModel
 
                         // Update the subject in the data source
                         await _subjectService.UpdateSubject(existingSubject);
-                        MessageBox.Show("Update môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                        _notificationService.ShowSuccess("Cập nhật môn học thành công.");
                     }
                     else
                     {
                         // Warning
-                        MessageBox.Show("Môn học không tồn tại", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Môn học không tồn tại. Vui lòng kiểm tra lại mã môn học.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lưu môn học thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Lỗi khi lưu môn học.");
             }
             finally
             {
@@ -333,7 +336,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (SelectedSubject == null)
             {
-                MessageBox.Show("Không có môn học nào được chọn để xóa.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có môn học nào được chọn để xóa.");
                 IsOpenDialog = false;
                 return;
             }
@@ -343,11 +346,11 @@ namespace SchedulerWpfApp.ViewModel
                 // Delete the selected subject from the data source
                 await _subjectService.DeleteSubject(SelectedSubject.SubjectCode);
 
-                MessageBox.Show("Xóa môn học thành công.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                _notificationService.ShowSuccess("Xóa môn học thành công.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Xóa môn học thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Xóa môn học thất bại.");
             }
             finally
             {
@@ -364,7 +367,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             if (_allSubjects == null || _allSubjects.Count == 0)
             {
-                MessageBox.Show("No subject to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _notificationService.ShowWarning("Không có môn học nào để xuất.");
                 return;
             }
 
@@ -382,11 +385,11 @@ namespace SchedulerWpfApp.ViewModel
                     var subjectList = _allSubjects.Where(p => p != null).ToList();
                     // Use the Excel exporter service to export the subjects to the selected file
                     _subjectService.ExportToExcel(subjectList, dialog.FileName);
-                    MessageBox.Show("Export successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Xuất môn học thành công.");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Export failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError("Xuất môn học thất bại.");
                 }
             }
         }
@@ -416,13 +419,13 @@ namespace SchedulerWpfApp.ViewModel
                     await _subjectService.ImportSubjectFromExcel(data, progress);
                     IsProgressBarOpen = false;
 
-                    MessageBox.Show("Import successful!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Nhập môn học thành công.");
                     await LoadSubjectAsync();
                 }
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    MessageBox.Show($"Import failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError("Nhập môn học thất bại.");
                 }
             }
         }

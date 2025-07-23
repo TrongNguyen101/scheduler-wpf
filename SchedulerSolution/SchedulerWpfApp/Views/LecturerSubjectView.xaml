@@ -128,7 +128,7 @@
 
         <!-- Lecturer Form Popup -->
         <Popup x:Name="LecturerFormPopup" StaysOpen="False" Placement="Center" IsOpen="{Binding IsLecturerSubjectFormOpen}" AllowsTransparency="True">
-            <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="500">
+            <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="650">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="15" Opacity="0.2" Color="Black" />
                 </Border.Effect>
@@ -145,32 +145,64 @@
                         <TextBlock x:Name="formTitle" Text="{Binding FormTitle}" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextColor}" />
                     </Grid>
 
-                    <!-- Form Fields -->
-                    <StackPanel Grid.Row="1" Margin="0,0,0,20">
-                        <TextBlock Text="Mã Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Lecturers}" SelectedValue="{Binding SelectedLecturerId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="LecturerId" DisplayMemberPath="LecturerId" Margin="0,0,0,15" />
+                    <!-- Form Fields với Layout 2 Cột -->
+                    <Grid Grid.Row="1" Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="15" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                        <TextBlock Text="Tên Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <!-- Dòng 1: Mã Giảng Viên và Tên Giảng Viên -->
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,15">
+                            <TextBlock Text="Mã Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Lecturers}" SelectedValue="{Binding SelectedLecturerId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="LecturerId" DisplayMemberPath="LecturerId" />
+                        </StackPanel>
 
-                        <TextBlock Text="Mã Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Subjects}" SelectedValue="{Binding SelectedSubjectId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="SubjectCode" DisplayMemberPath="SubjectCode" Margin="0,0,0,15" />
+                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,15">
+                            <TextBlock Text="Tên Giảng Viên" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
 
-                        <TextBlock Text="Tên Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
+                        <!-- Dòng 2: Mã Môn Học và Tên Môn Học -->
+                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,15">
+                            <TextBlock Text="Mã Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding Subjects}" SelectedValue="{Binding SelectedSubjectId, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="SubjectCode" DisplayMemberPath="SubjectCode" />
+                        </StackPanel>
 
-                        <TextBlock Text="Chuyên Ngành" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.Major, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,15">
+                            <TextBlock Text="Tên Môn Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
 
-                        <TextBlock Text="Kỳ Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.Term, UpdateSourceTrigger=PropertyChanged}" />
+                        <!-- Dòng 3: Chuyên Ngành và Kỳ Học -->
+                        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,15">
+                            <TextBlock Text="Chuyên Ngành" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.Major, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
 
-                        <TextBlock Text="Số Lượng Lớp" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,15">
+                            <TextBlock Text="Kỳ Học" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.Term, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
 
-                        <TextBlock Text="Tổng Slots" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" Text="{Binding SelectedLecturerSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
+                        <!-- Dòng 4: Số Lượng Lớp và Tổng Slots -->
+                        <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,15">
+                            <TextBlock Text="Số Lượng Lớp" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,0,0,15">
+                            <TextBlock Text="Tổng Slots" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
 
                     <!-- Form Actions -->
                     <Grid Grid.Row="2">
@@ -187,7 +219,6 @@
                 </Grid>
             </Border>
         </Popup>
-
         <!-- Confirmation Dialog -->
         <Popup x:Name="confirmationPopup" StaysOpen="False" Placement="Center" IsOpen="{Binding IsOpenDialog}" AllowsTransparency="True">
             <Border Background="White" BorderThickness="0" CornerRadius="8" Padding="25" Width="400">

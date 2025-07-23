@@ -3,7 +3,6 @@ using SchedulerWpfApp.Helper;
 using System.Windows.Input;
 using SchedulerWpfApp.Model;
 using Microsoft.Win32;
-using System.Windows;
 using SchedulerWpfApp.ServiceRefactor.LecturerServices;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
 
@@ -180,7 +179,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Có lỗi khi tải danh sách giảng viên: {ex.Message}");
+                _notificationService.ShowError("Có lỗi khi tải danh sách giảng viên.");
             }
         }
 
@@ -296,7 +295,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Lưu giảng viên thất bại: {ex.Message}");
+                _notificationService.ShowError("Lưu giảng viên thất bại.");
             }
             finally
             {
@@ -345,7 +344,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                _notificationService.ShowError($"Xóa Giảng viên thất bại: {ex.Message}");
+                _notificationService.ShowError("Xóa Giảng viên thất bại.");
             }
             finally
             {
@@ -383,7 +382,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    _notificationService.ShowError($"Xuất giảng viên thất bại: {ex.Message}");
+                    _notificationService.ShowError("Xuất giảng viên thất bại.");
                 }
             }
         }
@@ -419,7 +418,7 @@ namespace SchedulerWpfApp.ViewModel
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Nhập giảng viên thất bại: {ex.Message}");
+                    _notificationService.ShowError("Nhập giảng viên thất bại.");
                 }
             }
         }
