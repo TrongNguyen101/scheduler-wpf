@@ -18,7 +18,7 @@
                 Margin="0,0,0,0">
             <Border Background="{StaticResource PrimaryColor}"
                     CornerRadius="10, 10, 0 , 0">
-                <TextBlock Text="Quản Lí Lớp Học"
+                <TextBlock Text="Quản Lý Lớp Học"
                         FontWeight="Bold"
                         FontSize="22"
                         Foreground="White"
@@ -195,11 +195,11 @@
                     </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:GridTextColumn HeaderText="Mã Lớp" MappingName="GroupName" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Khóa học" MappingName="CurriculumCode" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Chuyên ngành" MappingName="Major" AllowResizing="True" />
-                        <syncfusion:GridTextColumn HeaderText="Bộ môn" MappingName="Department" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Kỳ học" MappingName="Term" AllowResizing="True" />
-                        <syncfusion:GridTextColumn HeaderText="Tổ chức" MappingName="TeachingMode" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Khóa Học" MappingName="CurriculumCode" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Chuyên Ngành" MappingName="Major" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Bộ Môn" MappingName="Department" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Kỳ Học" MappingName="Term" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Tổ Chức" MappingName="TeachingMode" AllowResizing="True" />
 
                         <syncfusion:GridTemplateColumn HeaderText="Action"
                                 Width="90"

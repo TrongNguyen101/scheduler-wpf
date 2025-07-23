@@ -19,7 +19,7 @@
               Margin="0,0,0,0">
             <Border Background="{StaticResource PrimaryColor}"
                     CornerRadius="10, 10, 0 , 0">
-                <TextBlock Text="Quản Lí Giảng Viên"
+                <TextBlock Text="Quản Lý Giảng Viên"
                            FontWeight="Bold"
                            FontSize="22"
                            Foreground="White"

@@ -13,7 +13,19 @@ namespace SchedulerWpfApp.ViewModel
         private object _currentViewModel;
 
         private readonly CreateScheduleTree _scheduleTree;
-
+        public enum TabType
+        {
+            Dashboard,
+            CreateSchedule,
+            LectureSubject,
+            Lecture,
+            Subject,
+            GroupName,
+            RoomList,
+            Curriculum,
+            CurriculumSubject
+        }
+        private TabType _currentTab;
         // Factory delegates to lazily create view models
         private readonly Func<SubjectViewModel> _subjectViewModelFactory;
         private readonly Func<GroupNameViewModel> _GroupNameViewModelFactory;
@@ -34,6 +46,15 @@ namespace SchedulerWpfApp.ViewModel
             set { _currentViewModel = value; OnPropertyChanged(); }
         }
 
+        public TabType CurrentTab
+        {
+            get => _currentTab;
+            set
+            {
+                _currentTab = value;
+                OnPropertyChanged();
+            }
+        }
         // Commands bound to buttons or menu items to switch views
         public ICommand ShowCourseCommand { get; }
         public ICommand ShowRoomCommand { get; }
@@ -79,26 +100,60 @@ namespace SchedulerWpfApp.ViewModel
 
             // Set default view to GroupNameViewModel
             CurrentViewModel = _GroupNameViewModelFactory();
+            CurrentTab = TabType.GroupName;
         }
 
         /// <summary>
         /// Switches the current view to CourseViewModel.
         /// </summary>
-        private void ShowCourse() => CurrentViewModel = _subjectViewModelFactory();
+        private void ShowCourse()
+        {
+            CurrentViewModel = _subjectViewModelFactory();
+            CurrentTab = TabType.Subject;
+        }
 
         /// <summary>
         /// Switches the current view to RoomViewModel.
         /// </summary>
-        private void ShowRoom() => CurrentViewModel = _GroupNameViewModelFactory();
-        private void ShowCreateSchedule() => CurrentViewModel = _createScheduleViewModelFactory();
-        private void ShowLecture() => CurrentViewModel = _lectureViewModelFactory();
-        private void ShowLectureSubject() =>
+        private void ShowRoom()
+        {
+            CurrentViewModel = _GroupNameViewModelFactory();
+            CurrentTab = TabType.GroupName;
+        }
+        private void ShowCreateSchedule()
+        {
+            CurrentViewModel = _createScheduleViewModelFactory();
+            CurrentTab = TabType.CreateSchedule;
+        }
+
+        private void ShowLecture()
+        {
+            CurrentViewModel = _lectureViewModelFactory();
+            CurrentTab = TabType.Lecture;
+        }
+        private void ShowLectureSubject()
+        {
             CurrentViewModel = _lecturerSubjectViewModelFactory();
-        private void ShowRoomlist() =>
+            CurrentTab = TabType.LectureSubject;
+        }
+
+        private void ShowRoomlist()
+        {
             CurrentViewModel = _roomViewModelFactory();
-        private void ShowCurriculumList() =>
+            CurrentTab = TabType.RoomList;
+        }
+            
+        private void ShowCurriculumList()
+        {
             CurrentViewModel = _curriculumViewModelFactory();
-        private void ShowCurriculumSubjectList() =>
+            CurrentTab = TabType.Curriculum;
+        }
+            
+        private void ShowCurriculumSubjectList()
+        {
             CurrentViewModel = _curriculumSubjectViewModelFactory();
+            CurrentTab = TabType.CurriculumSubject;
+        }
+            
     }
 }

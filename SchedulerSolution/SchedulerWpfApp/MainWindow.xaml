@@ -47,8 +47,7 @@
                 <!-- Highlight on Mouse Over -->
                 <Trigger Property="IsMouseOver"
                          Value="True">
-                    <Setter Property="Background"
-                            Value="#E3F2FD" />
+                    <Setter Property="Background" Value="#E3F2FD" />
                     <Setter Property="Cursor"
                             Value="Hand" />
                 </Trigger>
@@ -176,149 +175,293 @@
                         </Grid>
                     </Border>
 
-                    <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}"
-                                Command="{Binding ShowCreateScheduleCommand}">
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
+                                <Style.Triggers>
+                                    <!-- Nếu tab hiện tại là CreateSchedule thì đổi màu -->
+                                    <DataTrigger Binding="{Binding CurrentTab}" Value="CreateSchedule">
+                                        <Setter Property="Background" Value="#2980b9" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowCreateScheduleCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="📅"
-                                           Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
-                                <TextBlock Text="Xếp lịch học"
-                                           Grid.Column="1"
-                                           Style="{StaticResource MenuTextStyle}" />
+                                <TextBlock Text="🗒️" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+
+                                <!-- Đổi style TextBlock nếu active -->
+                                <TextBlock Text="Xếp lịch học" Grid.Column="1">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MenuTextStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentTab}" Value="CreateSchedule">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </Button>
                     </Border>
 
-                    <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}"
-                                Command="{Binding ShowLectureSubjectCommand}">
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
+                                <Style.Triggers>
+                                    <!-- Nếu tab hiện tại là LectureSubject thì đổi nền -->
+                                    <DataTrigger Binding="{Binding CurrentTab}" Value="LectureSubject">
+                                        <Setter Property="Background" Value="#2980b9" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowLectureSubjectCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="📅"
-                                           Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
-                                <TextBlock Text="Phân công giảng dạy"
-                                           Grid.Column="1"
-                                           Style="{StaticResource MenuTextStyle}" />
+
+                                <TextBlock Text="📅" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+
+                                <TextBlock Text="Phân công giảng dạy" Grid.Column="1">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MenuTextStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentTab}" Value="LectureSubject">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </Button>
                     </Border>
 
-                    <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}"
-                                Command="{Binding ShowLectureCommand}">
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentTab}" Value="Lecture">
+                                        <Setter Property="Background" Value="#2980b9" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowLectureCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="👨‍🏫"
-                                           Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
-                                <TextBlock Text="Quản lý giảng viên"
-                                           Grid.Column="1"
-                                           Style="{StaticResource MenuTextStyle}" />
+                                <TextBlock Text="👨‍🏫" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+
+                                <TextBlock Text="Quản lý giảng viên" Grid.Column="1">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MenuTextStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentTab}" Value="Lecture">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </Button>
                     </Border>
 
-                    <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}"
-                                Command="{Binding ShowCourseCommand}">
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentTab}" Value="Subject">
+                                        <Setter Property="Background" Value="#2980b9" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowCourseCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="📚"
-                                           Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
-                                <TextBlock Text="Quản lý môn học"
-                                           Grid.Column="1"
-                                           Style="{StaticResource MenuTextStyle}" />
+
+                                <TextBlock Text="📚" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+
+                                <TextBlock Text="Quản lý môn học" Grid.Column="1">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MenuTextStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentTab}" Value="Subject">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
                             </Grid>
                         </Button>
                     </Border>
 
-                    <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}"
-                                Command="{Binding ShowRoomCommand}">
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentTab}" Value="GroupName">
+                                        <Setter Property="Background" Value="#2980b9" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowRoomCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="🏫"
-                                           Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
-                                <TextBlock Text="Quản lý lớp học"
-                                           Grid.Column="1"
-                                           Style="{StaticResource MenuTextStyle}" />
+
+                                <TextBlock Text="🏢" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+
+                                <TextBlock Text="Quản lý lớp học" Grid.Column="1">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MenuTextStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentTab}" Value="GroupName">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </Button>
                     </Border>
 
-                    <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}"
-                                Command="{Binding ShowRoomlistCommand}">
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentTab}" Value="RoomList">
+                                        <Setter Property="Background" Value="#2980b9" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowRoomlistCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="🏫"
-                                           Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
-                                <TextBlock Text="Quản lý phòng"
-                                           Grid.Column="1"
-                                           Style="{StaticResource MenuTextStyle}" />
+
+                                <TextBlock Text="🏫" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+
+                                <TextBlock Text="Quản lý phòng" Grid.Column="1">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MenuTextStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentTab}" Value="RoomList">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </Button>
                     </Border>
 
-                    <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}"
-                                Command="{Binding ShowCurriculumCommand}">
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentTab}" Value="Curriculum">
+                                        <Setter Property="Background" Value="#2980b9" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowCurriculumCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="🏫"
-                                           Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
-                                <TextBlock Text="Quản lý khung chương trình"
-                                           Grid.Column="1"
-                                           Style="{StaticResource MenuTextStyle}" />
+
+                                <TextBlock Text="📑" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+
+                                <TextBlock Text="Quản lý khung chương trình" Grid.Column="1">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MenuTextStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentTab}" Value="Curriculum">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </Button>
                     </Border>
 
-                    <Border Style="{StaticResource MenuItemStyle}">
-                        <Button Style="{StaticResource MenuButtonStyle}"
-                                Command="{Binding ShowCurriculumSubjectCommand}">
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentTab}" Value="CurriculumSubject">
+                                        <Setter Property="Background" Value="#2980b9" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding ShowCurriculumSubjectCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="119*" />
                                     <ColumnDefinition Width="83*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="🏫"
-                                           Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
-                                <TextBlock Text="Quản lý khung môn"
-                                           Grid.Column="1"
-                                           Style="{StaticResource MenuTextStyle}"
-                                           Grid.ColumnSpan="2"
-                                           Margin="12,0,0,0" />
+
+                                <TextBlock Text="🗂️" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
+
+                                <TextBlock Text="Quản lý khung môn" Grid.Column="1" Grid.ColumnSpan="2" Margin="12,0,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MenuTextStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentTab}" Value="CurriculumSubject">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </Button>
                     </Border>
