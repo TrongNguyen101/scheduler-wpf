@@ -76,6 +76,8 @@ namespace SchedulerWpfApp
                 // First attempt: Try to find appsettings.json in project root (3 levels up from bin)
                 // This path works when running from the IDE
                 string baseDirectory = Path.GetFullPath(Path.Combine(binDirectory, @"..\\..\\..\\"));
+                //string configFilePath = Path.Combine(baseDirectory, "appsettings.json");
+                //string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 string configFilePath = Path.Combine(baseDirectory, "appsettings.json");
 
                 if (!File.Exists(configFilePath))
@@ -111,6 +113,20 @@ namespace SchedulerWpfApp
                     // Show error if license key is missing from configuration
                     MessageBox.Show("Syncfusion license key is not configured.", "Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                string sourcePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AppData\\app.db");
+                string appDataPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "SchedulerApp"
+                );
+                Directory.CreateDirectory(appDataPath);
+
+                string destPath = Path.Combine(appDataPath, "app.db");
+
+                if (!File.Exists(destPath) && File.Exists(sourcePath))
+                {
+                    File.Copy(sourcePath, destPath);
                 }
             }
             catch (Exception ex)

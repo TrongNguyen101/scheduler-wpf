@@ -9,7 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="AppData\app.db" />
+    <None Remove="appsettings.json" />
     <None Remove="Images\Logo\FPTU_logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="AppData\app.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -44,7 +55,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AppData\" />
+    <Compile Update="Data\DataContext.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
 </Project>
