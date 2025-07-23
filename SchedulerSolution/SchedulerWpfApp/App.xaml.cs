@@ -225,6 +225,7 @@ namespace SchedulerWpfApp
             services.AddScoped<CreateSlotTypeCode>(); // Register CreateSlotTypeCode with a scoped lifetime
             services.AddScoped<Version2CreateSchedule>(); // Register Version2CreateSchedule with a scoped lifetime
             services.AddScoped<SchedulingContext>(); // Register SchedulingContext with a scoped lifetime
+            services.AddScoped<CreateScheduleForCommonSubject>(); // Register CreateScheduleForCommonSubject with a scoped lifetime
         }
 
         /// <summary>

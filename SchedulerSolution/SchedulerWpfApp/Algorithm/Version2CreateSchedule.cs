@@ -25,6 +25,7 @@ namespace SchedulerWpfApp.Algorithm
         private readonly SortSubjectsOneSession _sortSubjectsOneSession;
         private readonly GetLecturerForSubject _getLecturerForSubject;
         private readonly CreateSlotTypeCode _createSlotTypeCode;
+        private readonly CreateScheduleForCommonSubject _createScheduleForCommonSubject;
 
         private SchedulingContext _context; // Lưu trữ ngữ cảnh đã chuẩn bị
 
@@ -39,7 +40,8 @@ namespace SchedulerWpfApp.Algorithm
                                       GetLecturerForSubject getLecturerForSubject,
                                       SortSubjectsOneSession sortSubjectsOneSession,
                                       CreateSlotTypeCode createSlotTypeCode,
-                                      SchedulingContext context)
+                                      SchedulingContext context,
+                                      CreateScheduleForCommonSubject createScheduleForCommonSubject)
         {
             _logger = logger;
             _scheduleServices = scheduleServices;
@@ -54,6 +56,7 @@ namespace SchedulerWpfApp.Algorithm
             _roomService = roomService;
             _createSlotTypeCode = createSlotTypeCode;
             _context = context;
+            _createScheduleForCommonSubject = createScheduleForCommonSubject;
         }
 
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
@@ -117,20 +120,32 @@ namespace SchedulerWpfApp.Algorithm
                     TreeForSchedules = roomNodesPMOnOff
                 };
 
+
+                // Test: lấy các lớp kỳ 9 để kiểm tra
+                var listGroupNameTerm9 = _context.GroupNames.Where(g => g.Term == 9).ToList();
+
+                var allSchedules = new List<Schedule>();
+
+                var allScheduleForCommonSubject = ScheduleForCommonSubject(listGroupNameTerm9);
+
+
                 // *** TỐI ƯU HIỆU SUẤT: 4 luồng chính được chạy đồng thời, không cần chờ đợi nhau ***
-                var schedulingTasks = new List<Task<List<Schedule>>>
-                                    {
-                                        GenerateSchedulesFullOffAsync(dataContextInAmFullOff),
-                                        GenerateSchedulesFullOffAsync(dataContextInPmFullOff),
-                                        //GenerateSchedulesOnOffAsync(dataContextInAmOnOff, listGroupNameAlternatingAmA, listGroupNameAlternatingAmB),
-                                        //GenerateSchedulesOnOffAsync(dataContextInPmOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB)
-                                    };
+                //var schedulingTasks = new List<Task<List<Schedule>>>
+                //                    {
+                //                        GenerateSchedulesFullOffAsync(dataContextInAmFullOff),
+                //                        GenerateSchedulesFullOffAsync(dataContextInPmFullOff),
+                //                        //GenerateSchedulesOnOffAsync(dataContextInAmOnOff, listGroupNameAlternatingAmA, listGroupNameAlternatingAmB),
+                //                        //GenerateSchedulesOnOffAsync(dataContextInPmOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB)
+                //                    };
 
-                var results = await Task.WhenAll(schedulingTasks);
-                var allSchedules = results.SelectMany(list => list).ToList();
+                //var results = await Task.WhenAll(schedulingTasks);
+                //allSchedules = results.SelectMany(list => list).ToList();
 
-                var service = new LecturerAssignmentService(_context.LecturerSubjects, allSchedules);
-                service.AssignLecturers();
+                //var service = new LecturerAssignmentService(_context.LecturerSubjects, allSchedules);
+                //service.AssignLecturers();
+
+                allSchedules.AddRange(allScheduleForCommonSubject);
+
 
                 return allSchedules;
             }
@@ -165,17 +180,9 @@ namespace SchedulerWpfApp.Algorithm
 
             var lecturersTeachSubjects = lecturersSubjects.GroupBy(l => l.SubjectCode).ToDictionary(g => g.Key, g => g.ToList());
 
-            var listGroupNameOJT = listGroupName.Where(g => g.TeachingMode == ScheduleConstants.TechingModeIsOJT).ToList();
-
-            var listGroupNameOnOff = listGroupName.Where(g => g.TeachingMode == ScheduleConstants.TechingModeIsOnOff).ToList();
-
-            var listGroupNameFullOff = listGroupName.Where(g => g.TeachingMode == ScheduleConstants.TechingModeIsFullOff).ToList();
-
             // *** TỐI ƯU HIỆU SUẤT: Tiền xử lý dữ liệu để tra cứu nhanh (O(1)) ***
             // Chuyển List thành Lookup để tìm kiếm môn học không cần duyệt lại toàn bộ danh sách.
             var curriculumLookup = curriculumSubjects.ToLookup(s => (s.CurriculumCode, s.TermNo));
-
-
 
             var scheduleSubjectsLookup = ScheduleSubjectsLookup(curriculumLookup, listGroupName);
 
@@ -189,11 +196,20 @@ namespace SchedulerWpfApp.Algorithm
                 GroupNames = listGroupName,
                 CurriculumLookup = curriculumLookup,
                 LecturersTeachSubjects = lecturersTeachSubjects,
-                SchedulesSubjectsLookup = scheduleSubjectsLookup
+                SchedulesSubjectsLookup = scheduleSubjectsLookup,
             };
         }
 
+        private List<Schedule> ScheduleForCommonSubject(List<GroupClass> GroupNames)
+        {
+            var schedules = new List<Schedule>();
 
+            var lecturersTeachCommonSubjects = _context.LecturerSubjects.Where(lecturer => lecturer.Major == "Common" && lecturer.Term == 9).ToList();
+
+            schedules.AddRange(_createScheduleForCommonSubject.CreateSchedule(GroupNames, lecturersTeachCommonSubjects, _context.CurriculumLookup));
+
+            return schedules;
+        }
 
 
         // Phương thức để tiền xử lý các môn học
@@ -218,15 +234,19 @@ namespace SchedulerWpfApp.Algorithm
 
 
                 var listSubjectOnOffNomalAndHalfOne = subjectsOfClass
-                                                     .Where(s => s.TeachingMode == ScheduleConstants.TechingModeIsOnOff && (s.PartOfTerm.Contains("H1") || s.PartOfTerm == "All"))
+                                                     .Where(s => s.TeachingMode == ScheduleConstants.TechingModeIsOnOff && (s.PartOfTerm.Contains("H1") || s.PartOfTerm == "All") && !s.SubjectCode.Contains("GRA"))
                                                      .ToList();
 
                 if (listSubjectOnOffNomalAndHalfOne.Count == 2)
                 {
                     class2subject.Add(groupName);
-                    // Skip or process if there are fewer than 4 subjects
-                    continue;
+
+                    foreach (var subject in listSubjectOnOffNomalAndHalfOne)
+                    {
+
+                    }
                 }
+                else
                 if (listSubjectOnOffNomalAndHalfOne.Count == 3)
                 {
                     class3subject.Add(groupName);
@@ -234,7 +254,12 @@ namespace SchedulerWpfApp.Algorithm
                     listSubjectOnOffNomalAndHalfOne.Add(curriculumTemp); // Thêm một môn học tạm thời để đảm bảo có đủ 4 môn
 
                     var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(listSubjectOnOffNomalAndHalfOne);
+
+                    var subjectOffClassDifferentTime = subjectsOfClass.FirstOrDefault(s => s.TeachingMode == "OFF");
+
                     subjectLookup[groupName.GroupName] = sortedFourSubjects;
+
+
                 }
                 else if (listSubjectOnOffNomalAndHalfOne.Count == 4)
                 {
@@ -666,7 +691,7 @@ namespace SchedulerWpfApp.Algorithm
 
                         if (subjectSorted == null) continue;
 
-                        if (string.IsNullOrEmpty( subjectSorted.Subject.CurriculumCode)) continue;
+                        if (string.IsNullOrEmpty(subjectSorted.Subject.CurriculumCode)) continue;
 
                         string typeSlot = subjectSorted.Subject.TeachingMode == ScheduleConstants.TechingModeIsCoursera ? ScheduleConstants.TypeSlotIsOld : ScheduleConstants.TypeSlotIsNew;
                         if (subjectSorted.Subject.TeachingMode == ScheduleConstants.TechingModeIsCoursera)
