@@ -399,10 +399,16 @@ namespace SchedulerWpfApp.ViewModel
                 return;
 
             // Validate the curriculumSubject before saving
-            if (string.IsNullOrWhiteSpace(SelectedCurriculumSubject.CurriculumCode) || string.IsNullOrWhiteSpace(SelectedCurriculumSubject.SubjectCode))
+            if (string.IsNullOrWhiteSpace(SelectedCurriculumSubject.CurriculumCode) || string.IsNullOrWhiteSpace(SelectedCurriculumSubject.SubjectCode) || !SelectedCurriculumSubject.Credit.HasValue || !SelectedCurriculumSubject.TotalSlots.HasValue)
             {
                 _notificationService.ShowWarning("Vui lòng điền đầy đủ thông tin khung môn.");
                 // Open the curriculumSubject form for user to fill in the details
+                IsCurriculumSubjectFormOpen = true;
+                return;
+            }
+            if (SelectedCurriculumSubject.TermNo < 1 || SelectedCurriculumSubject.TermNo > 9)
+            {
+                _notificationService.ShowWarning("Số học kỳ phải lớn hơn 1 hoặc nhỏ hơn 9.");
                 IsCurriculumSubjectFormOpen = true;
                 return;
             }
