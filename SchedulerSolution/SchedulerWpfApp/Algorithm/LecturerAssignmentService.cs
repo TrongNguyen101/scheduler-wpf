@@ -3,14 +3,11 @@ using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Algorithm
 {
-    // Lớp thực hiện nhiệm vụ phân công giảng viên vào các lịch học đã xếp sẵn.
-    // Sử dụng chiến lược Greedy có kiểm tra xung đột theo các ràng buộc về chuyên môn, thời gian và số lớp.
-    // Bao gồm: kiểm tra số lớp tối đa mỗi môn, slot rảnh trong tuần, không dạy nhiều môn cho cùng lớp,
-    // và nếu tổng lớp là 2 thì chỉ xếp vào cặp ngày cố định (T2-T4 hoặc T3-T5).
     public class LecturerAssignmentService
     {
         private Dictionary<string, LecturerAssignmentState> _lecturerStateMap = new();
 
+        // CHANGED: Sửa lỗi chia cho 0
         private void InitializeLecturerStates(List<LecturerSubject> lecturerSubjects)
         {
             _lecturerStateMap = lecturerSubjects
@@ -29,66 +26,82 @@ namespace SchedulerWpfApp.Algorithm
                         {
                             if (!string.IsNullOrEmpty(ls.SubjectCode))
                             {
-                                state.TotalAssignedGroupsAllSubjects += ls.NumberOfClasses ?? 0;
                                 state.MaxClassesPerSubject[ls.SubjectCode] = ls.NumberOfClasses ?? 0;
-                                state.RequiredSlotsPerSubject[ls.SubjectCode] = (ls.TotalSlots / ls.NumberOfClasses) ?? 0;
+
+                                // An toàn trước khi chia
+                                if (ls.NumberOfClasses.HasValue && ls.NumberOfClasses > 0)
+                                {
+                                    // Giả sử mỗi lớp cần 2 slot/tuần nếu không có thông tin khác
+                                    state.RequiredSlotsPerSubject[ls.SubjectCode] = (ls.TotalSlots / ls.NumberOfClasses) ?? 2;
+                                }
+                                else
+                                {
+                                    state.RequiredSlotsPerSubject[ls.SubjectCode] = 2; // Giá trị mặc định an toàn
+                                }
                             }
                         }
-
                         return state;
                     });
         }
 
+        // CHANGED: Thuật toán được viết lại hoàn toàn để đảm bảo tính nhất quán
         public void AssignLecturers(List<LecturerSubject> lecturerSubjects, List<Schedule> allSchedules)
         {
             InitializeLecturerStates(lecturerSubjects);
-            var listLecturerHaveTwoClasses = _lecturerStateMap.Values
-                .Where(l => l.TotalAssignedGroupsAllSubjects == 2)
-                .ToList();
-            var listLecturerHave4Classes = _lecturerStateMap.Values
-                .Where(l => l.TotalAssignedGroupsAllSubjects == 4)
-                .ToList();
 
             var groupedSchedules = allSchedules
                 .Where(s => string.IsNullOrEmpty(s.LecturerId) && !string.IsNullOrEmpty(s.SubjectCode) && !string.IsNullOrEmpty(s.GroupName))
                 .GroupBy(s => (s.GroupName!, s.SubjectCode!));
 
+            // Lặp qua từng nhóm LỚP-MÔN HỌC, không phải từng slot riêng lẻ
             foreach (var classSubjectGroup in groupedSchedules)
             {
                 var groupName = classSubjectGroup.Key.Item1;
                 var subjectCode = classSubjectGroup.Key.Item2;
-                var schedules = classSubjectGroup.ToList();
+                var schedulesInGroup = classSubjectGroup.ToList();
 
-                // Duyệt qua từng lịch học trong nhóm lớp-môn để gán giảng viên
-                foreach (var schedule in schedules)
+                // Tìm một giảng viên DUY NHẤT phù hợp cho TẤT CẢ các buổi học của lớp này
+                var bestCandidate = FindBestLecturerForEntireClass(subjectCode, schedulesInGroup);
+
+                if (bestCandidate != null)
                 {
+                    // Nếu tìm thấy, gán giảng viên đó cho tất cả các buổi học
+                    foreach (var schedule in schedulesInGroup)
                     {
-                        // Lọc ra danh sách giảng viên phù hợp với lịch này, theo các ràng buộc về môn học, thời gian, lớp
-                        var candidates = _lecturerStateMap.Values
-                         .Where(l =>
-                             l.MaxClassesPerSubject.ContainsKey(subjectCode) // Giảng viên có được dạy môn này không
-                             && l.IsAvailable(schedule) // Giảng viên có rảnh không
-                             && l.CanTeachThisClassSubject(schedule) // Có được dạy lớp này không (chỉ dạy 1 môn/lớp)
-                             && l.IsValidDayOfWeekForTwoClasses(schedule) // Nếu chỉ dạy 2 lớp thì phải đúng cặp ngày
-                         )
-                         .OrderBy(l => l.GetAssignedGroupCount(subjectCode)) // Ưu tiên giảng viên dạy ít lớp hơn
-                         .ToList();
-
-                        if (candidates.Any())
-                        {
-                            var selected = candidates.First();
-                            schedule.LecturerId = selected.LecturerId;
-                            schedule.LecturerName = selected.LecturerName;
-                            schedule.LecturerAccount = selected.LecturerAccount;
-                            selected.Assign(schedule);
-                        }
-                        else
-                        {
-                            Console.WriteLine($"❌ Không tìm được giảng viên phù hợp cho lớp {groupName} môn {subjectCode} ngày {schedule.Date:ddd dd/MM}");
-                        }
+                        schedule.LecturerId = bestCandidate.LecturerId;
+                        schedule.LecturerName = bestCandidate.LecturerName;
+                        schedule.LecturerAccount = bestCandidate.LecturerAccount;
+                        bestCandidate.Assign(schedule); // Cập nhật trạng thái của giảng viên
                     }
+                    Console.WriteLine($"✅ Đã gán GV {bestCandidate.LecturerName} cho lớp {groupName} môn {subjectCode}");
+                }
+                else
+                {
+                    Console.WriteLine($"❌ Không tìm được giảng viên nào phù hợp cho TOÀN BỘ các buổi của lớp {groupName} môn {subjectCode}");
                 }
             }
+        }
+
+        private LecturerAssignmentState? FindBestLecturerForEntireClass(string subjectCode, List<Schedule> schedulesInGroup)
+        {
+            // 1. Lọc ra những giảng viên có thể dạy môn này
+            var potentialLecturers = _lecturerStateMap.Values
+                .Where(l => l.MaxClassesPerSubject.ContainsKey(subjectCode));
+
+            // 2. Tìm ứng viên thỏa mãn TẤT CẢ các ràng buộc cho TẤT CẢ các lịch học trong nhóm
+            var validCandidates = potentialLecturers
+                .Where(lecturer =>
+                    schedulesInGroup.All(schedule => // Phải thỏa mãn TẤT CẢ (All) các lịch
+                        lecturer.IsAvailable(schedule) &&
+                        lecturer.CanTeachThisClassSubject(schedule) &&
+                        lecturer.IsValidDayOfWeekForTwoClasses(schedule)
+                    )
+                )
+                .OrderBy(l => l.GetAssignedGroupCount(subjectCode)) // Ưu tiên người dạy ít lớp môn này nhất
+                .ThenBy(l => l.TotalAssignedGroups) // Nếu bằng nhau thì ưu tiên người có tổng số lớp ít hơn
+                .ToList();
+
+            return validCandidates.FirstOrDefault();
         }
     }
 }
