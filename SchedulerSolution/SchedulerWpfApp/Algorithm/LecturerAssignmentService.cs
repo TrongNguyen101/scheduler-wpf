@@ -1,10 +1,5 @@
 ﻿using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -14,20 +9,11 @@ namespace SchedulerWpfApp.Algorithm
     // và nếu tổng lớp là 2 thì chỉ xếp vào cặp ngày cố định (T2-T4 hoặc T3-T5).
     public class LecturerAssignmentService
     {
-        private readonly List<LecturerSubject> _lecturerSubjects;
-        private readonly List<Schedule> _schedules;
         private Dictionary<string, LecturerAssignmentState> _lecturerStateMap = new();
 
-        public LecturerAssignmentService(List<LecturerSubject> lecturerSubjects, List<Schedule> schedules)
+        private void InitializeLecturerStates(List<LecturerSubject> lecturerSubjects)
         {
-            _lecturerSubjects = lecturerSubjects;
-            _schedules = schedules;
-            InitializeLecturerStates();
-        }
-
-        private void InitializeLecturerStates()
-        {
-            _lecturerStateMap = _lecturerSubjects
+            _lecturerStateMap = lecturerSubjects
                 .GroupBy(ls => ls.LecturerId)
                 .ToDictionary(
                     g => g.Key,
@@ -53,9 +39,9 @@ namespace SchedulerWpfApp.Algorithm
                     });
         }
 
-        public void AssignLecturers()
+        public void AssignLecturers(List<LecturerSubject> lecturerSubjects, List<Schedule> allSchedules)
         {
-
+            InitializeLecturerStates(lecturerSubjects);
             var listLecturerHaveTwoClasses = _lecturerStateMap.Values
                 .Where(l => l.TotalAssignedGroupsAllSubjects == 2)
                 .ToList();
@@ -63,11 +49,7 @@ namespace SchedulerWpfApp.Algorithm
                 .Where(l => l.TotalAssignedGroupsAllSubjects == 4)
                 .ToList();
 
-
-
-
-
-            var groupedSchedules = _schedules
+            var groupedSchedules = allSchedules
                 .Where(s => string.IsNullOrEmpty(s.LecturerId) && !string.IsNullOrEmpty(s.SubjectCode) && !string.IsNullOrEmpty(s.GroupName))
                 .GroupBy(s => (s.GroupName!, s.SubjectCode!));
 
