@@ -141,6 +141,7 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand CancelEditRoomCommand { get; }
         public ICommand ConfirmDeleteRoomCommand { get; }
         public ICommand CancelDeleteRoomCommand { get; }
+        public List<string> StatusOptions { get; set; } = new List<string> { "available", "unavailable" };
         #endregion
 
         #region Methods

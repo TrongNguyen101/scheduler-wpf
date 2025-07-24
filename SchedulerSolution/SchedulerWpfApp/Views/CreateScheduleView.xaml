@@ -235,7 +235,7 @@
               Margin="0,0,0,0">
             <Border Background="{StaticResource PrimaryColor}"
                     CornerRadius="10, 10, 0 , 0">
-                <TextBlock Text="Create Schedule"
+                <TextBlock Text="Tạo Lịch Học"
                            FontWeight="Bold"
                            FontSize="22"
                            Foreground="White"
@@ -343,7 +343,7 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕"
                                    VerticalAlignment="Center" />
-                        <TextBlock Text=" Tạo lịch"
+                        <TextBlock Text="Tạo Lịch"
                                    Margin="5,0,0,0"
                                    VerticalAlignment="Center" />
                     </StackPanel>
@@ -357,7 +357,7 @@
                         BorderBrush="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=CLASS}"
                         CornerRadius="6"
                         Margin="0,0,10,0">
-                    <Button Content="Hiển thị theo lớp"
+                    <Button Content="Hiển Thị Theo Lớp"
                             Command="{Binding SetDisplayModeCommand}"
                             CommandParameter="CLASS"
                             FontSize="14"
@@ -368,7 +368,7 @@
                         BorderBrush="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=ROOM}"
                         CornerRadius="6"
                         Margin="0,0,10,0">
-                    <Button Content="Hiển thị theo phòng"
+                    <Button Content="Hiển Thị Theo Phòng"
                             Command="{Binding SetDisplayModeCommand}"
                             FontSize="14"
                             CommandParameter="ROOM"
@@ -379,7 +379,7 @@
                         BorderBrush="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToBrushConverter}, ConverterParameter=LECTURER}"
                         CornerRadius="6"
                         Margin="0,0,10,0">
-                    <Button Content="Hiển thị theo giảng viên"
+                    <Button Content="Hiển Thị Theo Giảng Viên"
                             Command="{Binding SetDisplayModeCommand}"
                             FontSize="14"
                             CommandParameter="LECTURER"

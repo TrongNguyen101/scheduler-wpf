@@ -8,7 +8,7 @@
         <!-- Header -->
         <Grid Grid.Row="0" Height="40" Margin="0,0,0,0">
             <Border Background="{StaticResource PrimaryColor}" CornerRadius="10, 10, 0 , 0">
-                <TextBlock Text="Quản Lí Phòng" FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
+                <TextBlock Text="Quản Lý Phòng" FontWeight="Bold" FontSize="22" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="center" Padding="0, 0, 0, 0" />
             </Border>
         </Grid>
 
@@ -112,13 +112,13 @@
                         </Style>
                     </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Mã phòng" MappingName="RoomId" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Mã Phòng" MappingName="RoomId" AllowResizing="True"/>
                         <syncfusion:GridTextColumn HeaderText="Tên Phòng" MappingName="RoomName" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Loại phòng" MappingName="TypeOfRoom" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Loại Phòng" MappingName="TypeOfRoom" AllowResizing="True"/>
                         <syncfusion:GridTextColumn HeaderText="Tầng" MappingName="Floor" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Tòa nhà" MappingName="Building" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Tòa Nhà" MappingName="Building" AllowResizing="True"/>
                         <syncfusion:GridTextColumn HeaderText="SLSV" MappingName="TotalPersons" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Trạng thái" MappingName="Status" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Trạng Thái" MappingName="Status" AllowResizing="True" />
                         <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False" MappingName="ActionPlaceholder">
 
                             <syncfusion:GridTemplateColumn.CellTemplate>
@@ -192,8 +192,7 @@
                         <TextBox Text="{Binding SelectedRoom.TotalPersons, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
                         <TextBlock Text="Trạng thái" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedRoom.Status, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
-
+                        <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding StatusOptions}" SelectedValue="{Binding SelectedRoom.Status, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
 
                     <!-- Form Actions -->
