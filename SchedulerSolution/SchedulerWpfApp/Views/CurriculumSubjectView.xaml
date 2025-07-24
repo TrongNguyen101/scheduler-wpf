@@ -17,7 +17,7 @@
               Margin="0,0,0,0">
             <Border Background="{StaticResource PrimaryColor}"
                     CornerRadius="10, 10, 0 , 0">
-                <TextBlock Text="Quản Lí Khung Môn Học"
+                <TextBlock Text="Quản Lý Khung Môn Học"
                            FontWeight="Bold"
                            FontSize="22"
                            Foreground="White"
