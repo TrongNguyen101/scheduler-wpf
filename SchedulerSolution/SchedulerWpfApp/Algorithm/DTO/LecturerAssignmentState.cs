@@ -111,7 +111,7 @@ namespace SchedulerWpfApp.Algorithm.DTO
             ClassToSubjectTaught[s.GroupName!] = s.SubjectCode!;
         }
 
-        /// <summary>
+        /// <summary>   
         /// Đếm số lớp đã được phân công cho môn học cụ thể.
         /// </summary>
         public int GetAssignedGroupCount(string subjectCode)

@@ -390,7 +390,7 @@ namespace SchedulerWpfApp.Algorithm.ReportVersion
             return classIndex; // Return the adjusted class index and cycle level
         }
 
-        public int MapToCycleTwoClasses(int roomNo)
+        private int MapToCycleTwoClasses(int roomNo)
         {
             int classIndex = 0;
 
