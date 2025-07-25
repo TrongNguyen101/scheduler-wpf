@@ -23,9 +23,7 @@ namespace SchedulerWpfApp.Algorithm.ReportVersion
 
         private readonly TreeForSchedule _treeNode;
         private readonly SortSubjectsOneSession _sortSubjectsOneSession;
-        private readonly GetLecturerForSubject _getLecturerForSubject;
         private readonly CreateSlotTypeCode _createSlotTypeCode;
-        private readonly CreateScheduleCommonSubject2 _createScheduleForCommonSubject;
         private readonly LecturerAssignmentService _lecturerAssignmentService;
 
         private SchedulingContext _context; // Lưu trữ ngữ cảnh đã chuẩn bị
@@ -38,11 +36,9 @@ namespace SchedulerWpfApp.Algorithm.ReportVersion
                         ICurriculumSubjectServices curriculumSubjectServices,
                         IRoomService roomService,
                         TreeForSchedule treeNode,
-                        GetLecturerForSubject getLecturerForSubject,
                         SortSubjectsOneSession sortSubjectsOneSession,
                         CreateSlotTypeCode createSlotTypeCode,
                         SchedulingContext context,
-                        CreateScheduleCommonSubject2 createScheduleForCommonSubject,
                         LecturerAssignmentService lecturerAssignmentService)
         {
             _logger = logger;
@@ -54,11 +50,9 @@ namespace SchedulerWpfApp.Algorithm.ReportVersion
 
             _treeNode = treeNode;
             _sortSubjectsOneSession = sortSubjectsOneSession;
-            _getLecturerForSubject = getLecturerForSubject;
             _roomService = roomService;
             _createSlotTypeCode = createSlotTypeCode;
             _context = context;
-            _createScheduleForCommonSubject = createScheduleForCommonSubject;
             _lecturerAssignmentService = lecturerAssignmentService;
         }
 
@@ -235,7 +229,7 @@ namespace SchedulerWpfApp.Algorithm.ReportVersion
             return listRoomNodes;
         }
 
-        public async Task<List<Schedule>> GenerateSchedulesFullOffAsync(SchedulePartOfDayContext dataContextInPartOfDay)
+        private async Task<List<Schedule>> GenerateSchedulesFullOffAsync(SchedulePartOfDayContext dataContextInPartOfDay)
         {
             try
             {

@@ -23,21 +23,20 @@ namespace SchedulerWpfApp.Algorithm.DTO
         // Danh sách các lớp mà giảng viên đã được gán cho từng môn
         public Dictionary<string, HashSet<string>> AssignedGroupsPerSubject { get; set; } = new();
 
-        // CHANGED: Lưu toàn bộ đối tượng Schedule để có đầy đủ thông tin (SubjectCode, GroupName, etc.)
+        // Lưu toàn bộ đối tượng Schedule để có đầy đủ thông tin (SubjectCode, GroupName, etc.)
         // Điều này sửa lỗi logic trong GetAssignedSlotCount và làm cho các truy vấn khác mạnh mẽ hơn.
         public HashSet<Schedule> UsedSlots { get; private set; } = new();
 
         // Lưu lại môn mà giảng viên đã dạy cho mỗi lớp để tránh dạy nhiều môn trong cùng một lớp
         public Dictionary<string, string> ClassToSubjectTaught { get; private set; } = new(); // [GroupName] = SubjectCode
 
-        // NEW: Thuộc tính được tính toán để lấy tổng số lớp đã gán.
+        // Thuộc tính được tính toán để lấy tổng số lớp đã gán.
         // Điều này đảm bảo dữ liệu luôn nhất quán và loại bỏ việc cập nhật thủ công.
         public int TotalAssignedGroups => AssignedGroupsPerSubject.Values.SelectMany(set => set).Distinct().Count();
 
         /// <summary>
         /// Kiểm tra giảng viên có rảnh tại slot được yêu cầu không, đồng thời chưa dạy quá 2 lớp trong buổi đó.
         /// </summary>
-        // CHANGED: Logic được cập nhật để hoạt động với HashSet<Schedule> và tính toán tải của buổi học (session load) một cách linh hoạt.
         public bool IsAvailable(Schedule schedule)
         {
             // 1. Kiểm tra xem có slot nào trùng khớp chính xác về thời gian không.
@@ -67,7 +66,7 @@ namespace SchedulerWpfApp.Algorithm.DTO
                 return false;
             }
 
-            // 2. Kiểm tra xem giảng viên có được đăng ký dạy môn này không.
+            // 2. Kiểm tra xem giảng viên có được phân công dạy môn này không.
             if (!MaxClassesPerSubject.TryGetValue(s.SubjectCode!, out int maxClasses))
             {
                 return false; // Giảng viên không được phân công dạy môn này.
@@ -84,7 +83,6 @@ namespace SchedulerWpfApp.Algorithm.DTO
         /// <summary>
         /// Kiểm tra nếu tổng số lớp là 2 thì chỉ được xếp vào thứ 2&4 hoặc thứ 3&5.
         /// </summary>
-        // CHANGED: Sử dụng thuộc tính tính toán `TotalAssignedGroups` để đảm bảo tính đúng đắn.
         public bool IsValidDayOfWeekForTwoClasses(Schedule s)
         {
             if (this.TotalAssignedGroups != 2) return true;
@@ -97,7 +95,6 @@ namespace SchedulerWpfApp.Algorithm.DTO
         /// <summary>
         /// Gán giảng viên vào một Schedule và cập nhật tất cả trạng thái liên quan.
         /// </summary>
-        // CHANGED: Logic được đơn giản hóa, không cần cập nhật các thuộc tính đã bị loại bỏ.
         public void Assign(Schedule s)
         {
             // Chỉ cần thêm đối tượng Schedule vào tập hợp.
@@ -125,7 +122,6 @@ namespace SchedulerWpfApp.Algorithm.DTO
         /// <summary>
         /// Đếm tổng số slot đã gán cho môn học (để đảm bảo đủ 2 slot/tuần/lớp).
         /// </summary>
-        // CHANGED: Logic được sửa lại hoàn toàn và giờ đã chính xác nhờ `UsedSlots` chứa `Schedule`.
         public int GetAssignedSlotCount(string subjectCode)
         {
             return UsedSlots.Count(s => s.SubjectCode == subjectCode);
