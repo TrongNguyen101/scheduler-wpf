@@ -5,6 +5,7 @@ using System.Windows;
 using System.IO;
 using System.Resources;
 using SchedulerWpfApp.Helper;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
 
 namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
 {
@@ -12,6 +13,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
     {
         #region Fields
         private IUnitOfWork _unitOfWork;
+        private readonly INotificationService _notificationService;
         #endregion
 
         #region Constructor
@@ -19,9 +21,10 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         /// Initializes a new instance of the CurriculumSubjectServices class
         /// </summary>
         /// <param name="unitOfWork">The database context used for data operations</param>
-        public CurriculumSubjectServices(IUnitOfWork unitOfWork)
+        public CurriculumSubjectServices(IUnitOfWork unitOfWork, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork; // Injecting the unit of work to manage database operations
+            _notificationService = notificationService;
         }
         #endregion
 
@@ -171,15 +174,15 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
 
                 if (curriculumMissList.Count > 0 && subjectMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy khung chương trình với mã: " + string.Join(", ", curriculumMissList) + "\n" + "Không tìm thấy môn học với mã:" + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowWarning("Không tìm thấy khung chương trình với mã: " + string.Join(", ", curriculumMissList) + "\n" + "Không tìm thấy môn học với mã:" + string.Join(", ", subjectMissList));
                 }
                 else if (curriculumMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy khung chương trình với mã: " + string.Join(", ", curriculumMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowWarning("Không tìm thấy khung chương trình với mã: " + string.Join(", ", curriculumMissList));
                 }
                 else if (subjectMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowWarning("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMissList));
                 }
             }
             catch (Exception ex)

@@ -4,6 +4,7 @@ using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 using Syncfusion.XlsIO;
 using SchedulerWpfApp.Helper;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
 
 namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 {
@@ -11,6 +12,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
     {
         #region Fields
         private readonly IUnitOfWork _unitOfWork;
+        private readonly INotificationService _notificationService;
         #endregion
 
         #region Constructor
@@ -18,7 +20,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         /// Initializes a new instance of the <see cref="LecturerSubjectServices"/> class.
         /// </summary>
         /// <param name="unitOfWork">The unit of work instance for data access.</param>
-        public LecturerSubjectServices(IUnitOfWork unitOfWork)
+        public LecturerSubjectServices(IUnitOfWork unitOfWork, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
         }
@@ -79,15 +81,15 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 
                 if (lecturerMissList.Count > 0 && subjectMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMissList) + "\n" + "Không tìm thấy giảng viên với mã:" + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowWarning("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMissList) + "\n" + "Không tìm thấy giảng viên với mã:" + string.Join(", ", subjectMissList));
                 }
                 else if (lecturerMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowWarning("Không tìm thấy giảng viên với mã: " + string.Join(", ", lecturerMissList));
                 }
                 else if (subjectMissList.Count > 0)
                 {
-                    MessageBox.Show("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMissList), "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowWarning("Không tìm thấy môn học với mã: " + string.Join(", ", subjectMissList));
                 }
             }
             catch (Exception ex)

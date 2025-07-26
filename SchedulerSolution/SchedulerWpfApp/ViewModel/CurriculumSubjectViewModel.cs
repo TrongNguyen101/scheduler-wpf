@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
@@ -8,6 +7,7 @@ using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
+using Syncfusion.Data;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -43,6 +43,19 @@ namespace SchedulerWpfApp.ViewModel
         private ObservableCollection<string> _allCurriculumCodes;
 
         public string Title => SelectedCurriculumSubject?.CurriculumCode != null ? "Chỉnh Sửa Khung Môn" : "Thêm Mới Khung Môn";
+        public ObservableCollection<string> TeachingMode { get; set; } = new()  { "ON",
+            "OFF",
+            "ON/OFF",
+            "C-On",
+            "EXE",
+            "OJT"
+        };
+        public ObservableCollection<string> PartOfTerm { get; set; } = new()  { "H1.1.5",
+            "H1.1.6",
+            "H2.6.10",
+            "H2.7.12",
+            "All"
+        };
         #endregion
 
         #region Constructor
@@ -329,8 +342,8 @@ namespace SchedulerWpfApp.ViewModel
             SelectedCurriculumSubject = new CurriculumSubject(); // Initialize a new curriculumSubject object
             SelectedSubject = new Subject(); // Initialize a new subject object
             SelectedCurriculum = new Curriculum(); // Initialize a new curriculum object
-            SelectedSubjectCode = string.Empty; // Reset selected codes
-            SelectedCurriculumCode = string.Empty;
+            SelectedSubjectCode = null; // Reset selected codes
+            SelectedCurriculumCode = null;
             IsCurriculumSubjectFormOpen = true;
             _isEdit = false;
             IsCurriculumSubjectCodeEdit = false;
@@ -354,6 +367,8 @@ namespace SchedulerWpfApp.ViewModel
                 IsCombo = curriculumSubject.IsCombo,
                 Credit = curriculumSubject.Credit,
                 TotalSlots = curriculumSubject.TotalSlots,
+                TeachingMode = curriculumSubject.TeachingMode,
+                PartOfTerm = curriculumSubject.PartOfTerm
             };
 
             // Set selected codes for ComboBoxes
@@ -399,7 +414,7 @@ namespace SchedulerWpfApp.ViewModel
                 return;
 
             // Validate the curriculumSubject before saving
-            if (string.IsNullOrWhiteSpace(SelectedCurriculumSubject.CurriculumCode) || string.IsNullOrWhiteSpace(SelectedCurriculumSubject.SubjectCode) || !SelectedCurriculumSubject.Credit.HasValue || !SelectedCurriculumSubject.TotalSlots.HasValue)
+            if (string.IsNullOrWhiteSpace(SelectedCurriculumSubject.CurriculumCode) || string.IsNullOrWhiteSpace(SelectedCurriculumSubject.SubjectCode) || !SelectedCurriculumSubject.Credit.HasValue || !SelectedCurriculumSubject.TotalSlots.HasValue || string.IsNullOrEmpty(SelectedCurriculumSubject.PartOfTerm) || string.IsNullOrEmpty(SelectedCurriculumSubject.TeachingMode))
             {
                 _notificationService.ShowWarning("Vui lòng điền đầy đủ thông tin khung môn.");
                 // Open the curriculumSubject form for user to fill in the details
@@ -454,6 +469,8 @@ namespace SchedulerWpfApp.ViewModel
                         existingCurriculumSubject.IsCombo = SelectedCurriculumSubject.IsCombo;
                         existingCurriculumSubject.Credit = SelectedCurriculumSubject.Credit;
                         existingCurriculumSubject.TotalSlots = SelectedCurriculumSubject.TotalSlots;
+                        existingCurriculumSubject.TeachingMode = SelectedCurriculumSubject.TeachingMode;
+                        existingCurriculumSubject.PartOfTerm = SelectedCurriculumSubject.PartOfTerm;
 
                         // Update the curriculumSubject in the data source
                         await _curriculumSubjectService.UpdateCurriculumSubject(existingCurriculumSubject);
@@ -581,7 +598,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             else if (!curriculums.Any())
             {
-               _notificationService.ShowWarning("Không có khung chương trình nào trong hệ thống. Vui lòng thêm danh sách khung chương trình trước");
+                _notificationService.ShowWarning("Không có khung chương trình nào trong hệ thống. Vui lòng thêm danh sách khung chương trình trước");
                 return;
             }
             else if (!subjects.Any())

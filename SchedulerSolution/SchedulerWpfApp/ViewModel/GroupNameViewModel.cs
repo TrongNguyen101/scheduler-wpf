@@ -38,8 +38,14 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isProgressBarOpen;
         // used to set the title for the header bar of the popup when editing or adding
         public string FormTitle => SelectedGroupname?.GroupName == "" ? "Thêm lớp mới" : "Chỉnh sửa thông tin lớp";
-
-
+        public ObservableCollection<string> PartOfDayInTheFirstTerms { get; } = new() { "A", "P" }; // AM, PM 
+        public ObservableCollection<string> TeachingMode { get; set; } = new()  { "ON",
+            "OFF",
+            "ON/OFF",
+            "C-On",
+            "EXE",
+            "OJT"
+        };
         #endregion
 
         #region Constructor
@@ -299,6 +305,8 @@ namespace SchedulerWpfApp.ViewModel
                 Major = groupname.Major,
                 Term = groupname.Term,
                 Department = groupname.Department,
+                TeachingMode = groupname.TeachingMode,
+                PartOfDayInTheFirstTerm = groupname.PartOfDayInTheFirstTerm,
             };
             IsGroupNameFormOpen = true;
             // check event edit 
@@ -326,7 +334,9 @@ namespace SchedulerWpfApp.ViewModel
                 if (string.IsNullOrWhiteSpace(SelectedGroupname?.GroupName) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.CurriculumCode) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department))
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.Department) ||
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.TeachingMode) ||
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.PartOfDayInTheFirstTerm))
                 {
                     _notificationService.ShowWarning("Dữ liệu lớp học không được để trống");
                     IsGroupNameFormOpen = true; // Mở lại form nếu có dữ liệu trống
@@ -350,6 +360,8 @@ namespace SchedulerWpfApp.ViewModel
                         existingLecture.Major = SelectedGroupname.Major;
                         existingLecture.Department = SelectedGroupname.Department;
                         existingLecture.Term = SelectedGroupname.Term;
+                        existingLecture.TeachingMode = SelectedGroupname.TeachingMode;
+                        existingLecture.PartOfDayInTheFirstTerm = SelectedGroupname.PartOfDayInTheFirstTerm;
                         // Dữ liệu đã được validate ở trên rồi, an toàn để update
                         await _groupnamelistService.UpdateGroupName(existingLecture);
                         _notificationService.ShowSuccess("Cập nhật lớp thành công");
