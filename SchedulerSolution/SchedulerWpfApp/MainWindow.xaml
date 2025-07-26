@@ -44,7 +44,7 @@
             <Setter Property="Background" Value="{StaticResource PrimaryColor}" />
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#2980b9" />
+                    <Setter Property="Background" Value="#4285F4" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -111,7 +111,7 @@
                                 <Style.Triggers>
                                     <!-- Nếu tab hiện tại là CreateSchedule thì đổi màu -->
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}" Value="CreateSchedule">
-                                        <Setter Property="Background" Value="#2980b9" />
+                                        <Setter Property="Background" Value="#4285F4" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -148,7 +148,7 @@
                                 <Style.Triggers>
                                     <!-- Nếu tab hiện tại là LectureSubject thì đổi nền -->
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}" Value="LectureSubject">
-                                        <Setter Property="Background" Value="#2980b9" />
+                                        <Setter Property="Background" Value="#4285F4" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -184,7 +184,7 @@
                             <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}" Value="Lecture">
-                                        <Setter Property="Background" Value="#2980b9" />
+                                        <Setter Property="Background" Value="#4285F4" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -219,7 +219,7 @@
                             <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}" Value="Subject">
-                                        <Setter Property="Background" Value="#2980b9" />
+                                        <Setter Property="Background" Value="#4285F4" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -256,7 +256,7 @@
                             <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}" Value="GroupName">
-                                        <Setter Property="Background" Value="#2980b9" />
+                                        <Setter Property="Background" Value="#4285F4" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -292,7 +292,7 @@
                             <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}" Value="RoomList">
-                                        <Setter Property="Background" Value="#2980b9" />
+                                        <Setter Property="Background" Value="#4285F4" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -328,7 +328,7 @@
                             <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}" Value="Curriculum">
-                                        <Setter Property="Background" Value="#2980b9" />
+                                        <Setter Property="Background" Value="#4285F4" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -364,7 +364,7 @@
                             <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}" Value="CurriculumSubject">
-                                        <Setter Property="Background" Value="#2980b9" />
+                                        <Setter Property="Background" Value="#4285F4" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
