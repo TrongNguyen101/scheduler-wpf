@@ -195,7 +195,7 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                             headerMap[header] = c;
                     }
 
-                    string[] requiredHeaders = { "GroupName", "Khóa", "Kỳ", "BM", "Ngành", "Tổ chức" };
+                    string[] requiredHeaders = { "GroupName", "Khóa", "Kỳ", "BM", "Ngành", "Tổ chức", "Buổi" };
 
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
@@ -210,7 +210,8 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                             Department = worksheet[r, headerMap["BM"]].Value,
                             Major = worksheet[r, headerMap["Ngành"]].Value,
                             Term = int.TryParse(worksheet[r, headerMap["Kỳ"]].Value, out int term) ? term : 0,
-                            TeachingMode = worksheet[r, headerMap["Tổ chức"]].Value
+                            TeachingMode = worksheet[r, headerMap["Tổ chức"]].Value,
+                            PartOfDayInTheFirstTerm = worksheet[r, headerMap["Buổi"]].Value
                         };
                         groupnames.Add(groupname);
                     }
@@ -239,6 +240,8 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
             sheet[1, 3].Text = "Ngành";
             sheet[1, 4].Text = "BM";
             sheet[1, 5].Text = "Kỳ";
+            sheet[1, 6].Text = "Tổ chức";
+            sheet[1, 7].Text = "Buổi";
             int row = 2;
             foreach (var groupName in groupNames)
             {
@@ -247,6 +250,8 @@ namespace SchedulerWpfApp.ServiceRefactor.GroupNameService
                 sheet[row, 3].Text = groupName.Major ?? "";
                 sheet[row, 4].Text = groupName.Department ?? "";
                 sheet[row, 5].Number = groupName.Term ?? 0;
+                sheet[row, 6].Text = groupName.TeachingMode ?? "";
+                sheet[row, 7].Text = groupName.PartOfDayInTheFirstTerm ?? "";
                 row++;
             }
             workbook.SaveAs(filePath);

@@ -7,8 +7,6 @@ using SchedulerWpfApp.ServiceRefactor.LecturerServices;
 using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 using SchedulerWpfApp.ServiceRefactor.RoomService;
 using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
-using System;
-using System.Windows.Controls;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -27,6 +25,8 @@ namespace SchedulerWpfApp.Algorithm
         private readonly SortSubjectsOneSession _sortSubjectsOneSession;
         private readonly GetLecturerForSubject _getLecturerForSubject;
         private readonly CreateSlotTypeCode _createSlotTypeCode;
+        private readonly CreateScheduleCommonSubject2 _createScheduleForCommonSubject;
+        private readonly LecturerAssignmentService _lecturerAssignmentService;
 
         private SchedulingContext _context; // Lưu trữ ngữ cảnh đã chuẩn bị
 
@@ -41,7 +41,9 @@ namespace SchedulerWpfApp.Algorithm
                                       GetLecturerForSubject getLecturerForSubject,
                                       SortSubjectsOneSession sortSubjectsOneSession,
                                       CreateSlotTypeCode createSlotTypeCode,
-                                      SchedulingContext context)
+                                      SchedulingContext context,
+                                      CreateScheduleCommonSubject2 createScheduleForCommonSubject,
+                                      LecturerAssignmentService lecturerAssignmentService)
         {
             _logger = logger;
             _scheduleServices = scheduleServices;
@@ -56,15 +58,14 @@ namespace SchedulerWpfApp.Algorithm
             _roomService = roomService;
             _createSlotTypeCode = createSlotTypeCode;
             _context = context;
+            _createScheduleForCommonSubject = createScheduleForCommonSubject;
+            _lecturerAssignmentService = lecturerAssignmentService;
         }
 
-        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate)
+        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
         {
             try
             {
-                var listMajorA = new List<string> { "FN", "HM", "MC", "BA", "TM" };
-                var listMajorB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
-                var listMajorFullOff = new List<string> { "GD" };
                 _context = await PrepareSchedulingDataAsync();
 
                 if (_context == null || !_context.Rooms.Any() || !_context.GroupNames.Any() || !_context.CurriculumSubjects.Any())
@@ -73,11 +74,11 @@ namespace SchedulerWpfApp.Algorithm
                     return new List<Schedule>(); // Trả về danh sách rỗng nếu không có phòng
                 }
                 // phân chia lớp học sáng chiều
-                var (listGroupNameAm, listGroupNamePm) = BalancedSplitWithGreedySwap(_context.GroupNames);
+                //var (listGroupNameAm, listGroupNamePm) = BalancedSplitWithGreedySwap(_context.GroupNames);
 
-                // lọc giảng viên theo buổi
-                var lecturersAM = _getLecturerForSubject.FilterLecturerInSession(_context.LecturersTeachSubjects, _context.LecturerRequests, "AM");
-                var lecturersPM = _getLecturerForSubject.FilterLecturerInSession(_context.LecturersTeachSubjects, _context.LecturerRequests, "PM");
+                //Lấy danh sách lớp theo buổi và ko phải là lớp đi OJT
+                List<GroupClass> listGroupNameAm = _context.GroupNames.Where(g => g.PartOfDayInTheFirstTerm == "A" && g.TeachingMode != "OJT").ToList();
+                List<GroupClass> listGroupNamePm = _context.GroupNames.Where(g => g.PartOfDayInTheFirstTerm == "P" && g.TeachingMode != "OJT").ToList();
 
                 var roomNodesAMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(listGroupNameAm.Count);
                 var roomNodesPMFirstAndFinalWeek = await BuildRoomTreeForSchedulesFullOff(listGroupNamePm.Count);
@@ -85,7 +86,7 @@ namespace SchedulerWpfApp.Algorithm
                 var dataContextInAmFullOff = new SchedulePartOfDayContext
                 {
                     GroupNames = listGroupNameAm,
-                    LecturersTeachSubjects = lecturersAM,
+                    LecturersTeachSubjects = _context.LecturersTeachSubjects,
                     PartOfDay = ScheduleConstants.PartOfDayIsAM,
                     StartDate = startDate,
                     TreeForSchedules = roomNodesAMFirstAndFinalWeek
@@ -94,18 +95,18 @@ namespace SchedulerWpfApp.Algorithm
                 var dataContextInPmFullOff = new SchedulePartOfDayContext
                 {
                     GroupNames = listGroupNamePm,
-                    LecturersTeachSubjects = lecturersPM,
+                    LecturersTeachSubjects = _context.LecturersTeachSubjects,
                     PartOfDay = ScheduleConstants.PartOfDayIsPM,
                     StartDate = startDate,
                     TreeForSchedules = roomNodesPMFirstAndFinalWeek
                 };
 
-                var (roomNodesAMOnOff, listGroupNameAlternatingAmA, listGroupNameAlternatingAmB) = await BuildRoomTreeForSchedulesOnOffAlternative(listGroupNameAm, listMajorA, listMajorB);
-                var (roomNodesPMOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB) = await BuildRoomTreeForSchedulesOnOffAlternative(listGroupNamePm, listMajorA, listMajorB);
+                var (roomNodesAMOnOff, listGroupNameAlternatingAmA, listGroupNameAlternatingAmB) = await BuildRoomTreeForSchedulesOnOffAlternative(listGroupNameAm, listMajorGroupA, listMajorGroupB);
+                var (roomNodesPMOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB) = await BuildRoomTreeForSchedulesOnOffAlternative(listGroupNamePm, listMajorGroupA, listMajorGroupB);
 
                 var dataContextInAmOnOff = new SchedulePartOfDayContext
                 {
-                    LecturersTeachSubjects = lecturersAM,
+                    LecturersTeachSubjects = _context.LecturersTeachSubjects,
                     PartOfDay = ScheduleConstants.PartOfDayIsAM,
                     StartDate = startDate,
                     TreeForSchedules = roomNodesAMOnOff
@@ -113,23 +114,34 @@ namespace SchedulerWpfApp.Algorithm
 
                 var dataContextInPmOnOff = new SchedulePartOfDayContext
                 {
-                    LecturersTeachSubjects = lecturersPM,
+                    LecturersTeachSubjects = _context.LecturersTeachSubjects,
                     PartOfDay = ScheduleConstants.PartOfDayIsPM,
                     StartDate = startDate,
                     TreeForSchedules = roomNodesPMOnOff
                 };
+
+                var allSchedules = new List<Schedule>();
+
+                // Test: lấy các lớp kỳ 9 để kiểm tra
+                /* var listGroupNameTerm9 = _context.GroupNames.Where(g => g.Term == 9).ToList();
+                 var allScheduleForCommonSubject = ScheduleForCommonSubject(listGroupNameTerm9);*/
+
 
                 // *** TỐI ƯU HIỆU SUẤT: 4 luồng chính được chạy đồng thời, không cần chờ đợi nhau ***
                 var schedulingTasks = new List<Task<List<Schedule>>>
                                     {
                                         GenerateSchedulesFullOffAsync(dataContextInAmFullOff),
                                         GenerateSchedulesFullOffAsync(dataContextInPmFullOff),
-                                        GenerateSchedulesOnOffAsync(dataContextInAmOnOff, listGroupNameAlternatingAmA, listGroupNameAlternatingAmB),
-                                        GenerateSchedulesOnOffAsync(dataContextInPmOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB)
+                                        //GenerateSchedulesOnOffAsync(dataContextInAmOnOff, listGroupNameAlternatingAmA, listGroupNameAlternatingAmB),
+                                        //GenerateSchedulesOnOffAsync(dataContextInPmOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB)
                                     };
 
                 var results = await Task.WhenAll(schedulingTasks);
-                var allSchedules = results.SelectMany(list => list).ToList();
+                allSchedules = results.SelectMany(list => list).ToList();
+
+                _lecturerAssignmentService.AssignLecturers(_context.LecturerSubjects, allSchedules);
+
+                //allSchedules.AddRange(allScheduleForCommonSubject);
 
                 return allSchedules;
             }
@@ -140,8 +152,6 @@ namespace SchedulerWpfApp.Algorithm
             }
         }
 
-
-
         private async Task<SchedulingContext> PrepareSchedulingDataAsync()
         {
             // Khởi tạo các Task để tải dữ liệu đồng thời
@@ -150,9 +160,10 @@ namespace SchedulerWpfApp.Algorithm
             var groupNameTask = _groupNameService.GetAllAsync();
             var lecturerSubjectTask = _lecturerSubjectServices.GetAllAsync();
             var curriculumSubjectTask = _curriculumSubjectServices.GetAllCurriculumSubjectAsync();
+            var deleteAllSchedulesTask = _scheduleServices.DeleteAllAsync();
 
             // Chờ tất cả các Task hoàn thành
-            await Task.WhenAll(lecturerTask, roomTask, groupNameTask, lecturerSubjectTask, curriculumSubjectTask);
+            await Task.WhenAll(lecturerTask, roomTask, groupNameTask, lecturerSubjectTask, curriculumSubjectTask, deleteAllSchedulesTask);
 
             // Lấy kết quả từ các Task
             var listLecturer = await lecturerTask;
@@ -167,103 +178,90 @@ namespace SchedulerWpfApp.Algorithm
             // Chuyển List thành Lookup để tìm kiếm môn học không cần duyệt lại toàn bộ danh sách.
             var curriculumLookup = curriculumSubjects.ToLookup(s => (s.CurriculumCode, s.TermNo));
 
-            var scheduleFourSubjectsLookup = ScheduleFourSubjectsLookup(curriculumLookup, listGroupName);
-
+            var scheduleSubjectsLookup = ScheduleSubjectsLookup(curriculumLookup, listGroupName);
 
             return new SchedulingContext
             {
                 Lecturers = listLecturer,
                 LecturerRequests = new List<LecturerRequest>(),
+                LecturerSubjects = lecturersSubjects,
                 Rooms = listRoom,
                 CurriculumSubjects = curriculumSubjects,
                 GroupNames = listGroupName,
                 CurriculumLookup = curriculumLookup,
                 LecturersTeachSubjects = lecturersTeachSubjects,
-                SchedulesFourSubjectsLookup = scheduleFourSubjectsLookup
+                SchedulesSubjectsLookup = scheduleSubjectsLookup,
             };
         }
 
-        // Phương thức để tiền xử lý các môn học
-        private Dictionary<string, CurriculumSubjectWithCount[,,]> ScheduleFourSubjectsLookup(ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup, List<GroupClass> listGroupName)
+        private List<Schedule> ScheduleForCommonSubject(List<GroupClass> GroupNames)
         {
-            var subjectLookup = new Dictionary<string, CurriculumSubjectWithCount[,,]>();
-            foreach (var groupName in listGroupName)
-            {
-                var subjectOfClass = curriculumLookup[(groupName.CurriculumCode, groupName.Term.GetValueOrDefault())].ToList();
-                var sortedSubjects = _sortSubjectsOneSession.SortSubjectFourClass(subjectOfClass);
-                subjectLookup.Add(groupName.GroupName, sortedSubjects);
-            }
-            return subjectLookup;
+            var schedules = new List<Schedule>();
+
+            var lecturersTeachCommonSubjects = _context.LecturerSubjects.Where(lecturer => lecturer.Major == "Common" && lecturer.Term == 9).ToList();
+
+            schedules.AddRange(_createScheduleForCommonSubject.CreateSchedule(GroupNames, lecturersTeachCommonSubjects, _context.CurriculumLookup));
+
+            return schedules;
         }
 
-        /// <summary>
-        /// Chia danh sách các lớp (GroupName) thành hai nhóm sáng và chiều một cách cân bằng.
-        /// - Nhóm theo chuyên ngành (Major), sau đó chia mỗi nhóm thành hai nửa (sáng, chiều).
-        /// - Sử dụng thuật toán greedy để phân phối các nửa vào hai nhóm tổng thể sao cho số lượng lớp giữa hai nhóm cân bằng nhất.
-        /// - Nếu tổng số lớp của nhóm sáng nhỏ hơn hoặc bằng nhóm chiều thì thêm nửa sáng vào nhóm sáng, nửa chiều vào nhóm chiều.
-        /// - Ngược lại, đảo ngược phân phối để cân bằng số lượng lớp giữa hai nhóm.
-        /// </summary>
-        /// <param name="allGroupNames">Danh sách tất cả các lớp cần chia.</param>
-        /// <returns>
-        /// Tuple gồm:
-        /// - morningGroups: danh sách lớp học buổi sáng.
-        /// - afternoonGroups: danh sách lớp học buổi chiều.
-        /// </returns>
-        public (List<GroupClass> morningGroups, List<GroupClass> afternoonGroups) BalancedSplitWithGreedySwap(List<GroupClass> allGroupNames)
+        // Phương thức để tiền xử lý các môn học
+        private Dictionary<string, CurriculumSubjectWithCount[,,]> ScheduleSubjectsLookup(ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup, List<GroupClass> listGroupName)
         {
-            var morningGroups = new List<GroupClass>();
-            var afternoonGroups = new List<GroupClass>();
+            var subjectLookup = new Dictionary<string, CurriculumSubjectWithCount[,,]>();
+            List<GroupClass> class5subject = new List<GroupClass>();
+            List<GroupClass> class4subject = new List<GroupClass>();
+            List<GroupClass> class3subject = new List<GroupClass>();
+            List<GroupClass> class2subject = new List<GroupClass>();
+            List<GroupClass> class1subject = new List<GroupClass>();
 
-            var groupedByCurriculum = allGroupNames
-                .GroupBy(g => g.CurriculumCode)
-                .Select(g => new
-                {
-                    CurriculumCode = g.Key,
-                    Group = g.ToList()
-                }).ToList();
-
-            // Tạo danh sách các cặp (nửa sáng, nửa chiều)
-            var splitPairs = new List<(List<GroupClass> MorningHalf, List<GroupClass> AfternoonHalf)>();
-
-            foreach (var item in groupedByCurriculum)
+            foreach (var groupName in listGroupName)
             {
-                int count = item.Group.Count;
-                int half = count / 2;
-                int extra = count % 2;
+                var subjectsOfClass = curriculumLookup[(groupName.CurriculumCode, groupName.Term.GetValueOrDefault())].ToList();
+                //var subjectOfClass = curriculumLookup[("BIT_GD_MCD_18A", 8)].ToList();
 
-                var morningHalf = item.Group.Take(half + extra).ToList();
-                var afternoonHalf = item.Group.Skip(half + extra).ToList();
+                var listGroupNameOJT = listGroupName.Where(g => g.TeachingMode == ScheduleConstants.TechingModeIsOJT).ToList();
 
-                splitPairs.Add((morningHalf, afternoonHalf));
-            }
+                var listSubjectOnOffNomalAndHalfOne = subjectsOfClass
+                                                     .Where(s => s.TeachingMode == ScheduleConstants.TechingModeIsOnOff && (s.PartOfTerm.Contains("H1") || s.PartOfTerm == "All") && !s.SubjectCode.Contains("GRA"))
+                                                     .ToList();
 
-            // Greedy phân phối để cân bằng
-            int totalMorning = 0;
-            int totalAfternoon = 0;
-
-            foreach (var (morningHalf, afternoonHalf) in splitPairs)
-            {
-                int morningSize = morningHalf.Count;
-                int afternoonSize = afternoonHalf.Count;
-
-                if (totalMorning <= totalAfternoon)
+                if (listSubjectOnOffNomalAndHalfOne.Count == 2)
                 {
-                    morningGroups.AddRange(morningHalf);
-                    afternoonGroups.AddRange(afternoonHalf);
-                    totalMorning += morningSize;
-                    totalAfternoon += afternoonSize;
+                    class2subject.Add(groupName);
+
+                    foreach (var subject in listSubjectOnOffNomalAndHalfOne)
+                    {
+
+                    }
                 }
                 else
+                if (listSubjectOnOffNomalAndHalfOne.Count == 3)
                 {
-                    // Đảo ngược phân phối
-                    morningGroups.AddRange(afternoonHalf);
-                    afternoonGroups.AddRange(morningHalf);
-                    totalMorning += afternoonSize;
-                    totalAfternoon += morningSize;
+                    class3subject.Add(groupName);
+                    var curriculumTemp = new CurriculumSubject();
+                    listSubjectOnOffNomalAndHalfOne.Add(curriculumTemp); // Thêm một môn học tạm thời để đảm bảo có đủ 4 môn
+
+                    var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(listSubjectOnOffNomalAndHalfOne);
+
+                    var subjectOffClassDifferentTime = subjectsOfClass.FirstOrDefault(s => s.TeachingMode == "OFF");
+
+                    subjectLookup[groupName.GroupName] = sortedFourSubjects;
+                }
+                else if (listSubjectOnOffNomalAndHalfOne.Count == 4)
+                {
+                    class4subject.Add(groupName);
+                    var sortedFourSubjects = _sortSubjectsOneSession.SortSubjectFourClassFlexibleSubject(listSubjectOnOffNomalAndHalfOne);
+                    subjectLookup[groupName.GroupName] = sortedFourSubjects;
+                }
+                else if (listSubjectOnOffNomalAndHalfOne.Count == 5)
+                {
+                    class5subject.Add(groupName);
+                    var sortedFiveSubjects = _sortSubjectsOneSession.SortFiveSubjectForClass(listSubjectOnOffNomalAndHalfOne);
+                    subjectLookup[groupName.GroupName] = sortedFiveSubjects;
                 }
             }
-
-            return (morningGroups, afternoonGroups);
+            return subjectLookup;
         }
 
         private async Task<List<TreeForSchedule>> BuildRoomTreeForSchedulesFullOff(int numberOfRooms)
@@ -272,7 +270,7 @@ namespace SchedulerWpfApp.Algorithm
             var listRooms = await _roomService.GetNumberOfRoom(numberOfRooms);
             if (listRooms == null || !listRooms.Any()) return listRoomNodes;
 
-            // *** TỐI ƯU CRITICAL: Chạy song song việc xây dựng cây cho tất cả các phòng ***
+            // Chạy song song việc xây dựng cây cho tất cả các phòng
             var buildTreeTasks = listRooms.Select(room =>
                 _treeNode.BuildTreeForRoom(room.RoomId, room.RoomName)
             ).ToList();
@@ -358,13 +356,63 @@ namespace SchedulerWpfApp.Algorithm
             var sessionSchedules = new List<Schedule>();
             var roomNode = dataContextInPartOfDay.TreeForSchedules[indexRoom];
 
-            var groupNameA = listGroupNameAlternatingA[indexRoom];
-            var groupNameB = listGroupNameAlternatingB[indexRoom];
+            // Try to get the group classes using ElementAtOrDefault to avoid manual null checks
+            GroupClass groupClassA = listGroupNameAlternatingA.ElementAtOrDefault(indexRoom);
+            GroupClass groupClassB = listGroupNameAlternatingB.ElementAtOrDefault(indexRoom);
 
-            var scheduleSubjectOfGroupNameAForRoom = _context.SchedulesFourSubjectsLookup[groupNameA.GroupName];
-            var scheduleSubjectOfGroupNameBForRoom = _context.SchedulesFourSubjectsLookup[groupNameB.GroupName];
+            if (groupClassA == null && groupClassB == null)
+            {
+                _logger.LogWarning($"No group classes found for room index {indexRoom}");
+                return sessionSchedules; // Trả về danh sách rỗng nếu không có lớp học
+            }
+            else if (groupClassA != null && groupClassB == null)
+            {
 
-            var (classIndex, cycleLevel) = MapToCycle(indexRoom + 1);
+            }
+            else if (groupClassA == null && groupClassB != null)
+            {
+
+            }
+            else
+            {
+
+            }
+
+            string groupNameA = groupClassA == null ? "" : groupClassA.GroupName;
+            string groupNameB = groupClassB == null ? "" : groupClassB.GroupName;
+
+            // Kiểm tra groupNameA trong _context.SchedulesFourSubjectsLookup
+            var scheduleSubjectOfGroupNameAForRoom = _context.SchedulesSubjectsLookup.ContainsKey(groupNameA)
+                ? _context.SchedulesSubjectsLookup[groupNameA]
+                : null;
+
+            // Kiểm tra groupNameB trong _context.SchedulesFourSubjectsLookup
+            var scheduleSubjectOfGroupNameBForRoom = _context.SchedulesSubjectsLookup.ContainsKey(groupNameB)
+                ? _context.SchedulesSubjectsLookup[groupNameB]
+                : null;
+
+            var classIndexA = 0;
+            var cycleLevelA = 0;
+            var classIndexB = 0;
+            var cycleLevelB = 0;
+
+            if (scheduleSubjectOfGroupNameAForRoom?.GetLength(1) == 2)
+            {
+                classIndexA = MapToCycleTwoClasses(indexRoom + 1);
+            }
+            else
+            {
+                classIndexA = MapToCycleFourClasses(indexRoom + 1);
+            }
+
+            if (scheduleSubjectOfGroupNameBForRoom?.GetLength(1) == 2)
+            {
+                classIndexB = MapToCycleTwoClasses(indexRoom + 1);
+            }
+            else
+            {
+                classIndexB = MapToCycleFourClasses(indexRoom + 1);
+            }
 
             foreach (int week in weeksToProcess)
             {
@@ -374,15 +422,36 @@ namespace SchedulerWpfApp.Algorithm
 
                     for (int slotIndex = 0; slotIndex < ScheduleConstants.SlotsPerSession; slotIndex++)
                     {
-                        var subjectSortedGroupNameA = scheduleSubjectOfGroupNameAForRoom[dayOfWeek, classIndex, slotIndex];
-                        var subjectSortedGroupNameB = scheduleSubjectOfGroupNameBForRoom[dayOfWeek, classIndex, slotIndex];
+                        if (scheduleSubjectOfGroupNameAForRoom == null && scheduleSubjectOfGroupNameBForRoom == null) continue;
+
+                        CurriculumSubjectWithCount subjectSortedGroupNameA;
+                        if (scheduleSubjectOfGroupNameAForRoom == null)
+                        {
+                            subjectSortedGroupNameA = null;
+                        }
+                        else
+                        {
+                            subjectSortedGroupNameA = scheduleSubjectOfGroupNameAForRoom[dayOfWeek, classIndexA, slotIndex];
+                        }
+
+                        CurriculumSubjectWithCount subjectSortedGroupNameB;
+
+                        if (scheduleSubjectOfGroupNameBForRoom == null)
+                        {
+                            subjectSortedGroupNameB = null;
+                        }
+                        else
+                        {
+                            subjectSortedGroupNameB = scheduleSubjectOfGroupNameBForRoom[dayOfWeek, classIndexB, slotIndex];
+                        }
+
 
                         if (subjectSortedGroupNameA == null && subjectSortedGroupNameB == null) continue;
 
                         string typeSlot = ScheduleConstants.TypeSlotIsNew;
 
-                        string slotTypeCodeA = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, dataContextInPartOfDay.PartOfDay, subjectSortedGroupNameA.Subject.TeachingMode);
-                        string slotTypeCodeB = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, dataContextInPartOfDay.PartOfDay, subjectSortedGroupNameB.Subject.TeachingMode);
+                        string slotTypeCodeA = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, dataContextInPartOfDay.PartOfDay, subjectSortedGroupNameA != null ? subjectSortedGroupNameA.Subject.TeachingMode : "");
+                        string slotTypeCodeB = _createSlotTypeCode.GetSlotTypeCode(dayOfWeek + 1, slotIndex + 1, dataContextInPartOfDay.PartOfDay, subjectSortedGroupNameB != null ? subjectSortedGroupNameB.Subject.TeachingMode : "");
 
                         string statusSLotGroupNameA = "";
                         string statusSLotGroupNameB = "";
@@ -404,40 +473,46 @@ namespace SchedulerWpfApp.Algorithm
 
                         if (week == 1)
                         {
-                            sessionNoA = subjectSortedGroupNameA.Count;
-                            sessionNoB = subjectSortedGroupNameB.Count;
+                            sessionNoA = subjectSortedGroupNameA != null ? subjectSortedGroupNameA.Count : -1;
+                            sessionNoB = subjectSortedGroupNameB != null ? subjectSortedGroupNameB.Count : -1;
                         }
                         else
                         {
-                            if (subjectSortedGroupNameA.Subject.TotalSlots == ScheduleConstants.TotalSlotsNomal)
+                            if (subjectSortedGroupNameA != null)
                             {
-                                sessionNoA = subjectSortedGroupNameA.Count == 1 ? (2 * week - 1) : (2 * week); // Tuần 1 là slot thứ 1, tuần 2 là slot thứ 3, tuần 3 là slot thứ 5, v.v.
-                            }
-                            else
-                            {
-                                sessionNoA = 0;
+                                if (subjectSortedGroupNameA.Subject.TotalSlots == ScheduleConstants.TotalSlotsNomal)
+                                {
+                                    sessionNoA = subjectSortedGroupNameA.Count == 1 ? (2 * week - 1) : (2 * week); // Tuần 1 là slot thứ 1, tuần 2 là slot thứ 3, tuần 3 là slot thứ 5, v.v.
+                                }
+                                else
+                                {
+                                    sessionNoA = 0;
+                                }
                             }
 
-                            if (subjectSortedGroupNameB.Subject.TotalSlots == ScheduleConstants.TotalSlotsNomal)
+                            if (subjectSortedGroupNameB != null)
                             {
-                                sessionNoB = subjectSortedGroupNameB.Count == 1 ? (2 * week - 1) : (2 * week); // Tuần 1 là slot thứ 1, tuần 2 là slot thứ 3, tuần 3 là slot thứ 5, v.v.
-                            }
-                            else
-                            {
-                                sessionNoB = 0;
+                                if (subjectSortedGroupNameB.Subject.TotalSlots == ScheduleConstants.TotalSlotsNomal)
+                                {
+                                    sessionNoB = subjectSortedGroupNameB.Count == 1 ? (2 * week - 1) : (2 * week); // Tuần 1 là slot thứ 1, tuần 2 là slot thứ 3, tuần 3 là slot thứ 5, v.v.
+                                }
+                                else
+                                {
+                                    sessionNoB = 0;
+                                }
                             }
                         }
 
-                        var (lecturerIdOfGroupNameA, lecturerNameOfGroupNameA, lecturerAccoutOfGroupNameA) = _getLecturerForSubject.FindLecturerForSubject(subjectSortedGroupNameA.Subject.SubjectCode, dataContextInPartOfDay.LecturersTeachSubjects, cycleLevel);
-                        var (lecturerIdOfGroupNameB, lecturerNameOfGroupNameB, lecturerAccoutOfGroupNameB) = _getLecturerForSubject.FindLecturerForSubject(subjectSortedGroupNameB.Subject.SubjectCode, dataContextInPartOfDay.LecturersTeachSubjects, cycleLevel);
+                        var (lecturerIdOfGroupNameA, lecturerNameOfGroupNameA, lecturerAccoutOfGroupNameA) = _getLecturerForSubject.FindLecturerForSubject(subjectSortedGroupNameA.Subject.SubjectCode, dataContextInPartOfDay.LecturersTeachSubjects, cycleLevelA);
+                        var (lecturerIdOfGroupNameB, lecturerNameOfGroupNameB, lecturerAccoutOfGroupNameB) = _getLecturerForSubject.FindLecturerForSubject(subjectSortedGroupNameB.Subject.SubjectCode, dataContextInPartOfDay.LecturersTeachSubjects, cycleLevelB);
 
                         int slotLabel = slotIndex + slotStart;
 
-                        var schedulesItemOfGroupNameA = _treeNode.CollectSchedules(roomNode, subjectSortedGroupNameA.Subject.SubjectCode, currentDate, groupNameA.GroupName, slotLabel, lecturerIdOfGroupNameA, lecturerNameOfGroupNameA, slotTypeCodeA, typeSlot, sessionNoA, dataContextInPartOfDay.PartOfDay, statusSLotGroupNameA);
-                        var schedulesItemOfGroupNameB = _treeNode.CollectSchedules(roomNode, subjectSortedGroupNameB.Subject.SubjectCode, currentDate, groupNameB.GroupName, slotLabel, lecturerIdOfGroupNameB, lecturerNameOfGroupNameB, slotTypeCodeB, typeSlot, sessionNoB, dataContextInPartOfDay.PartOfDay, statusSLotGroupNameB);
+                        //var schedulesItemOfGroupNameA = _treeNode.CollectSchedules(roomNode, subjectSortedGroupNameA.Subject.SubjectCode, currentDate, groupClassA.GroupName, slotLabel, lecturerIdOfGroupNameA, lecturerNameOfGroupNameA, slotTypeCodeA, typeSlot, sessionNoA, dataContextInPartOfDay.PartOfDay, statusSLotGroupNameA);
+                        //var schedulesItemOfGroupNameB = _treeNode.CollectSchedules(roomNode, subjectSortedGroupNameB.Subject.SubjectCode, currentDate, groupClassB.GroupName, slotLabel, lecturerIdOfGroupNameB, lecturerNameOfGroupNameB, slotTypeCodeB, typeSlot, sessionNoB, dataContextInPartOfDay.PartOfDay, statusSLotGroupNameB);
 
-                        sessionSchedules.AddRange(schedulesItemOfGroupNameA);
-                        sessionSchedules.AddRange(schedulesItemOfGroupNameB);
+                        //sessionSchedules.AddRange(schedulesItemOfGroupNameA);
+                        //sessionSchedules.AddRange(schedulesItemOfGroupNameB);
                     }
                 }
             }
@@ -458,7 +533,7 @@ namespace SchedulerWpfApp.Algorithm
 
                 // Sử dụng Parallel để tối ưu việc xử lý đồng thời các phòng học
                 var tasks = dataContextInPartOfDay.TreeForSchedules.Select((roomNode, indexRoom) => Task.Run(() =>
-                    GenerateRoomSchedulesFullOff(indexRoom, dataContextInPartOfDay, ScheduleConstants.FirstAndFinalWeeks, slotStart, subjectAppearanceOrder, statusSlot)
+                    GenerateRoomSchedulesFullOff(indexRoom, dataContextInPartOfDay, slotStart, subjectAppearanceOrder, statusSlot)
                 ));
 
                 var results = await Task.WhenAll(tasks);
@@ -476,24 +551,36 @@ namespace SchedulerWpfApp.Algorithm
             }
         }
 
-
-
         // Phương thức để tạo lịch cho từng phòng học
         private List<Schedule> GenerateRoomSchedulesFullOff(
             int indexRoom,
             SchedulePartOfDayContext dataContextInPartOfDay,
-            IEnumerable<int> weeksToProcess,
             int slotStart,
             Dictionary<string, int> subjectAppearanceOrder,
             string statusSlot)
         {
             var sessionSchedules = new List<Schedule>();
             var roomNode = dataContextInPartOfDay.TreeForSchedules[indexRoom];
-            var group = dataContextInPartOfDay.GroupNames[indexRoom];
+            var groupClass = dataContextInPartOfDay.GroupNames[indexRoom];
 
-            var scheduleSubjectForClassForRoom = _context.SchedulesFourSubjectsLookup[group.GroupName];
+            var scheduleSubjectForClassForRoom = _context.SchedulesSubjectsLookup.ContainsKey(groupClass.GroupName)
+                ? _context.SchedulesSubjectsLookup[groupClass.GroupName]
+                : null;
 
-            var (classIndex, cycleLevel) = MapToCycle(indexRoom + 1);
+            var classIndex = 0;
+            var cycleLevel = 0;
+
+            if (scheduleSubjectForClassForRoom?.GetLength(1) == 2)
+            {
+                classIndex = MapToCycleTwoClasses(indexRoom + 1);
+            }
+            else
+            {
+                classIndex = MapToCycleFourClasses(indexRoom + 1);
+            }
+
+            int[] weeksToProcess = new int[] { 1 };
+
 
             foreach (int week in weeksToProcess)
             {
@@ -503,8 +590,13 @@ namespace SchedulerWpfApp.Algorithm
 
                     for (int slotIndex = 0; slotIndex < ScheduleConstants.SlotsPerSession; slotIndex++)
                     {
+                        if (scheduleSubjectForClassForRoom == null) continue; // Nếu không có lịch môn học cho lớp này thì bỏ qua
+
                         var subjectSorted = scheduleSubjectForClassForRoom[dayOfWeek, classIndex, slotIndex];
+
                         if (subjectSorted == null) continue;
+
+                        if (string.IsNullOrEmpty(subjectSorted.Subject.CurriculumCode)) continue;
 
                         string typeSlot = subjectSorted.Subject.TeachingMode == ScheduleConstants.TechingModeIsCoursera ? ScheduleConstants.TypeSlotIsOld : ScheduleConstants.TypeSlotIsNew;
                         if (subjectSorted.Subject.TeachingMode == ScheduleConstants.TechingModeIsCoursera)
@@ -526,15 +618,15 @@ namespace SchedulerWpfApp.Algorithm
                             if (subjectSorted.Subject.TotalSlots == ScheduleConstants.TotalSlotsNomal)
                             {
                                 sessionNo = subjectSorted.Count == 1 ? (2 * week - 1) : (2 * week); // Tuần 1 là slot thứ 1, tuần 2 là slot thứ 3, tuần 3 là slot thứ 5, v.v.
-                            } else
+                            }
+                            else
                             {
                                 sessionNo = 0;
                             }
                         }
-                        var (lecturerId, lecturerName, lecturerAccount) = _getLecturerForSubject.FindLecturerForSubject(subjectSorted.Subject.SubjectCode, dataContextInPartOfDay.LecturersTeachSubjects, cycleLevel);
                         int slotLabel = slotIndex + slotStart;
 
-                        var schedulesItem = _treeNode.CollectSchedules(roomNode, subjectSorted.Subject.SubjectCode, currentDate, group.GroupName, slotLabel, lecturerId, lecturerName, slotTypeCode, typeSlot, sessionNo, dataContextInPartOfDay.PartOfDay, statusSlot);
+                        var schedulesItem = _treeNode.CollectSchedules(roomNode, subjectSorted.Subject.SubjectCode, currentDate, groupClass.GroupName, slotLabel, null, null, null, slotTypeCode, typeSlot, sessionNo, dataContextInPartOfDay.PartOfDay, statusSlot);
                         sessionSchedules.AddRange(schedulesItem);
                     }
                 }
@@ -555,12 +647,11 @@ namespace SchedulerWpfApp.Algorithm
         /// - classIndex: chỉ số lớp trong chu kỳ (0-based).
         /// - cycleLevel: cấp chu kỳ (bắt đầu từ 1).
         /// </returns>
-        public static (int cyclePosition, int cycleLevel) MapToCycle(int roomNo)
+        private int MapToCycleFourClasses(int roomNo)
         {
             int classIndex = 0;
-            int cycleLevel = 0;
 
-            // In weekly schedule, in one session, one lecturer can teach a maximum of 4 classes, each class has 2 slots
+            // In weekly schedule, with class have 4 subject in one session, one lecturer can teach a maximum of 4 classes, each class has 2 slots
             // when number of class is greater than 4, we need to add other lecturers to the schedule
             // Determine the class index and cycle level based on the room number (one class per room)
             // For example:
@@ -580,16 +671,45 @@ namespace SchedulerWpfApp.Algorithm
                 // For example: room 5, 6, 7, 8 will be in cycle 1, room 9, 10, 11, 12 will be in cycle 2
                 int cycleCount = (roomNo - 1) / 4;
 
-                // Calculate the cycle level
-                cycleLevel = cycleCount + 1; // Adjusted to start from 1
             }
             else
             {
                 classIndex = roomNo - 1; // Adjusted index for the class
-                cycleLevel = 1;
             }
 
-            return (classIndex, cycleLevel); // Return the adjusted class index and cycle level
+            return classIndex; // Return the adjusted class index and cycle level
+        }
+
+        public int MapToCycleTwoClasses(int roomNo)
+        {
+            int classIndex = 0;
+
+            // In weekly schedule, with class have 5 subject in one session, one lecturer can teach a maximum of 2 classes, each class has 2 slots
+            // when number of class is greater than 2, we need to add other lecturers to the schedule
+            // Determine the class index and cycle level based on the room number (one class per room)
+            // For example:
+            // 3: position = 1, cycle = 1, level = 1
+            // 4: position = 2, cycle = 1, level = 1
+            // 5: position = 2, cycle = 2, level = 2
+            // 7: position = 2, cycle = 3, level = 3
+            if (roomNo > 2)
+            {
+                // Find the position in the cycle (1 to 2)
+                // For example: room 3, 4 will be in cycle 1, position 1,2 respectively
+                int cyclePosition = (roomNo - 1) % 2 + 1;
+                // Adjusted index for the class
+                classIndex = cyclePosition - 1; // Adjusted index for the class
+
+                // Calculate the number of cycles
+                // For example: room 3, 4 will be in cycle 1, room 5, 6 will be in cycle 2
+                int cycleCount = (roomNo - 1) / 2;
+            }
+            else
+            {
+                classIndex = roomNo - 1; // Adjusted index for the class
+            }
+
+            return classIndex; // Return the adjusted class index and cycle level
         }
 
         private bool GetSlotTypeForWeek(int week, int dayOfWeek, string slotTypeCode)
@@ -615,70 +735,73 @@ namespace SchedulerWpfApp.Algorithm
         }
 
         /// <summary>
-        /// Lấy số thứ tự buổi học (session) của một môn học trong tuần đầu và tuần cuối của kỳ, dựa trên số lần xuất hiện của môn đó.
-        /// Nếu đã đạt đến tổng số buổi thì quay lại 1.
+        /// Chia danh sách các lớp (GroupName) thành hai nhóm sáng và chiều một cách cân bằng.
+        /// - Nhóm theo chuyên ngành (Major), sau đó chia mỗi nhóm thành hai nửa (sáng, chiều).
+        /// - Sử dụng thuật toán greedy để phân phối các nửa vào hai nhóm tổng thể sao cho số lượng lớp giữa hai nhóm cân bằng nhất.
+        /// - Nếu tổng số lớp của nhóm sáng nhỏ hơn hoặc bằng nhóm chiều thì thêm nửa sáng vào nhóm sáng, nửa chiều vào nhóm chiều.
+        /// - Ngược lại, đảo ngược phân phối để cân bằng số lượng lớp giữa hai nhóm.
         /// </summary>
-        /// <param name="subjectAppearanceOrder">Dictionary lưu số lần xuất hiện của từng môn học.</param>
-        /// <param name="curriculumSubject">Môn học cần lấy số thứ tự buổi học.</param>
-        /// <returns>Số thứ tự buổi học hiện tại của môn học.</returns>
-        private int GetSessionNoForFirstWeeksAndFinal(Dictionary<string, int> subjectAppearanceOrder, CurriculumSubject curriculumSubject, int week)
+        /// <param name="allGroupNames">Danh sách tất cả các lớp cần chia.</param>
+        /// <returns>
+        /// Tuple gồm:
+        /// - morningGroups: danh sách lớp học buổi sáng.
+        /// - afternoonGroups: danh sách lớp học buổi chiều.
+        /// </returns>
+        public (List<GroupClass> morningGroups, List<GroupClass> afternoonGroups) BalancedSplitWithGreedySwap(List<GroupClass> allGroupNames)
         {
-            if (curriculumSubject == null)
-                throw new ArgumentNullException(nameof(curriculumSubject));
+            var morningGroups = new List<GroupClass>();
+            var afternoonGroups = new List<GroupClass>();
 
-
-            if (!subjectAppearanceOrder.TryGetValue(curriculumSubject.SubjectCode, out int currentSession))
-            {
-                currentSession = 1;
-            }
-            else
-            {
-                if (week == 1) // Tuần cuối
+            var groupedByCurriculum = allGroupNames
+                .GroupBy(g => g.CurriculumCode)
+                .Select(g => new
                 {
-                    currentSession += 1;
+                    CurriculumCode = g.Key,
+                    Group = g.ToList()
+                }).ToList();
+
+            // Tạo danh sách các cặp (nửa sáng, nửa chiều)
+            var splitPairs = new List<(List<GroupClass> MorningHalf, List<GroupClass> AfternoonHalf)>();
+
+            foreach (var item in groupedByCurriculum)
+            {
+                int count = item.Group.Count;
+                int half = count / 2;
+                int extra = count % 2;
+
+                var morningHalf = item.Group.Take(half + extra).ToList();
+                var afternoonHalf = item.Group.Skip(half + extra).ToList();
+
+                splitPairs.Add((morningHalf, afternoonHalf));
+            }
+
+            // Greedy phân phối để cân bằng
+            int totalMorning = 0;
+            int totalAfternoon = 0;
+
+            foreach (var (morningHalf, afternoonHalf) in splitPairs)
+            {
+                int morningSize = morningHalf.Count;
+                int afternoonSize = afternoonHalf.Count;
+
+                if (totalMorning <= totalAfternoon)
+                {
+                    morningGroups.AddRange(morningHalf);
+                    afternoonGroups.AddRange(afternoonHalf);
+                    totalMorning += morningSize;
+                    totalAfternoon += afternoonSize;
                 }
                 else
                 {
-                    if (currentSession == 19 || currentSession == 9)
-                    {
-                        currentSession += 1;
-                    }
-                    else
-                    {
-                        currentSession = curriculumSubject.TotalSlots == 20 ? 19 : 9;
-                    }
+                    // Đảo ngược phân phối
+                    morningGroups.AddRange(afternoonHalf);
+                    afternoonGroups.AddRange(morningHalf);
+                    totalMorning += afternoonSize;
+                    totalAfternoon += morningSize;
                 }
             }
 
-            subjectAppearanceOrder[curriculumSubject.SubjectCode] = currentSession;
-            return currentSession;
-        }
-
-
-        /// <summary>
-        /// Lấy số thứ tự buổi học (session) của một môn học trong kỳ, dựa trên số lần xuất hiện của môn đó.
-        /// Nếu đã đạt đến tổng số buổi thì quay lại 1.
-        /// </summary>
-        /// <param name="subjectAppearanceOrder">Dictionary lưu số lần xuất hiện của từng môn học.</param>
-        /// <param name="curriculumSubject">Môn học cần lấy số thứ tự buổi học.</param>
-        /// <returns>Số thứ tự buổi học hiện tại của môn học.</returns>
-        private int GetSessionNoForWeeks(Dictionary<string, int> subjectAppearanceOrder, CurriculumSubject curriculumSubject)
-        {
-            if (curriculumSubject == null)
-                throw new ArgumentNullException(nameof(curriculumSubject));
-
-
-            if (!subjectAppearanceOrder.TryGetValue(curriculumSubject.SubjectCode, out int currentSession))
-            {
-                currentSession = 3;
-            }
-            else
-            {
-                currentSession = currentSession >= 18 ? 3 : currentSession + 1;
-            }
-
-            subjectAppearanceOrder[curriculumSubject.SubjectCode] = currentSession;
-            return currentSession;
+            return (morningGroups, afternoonGroups);
         }
     }
 }

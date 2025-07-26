@@ -27,6 +27,9 @@
 
         public const string TechingModeIsFullOff = "OFF";
 
+        public const string TechingModeIsOJT = "OJT";
+
+
         public const string TechingModeIsCoursera = "C-ON";
 
         public const string PartOfDayIsAM = "A";
@@ -36,7 +39,5 @@
         public const int NewSlotStartTimePM = 3; // new slot strart time in PM is 3
 
         public const int TotalSlotsNomal = 20;
-
-
     }
 }

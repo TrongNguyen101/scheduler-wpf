@@ -24,7 +24,7 @@ namespace SchedulerWpfApp.Model
         [Column("TeachingMode ")]
         public string? TeachingMode { get; set; }// Onl/Off, Off, Onl, OJT...
 
-
-        public ICollection<Schedule>? Schedules { get; set; }
+        [Column("PartOfDayInTheFirstTerm")]
+        public string? PartOfDayInTheFirstTerm { get; set; }
     }
 }

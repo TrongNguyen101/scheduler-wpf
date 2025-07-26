@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchedulerWpfApp.Data;
 
@@ -10,9 +11,11 @@ using SchedulerWpfApp.Data;
 namespace SchedulerWpfApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250708075809_UpdatePropertyOfCurriculumSubject")]
+    partial class UpdatePropertyOfCurriculumSubject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
@@ -254,6 +257,33 @@ namespace SchedulerWpfApp.Migrations
                     b.ToTable("LecturerSubject");
                 });
 
+            modelBuilder.Entity("SchedulerWpfApp.Model.Person", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("Email");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("FirstName");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("LastName");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("Phone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Person");
+                });
+
             modelBuilder.Entity("SchedulerWpfApp.Model.Room", b =>
                 {
                     b.Property<int>("RoomId")
@@ -369,6 +399,14 @@ namespace SchedulerWpfApp.Migrations
 
                     b.HasKey("ScheduleId");
 
+                    b.HasIndex("GroupName");
+
+                    b.HasIndex("LecturerId");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("SubjectCode");
+
                     b.ToTable("Schedules");
                 });
 
@@ -448,9 +486,45 @@ namespace SchedulerWpfApp.Migrations
                     b.Navigation("Subject");
                 });
 
+            modelBuilder.Entity("SchedulerWpfApp.Model.Schedule", b =>
+                {
+                    b.HasOne("SchedulerWpfApp.Model.GroupClass", "GroupClass")
+                        .WithMany("Schedules")
+                        .HasForeignKey("GroupName")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SchedulerWpfApp.Model.Lecturer", "Lecturer")
+                        .WithMany("Schedules")
+                        .HasForeignKey("LecturerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SchedulerWpfApp.Model.Room", "Room")
+                        .WithMany("Schedules")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SchedulerWpfApp.Model.Subject", "Subject")
+                        .WithMany("Schedules")
+                        .HasForeignKey("SubjectCode")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("GroupClass");
+
+                    b.Navigation("Lecturer");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("Subject");
+                });
+
             modelBuilder.Entity("SchedulerWpfApp.Model.Curriculum", b =>
                 {
                     b.Navigation("CurriculumSubjects");
+                });
+
+            modelBuilder.Entity("SchedulerWpfApp.Model.GroupClass", b =>
+                {
+                    b.Navigation("Schedules");
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Lecturer", b =>
@@ -458,6 +532,13 @@ namespace SchedulerWpfApp.Migrations
                     b.Navigation("LecturerRequests");
 
                     b.Navigation("LecturerSubjects");
+
+                    b.Navigation("Schedules");
+                });
+
+            modelBuilder.Entity("SchedulerWpfApp.Model.Room", b =>
+                {
+                    b.Navigation("Schedules");
                 });
 
             modelBuilder.Entity("SchedulerWpfApp.Model.Subject", b =>
@@ -465,6 +546,8 @@ namespace SchedulerWpfApp.Migrations
                     b.Navigation("CurriculumSubjects");
 
                     b.Navigation("LecturerSubjects");
+
+                    b.Navigation("Schedules");
                 });
 #pragma warning restore 612, 618
         }

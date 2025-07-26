@@ -30,6 +30,7 @@ using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
+using SchedulerWpfApp.Algorithm.ReportVersion;
 
 namespace SchedulerWpfApp
 {
@@ -212,6 +213,9 @@ namespace SchedulerWpfApp
             services.AddScoped<CreateSlotTypeCode>(); // Register CreateSlotTypeCode with a scoped lifetime
             services.AddScoped<Version2CreateSchedule>(); // Register Version2CreateSchedule with a scoped lifetime
             services.AddScoped<SchedulingContext>(); // Register SchedulingContext with a scoped lifetime
+            services.AddScoped<CreateScheduleCommonSubject2>(); // Register CreateScheduleForCommonSubject with a scoped lifetime
+            services.AddScoped<LecturerAssignmentService>(); // Register LecturerAssignmentService with a scoped lifetime
+            services.AddScoped<ReportV1>(); // Register ReportV1 with a scoped lifetime
         }
 
         /// <summary>

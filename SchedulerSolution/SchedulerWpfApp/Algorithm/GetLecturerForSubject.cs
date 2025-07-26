@@ -1,4 +1,5 @@
-﻿using SchedulerWpfApp.Model;
+﻿using SchedulerWpfApp.Algorithm.DTO;
+using SchedulerWpfApp.Model;
 
 namespace SchedulerWpfApp.Algorithm
 {

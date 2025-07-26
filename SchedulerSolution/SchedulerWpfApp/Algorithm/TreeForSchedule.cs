@@ -76,6 +76,7 @@ namespace SchedulerWpfApp.Algorithm
                                                 int slotTime,
                                                 string lecturerId,
                                                 string lecturerName,
+                                                string lecturerAccount,
                                                 string slotTypeCode,
                                                 string typeSlot,
                                                 int sessionNo,
@@ -102,31 +103,41 @@ namespace SchedulerWpfApp.Algorithm
             // Nếu là node lá, tạo Schedule
             if (node.Left == null && node.Right == null && node.StatusSlot != null)
             {
-                schedules.Add(new Schedule
+                string roomName = node.RoomName;
+                if (node.StatusSlot == ScheduleConstants.StatusSlotIsOnline)
                 {
-                    RoomId = node.RoomId,
-                    RoomName = node.RoomName,
-                    PartOfDay = node.PartOfDay,
-                    SlotTime = node.SlotTime,
-                    StatusSlot = node.StatusSlot,
-                    SubjectCode = subjectCode,
-                    Date = date,
-                    GroupName = groupName,
-                    LecturerId = lecturerId,
-                    LecturerName = lecturerName,
-                    SlotTypeCode = slotTypeCode,
-                    TypeSlot = typeSlot,
-                    SessionNo = sessionNo
-                });
+                    roomName = node.RoomName + "ON";
+                } else if (typeSlot == ScheduleConstants.TypeSlotIsNew)
+                {
+                    roomName = "R." + node.RoomName;
+                }
+
+                    schedules.Add(new Schedule
+                    {
+                        RoomId = node.RoomId,
+                        RoomName = roomName,
+                        PartOfDay = node.PartOfDay,
+                        SlotTime = node.SlotTime,
+                        StatusSlot = node.StatusSlot,
+                        SubjectCode = subjectCode,
+                        Date = date,
+                        GroupName = groupName,
+                        LecturerId = lecturerId,
+                        LecturerName = lecturerName,
+                        LecturerAccount = lecturerAccount,
+                        SlotTypeCode = slotTypeCode,
+                        TypeSlot = typeSlot,
+                        SessionNo = sessionNo,
+                    });
             }
 
             // Đệ quy các nhánh con và gộp kết quả
             schedules.AddRange(CollectSchedules(node.Left, subjectCode, date, groupName,
-                slotTime, lecturerId, lecturerName, slotTypeCode, typeSlot, sessionNo,
+                slotTime, lecturerId, lecturerName, lecturerAccount, slotTypeCode, typeSlot, sessionNo,
                 partOfDayFilter, statusSlot));
 
             schedules.AddRange(CollectSchedules(node.Right, subjectCode, date, groupName,
-                slotTime, lecturerId, lecturerName, slotTypeCode, typeSlot, sessionNo,
+                slotTime, lecturerId, lecturerName, lecturerAccount, slotTypeCode, typeSlot, sessionNo,
                 partOfDayFilter, statusSlot));
 
             return schedules;
