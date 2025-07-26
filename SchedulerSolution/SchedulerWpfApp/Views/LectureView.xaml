@@ -146,7 +146,7 @@
                 </Border.Effect>
 
                 <syncfusion:SfDataGrid x:Name="LecturersDataGrid"
-                                       ItemsSource="{Binding Lectures}"
+                                       ItemsSource="{Binding ElementName=dataPager,Path=PagedSource}"
                                        AutoGenerateColumns="False"
                                        AllowFiltering="True"
                                        ShowRowHeader="False"
@@ -166,6 +166,9 @@
                         <syncfusion:GridTextColumn HeaderText="Mã số giảng viên"
                                                    MappingName="LecturerId"
                                                    AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="AccGV"
+                                                   MappingName="LecturerAccount"
+                                                   AllowResizing="True" />
                         <syncfusion:GridTextColumn HeaderText="Họ và Tên"
                                                    MappingName="LecturerName"
                                                    AllowResizing="True" />
@@ -174,9 +177,6 @@
                                                    AllowResizing="True" />
                         <syncfusion:GridTextColumn HeaderText="Bộ Môn"
                                                    MappingName="Department"
-                                                   AllowResizing="True" />
-                        <syncfusion:GridTextColumn HeaderText="AccGV"
-                                                   MappingName="LecturerAccount"
                                                    AllowResizing="True" />
                         <syncfusion:GridTemplateColumn HeaderText="Action"
                                                        Width="90"
@@ -223,9 +223,9 @@
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal">
                     <syncfusion:SfDataPager x:Name="dataPager"
-                                            PageSize="10"
+                                            PageSize="50"
                                             NumericButtonCount="5"
-                                            PagedSource="{Binding Lectures}" />
+                                            Source="{Binding Lectures}" />
                 </StackPanel>
             </Grid>
         </Grid>

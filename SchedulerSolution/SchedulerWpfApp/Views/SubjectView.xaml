@@ -151,7 +151,7 @@
                                        SelectionMode="Single"
                                        AllowSorting="True"
                                        GridLinesVisibility="Both"
-                                       ItemsSource="{Binding Subjects}"
+                                       ItemsSource="{Binding ElementName=dataPager,Path=PagedSource}"
                                        ColumnSizer="Star"
                                        HeaderStyle="{StaticResource GridHeaderStyle}"
                                        CellStyle="{StaticResource GridCellStyle}"
@@ -217,9 +217,9 @@
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal">
                     <syncfusion:SfDataPager x:Name="dataPager"
-                                            PageSize="10"
+                                            PageSize="50"
                                             NumericButtonCount="5"
-                                            PagedSource="{Binding Subjects}" />
+                                            Source="{Binding Subjects}" />
                 </StackPanel>
             </Grid>
         </Grid>

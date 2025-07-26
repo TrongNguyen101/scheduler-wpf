@@ -146,7 +146,7 @@
                 </Border.Effect>
 
                 <syncfusion:SfDataGrid x:Name="LecturersDataGrid"
-                                       ItemsSource="{Binding LecturerSubjects}"
+                                       ItemsSource="{Binding ElementName=dataPager,Path=PagedSource}"
                                        AutoGenerateColumns="False"
                                        AllowFiltering="True"
                                        ShowRowHeader="False"
@@ -163,8 +163,8 @@
                                        CurrentCellBorderBrush="White">
 
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Tên Giảng Viên"
-                                                   MappingName="LecturerName" />
+                        <syncfusion:GridTextColumn HeaderText="Mã Giảng Viên"
+                                                   MappingName="LecturerId" />
                         <syncfusion:GridTextColumn HeaderText="Mã Môn Học"
                                                    MappingName="SubjectCode" />
                         <syncfusion:GridTextColumn HeaderText="Chuyên Ngành"
@@ -220,9 +220,9 @@
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal">
                     <syncfusion:SfDataPager x:Name="dataPager"
-                                            PageSize="10"
+                                            PageSize="50"
                                             NumericButtonCount="5"
-                                            PagedSource="{Binding Lectures}" />
+                                            Source="{Binding LecturerSubjects}" />
                 </StackPanel>
             </Grid>
         </Grid>
@@ -298,7 +298,9 @@
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
                             <TextBox Style="{StaticResource ModernTextBoxStyle}"
-                                     Text="{Binding SelectedLecturerSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                                     Text="{Binding SelectedLecturerSubject.LecturerName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Background="#F5F5F5"
+                                     IsReadOnly="True" />
                         </StackPanel>
 
                         <!-- Dòng 2: Mã Môn Học và Tên Môn Học -->
@@ -322,7 +324,9 @@
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
                             <TextBox Style="{StaticResource ModernTextBoxStyle}"
-                                     Text="{Binding SelectedLecturerSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}" />
+                                     Text="{Binding SelectedLecturerSubject.SubjectName, UpdateSourceTrigger=PropertyChanged}"
+                                     Background="#F5F5F5"
+                                     IsReadOnly="True" />
                         </StackPanel>
 
                         <!-- Dòng 3: Chuyên Ngành và Kỳ Học -->

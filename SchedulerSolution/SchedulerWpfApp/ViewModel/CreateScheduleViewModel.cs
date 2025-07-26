@@ -13,6 +13,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using SchedulerWpfApp.Algorithm.DTO;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -24,6 +25,7 @@ namespace SchedulerWpfApp.ViewModel
         private readonly IRoomService _roomService;
         private readonly ILecturerSubjectServices _lecturerSubjectServices;
         private readonly IGroupNameService _groupNameService;
+        private readonly INotificationService _notificationService;
 
         private int _selectedYear;
         private string _selectedWeek;
@@ -263,13 +265,14 @@ namespace SchedulerWpfApp.ViewModel
             RefreshFilteredMajors();
         });
 
-        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices, IRoomService roomService, ILecturerSubjectServices lecturerSubjectServices, IGroupNameService groupNameService)
+        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices, IRoomService roomService, ILecturerSubjectServices lecturerSubjectServices, IGroupNameService groupNameService, INotificationService notificationService)
         {
             _createScheduleTree = createScheduleTree;
             _implementScheduleServices = implementScheduleServices;
             _roomService = roomService;
             _lecturerSubjectServices = lecturerSubjectServices;
             _groupNameService = groupNameService;
+            _notificationService = notificationService;
 
             SelectedYear = DateTime.Now.Year; // Default to current year
             CreateScheduleCommand = new RelayCommand(async () => await CreateScheduleDemo());
@@ -498,15 +501,15 @@ namespace SchedulerWpfApp.ViewModel
             //}
             //else
             //{
-                //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, ListMajorGroupA.ToList(), ListMajorGroupB.ToList());
-                var schedules = await _createScheduleTree.GenerateSchedules();
+            //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, ListMajorGroupA.ToList(), ListMajorGroupB.ToList());
+            var schedules = await _createScheduleTree.GenerateSchedules();
 
-                LoadMockSchedules(); // Reload schedules after generating new ones
-                // PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
-                if (schedules == null || !schedules.Any())
-                    MessageBox.Show("Không có lịch nào được tạo.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                else
-                    MessageBox.Show("Tạo lịch thành công.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            LoadMockSchedules(); // Reload schedules after generating new ones
+                                 // PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
+            if (schedules == null || !schedules.Any())
+                _notificationService.ShowInfo("Không có lịch nào được tạo.");
+            else
+                _notificationService.ShowSuccess("Tạo lịch thành công.");
             //}
         }
 
@@ -519,7 +522,7 @@ namespace SchedulerWpfApp.ViewModel
 
             if (schedules == null || !schedules.Any())
             {
-                MessageBox.Show("Không có lịch nào để xuất.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                _notificationService.ShowInfo("Không có lịch nào để xuất.");
                 return;
             }
 
@@ -537,7 +540,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Export thất bại: {ex}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError("Có lỗi trong quá trình xuất lịch học");
                 }
             }
         }
@@ -780,8 +783,7 @@ namespace SchedulerWpfApp.ViewModel
                 // Validate the drop operation
                 if (!ValidateScheduleMove(sourceCell, targetCell, droppedSchedule))
                 {
-                    MessageBox.Show("Đã bị trùng lịch. Không thể di chuyển slot này.",
-                                  "Di chuyển thất bại", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowError("Đã bị trùng lịch. Không thể di chuyển slot này.");
                     return;
                 }
                 if (targetCell.Schedule != null)
@@ -807,8 +809,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error moving schedule: {ex.Message}", "Error",
-                               MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError($"Có lỗi khi di chuyển lịch. Vui lòng thử lại."); // Show error notification
             }
         }
 
@@ -867,8 +868,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error swapping schedule: {ex.Message}", "Error",
-                               MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Có lỗi khi hoán đổi lịch. Vui lòng thử lại."); // Show error notification
             }
         }
 
@@ -990,7 +990,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 if (EditingSchedule == null)
                 {
-                    MessageBox.Show("Không có lịch nào để cập nhật.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _notificationService.ShowWarning("Không có lịch nào để cập nhật.");
                     return;
                 }
                 else
@@ -1002,7 +1002,7 @@ namespace SchedulerWpfApp.ViewModel
 
                         if (checkRoom)
                         {
-                            MessageBox.Show("Phòng học này đã bị trùng lịch.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            _notificationService.ShowWarning("Phòng học này đã bị trùng lịch.");
                             return;
                         }
                     }
@@ -1014,7 +1014,7 @@ namespace SchedulerWpfApp.ViewModel
                            schedule.ScheduleId != EditingSchedule.ScheduleId);
                     if (checkLecturer)
                     {
-                        MessageBox.Show("Giảng viên này đã bị trùng lịch.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _notificationService.ShowWarning("Giảng viên này đã bị trùng lịch.");
                         return;
                     }
                 }
@@ -1033,7 +1033,7 @@ namespace SchedulerWpfApp.ViewModel
                     }
 
                     FilterSchedules(); // Refresh the filtered schedules
-                    MessageBox.Show("Cập nhật lịch thành công.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _notificationService.ShowSuccess("Cập nhật lịch thành công.");
                 }
                 else throw new Exception("Cập nhật lịch không thành công. Vui lòng thử lại sau.");
 
@@ -1041,7 +1041,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Cập nhật lịch thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Có lỗi trong quá trình cập nhật lịch học. Vui lòng thử lại.");
             }
         }
 
@@ -1066,7 +1066,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading rooms: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Lỗi khi tải danh sách phòng."); // Show error notification
             }
         }
 
@@ -1083,7 +1083,7 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading lecturers: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("Lỗi khi tải danh sách giảng viên."); // Show error notification
             }
         }
         #endregion
