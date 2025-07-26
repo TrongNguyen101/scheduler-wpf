@@ -71,25 +71,12 @@ namespace SchedulerWpfApp
             try
             {
                 // Get the executing assembly's directory
-                string binDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-                // First attempt: Try to find appsettings.json in project root (3 levels up from bin)
-                // This path works when running from the IDE
-                string baseDirectory = Path.GetFullPath(Path.Combine(binDirectory, @"..\\..\\..\\"));
+                string baseDirectory = AppContext.BaseDirectory;
                 string configFilePath = Path.Combine(baseDirectory, "appsettings.json");
 
                 if (!File.Exists(configFilePath))
                 {
-                    // Second attempt: Try an alternative path (2 levels up)
-                    // This path typically works when running from published/deployed location
-                    baseDirectory = Path.GetFullPath(Path.Combine(binDirectory, "@..\\.."));
-                    configFilePath = Path.Combine(baseDirectory, "appsettings.json");
-
-                    if (!File.Exists(configFilePath))
-                    {
-                        // If config file is not found in either location, throw an exception
-                        throw new FileNotFoundException("appsettings.json file not found.");
-                    }
+                    throw new FileNotFoundException("Không tìm thấy file appsettings.json.", configFilePath);
                 }
 
                 // Load configuration from appsettings.json
