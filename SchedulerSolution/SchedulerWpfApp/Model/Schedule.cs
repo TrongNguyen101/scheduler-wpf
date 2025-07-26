@@ -62,13 +62,5 @@ namespace SchedulerWpfApp.Model
 
         [Column("TermInYear")]
         public string? TermInYear { get; set; } // Type of the slot (Normal - Combo)]
-
-        public Subject? Subject { get; set; } // Navigation property to Subject
-
-        public Lecturer? Lecturer { get; set; } // Navigation property to Lecturer
-
-        public Room? Room { get; set; } // Navigation property to Room
-
-        public GroupClass? GroupClass { get; set; } // Navigation property to GroupClass
     }
 }

@@ -116,6 +116,32 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
             }
         }
 
+        public async Task DeleteAllAsync()
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                // Call delete and reset identity operations
+                await _unitOfWork.ScheduleRepository.DeleteAllAsync();
+                await _unitOfWork.ScheduleRepository.ResetIdentitySchedulesAsync();  // Ensure ResetIdentity is part of the transaction
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger?.LogError(dbEx, "Database error while deleting all schedules.");
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Lỗi khi xóa tất cả lịch học do lỗi cơ sở dữ liệu.", dbEx);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error while deleting all schedules.");
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Lỗi khi xóa tất cả lịch học.", ex);
+            }
+        }
+
         public void ExportToExcel(List<Schedule> schedules, string filePath)
         {
             using ExcelEngine excelEngine = new();

@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
+﻿using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
 
@@ -7,12 +8,17 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
 {
     public class ScheduleRepository : BaseRepository<Schedule>, IScheduleRepository
     {
+        private readonly ILogger<ScheduleRepository> _logger;
+
         #region Constructors
         /// <summary>
         /// Constructor for ScheduleRepository that initializes the base repository with the provided DataContext.
         /// </summary>
         /// <param name="context"></param>
-        public ScheduleRepository(DataContext context) : base(context) { }
+        public ScheduleRepository(DataContext context, ILogger<ScheduleRepository> logger) : base(context)
+        {
+            _logger = logger;
+        }
         #endregion
 
         #region Methods
@@ -25,8 +31,8 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
             try
             {
                 var schedules = await _context.Schedules
-                     .Include(s => s.Room)
-                     .Include(s => s.Lecturer)
+                     //.Include(s => s.Room)
+                     //.Include(s => s.Lecturer)
                      .ToListAsync();
                 return schedules;
             }
@@ -53,6 +59,22 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
                 // Log the exception (not implemented here)
                 return Task.FromResult(false);
             }
+        }
+
+        public Task DeleteAllAsync()
+        {
+            _logger.LogInformation("Marking all schedules as deleted from the database.");
+            _context.Schedules.RemoveRange(_context.Schedules);
+            return Task.CompletedTask;
+        }
+
+        public async Task ResetIdentitySchedulesAsync()
+        {
+            // SQL query to reset the auto-increment value in SQLite
+            var sql = "DELETE FROM sqlite_sequence WHERE name='Schedules';";
+
+            // Execute the SQL command asynchronously using EF Core
+            await _context.Database.ExecuteSqlRawAsync(sql);
         }
         #endregion
     }
