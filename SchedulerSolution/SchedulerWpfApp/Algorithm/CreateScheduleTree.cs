@@ -9,11 +9,13 @@ namespace SchedulerWpfApp.Algorithm
         private readonly IScheduleServices _scheduleServices;
 
         private readonly ReportV1 _reportV1;
+        private readonly Version2CreateSchedule _version2CreateSchedule;
 
-        public CreateScheduleTree( IScheduleServices scheduleServices, ReportV1 reportV1)
+        public CreateScheduleTree( IScheduleServices scheduleServices, ReportV1 reportV1, Version2CreateSchedule version2CreateSchedule)
         {
             _scheduleServices = scheduleServices;
             _reportV1 = reportV1;
+            _version2CreateSchedule = version2CreateSchedule;
         }
 
         public async Task<List<Schedule>> GenerateSchedules()
@@ -25,7 +27,9 @@ namespace SchedulerWpfApp.Algorithm
             List<Schedule> schedulesTest = new List<Schedule>();
             DateTime startDate = new DateTime(2025, 01, 06);
 
-            schedulesTest = await _reportV1.GenerateSchedules(startDate, listMajorGroupA, listMajorGroupB);
+            //schedulesTest = await _reportV1.GenerateSchedules(startDate, listMajorGroupA, listMajorGroupB);
+
+            schedulesTest = await _version2CreateSchedule.GenerateSchedules(startDate, listMajorGroupA, listMajorGroupB);
 
             await _scheduleServices.AddScheduleAsync(schedulesTest);
 

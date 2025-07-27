@@ -26,8 +26,9 @@ namespace SchedulerWpfApp.Algorithm
             List<LecturerSubject> lecturerSubjects,
             ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup)
         {
+
             // === GIAI ĐOẠN 1: PHÂN CÔNG GIẢNG VIÊN ===
-            var assignments = AssignLecturersToRequirements(allGroupClasses, lecturerSubjects, curriculumLookup);
+            var assignments = AssignLecturersToAmRequirements(allGroupClasses, lecturerSubjects, curriculumLookup);
             if (!assignments.Any())
             {
                 _logger.LogError("Giai đoạn 1 thất bại: Không có phân công giảng viên nào được tạo ra.");
@@ -45,14 +46,16 @@ namespace SchedulerWpfApp.Algorithm
 
         #region Giai đoạn 1: Phân công Giảng viên
 
-        private List<Assignment> AssignLecturersToRequirements(
+        private List<Assignment> AssignLecturersToAmRequirements(
             List<GroupClass> allGroupClasses,
             List<LecturerSubject> lecturerSubjects,
             ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup)
         {
+            var amGroupClasses = allGroupClasses.Where(gc => gc.PartOfDayInTheFirstTerm == "A").ToList();
+
             // 1a. Tạo danh sách tất cả các yêu cầu giảng dạy (Demand)
-            var allRequirements = new List<TeachingRequirement>();
-            foreach (var groupName in allGroupClasses)
+            var allAmRequirements = new List<TeachingRequirement>();
+            foreach (var groupName in amGroupClasses)
             {
                 var subjectsOfClass = curriculumLookup[(groupName.CurriculumCode, groupName.Term.GetValueOrDefault())].ToList();
                 var listSubjectOnOffNomalAndHalfOne = subjectsOfClass
@@ -60,7 +63,7 @@ namespace SchedulerWpfApp.Algorithm
                                                     .ToList();
                 foreach (var subject in listSubjectOnOffNomalAndHalfOne)
                 {
-                    allRequirements.Add(new TeachingRequirement(groupName, subject));
+                    allAmRequirements.Add(new TeachingRequirement(groupName, subject));
                 }
             }
 
@@ -71,10 +74,10 @@ namespace SchedulerWpfApp.Algorithm
             );
 
             // 1c. Bắt đầu gán
-            var successfulAssignments = new List<Assignment>();
+            var successfulAmAssignments = new List<Assignment>();
             var classLecturerLock = new Dictionary<string, string>(); // Key: GroupName, Value: LecturerId
 
-            foreach (var req in allRequirements)
+            foreach (var req in allAmRequirements)
             {
                 string assignedLecturerId = null;
 
@@ -106,7 +109,7 @@ namespace SchedulerWpfApp.Algorithm
 
                 if (assignedLecturerId != null)
                 {
-                    successfulAssignments.Add(new Assignment(
+                    successfulAmAssignments.Add(new Assignment(
                         req.GroupClass,
                         req.Subject,
                         assignedLecturerId,
@@ -119,7 +122,7 @@ namespace SchedulerWpfApp.Algorithm
                     _logger.LogWarning($"Không thể phân công GV cho Lớp: {req.GroupClass.GroupName}, Môn: {req.Subject.SubjectCode}");
                 }
             }
-            return successfulAssignments;
+            return successfulAmAssignments;
         }
 
         #endregion
