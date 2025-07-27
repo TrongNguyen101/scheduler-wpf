@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SchedulerWpfApp.Algorithm.CommonSubject;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
@@ -7,6 +8,7 @@ using SchedulerWpfApp.ServiceRefactor.LecturerServices;
 using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 using SchedulerWpfApp.ServiceRefactor.RoomService;
 using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
+using System.Collections.Generic;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -25,8 +27,9 @@ namespace SchedulerWpfApp.Algorithm
         private readonly SortSubjectsOneSession _sortSubjectsOneSession;
         private readonly GetLecturerForSubject _getLecturerForSubject;
         private readonly CreateSlotTypeCode _createSlotTypeCode;
-        private readonly CreateScheduleCommonSubject2 _createScheduleForCommonSubject;
+        private readonly CreateScheduleCommonSubject2 _createScheduleCommonSubject2;
         private readonly LecturerAssignmentService _lecturerAssignmentService;
+        private readonly ScheduleCommonSubjectVersion3 _scheduleCommonSubjectVersion3;
 
         private SchedulingContext _context; // Lưu trữ ngữ cảnh đã chuẩn bị
 
@@ -42,8 +45,9 @@ namespace SchedulerWpfApp.Algorithm
                                       SortSubjectsOneSession sortSubjectsOneSession,
                                       CreateSlotTypeCode createSlotTypeCode,
                                       SchedulingContext context,
-                                      CreateScheduleCommonSubject2 createScheduleForCommonSubject,
-                                      LecturerAssignmentService lecturerAssignmentService)
+                                      CreateScheduleCommonSubject2 createScheduleCommonSubject2,
+                                      LecturerAssignmentService lecturerAssignmentService,
+                                      ScheduleCommonSubjectVersion3 scheduleCommonSubjectVersion3)
         {
             _logger = logger;
             _scheduleServices = scheduleServices;
@@ -58,8 +62,9 @@ namespace SchedulerWpfApp.Algorithm
             _roomService = roomService;
             _createSlotTypeCode = createSlotTypeCode;
             _context = context;
-            _createScheduleForCommonSubject = createScheduleForCommonSubject;
+            _createScheduleCommonSubject2 = createScheduleCommonSubject2;
             _lecturerAssignmentService = lecturerAssignmentService;
+            _scheduleCommonSubjectVersion3 = scheduleCommonSubjectVersion3;
         }
 
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
@@ -123,8 +128,8 @@ namespace SchedulerWpfApp.Algorithm
                 var allSchedules = new List<Schedule>();
 
                 // Test: lấy các lớp kỳ 9 để kiểm tra
-                /* var listGroupNameTerm9 = _context.GroupNames.Where(g => g.Term == 9).ToList();
-                 var allScheduleForCommonSubject = ScheduleForCommonSubject(listGroupNameTerm9);*/
+                //var listGroupNameTerm9 = _context.GroupNames.Where(g => g.Term == 9).ToList();
+                var allScheduleForCommonSubject = ScheduleForCommonSubject(_context.GroupNames);
 
 
                 // *** TỐI ƯU HIỆU SUẤT: 4 luồng chính được chạy đồng thời, không cần chờ đợi nhau ***
@@ -136,12 +141,12 @@ namespace SchedulerWpfApp.Algorithm
                                         //GenerateSchedulesOnOffAsync(dataContextInPmOnOff, listGroupNameAlternatingPmA, listGroupNameAlternatingPmB)
                                     };
 
-                var results = await Task.WhenAll(schedulingTasks);
-                allSchedules = results.SelectMany(list => list).ToList();
+                //var results = await Task.WhenAll(schedulingTasks);
+                //allSchedules = results.SelectMany(list => list).ToList();
 
-                _lecturerAssignmentService.AssignLecturers(_context.LecturerSubjects, allSchedules);
+                //_lecturerAssignmentService.AssignLecturers(_context.LecturerSubjects, allSchedules);
 
-                //allSchedules.AddRange(allScheduleForCommonSubject);
+                allSchedules.AddRange(allScheduleForCommonSubject);
 
                 return allSchedules;
             }
@@ -178,7 +183,7 @@ namespace SchedulerWpfApp.Algorithm
             // Chuyển List thành Lookup để tìm kiếm môn học không cần duyệt lại toàn bộ danh sách.
             var curriculumLookup = curriculumSubjects.ToLookup(s => (s.CurriculumCode, s.TermNo));
 
-            var scheduleSubjectsLookup = ScheduleSubjectsLookup(curriculumLookup, listGroupName);
+            var scheduleSubjectsLookup = ScheduleSubjectsLookup(curriculumLookup, listGroupName, lecturersSubjects);
 
             return new SchedulingContext
             {
@@ -196,17 +201,19 @@ namespace SchedulerWpfApp.Algorithm
 
         private List<Schedule> ScheduleForCommonSubject(List<GroupClass> GroupNames)
         {
-            var schedules = new List<Schedule>();
+            //var schedules = new List<Schedule>();
+
+            //var conclickSchedule = new List<string>();
 
             var lecturersTeachCommonSubjects = _context.LecturerSubjects.Where(lecturer => lecturer.Major == "Common" && lecturer.Term == 9).ToList();
 
-            schedules.AddRange(_createScheduleForCommonSubject.CreateSchedule(GroupNames, lecturersTeachCommonSubjects, _context.CurriculumLookup));
+            (List<Schedule> schedules, List<string> conclickSchedule) = _scheduleCommonSubjectVersion3.GenerateSchedule(GroupNames, _context.LecturerSubjects, _context.CurriculumSubjects);
 
             return schedules;
         }
 
         // Phương thức để tiền xử lý các môn học
-        private Dictionary<string, CurriculumSubjectWithCount[,,]> ScheduleSubjectsLookup(ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup, List<GroupClass> listGroupName)
+        private Dictionary<string, CurriculumSubjectWithCount[,,]> ScheduleSubjectsLookup(ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup, List<GroupClass> listGroupName, List<LecturerSubject> lecturerSubjects)
         {
             var subjectLookup = new Dictionary<string, CurriculumSubjectWithCount[,,]>();
             List<GroupClass> class5subject = new List<GroupClass>();
@@ -228,11 +235,9 @@ namespace SchedulerWpfApp.Algorithm
 
                 if (listSubjectOnOffNomalAndHalfOne.Count == 2)
                 {
-                    class2subject.Add(groupName);
-
-                    foreach (var subject in listSubjectOnOffNomalAndHalfOne)
+                    if (groupName.Term == 9)
                     {
-
+                        class2subject.Add(groupName);
                     }
                 }
                 else
