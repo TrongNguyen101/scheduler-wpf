@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
+using SchedulerWpfApp.ServiceRefactor.NotificationService;
 using Syncfusion.XlsIO;
 
 namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
@@ -12,6 +13,7 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
         #region Fields
         private IUnitOfWork _unitOfWork;
         private readonly ILogger<ScheduleServices> _logger;
+        private readonly INotificationService _notificationService;
         #endregion
 
         #region Constructor
@@ -20,10 +22,11 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="unitOfWork"></param>
-        public ScheduleServices(ILogger<ScheduleServices> logger, IUnitOfWork unitOfWork)
+        public ScheduleServices(ILogger<ScheduleServices> logger, IUnitOfWork unitOfWork, INotificationService notificationService)
         {
             _logger = logger; // Injecting the logger to log errors and information
             _unitOfWork = unitOfWork; // Injecting the unit of work to manage database operations
+            _notificationService = notificationService; // Injecting the notification service to handle notifications
         }
         #endregion
 
@@ -184,7 +187,7 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
             }
 
             workbook.SaveAs(filePath);
-            MessageBox.Show("Export thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            _notificationService.ShowSuccess("Xuất dữ liệu thành công!");
         }
         #endregion
     }

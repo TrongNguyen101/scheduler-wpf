@@ -85,7 +85,8 @@
                     <DropShadowEffect ShadowDepth="1" BlurRadius="10" Opacity="0.1" Color="Gray" />
                 </Border.Effect>
 
-                <syncfusion:SfDataGrid x:Name="ClassRoomDataGrid" ItemsSource="{Binding Rooms}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
+                <syncfusion:SfDataGrid x:Name="ClassRoomDataGrid"
+                                       ItemsSource="{Binding ElementName=dataPager,Path=PagedSource}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
                     <syncfusion:SfDataGrid.RowStyle>
                         <Style TargetType="syncfusion:VirtualizingCellsControl">
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -147,7 +148,7 @@
 
                 <!-- Pagination -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <syncfusion:SfDataPager x:Name="dataPager" PageSize="10" NumericButtonCount="5" PagedSource="{Binding ClassRoom}" />
+                    <syncfusion:SfDataPager x:Name="dataPager" PageSize="50" NumericButtonCount="5" Source="{Binding Rooms}" />
                 </StackPanel>
             </Grid>
         </Grid>

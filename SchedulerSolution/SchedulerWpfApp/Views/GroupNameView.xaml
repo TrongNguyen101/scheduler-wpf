@@ -1,50 +1,50 @@
 ﻿<UserControl x:Class="SchedulerWpfApp.Views.GroupNameView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:SchedulerWpfApp.Views"
-        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
-        Background="White">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:SchedulerWpfApp.Views"
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+             Background="White">
     <Grid Background="#f8f9fa">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Header -->
         <Grid Grid.Row="0"
-                Height="40"
-                Margin="0,0,0,0">
+              Height="40"
+              Margin="0,0,0,0">
             <Border Background="{StaticResource PrimaryColor}"
                     CornerRadius="10, 10, 0 , 0">
                 <TextBlock Text="Quản Lý Lớp Học"
-                        FontWeight="Bold"
-                        FontSize="22"
-                        Foreground="White"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="center"
-                        Padding="0, 0, 0, 0"/>
+                           FontWeight="Bold"
+                           FontSize="22"
+                           Foreground="White"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="center"
+                           Padding="0, 0, 0, 0" />
             </Border>
         </Grid>
 
         <!-- Main Content -->
         <Grid Grid.Row="1"
-                Margin="20">
+              Margin="20">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <!-- Top Controls -->
             <Grid Grid.Row="0"
-                    Margin="0,0,0,15">
+                  Margin="0,0,0,15">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <!-- Search Box -->
@@ -56,21 +56,21 @@
                         Margin="0,0,10,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="🔍"
-                                FontSize="14"
-                                VerticalAlignment="Center"/>
+                                   FontSize="14"
+                                   VerticalAlignment="Center" />
                         <TextBox Grid.Column="1"
-                                Margin="8,0,0,0"
-                                BorderThickness="0"
-                                Background="Transparent"
-                                Foreground="{StaticResource TextColor}"
-                                VerticalAlignment="Center"
-                                Name="SearchBox"
-                                Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
-                                Padding="0,5">
+                                 Margin="8,0,0,0"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Foreground="{StaticResource TextColor}"
+                                 VerticalAlignment="Center"
+                                 Name="SearchBox"
+                                 Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="0,5">
                             <TextBox.Resources>
                                 <Style TargetType="{x:Type TextBox}">
                                     <Setter Property="Template">
@@ -80,7 +80,7 @@
                                                         BorderBrush="{TemplateBinding BorderBrush}"
                                                         BorderThickness="{TemplateBinding BorderThickness}">
                                                     <ScrollViewer x:Name="PART_ContentHost"
-                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                                 </Border>
                                             </ControlTemplate>
                                         </Setter.Value>
@@ -97,10 +97,10 @@
                         Command="{Binding ExportGroupNameCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📤"
-                                VerticalAlignment="Center"/>
+                                   VerticalAlignment="Center" />
                         <TextBlock Text=" Export Dữ Liệu"
-                                Margin="5,0,0,0"
-                                VerticalAlignment="Center"/>
+                                   Margin="5,0,0,0"
+                                   VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
 
@@ -111,10 +111,10 @@
                         Command="{Binding ImportGroupNameCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📥"
-                                VerticalAlignment="Center"/>
+                                   VerticalAlignment="Center" />
                         <TextBlock Text=" Import Dữ Liệu"
-                                Margin="5,0,0,0"
-                                VerticalAlignment="Center"/>
+                                   Margin="5,0,0,0"
+                                   VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
 
@@ -124,10 +124,10 @@
                         Command="{Binding AddGroupNameCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕"
-                                VerticalAlignment="Center"/>
+                                   VerticalAlignment="Center" />
                         <TextBlock Text=" Thêm Lớp Học"
-                                Margin="5,0,0,0"
-                                VerticalAlignment="Center"/>
+                                   Margin="5,0,0,0"
+                                   VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </Grid>
@@ -139,37 +139,37 @@
                     Padding="0">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="1"
-                            BlurRadius="10"
-                            Opacity="0.1"
-                            Color="Gray"/>
+                                      BlurRadius="10"
+                                      Opacity="0.1"
+                                      Color="Gray" />
                 </Border.Effect>
 
                 <syncfusion:SfDataGrid x:Name="ClassRoomDataGrid"
-                        ItemsSource="{Binding GroupNames}"
-                        AutoGenerateColumns="False"
-                        AllowFiltering="True"
-                        ShowRowHeader="False"
-                        RowHeight="45"
-                        HeaderRowHeight="50"
-                        SelectionMode="Single"
-                        AllowSorting="True"
-                        GridLinesVisibility="Both"
-                        ColumnSizer="Star"
-                        HeaderStyle="{StaticResource GridHeaderStyle}"
-                        CellStyle="{StaticResource GridCellStyle}"
-                        Focusable="False"
-                        FocusVisualStyle="{x:Null}"
-                        CurrentCellBorderBrush="White">
+                                       ItemsSource="{Binding ElementName=dataPager,Path=PagedSource}"
+                                       AutoGenerateColumns="False"
+                                       AllowFiltering="True"
+                                       ShowRowHeader="False"
+                                       RowHeight="45"
+                                       HeaderRowHeight="50"
+                                       SelectionMode="Single"
+                                       AllowSorting="True"
+                                       GridLinesVisibility="Both"
+                                       ColumnSizer="Star"
+                                       HeaderStyle="{StaticResource GridHeaderStyle}"
+                                       CellStyle="{StaticResource GridCellStyle}"
+                                       Focusable="False"
+                                       FocusVisualStyle="{x:Null}"
+                                       CurrentCellBorderBrush="White">
                     <syncfusion:SfDataGrid.RowStyle>
                         <Style TargetType="syncfusion:VirtualizingCellsControl">
                             <Setter Property="FocusVisualStyle"
-                                    Value="{x:Null}"/>
+                                    Value="{x:Null}" />
                             <Setter Property="Focusable"
-                                    Value="False"/>
+                                    Value="False" />
                             <Setter Property="BorderThickness"
-                                    Value="0"/>
+                                    Value="0" />
                             <Setter Property="BorderBrush"
-                                    Value="Transparent"/>
+                                    Value="Transparent" />
                         </Style>
                     </syncfusion:SfDataGrid.RowStyle>
 
@@ -177,16 +177,16 @@
                     <syncfusion:SfDataGrid.Resources>
                         <Style TargetType="syncfusion:GridCell">
                             <Setter Property="FocusVisualStyle"
-                                    Value="{x:Null}"/>
+                                    Value="{x:Null}" />
                             <Setter Property="Focusable"
-                                    Value="False"/>
+                                    Value="False" />
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="syncfusion:GridCell">
                                         <Border Background="{TemplateBinding Background}"
                                                 BorderBrush="{TemplateBinding BorderBrush}"
                                                 BorderThickness="{TemplateBinding BorderThickness}">
-                                            <ContentPresenter/>
+                                            <ContentPresenter />
                                         </Border>
                                     </ControlTemplate>
                                 </Setter.Value>
@@ -194,37 +194,52 @@
                         </Style>
                     </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Mã Lớp" MappingName="GroupName" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Khóa Học" MappingName="CurriculumCode" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Chuyên Ngành" MappingName="Major" AllowResizing="True" />
-                        <syncfusion:GridTextColumn HeaderText="Bộ Môn" MappingName="Department" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Kỳ Học" MappingName="Term" AllowResizing="True" />
-                        <syncfusion:GridTextColumn HeaderText="Tổ Chức" MappingName="TeachingMode" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Mã Lớp"
+                                                   MappingName="GroupName"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Khóa Học"
+                                                   MappingName="CurriculumCode"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Chuyên Ngành"
+                                                   MappingName="Major"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Bộ Môn"
+                                                   MappingName="Department"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Kỳ Học"
+                                                   MappingName="Term"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Tổ Chức"
+                                                   MappingName="TeachingMode"
+                                                   AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Buổi"
+                                                   MappingName="PartOfDayInTheFirstTerm"
+                                                   AllowResizing="True" />
 
                         <syncfusion:GridTemplateColumn HeaderText="Action"
-                                Width="90"
-                                AllowFiltering="False"
-                                MappingName="ActionPlaceholder">
+                                                       Width="90"
+                                                       AllowFiltering="False"
+                                                       MappingName="ActionPlaceholder">
 
                             <syncfusion:GridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal"
-                                            HorizontalAlignment="Center">
+                                                HorizontalAlignment="Center">
                                         <Button Style="{StaticResource EditButtonStyle}"
                                                 Command="{Binding DataContext.EditGroupNameCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}"
                                                 CommandParameter="{Binding}">
                                             <TextBlock Text="✏️"
-                                                    TextAlignment="Center"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"/>
+                                                       TextAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center" />
                                         </Button>
                                         <Button Style="{StaticResource DeleteButtonStyle}"
                                                 Command="{Binding DataContext.DeleteGroupNameCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}"
                                                 CommandParameter="{Binding}">
                                             <TextBlock Text="🗑️"
-                                                    TextAlignment="Center"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"/>
+                                                       TextAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center" />
                                         </Button>
                                     </StackPanel>
                                 </DataTemplate>
@@ -236,31 +251,31 @@
 
             <!-- Pagination Controls -->
             <Grid Grid.Row="2"
-                    Margin="0,15,0,0"
-                    HorizontalAlignment="Right"
-                    Width="760">
+                  Margin="0,15,0,0"
+                  HorizontalAlignment="Right"
+                  Width="760">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <!-- Pagination -->
                 <StackPanel Grid.Column="1"
-                        Orientation="Horizontal">
+                            Orientation="Horizontal">
                     <syncfusion:SfDataPager x:Name="dataPager"
-                            PageSize="10"
-                            NumericButtonCount="5"
-                            PagedSource="{Binding ClassRoom}"/>
+                                            PageSize="50"
+                                            NumericButtonCount="5"
+                                            Source="{Binding GroupNames, Mode=TwoWay}" />
                 </StackPanel>
             </Grid>
         </Grid>
 
         <!-- Lecturer Form Popup -->
         <Popup x:Name="LecturerFormPopup"
-                StaysOpen="False"
-                Placement="Center"
-                IsOpen="{Binding IsGroupNameFormOpen}"
-                AllowsTransparency="True">
+               StaysOpen="False"
+               Placement="Center"
+               IsOpen="{Binding IsGroupNameFormOpen}"
+               AllowsTransparency="True">
             <Border Background="#F0F4F8"
                     BorderThickness="0"
                     CornerRadius="8"
@@ -268,73 +283,111 @@
                     Width="500">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="2"
-                            BlurRadius="15"
-                            Opacity="0.2"
-                            Color="Black"/>
+                                      BlurRadius="15"
+                                      Opacity="0.2"
+                                      Color="Black" />
                 </Border.Effect>
 
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <!-- Form Header -->
                     <Grid Grid.Row="0"
-                            Margin="0,0,0,20">
+                          Margin="0,0,0,20">
                         <TextBlock x:Name="formTitle"
-                                Text="{Binding FormTitle}"
-                                FontSize="18"
-                                FontWeight="Bold"
-                                Foreground="{StaticResource TextColor}"/>
+                                   Text="{Binding FormTitle}"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextColor}" />
                     </Grid>
 
                     <!-- Form Fields -->
-                    <StackPanel Grid.Row="1"
-                            Margin="0,0,0,20">
-                        <TextBlock Text="Mã Lớp"
-                                Margin="0,0,0,5"
-                                Foreground="{StaticResource TextColor}"/>
-                        <TextBox Text="{Binding SelectedGroupname.GroupName, UpdateSourceTrigger=PropertyChanged}"
-                                Style="{StaticResource ModernTextBoxStyle}"
-                                Margin="0,0,0,15" IsEnabled="{Binding IsGroupNameIdEditable}"/>
+                    <Grid Grid.Row="1"
+                          Margin="0,0,0,20">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <!-- Phần 2 cột -->
+                            <RowDefinition Height="Auto" />
+                            <!-- Phần Buổi -->
+                        </Grid.RowDefinitions>
 
-                        <TextBlock Text="Khóa học"
-                                Margin="0,0,0,5"
-                                Foreground="{StaticResource TextColor}"/>
-                        <TextBox Text="{Binding SelectedGroupname.CurriculumCode, UpdateSourceTrigger=PropertyChanged}"
-                                Style="{StaticResource ModernTextBoxStyle}"
-                                Margin="0,0,0,15"/>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="Chuyên Ngành"
-                                Margin="0,0,0,5"
-                                Foreground="{StaticResource TextColor}"/>
-                        <TextBox Text="{Binding SelectedGroupname.Major, UpdateSourceTrigger=PropertyChanged}"
-                                Style="{StaticResource ModernTextBoxStyle}"
-                                Margin="0,0,0,15"/>
+                            <!-- Cột trái -->
+                            <StackPanel Grid.Column="0"
+                                        Margin="0,0,10,0">
+                                <TextBlock Text="Mã Lớp"
+                                           Margin="0,0,0,5"
+                                           Foreground="{StaticResource TextColor}" />
+                                <TextBox Text="{Binding SelectedGroupname.GroupName, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource ModernTextBoxStyle}"
+                                         Margin="0,0,0,15"
+                                         IsEnabled="{Binding IsGroupNameIdEditable}" />
 
-                        <TextBlock Text="Bộ môn"
-                                Margin="0,0,0,5"
-                                Foreground="{StaticResource TextColor}"/>
-                        <TextBox Text="{Binding SelectedGroupname.Department, UpdateSourceTrigger=PropertyChanged}"
-                                Style="{StaticResource ModernTextBoxStyle}"
-                                Margin="0,0,0,15"/>
+                                <TextBlock Text="Chuyên Ngành"
+                                           Margin="0,0,0,5"
+                                           Foreground="{StaticResource TextColor}" />
+                                <TextBox Text="{Binding SelectedGroupname.Major, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource ModernTextBoxStyle}"
+                                         Margin="0,0,0,15" />
 
-                        <TextBlock Text="Kỳ học"
-                                Margin="0,0,0,5"
-                                Foreground="{StaticResource TextColor}"/>
-                        <TextBox Text="{Binding SelectedGroupname.Term, UpdateSourceTrigger=PropertyChanged}"
-                                Style="{StaticResource ModernTextBoxStyle}"
-                                Margin="0,0,0,15"/>
-                    </StackPanel>
+                                <TextBlock Text="Buổi"
+                                           Margin="0,0,0,5"
+                                           Foreground="{StaticResource TextColor}" />
+                                <ComboBox SelectedValue="{Binding SelectedGroupname.PartOfDayInTheFirstTerm, UpdateSourceTrigger=PropertyChanged}"
+                                          ItemsSource="{Binding PartOfDayInTheFirstTerms}"
+                                          Style="{StaticResource ModernComboBoxStyle}" />
+                            </StackPanel>
+
+                            <!-- Cột phải -->
+                            <StackPanel Grid.Column="1"
+                                        Margin="10,0,0,0">
+                                <TextBlock Text="Khóa học"
+                                           Margin="0,0,0,5"
+                                           Foreground="{StaticResource TextColor}" />
+                                <TextBox Text="{Binding SelectedGroupname.CurriculumCode, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource ModernTextBoxStyle}"
+                                         Margin="0,0,0,15" />
+                                <TextBlock Text="Kỳ học"
+                                           Margin="0,0,0,5"
+                                           Foreground="{StaticResource TextColor}" />
+                                <TextBox Text="{Binding SelectedGroupname.Term, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource ModernTextBoxStyle}"
+                                         Margin="0,0,0,15" />
+                                <TextBlock Text="Tổ chức"
+                                           Margin="0,0,0,5"
+                                           Foreground="{StaticResource TextColor}" />
+                                <ComboBox SelectedValue="{Binding SelectedGroupname.TeachingMode, UpdateSourceTrigger=PropertyChanged}"
+                                          ItemsSource="{Binding TeachingMode}"
+                                          Style="{StaticResource ModernComboBoxStyle}"
+                                          Margin="0,0,0,15" />
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Grid.Row="1">
+                            <TextBlock Text="Bộ môn"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <TextBox Text="{Binding SelectedGroupname.Department, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModernTextBoxStyle}"
+                                     Margin="0,0,0,15" />
+                        </StackPanel>
+                    </Grid>
 
                     <!-- Form Actions -->
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="1"
@@ -343,14 +396,14 @@
                                 Background="#95a5a6"
                                 Margin="0,0,10,0"
                                 Padding="20,8"
-                                Command="{Binding CancelEditGroupNameCommand}"/>
+                                Command="{Binding CancelEditGroupNameCommand}" />
 
                         <Button Grid.Column="2"
                                 x:Name="btnSaveLecturer"
                                 Content="Lưu"
                                 Style="{StaticResource SuccessButtonStyle}"
                                 Padding="20,8"
-                                Command="{Binding SaveGroupNameCommand}"/>
+                                Command="{Binding SaveGroupNameCommand}" />
                     </Grid>
                 </Grid>
             </Border>
@@ -358,10 +411,10 @@
 
         <!-- Confirmation Dialog -->
         <Popup x:Name="confirmationPopup"
-                StaysOpen="False"
-                Placement="Center"
-                IsOpen="{Binding IsOpenDialog}"
-                AllowsTransparency="True">
+               StaysOpen="False"
+               Placement="Center"
+               IsOpen="{Binding IsOpenDialog}"
+               AllowsTransparency="True">
             <Border Background="#F0F4F8"
                     BorderThickness="0"
                     CornerRadius="8"
@@ -369,39 +422,39 @@
                     Width="400">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="2"
-                            BlurRadius="15"
-                            Opacity="0.2"
-                            Color="Black"/>
+                                      BlurRadius="15"
+                                      Opacity="0.2"
+                                      Color="Black" />
                 </Border.Effect>
 
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <!-- Dialog Header -->
                     <TextBlock Grid.Row="0"
-                            Text="Xác nhận xóa"
-                            FontSize="18"
-                            FontWeight="Bold"
-                            Foreground="{StaticResource TextColor}"
-                            Margin="0,0,0,15"/>
+                               Text="Xác nhận xóa"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource TextColor}"
+                               Margin="0,0,0,15" />
 
                     <!-- Dialog Content -->
                     <TextBlock Grid.Row="1"
-                            Text="Bạn có chắc chắn muốn xóa sinh viên này không?"
-                            TextWrapping="Wrap"
-                            Foreground="{StaticResource TextColor}"
-                            Margin="0,0,0,20"/>
+                               Text="Bạn có chắc chắn muốn xóa sinh viên này không?"
+                               TextWrapping="Wrap"
+                               Foreground="{StaticResource TextColor}"
+                               Margin="0,0,0,20" />
 
                     <!-- Dialog Actions -->
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="1"
@@ -410,23 +463,35 @@
                                 Background="#95a5a6"
                                 Margin="0,0,10,0"
                                 Padding="20,8"
-                                Command="{Binding CancelDeleteGroupNameCommand}"/>
+                                Command="{Binding CancelDeleteGroupNameCommand}" />
 
                         <Button Grid.Column="2"
                                 Content="Xóa"
                                 Style="{StaticResource DeleteButtonStyle}"
                                 Padding="20,8"
-                                Command="{Binding ConfirmDeleteGroupNameCommand}"/>
+                                Command="{Binding ConfirmDeleteGroupNameCommand}" />
                     </Grid>
                 </Grid>
             </Border>
         </Popup>
-        <Popup IsOpen="{Binding IsProgressBarOpen}" StaysOpen="True" Placement="Center" AllowsTransparency="True">
-            <Border Background="#CCFFFFFF" Padding="20" CornerRadius="8" 
-            BorderBrush="Gray" BorderThickness="1" >
+        <Popup IsOpen="{Binding IsProgressBarOpen}"
+               StaysOpen="True"
+               Placement="Center"
+               AllowsTransparency="True">
+            <Border Background="#CCFFFFFF"
+                    Padding="20"
+                    CornerRadius="8"
+                    BorderBrush="Gray"
+                    BorderThickness="1">
                 <StackPanel>
-                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..." Margin="0,0,0,8" HorizontalAlignment="Center"/>
-                    <ProgressBar Height="24" Minimum="0" Maximum="99" Value="{Binding ProgressValue}" Width="300"/>
+                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..."
+                               Margin="0,0,0,8"
+                               HorizontalAlignment="Center" />
+                    <ProgressBar Height="24"
+                                 Minimum="0"
+                                 Maximum="99"
+                                 Value="{Binding ProgressValue}"
+                                 Width="300" />
                 </StackPanel>
             </Border>
         </Popup>
