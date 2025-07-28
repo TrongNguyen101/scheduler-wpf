@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.Model;
+using Syncfusion.Data.Extensions;
 
 namespace SchedulerWpfApp.Algorithm.CommonSubject
 {
@@ -72,7 +73,7 @@ namespace SchedulerWpfApp.Algorithm.CommonSubject
         public (List<Schedule> GeneratedSchedules, List<string> Conflicts) GenerateSchedule(
             List<GroupClass> groups,
             List<LecturerSubject> lecturerSubjects,
-            List<CurriculumSubject> curriculumSubjects)
+            ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup)
         {
             DateTime startDate = new DateTime(2025, 01, 06);
             // --- GIAI ĐOẠN 0: CHUẨN BỊ ---
@@ -84,19 +85,29 @@ namespace SchedulerWpfApp.Algorithm.CommonSubject
 
             // Tạo danh sách tất cả các đơn vị cần xếp lịch (Unit = Group + Subject)
             var allUnitsToSchedule = new List<(GroupClass Group, CurriculumSubject Subject)>();
-            foreach (var group in groups)
+            foreach (var groupName in groups)
             {
-                var subjectsForGroup = curriculumSubjects.Where(cs => cs.CurriculumCode == group.CurriculumCode && cs.TermNo == group.Term);
-                foreach (var subject in subjectsForGroup)
+                var subjectsOfClass = curriculumLookup[(groupName.CurriculumCode, groupName.Term.GetValueOrDefault())].ToList();
+
+                foreach (var subject in subjectsOfClass)
                 {
-                    allUnitsToSchedule.Add((group, subject));
+                    if (subject.TeachingMode == ScheduleConstants.TechingModeIsOJT || 
+                        subject.TeachingMode == ScheduleConstants.TechingModeIsCoursera || 
+                        subject.TeachingMode == ScheduleConstants.TechingModeIsEXE || 
+                        subject.TeachingMode == ScheduleConstants.TechingModeIsFullOff ||
+                        subject.SubjectCode.Contains("GRA") ||
+                        subject.PartOfTerm.Contains("H2"))
+                    {
+                        continue;
+                    }
+                    allUnitsToSchedule.Add((groupName, subject));
                 }
             }
 
             // Sắp xếp các unit cần xếp: Ưu tiên "H1" trước, sau đó đến "All", cuối cùng là "H2"
-            var sortedUnits = allUnitsToSchedule
-                .OrderBy(u => u.Subject.PartOfTerm.StartsWith("H1") ? 0 : (u.Subject.PartOfTerm.StartsWith("All") ? 1 : 2))
-                .ToList();
+            //var sortedUnits = allUnitsToSchedule
+            //    .OrderBy(u => u.Subject.PartOfTerm.StartsWith("H1") ? 0 : (u.Subject.PartOfTerm.StartsWith("All") ? 1 : 2))
+            //    .ToList();
 
             var finalSchedule = new List<Schedule>();
             var conflicts = new List<string>();
@@ -104,7 +115,7 @@ namespace SchedulerWpfApp.Algorithm.CommonSubject
 
             // --- GIAI ĐOẠN 1 & 2: XẾP LỊCH ---
 
-            foreach (var unit in sortedUnits)
+            foreach (var unit in allUnitsToSchedule)
             {
                 var (group, subject) = unit;
 
@@ -197,14 +208,14 @@ namespace SchedulerWpfApp.Algorithm.CommonSubject
                 SubjectCode = subject.SubjectCode,
                 LecturerId = lecturer.LecturerId,
                 LecturerName = lecturer.LecturerName,
-                LecturerAccount = lecturer.LecturerId, // Giả sử LecturerId là tài khoản
+                LecturerAccount = lecturer.Lecturer.LecturerAccount, // Giả sử LecturerId là tài khoản
                 SlotTypeCode = pair.Code,
                 PartOfDay = pair.PartOfDay,
                 SlotTime = slotTime,
                 Date = scheduleDate,
                 // Điền các thuộc tính khác nếu cần
-                StatusSlot = "Offline",
-                TypeSlot = "New Slot",
+                StatusSlot = ScheduleConstants.StatusSlotIsOffline,
+                TypeSlot = ScheduleConstants.TypeSlotIsNew,
             };
         }
 

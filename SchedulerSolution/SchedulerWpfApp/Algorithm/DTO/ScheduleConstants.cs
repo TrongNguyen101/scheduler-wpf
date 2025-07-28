@@ -29,8 +29,9 @@
 
         public const string TechingModeIsOJT = "OJT";
 
+        public const string TechingModeIsEXE = "EXE";
 
-        public const string TechingModeIsCoursera = "C-ON";
+        public const string TechingModeIsCoursera = "C-On";
 
         public const string PartOfDayIsAM = "A";
         public const string PartOfDayIsPM = "P";

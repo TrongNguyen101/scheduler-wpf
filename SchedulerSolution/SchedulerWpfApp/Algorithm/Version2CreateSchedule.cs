@@ -30,6 +30,7 @@ namespace SchedulerWpfApp.Algorithm
         private readonly CreateScheduleCommonSubject2 _createScheduleCommonSubject2;
         private readonly LecturerAssignmentService _lecturerAssignmentService;
         private readonly ScheduleCommonSubjectVersion3 _scheduleCommonSubjectVersion3;
+        private readonly SchedulingService _schedulingService;
 
         private SchedulingContext _context; // Lưu trữ ngữ cảnh đã chuẩn bị
 
@@ -47,7 +48,8 @@ namespace SchedulerWpfApp.Algorithm
                                       SchedulingContext context,
                                       CreateScheduleCommonSubject2 createScheduleCommonSubject2,
                                       LecturerAssignmentService lecturerAssignmentService,
-                                      ScheduleCommonSubjectVersion3 scheduleCommonSubjectVersion3)
+                                      ScheduleCommonSubjectVersion3 scheduleCommonSubjectVersion3,
+                                      SchedulingService schedulingService)
         {
             _logger = logger;
             _scheduleServices = scheduleServices;
@@ -65,6 +67,7 @@ namespace SchedulerWpfApp.Algorithm
             _createScheduleCommonSubject2 = createScheduleCommonSubject2;
             _lecturerAssignmentService = lecturerAssignmentService;
             _scheduleCommonSubjectVersion3 = scheduleCommonSubjectVersion3;
+            _schedulingService = schedulingService;
         }
 
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
@@ -125,12 +128,16 @@ namespace SchedulerWpfApp.Algorithm
                     TreeForSchedules = roomNodesPMOnOff
                 };
 
-                var allSchedules = new List<Schedule>();
+                List<GroupClass> listGroupNameNoOJT = _context.GroupNames.Where(g => g.TeachingMode != "OJT").ToList();
 
-                // Test: lấy các lớp kỳ 9 để kiểm tra
-                //var listGroupNameTerm9 = _context.GroupNames.Where(g => g.Term == 9).ToList();
-                var allScheduleForCommonSubject = ScheduleForCommonSubject(_context.GroupNames);
 
+                (List<Schedule> allSchedules, List<string> Conflicts) = _scheduleCommonSubjectVersion3.GenerateSchedule(listGroupNameNoOJT , _context.LecturerSubjects, _context.CurriculumLookup);
+
+                _logger.LogWarning($"Total Conflicts: {Conflicts.Count}");
+                foreach (var conflict in Conflicts)
+                {
+                    _logger.LogWarning(conflict);
+                }
 
                 // *** TỐI ƯU HIỆU SUẤT: 4 luồng chính được chạy đồng thời, không cần chờ đợi nhau ***
                 var schedulingTasks = new List<Task<List<Schedule>>>
@@ -145,8 +152,6 @@ namespace SchedulerWpfApp.Algorithm
                 //allSchedules = results.SelectMany(list => list).ToList();
 
                 //_lecturerAssignmentService.AssignLecturers(_context.LecturerSubjects, allSchedules);
-
-                allSchedules.AddRange(allScheduleForCommonSubject);
 
                 return allSchedules;
             }
@@ -197,19 +202,6 @@ namespace SchedulerWpfApp.Algorithm
                 LecturersTeachSubjects = lecturersTeachSubjects,
                 SchedulesSubjectsLookup = scheduleSubjectsLookup,
             };
-        }
-
-        private List<Schedule> ScheduleForCommonSubject(List<GroupClass> GroupNames)
-        {
-            //var schedules = new List<Schedule>();
-
-            //var conclickSchedule = new List<string>();
-
-            var lecturersTeachCommonSubjects = _context.LecturerSubjects.Where(lecturer => lecturer.Major == "Common" && lecturer.Term == 9).ToList();
-
-            (List<Schedule> schedules, List<string> conclickSchedule) = _scheduleCommonSubjectVersion3.GenerateSchedule(GroupNames, _context.LecturerSubjects, _context.CurriculumSubjects);
-
-            return schedules;
         }
 
         // Phương thức để tiền xử lý các môn học
