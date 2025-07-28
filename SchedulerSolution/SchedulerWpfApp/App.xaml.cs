@@ -231,6 +231,7 @@ namespace SchedulerWpfApp
             services.AddScoped<LecturerAssignmentService>(); // Register LecturerAssignmentService with a scoped lifetime
             services.AddScoped<ReportV1>(); // Register ReportV1 with a scoped lifetime
             services.AddScoped<ScheduleCommonSubjectVersion3>();
+            services.AddScoped<SchedulingService>(); // Register SchedulingService with a scoped lifetime
         }
 
         /// <summary>
