@@ -156,7 +156,7 @@ namespace SchedulerWpfApp.ViewModel
         public RoomViewModel(IRoomService roomService, INotificationService notificationService)
         {
             _roomService = roomService;
-            _notificationService = notificationService; 
+            _notificationService = notificationService;
             // Initialize commands for various actions related to room management
             ImportRoomListCommand = new RelayCommand(async () => await ImportRoomListAsync());
             ExportRoomListCommand = new RelayCommand(async () => await ExportRoomAsync());
@@ -391,9 +391,9 @@ namespace SchedulerWpfApp.ViewModel
                 IsRoomFormOpen = true;
                 return;
             }
-            else if (SelectedRoom.Floor <= 0 || SelectedRoom.Floor > 6)
+            else if (SelectedRoom.Floor <= 0)
             {
-                _notificationService.ShowWarning("Số tầng không được vượt quá 5 và không được nhỏ hơn bằng 0");
+                _notificationService.ShowWarning("Số tầng không được nhỏ hơn hoặc bằng 0");
                 IsRoomFormOpen = true;
                 return;
             }
