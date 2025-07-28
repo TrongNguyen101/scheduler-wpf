@@ -207,6 +207,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
             sheet[1, 2].Text = "Fullname";
             sheet[1, 3].Text = "Bomon";
             sheet[1, 4].Text = "LoaiGV";
+            sheet[1, 5].Text = "accGV";
 
             int row = 2;
             foreach (var lecturer in lectures)
@@ -215,6 +216,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerServices
                 sheet[row, 2].Text = lecturer.LecturerName ?? "";
                 sheet[row, 3].Text = lecturer.Department ?? "";
                 sheet[row, 4].Text = lecturer.Role ?? "";
+                sheet[row, 5].Text = lecturer.LecturerAccount ?? "";
                 row++;
             }
             workbook.SaveAs(filePath);
