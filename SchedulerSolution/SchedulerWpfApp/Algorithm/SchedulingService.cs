@@ -67,9 +67,6 @@ namespace SchedulerWpfApp.Algorithm
                     int dayOffset = (int)templateSlot.Date.Value.DayOfWeek - 1; // Monday=0, Tuesday=1,...
                     concreteSchedule.Date = termStartDate.AddDays(week * 7 + dayOffset);
 
-                    // Cập nhật các thông tin liên quan đến tuần (nếu cần)
-                    // Ví dụ: concreteSchedule.WeekNumber = week + 1;
-
                     fullSchedule.Add(concreteSchedule);
                 }
             }

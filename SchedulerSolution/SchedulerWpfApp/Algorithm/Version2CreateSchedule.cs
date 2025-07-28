@@ -8,6 +8,7 @@ using SchedulerWpfApp.ServiceRefactor.LecturerServices;
 using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 using SchedulerWpfApp.ServiceRefactor.RoomService;
 using SchedulerWpfApp.ServiceRefactor.ScheduleServices;
+using System.Collections.Generic;
 
 namespace SchedulerWpfApp.Algorithm
 {
@@ -70,6 +71,8 @@ namespace SchedulerWpfApp.Algorithm
                 }
 
                 AssignRooms(allSchedules, _context.Rooms);
+
+                allSchedules.AddRange(GenerateFullSchedule(allSchedules));
 
                 return allSchedules;
             }
@@ -199,6 +202,67 @@ namespace SchedulerWpfApp.Algorithm
                     schedule.RoomName = assignedRoom.RoomName;
                 }
             }
+        }
+
+        /// <summary>
+        /// Nhân bản lịch từ tuần đầu tiên cho các tuần tiếp theo.
+        /// </summary>
+        /// <param name="firstWeekSchedules">Danh sách lịch của tuần đầu tiên.</param>
+        /// <param name="totalWeeks">Tổng số tuần cần tạo (ví dụ: 10).</param>
+        /// <returns>Danh sách lịch hoàn chỉnh cho tất cả các tuần.</returns>
+        private List<Schedule> GenerateFullSchedule(List<Schedule> firstWeekSchedules)
+        {
+            // Bắt đầu với danh sách lịch của tuần 1
+            var fullSchedule = new List<Schedule>(firstWeekSchedules);
+
+            int totalWeeks = 10; // Tổng số tuần cần tạo lịch, ví dụ: 10 tuần
+
+            if (totalWeeks <= 1)
+            {
+                return fullSchedule;
+            }
+
+            // Lặp để tạo lịch cho các tuần còn lại (từ tuần thứ 2 đến totalWeeks)
+            // weekIndex bắt đầu từ 1 vì tuần 0 là tuần gốc
+            for (int weekIndex = 1; weekIndex < totalWeeks; weekIndex++)
+            {
+                // Với mỗi lịch trong tuần đầu tiên...
+                foreach (var originalSchedule in firstWeekSchedules)
+                {
+                    // ...tạo một bản sao mới
+                    var newSchedule = CreateNewSchedule (originalSchedule, weekIndex);
+
+                    // Thêm lịch của tuần mới vào danh sách tổng
+                    fullSchedule.Add(newSchedule);
+                }
+            }
+
+            return fullSchedule;
+        }
+
+        private Schedule CreateNewSchedule(Schedule originalSchedule, int weekIndex)
+        {
+            var newSchedule = new Schedule
+            {
+                ScheduleId = originalSchedule.ScheduleId,
+                RoomId = originalSchedule.RoomId,
+                RoomName = originalSchedule.RoomName,
+                PartOfDay = originalSchedule.PartOfDay,
+                SlotTime = originalSchedule.SlotTime,
+                StatusSlot = originalSchedule.StatusSlot,
+                Date = originalSchedule.Date.GetValueOrDefault().AddDays(weekIndex * 7),
+                Major = originalSchedule.Major,
+                SubjectCode = originalSchedule.SubjectCode,
+                GroupName = originalSchedule.GroupName,
+                LecturerId = originalSchedule.LecturerId,
+                LecturerName = originalSchedule.LecturerName,
+                LecturerAccount = originalSchedule.LecturerAccount,
+                TypeSlot = originalSchedule.TypeSlot,
+                SessionNo = originalSchedule.SessionNo,
+                SlotTypeCode = originalSchedule.SlotTypeCode,
+                TermInYear = originalSchedule.TermInYear,
+            };
+            return newSchedule;
         }
     }
 }
