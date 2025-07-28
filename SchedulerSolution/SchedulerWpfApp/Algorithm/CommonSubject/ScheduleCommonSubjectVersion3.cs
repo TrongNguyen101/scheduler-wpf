@@ -194,7 +194,7 @@ namespace SchedulerWpfApp.Algorithm.CommonSubject
         /// <summary>
         /// Hàm tiện ích để tạo một đối tượng Schedule.
         /// </summary>
-        private Schedule CreateScheduleEntry(GroupClass group, CurriculumSubject subject, LecturerSubject lecturer, SlotPair pair, int part, DateTime startDate)
+        private Schedule CreateScheduleEntry(GroupClass groupName, CurriculumSubject curriculumSubject, LecturerSubject lecturer, SlotPair pair, int part, DateTime startDate)
         {
             int dayOfWeek = (part == 1) ? pair.Day1 : pair.Day2;
             int slotTime = (part == 1) ? pair.Slot1 : pair.Slot2;
@@ -204,8 +204,8 @@ namespace SchedulerWpfApp.Algorithm.CommonSubject
 
             return new Schedule
             {
-                GroupName = group.GroupName,
-                SubjectCode = subject.SubjectCode,
+                GroupName = groupName.GroupName,
+                SubjectCode = curriculumSubject.SubjectCode,
                 LecturerId = lecturer.LecturerId,
                 LecturerName = lecturer.LecturerName,
                 LecturerAccount = lecturer.Lecturer.LecturerAccount, // Giả sử LecturerId là tài khoản
@@ -214,6 +214,7 @@ namespace SchedulerWpfApp.Algorithm.CommonSubject
                 SlotTime = slotTime,
                 Date = scheduleDate,
                 // Điền các thuộc tính khác nếu cần
+                Major = curriculumSubject.CurriculumCode,
                 StatusSlot = ScheduleConstants.StatusSlotIsOffline,
                 TypeSlot = ScheduleConstants.TypeSlotIsNew,
             };
