@@ -32,6 +32,7 @@ namespace SchedulerWpfApp.Algorithm
                                       ILecturerServices lecturerServices,
                                       IGroupNameService groupNameService,
                                       ICurriculumSubjectServices curriculumSubjectServices,
+                                      IRoomService roomService,
                                       SchedulingContext context,
                                       ScheduleCommonSubjectVersion3 scheduleCommonSubjectVersion3)
         {
@@ -43,6 +44,7 @@ namespace SchedulerWpfApp.Algorithm
             _curriculumSubjectServices = curriculumSubjectServices;
             _context = context;
             _scheduleCommonSubjectVersion3 = scheduleCommonSubjectVersion3;
+            _roomService = roomService;
         }
 
         public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
