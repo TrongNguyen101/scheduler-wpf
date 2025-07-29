@@ -226,7 +226,7 @@ namespace SchedulerWpfApp.Algorithm
         {
             // Bắt đầu với danh sách lịch của tuần 1
             var fullSchedule = new List<Schedule>(firstWeekSchedules);
-
+            int totalWeeks = 10; // Tổng số tuần cần tạo lịch, ví dụ: 10 tuần
 
             if (totalWeeks.Count < 1)
             {
