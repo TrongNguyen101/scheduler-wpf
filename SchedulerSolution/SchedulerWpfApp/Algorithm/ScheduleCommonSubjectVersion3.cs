@@ -3,7 +3,7 @@ using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.Model;
 using Syncfusion.Data.Extensions;
 
-namespace SchedulerWpfApp.Algorithm.CommonSubject
+namespace SchedulerWpfApp.Algorithm
 {
     /// <summary>
     /// Dịch vụ chính để thực hiện việc xếp thời khóa biểu.
@@ -196,8 +196,8 @@ namespace SchedulerWpfApp.Algorithm.CommonSubject
         /// </summary>
         private Schedule CreateScheduleEntry(GroupClass groupName, CurriculumSubject curriculumSubject, LecturerSubject lecturer, SlotPair pair, int part, DateTime startDate)
         {
-            int dayOfWeek = (part == 1) ? pair.Day1 : pair.Day2;
-            int slotTime = (part == 1) ? pair.Slot1 : pair.Slot2;
+            int dayOfWeek = part == 1 ? pair.Day1 : pair.Day2;
+            int slotTime = part == 1 ? pair.Slot1 : pair.Slot2;
 
             // Tính ngày cụ thể dựa trên startDate và thứ trong tuần
             DateTime scheduleDate = GetDateForDayOfWeek(startDate, (DayOfWeek)(dayOfWeek - 1));
