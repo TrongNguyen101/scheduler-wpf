@@ -30,8 +30,6 @@ using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
-using SchedulerWpfApp.Algorithm.ReportVersion;
-using SchedulerWpfApp.Algorithm.CommonSubject;
 
 namespace SchedulerWpfApp
 {
@@ -171,27 +169,6 @@ namespace SchedulerWpfApp
             services.AddScoped<ICurriculumServices, CurriculumServices>();
             services.AddScoped<ICurriculumSubjectServices, CurriculumSubjectServices>();
             services.AddScoped<INotificationService, NotificationService>();
-            //services.AddScoped<IPersonService, PersonService>();
-            //services.AddScoped<ISubjectServices, SubjectServices>();
-            //services.AddScoped<IGroupNameService, GroupNameService>();
-            //services.AddScoped<InterfaceScheduleServices, ImplementScheduleServices>();
-            //services.AddScoped<InterfaceLecturerServices, ImplementLecturerServices>();
-            //services.AddScoped<InterfaceLecturerSubjectServices, ImplementLecturerSubjectServices>();
-
-            //services.AddScoped<IExcelPersonImporter, ExcelPersonImporter>();
-            //services.AddScoped<IExcelPersonExporter, ExcelPersonExporter>();
-
-            //services.AddScoped<IExcelSubjectImporter, ExcelSubjectImporter>();
-            //services.AddScoped<IExcelSubjectExporter, ExcelSubjectExporter>();
-
-            //services.AddScoped<IExcelLectureExporter, ExcelLectureExporter>();
-            //services.AddScoped<IExcelLectureImporter, ExcelLectureImporter>();
-            //services.AddScoped<IRoomService, RoomService>();
-            //services.AddScoped<IExcelRoomExporter, ExcelRoomExporter>();
-            //services.AddScoped<IExcelRoomImport, ExcelRoomImport>();
-            //services.AddScoped<ILectureSubjectService, LectureSubjectService>();
-            //services.AddScoped<IExcelLectureSubjectImporter, ExcelLectureSubjectImporter>();
-            //services.AddScoped<IExcelLectureSubjectExporter, ExcelLectureSubjectExporter>();
 
             // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();
@@ -220,18 +197,10 @@ namespace SchedulerWpfApp
             services.AddSingleton<Func<CurriculumSubjectViewModel>>(sp => () => sp.GetRequiredService<CurriculumSubjectViewModel>());
 
             services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime
-            services.AddScoped<TreeForSchedule>(); // Register TreeNode with a scoped lifetime
-            services.AddScoped<SortSubjectsOneSession>(); // Register SortSubjectsOneSession with a scoped lifetime
-            services.AddScoped<GetLecturerForSubject>(); // Register GetLecturerForSubject with a scoped lifetime
-            services.AddScoped<GenerateScheduleForAllDate>(); // Register GenerateScheduleForAllDate with a scoped lifetime
-            services.AddScoped<CreateSlotTypeCode>(); // Register CreateSlotTypeCode with a scoped lifetime
             services.AddScoped<Version2CreateSchedule>(); // Register Version2CreateSchedule with a scoped lifetime
             services.AddScoped<SchedulingContext>(); // Register SchedulingContext with a scoped lifetime
-            services.AddScoped<CreateScheduleCommonSubject2>(); // Register CreateScheduleForCommonSubject with a scoped lifetime
-            services.AddScoped<LecturerAssignmentService>(); // Register LecturerAssignmentService with a scoped lifetime
-            services.AddScoped<ReportV1>(); // Register ReportV1 with a scoped lifetime
             services.AddScoped<ScheduleCommonSubjectVersion3>();
-            services.AddScoped<SchedulingService>(); // Register SchedulingService with a scoped lifetime
+            services.AddScoped<RoomSchedulerOnOff>();
         }
 
         /// <summary>
