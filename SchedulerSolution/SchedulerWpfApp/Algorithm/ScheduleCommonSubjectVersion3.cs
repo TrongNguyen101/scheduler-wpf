@@ -73,9 +73,10 @@ namespace SchedulerWpfApp.Algorithm
         public (List<Schedule> GeneratedSchedules, List<string> Conflicts) GenerateSchedule(
             List<GroupClass> groups,
             List<LecturerSubject> lecturerSubjects,
-            ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup)
+            ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> curriculumLookup,
+            DateTime startDate,
+            List<int> weekToProgress)
         {
-            DateTime startDate = new DateTime(2025, 01, 06);
             // --- GIAI ĐOẠN 0: CHUẨN BỊ ---
 
             // Khởi tạo TKB trống cho mỗi lớp và mỗi giảng viên
@@ -91,9 +92,9 @@ namespace SchedulerWpfApp.Algorithm
 
                 foreach (var subject in subjectsOfClass)
                 {
-                    if (subject.TeachingMode == ScheduleConstants.TechingModeIsOJT || 
-                        subject.TeachingMode == ScheduleConstants.TechingModeIsCoursera || 
-                        subject.TeachingMode == ScheduleConstants.TechingModeIsEXE || 
+                    if (subject.TeachingMode == ScheduleConstants.TechingModeIsOJT ||
+                        subject.TeachingMode == ScheduleConstants.TechingModeIsCoursera ||
+                        subject.TeachingMode == ScheduleConstants.TechingModeIsEXE ||
                         subject.TeachingMode == ScheduleConstants.TechingModeIsFullOff ||
                         subject.SubjectCode.Contains("GRA") ||
                         subject.PartOfTerm.Contains("H2"))
@@ -105,9 +106,9 @@ namespace SchedulerWpfApp.Algorithm
             }
 
             // Sắp xếp các unit cần xếp: Ưu tiên "H1" trước, sau đó đến "All", cuối cùng là "H2"
-            //var sortedUnits = allUnitsToSchedule
-            //    .OrderBy(u => u.Subject.PartOfTerm.StartsWith("H1") ? 0 : (u.Subject.PartOfTerm.StartsWith("All") ? 1 : 2))
-            //    .ToList();
+            var sortedUnits = allUnitsToSchedule
+                .OrderByDescending(u => u.Group.Term)
+                .ToList();
 
             var finalSchedule = new List<Schedule>();
             var conflicts = new List<string>();
@@ -115,7 +116,9 @@ namespace SchedulerWpfApp.Algorithm
 
             // --- GIAI ĐOẠN 1 & 2: XẾP LỊCH ---
 
-            foreach (var unit in allUnitsToSchedule)
+
+
+            foreach (var unit in sortedUnits)
             {
                 var (group, subject) = unit;
 
@@ -145,10 +148,14 @@ namespace SchedulerWpfApp.Algorithm
                 var suitablePairs = _availablePairs.Where(p => p.PartOfDay == requiredPartOfDay);
 
                 // Duyệt qua từng cặp slot và từng giảng viên để tìm chỗ trống
-                foreach (var pair in suitablePairs)
+                foreach (var lecturer in potentialLecturers)
                 {
-                    foreach (var lecturer in potentialLecturers)
+                    foreach (var pair in suitablePairs)
                     {
+                        if (lecturer.Lecturer.Role == "TBM" && pair.Code == "A53")
+                        {
+                            continue;
+                        }
                         var groupTable = groupTimetables[group.GroupName];
                         var lecturerTable = lecturerTimetables[lecturer.LecturerId];
 
@@ -212,6 +219,7 @@ namespace SchedulerWpfApp.Algorithm
                 SlotTypeCode = pair.Code,
                 PartOfDay = pair.PartOfDay,
                 SlotTime = slotTime,
+                SessionNo = part, // 1 hoặc 2 tùy vào cặp slot
                 Date = scheduleDate,
                 // Điền các thuộc tính khác nếu cần
                 Major = curriculumSubject.CurriculumCode,

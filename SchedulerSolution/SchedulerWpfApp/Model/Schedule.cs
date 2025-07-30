@@ -62,5 +62,10 @@ namespace SchedulerWpfApp.Model
 
         [Column("TermInYear")]
         public string? TermInYear { get; set; } // Type of the slot (Normal - Combo)]
+
+        public Schedule Clone()
+        {
+            return (Schedule)this.MemberwiseClone();
+        }
     }
 }

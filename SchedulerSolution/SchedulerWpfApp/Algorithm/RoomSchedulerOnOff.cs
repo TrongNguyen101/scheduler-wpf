@@ -6,106 +6,170 @@ namespace SchedulerWpfApp.Algorithm
 {
     public class RoomSchedulerOnOff
     {
-        // --- Các danh sách Major để phân loại ---
-        private readonly HashSet<string> listMajorGroupA = new() { "FN", "HM", "MC", "BA", "TM", "IB", "EC" };
-        private readonly HashSet<string> listMajorGroupB = new() { "AI", "SE", "JL", "KR", "EL" };
+        // Danh sách các chuyên ngành cho mỗi nhóm
+        private readonly List<string> listMajorGroupA = new List<string> { "FN", "HM", "MC", "BA", "TM", "IB", "EC" };
+        private readonly List<string> listMajorGroupB = new List<string> { "AI", "SE", "JL", "KR", "EL" }; // Đã gộp "AI"
 
-        // --- Hàm chính để điều phối ---
-        public void AssignAndRotateSchedules(List<Schedule> allSchedules, List<Room> allRooms, List<GroupClass> allGroupClasses)
+        /// <summary>
+        /// Hàm chính để tạo lịch từ tuần 2 đến tuần 9 với logic ghép phòng.
+        /// </summary>
+        /// <param name="week1Schedules">Lịch đã hoàn chỉnh của tuần 1.</param>
+        /// <param name="allRooms">Danh sách tất cả các phòng học có sẵn.</param>
+        /// <param name="allGroupClasses">Danh sách tất cả các lớp học.</param>
+        /// <returns>Danh sách lịch hoàn chỉnh cho tuần 2-9.</returns>
+        public List<Schedule> GenerateSchedulesForSubsequentWeeks(
+            List<Schedule> week1Schedules,
+            List<Room> allRooms,
+            List<GroupClass> allGroupClasses)
         {
-            // Tạo map để tra cứu thông tin GroupClass nhanh chóng
+            var subsequentSchedules = new List<Schedule>();
+            var availableRooms = new Queue<Room>(allRooms.Where(r => r.Status == "available"));
+            var usedRoomIds = new HashSet<int>();
+
+            // 1. Phân loại các GroupName vào nhóm A và B dựa trên Major
             var groupClassMap = allGroupClasses.ToDictionary(gc => gc.GroupName);
-            var allScheduleGroups = allSchedules.ToLookup(s => s.GroupName);
+            var schedulesByGroup = week1Schedules.GroupBy(s => s.GroupName).ToList();
 
-            // 1. Phân loại các GroupName thành 3 nhóm: A, B, và Khác
-            var groupNamesInA = new List<string>();
-            var groupNamesInB = new List<string>();
+            var groupA_Classes = new Queue<IGrouping<string, Schedule>>(
+                schedulesByGroup.Where(g => groupClassMap.ContainsKey(g.Key) && listMajorGroupA.Contains(groupClassMap[g.Key].Major))
+            );
 
-            foreach (var groupName in allScheduleGroups)
+            var groupB_Classes = new Queue<IGrouping<string, Schedule>>(
+                schedulesByGroup.Where(g => groupClassMap.ContainsKey(g.Key) && listMajorGroupB.Contains(groupClassMap[g.Key].Major))
+            );
+
+            // 2. Ghép cặp các lớp từ nhóm A và B để chia sẻ phòng
+            while (groupA_Classes.Any() && groupB_Classes.Any())
             {
-                if (groupClassMap.TryGetValue(groupName.Key, out var groupInfo))
+                var groupA = groupA_Classes.Dequeue();
+                var groupB = groupB_Classes.Dequeue();
+
+                // Tìm phòng phù hợp cho cặp này
+                var majorForRoomSelection = groupClassMap[groupA.Key].Major;
+                var assignedRoom = FindAndAssignRoom(majorForRoomSelection, availableRooms, usedRoomIds);
+
+                if (assignedRoom == null)
                 {
-                    if (listMajorGroupA.Contains(groupInfo.Major)) groupNamesInA.Add(groupName.Key);
-                    else if (listMajorGroupB.Contains(groupInfo.Major)) groupNamesInB.Add(groupName.Key);
+                    Console.WriteLine($"WARNING: Không còn phòng cho cặp {groupA.Key} và {groupB.Key}.");
+                    continue; // Bỏ qua nếu hết phòng
+                }
+
+                // 3. Tạo lịch cho cặp này từ tuần 2 đến 9
+                for (int week = 2; week <= 9; week++)
+                {
+                    // Logic luân phiên: Tuần chẵn (2,4,6,8) A học offline thứ lẻ, B học offline thứ chẵn
+                    // Tuần lẻ (3,5,7,9) thì ngược lại
+                    bool isGroupA_OfflineOnOddDays = (week % 2 == 0);
+
+                    // Tạo lịch cho Group A
+                    foreach (var templateSchedule in groupA)
+                    {
+                        var newSchedule = CreateScheduleForWeek(templateSchedule, week, assignedRoom);
+                        var dayOfWeek = (int)templateSchedule.Date.Value.DayOfWeek; // Sunday = 0, Monday = 1
+                        bool isOddDay = (dayOfWeek == 1 || dayOfWeek == 3 || dayOfWeek == 5);
+
+                        newSchedule.StatusSlot = (isOddDay == isGroupA_OfflineOnOddDays) ? "OFF" : "ON";
+                        subsequentSchedules.Add(newSchedule);
+                    }
+
+                    // Tạo lịch cho Group B
+                    foreach (var templateSchedule in groupB)
+                    {
+                        var newSchedule = CreateScheduleForWeek(templateSchedule, week, assignedRoom);
+                        var dayOfWeek = (int)templateSchedule.Date.Value.DayOfWeek;
+                        bool isOddDay = (dayOfWeek == 1 || dayOfWeek == 3 || dayOfWeek == 5);
+
+                        // Logic của B ngược lại với A
+                        newSchedule.StatusSlot = (isOddDay != isGroupA_OfflineOnOddDays) ? "OFF" : "ON";
+                        subsequentSchedules.Add(newSchedule);
+                    }
                 }
             }
 
-            // 2. Ghép cặp các nhóm A và B
-            var pairedAssignments = new Dictionary<string, (string Partner, Room Room)>(); // Key: GroupName, Value: (Partner, SharedRoom)
-
-            int pairingCount = Math.Min(groupNamesInA.Count, groupNamesInB.Count);
-            for (int i = 0; i < pairingCount; i++)
+            // 4. Xử lý các lớp còn lại không được ghép cặp (nếu có)
+            var remainingClasses = groupA_Classes.Concat(groupB_Classes);
+            foreach (var remainingGroup in remainingClasses)
             {
-                pairedAssignments[groupNamesInA[i]] = (groupNamesInB[i], null); // Tạm thời chưa có phòng
-                pairedAssignments[groupNamesInB[i]] = (groupNamesInA[i], null);
+                var majorForRoomSelection = groupClassMap[remainingGroup.Key].Major;
+                var assignedRoom = FindAndAssignRoom(majorForRoomSelection, availableRooms, usedRoomIds);
+                if (assignedRoom == null)
+                {
+                    Console.WriteLine($"WARNING: Không còn phòng cho lớp lẻ {remainingGroup.Key}.");
+                    continue;
+                }
+
+                for (int week = 2; week <= 9; week++)
+                {
+                    foreach (var templateSchedule in remainingGroup)
+                    {
+                        var newSchedule = CreateScheduleForWeek(templateSchedule, week, assignedRoom);
+                        newSchedule.StatusSlot = "OFF"; // Lớp không ghép cặp mặc định học Offline
+                        subsequentSchedules.Add(newSchedule);
+                    }
+                }
             }
 
-
-            // 3. Xếp phòng cho các cặp và các nhóm đơn lẻ
-            AssignRoomsToEntities(pairedAssignments, allScheduleGroups, allRooms);
-
-            // 4. Xác định trạng thái Online/Offline và gán phòng cuối cùng
-            UpdateScheduleStatus(allSchedules, pairedAssignments);
+            return subsequentSchedules;
         }
 
-        // --- Các hàm trợ giúp ---
-
-        private void AssignRoomsToEntities(
-            Dictionary<string, (string Partner, Room Room)> pairedAssignments,
-            ILookup<string, Schedule> allScheduleGroups,
-            List<Room> allRooms)
+        /// <summary>
+        /// Tìm và gán một phòng phù hợp từ danh sách các phòng còn trống.
+        /// </summary>
+        private Room FindAndAssignRoom(string major, Queue<Room> availableRooms, HashSet<int> usedRoomIds)
         {
-            // Tạm thời coi mọi thực thể đều cần 1 phòng, sau đó sẽ gán phòng chung cho cặp
-            // ... (Logic phức tạp để ưu tiên phòng tòa G cho các cặp/nhóm có BIT/BBA)
-            // Để đơn giản, ví dụ này sẽ xếp tuần tự
-            var availableRooms = new Queue<Room>(allRooms);
+            // Ưu tiên tòa nhà "G" cho các ngành "BIT" hoặc "BBA"
+            bool requiresGBuilding = major.Contains("BIT") || major.Contains("BBA");
 
-            // Gán phòng cho các cặp
-            var processedPartners = new HashSet<string>();
-            foreach (var groupName in pairedAssignments.Keys)
+            IEnumerable<Room> potentialRooms = availableRooms;
+            if (requiresGBuilding)
             {
-                if (processedPartners.Contains(groupName) || !availableRooms.TryDequeue(out var room)) continue;
-
-                var partnerName = pairedAssignments[groupName].Partner;
-                pairedAssignments[groupName] = (partnerName, room);
-                pairedAssignments[partnerName] = (groupName, room);
-                processedPartners.Add(partnerName);
+                // Thử tìm trong tòa G trước
+                var roomInG = availableRooms.FirstOrDefault(r => r.Building == "Gamma" && !usedRoomIds.Contains(r.RoomId));
+                if (roomInG != null)
+                {
+                    usedRoomIds.Add(roomInG.RoomId);
+                    // Để đảm bảo phòng được lấy ra khỏi queue, ta cần rebuild queue (cách đơn giản)
+                    var updatedQueue = new Queue<Room>(availableRooms.Where(r => r.RoomId != roomInG.RoomId));
+                    availableRooms.Clear();
+                    while (updatedQueue.Any()) availableRooms.Enqueue(updatedQueue.Dequeue());
+                    return roomInG;
+                }
             }
+
+            // Nếu không yêu cầu hoặc tòa G đã hết, lấy phòng bất kỳ còn trống
+            while (availableRooms.Any())
+            {
+                var room = availableRooms.Dequeue();
+                if (!usedRoomIds.Contains(room.RoomId))
+                {
+                    usedRoomIds.Add(room.RoomId);
+                    return room;
+                }
+            }
+
+            return null; // Không còn phòng nào
         }
 
-        private void UpdateScheduleStatus(
-            List<Schedule> allSchedules,
-            Dictionary<string, (string Partner, Room Room)> finalAssignments)
+        /// <summary>
+        /// Tạo một bản ghi Schedule mới cho một tuần cụ thể dựa trên lịch mẫu.
+        /// </summary>
+        private Schedule CreateScheduleForWeek(Schedule template, int week, Room room)
         {
-            int startWeekNumber = 1; // Giả sử tuần bắt đầu là tuần 1
-
-            foreach (var schedule in allSchedules)
+            var newSchedule = template.Clone();
+            newSchedule.RoomId = room.RoomId;
+            newSchedule.RoomName = room.RoomName;
+            // Tính ngày mới bằng cách cộng thêm (số tuần - 1) * 7 ngày
+            newSchedule.Date = template.Date.Value.AddDays((week - 1) * 7);
+            newSchedule.TypeSlot = "NEW SLOT"; // Hoặc logic khác nếu cần
+            if (newSchedule.SessionNo == 2)
             {
-                if (!finalAssignments.TryGetValue(schedule.GroupName, out var assignment)) continue;
-
-                // Logic luân phiên cho các nhóm được ghép cặp
-                bool isGroupA = listMajorGroupA.Contains(allSchedules.First(s => s.GroupName == schedule.GroupName).Major);
-                int currentWeekNumber = (schedule.Date.GetValueOrDefault().DayOfYear / 7) + startWeekNumber;
-                bool isWeekEven = currentWeekNumber % 2 == 0;
-                bool isDayOdd = schedule.Date.GetValueOrDefault().DayOfWeek == DayOfWeek.Monday ||
-                                schedule.Date.GetValueOrDefault().DayOfWeek == DayOfWeek.Wednesday ||
-                                schedule.Date.GetValueOrDefault().DayOfWeek == DayOfWeek.Friday;
-
-                bool shouldBeOffline = false;
-                if (isWeekEven) // Tuần chẵn (2, 4...)
-                {
-                    shouldBeOffline = isDayOdd ? !isGroupA : isGroupA;
-                }
-                else // Tuần lẻ (1, 3...)
-                {
-                    shouldBeOffline = isDayOdd ? isGroupA : !isGroupA;
-                }
-
-                schedule.StatusSlot = shouldBeOffline ? ScheduleConstants.StatusSlotIsOffline : ScheduleConstants.StatusSlotIsOnline;
-                schedule.RoomId = shouldBeOffline ? assignment.Room.RoomId : null;
-                schedule.RoomName = shouldBeOffline ? assignment.Room.RoomName : null;
-
+                newSchedule.SessionNo = 2 * week;
             }
+            else
+            {
+                newSchedule.SessionNo = (2 * week) - 1;
+            }
+            return newSchedule;
         }
     }
 }
