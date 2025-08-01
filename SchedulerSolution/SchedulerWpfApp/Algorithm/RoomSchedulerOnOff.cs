@@ -37,38 +37,47 @@ namespace SchedulerWpfApp.Algorithm
             var groupClassMap = allGroupClasses.ToDictionary(gc => gc.GroupName);
             var schedulesByGroup = week1Schedules.GroupBy(s => s.GroupName).ToList();
 
-            var groupClassesFullOff = new Queue<IGrouping<string, Schedule>>(
-               schedulesByGroup.Where(g => groupClassMap.ContainsKey(g.Key) && groupClassMap[g.Key].TeachingMode == "OFF")
-           );
+            var groupClassesFullOff = schedulesByGroup.Where(g => groupClassMap.ContainsKey(g.Key) && groupClassMap[g.Key].TeachingMode.Trim() == "OFF").ToList();
 
             foreach (var groupClassFullOff in groupClassesFullOff)
             {
-                var majorForRoomSelection = groupClassMap[groupClassFullOff.Key].Major;
-                var assignedRoom = FindAndAssignRoom(majorForRoomSelection, availableRooms, usedRoomIds);
-                if (assignedRoom == null)
+                // BƯỚC 1: GÁN PHÒNG MỘT LẦN CHO CẢ NHÓM LỚP
+                // Giả định rằng tất cả các buổi trong cùng 1 nhóm đều có phòng giống nhau từ tuần 1
+                var firstSchedule = groupClassFullOff.FirstOrDefault();
+                if (firstSchedule == null) continue; // Bỏ qua nếu nhóm rỗng
+
+                var assignedRoom = new Room
                 {
-                    _logger.LogWarning($"WARNING: Không còn phòng cho lớp full off {groupClassFullOff.Key}.");
-                    continue;
+                    RoomId = firstSchedule.RoomId.GetValueOrDefault(),
+                    RoomName = firstSchedule.RoomName,
+                };
+
+                // BƯỚC 2: LOẠI BỎ PHÒNG ĐÃ GÁN KHỎI HÀNG ĐỢI (CHỈ MỘT LẦN)
+                if (!usedRoomIds.Contains(assignedRoom.RoomId))
+                {
+                    usedRoomIds.Add(assignedRoom.RoomId);
+
+                    // Tạo lại hàng đợi mà không chứa phòng đã được gán
+                    availableRooms = new Queue<Room>(availableRooms.Where(r => r.RoomId != assignedRoom.RoomId));
                 }
+
                 for (int week = 2; week <= 9; week++)
                 {
                     foreach (var templateSchedule in groupClassFullOff)
                     {
                         var newSchedule = CreateScheduleForWeek(templateSchedule, week, assignedRoom);
-                        var dayOfWeek = (int)templateSchedule.Date.Value.DayOfWeek; // Sunday = 0, Monday = 1
-
+                        newSchedule.StatusSlot = templateSchedule.StatusSlot;
                         subsequentSchedules.Add(newSchedule);
                     }
                 }
             }
-
 
             var groupA_Classes = new Queue<IGrouping<string, Schedule>>(
                 schedulesByGroup.Where(g => groupClassMap.ContainsKey(g.Key) && listMajorGroupA.Contains(groupClassMap[g.Key].Major))
             );
 
             var groupB_Classes = new Queue<IGrouping<string, Schedule>>(
-                schedulesByGroup.Where(g => groupClassMap.ContainsKey(g.Key) && (listMajorGroupB.Contains(groupClassMap[g.Key].Major) || (groupClassMap[g.Key].Major == "GD" && groupClassMap[g.Key].Term == 9) ))
+                schedulesByGroup.Where(g => groupClassMap.ContainsKey(g.Key) && (listMajorGroupB.Contains(groupClassMap[g.Key].Major) || (groupClassMap[g.Key].Major == "GD" && groupClassMap[g.Key].Term == 9)))
             );
 
             // 2. Ghép cặp các lớp từ nhóm A và B để chia sẻ phòng
@@ -120,7 +129,7 @@ namespace SchedulerWpfApp.Algorithm
             }
 
             // 4. Xử lý các lớp còn lại không được ghép cặp (nếu có)
-            var remainingClasses = groupA_Classes.Concat(groupB_Classes).ToList();
+            var remainingClasses = groupA_Classes.Concat(groupB_Classes);
 
             foreach (var remainingGroup in remainingClasses)
             {
@@ -147,7 +156,7 @@ namespace SchedulerWpfApp.Algorithm
                 }
             }
 
-            
+
 
             return subsequentSchedules;
         }
