@@ -427,6 +427,12 @@ namespace SchedulerWpfApp.ViewModel
                 IsCurriculumSubjectFormOpen = true;
                 return;
             }
+            if (SelectedCurriculumSubject.TotalSlots <= 0 || SelectedCurriculumSubject.Credit <= 0)
+            {
+                _notificationService.ShowWarning("Số tín chỉ và tổng số giờ học phải lớn hơn 0");
+                IsCurriculumSubjectFormOpen = true;
+                return;
+            }
 
             try
             {

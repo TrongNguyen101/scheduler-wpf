@@ -336,13 +336,14 @@ namespace SchedulerWpfApp.ViewModel
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Department) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.TeachingMode) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.PartOfDayInTheFirstTerm))
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.PartOfDayInTheFirstTerm) ||
+                    SelectedGroupname.Term == 0)
                 {
                     _notificationService.ShowWarning("Dữ liệu lớp học không được để trống");
                     IsGroupNameFormOpen = true; // Mở lại form nếu có dữ liệu trống
                     return;
                 }
-                if (SelectedGroupname.Term <= 0 || SelectedGroupname.Term > 9)
+                if (SelectedGroupname.Term < 0 || SelectedGroupname.Term > 9)
                 {
                     _notificationService.ShowWarning("Học kỳ phải lớn hơn 0 và bé hơn 9");
                     IsGroupNameFormOpen = true; // Mở lại form nếu học kỳ không hợp lệ
