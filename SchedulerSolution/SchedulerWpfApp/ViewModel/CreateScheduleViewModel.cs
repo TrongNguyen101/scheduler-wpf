@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Input;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
+using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -26,18 +27,23 @@ namespace SchedulerWpfApp.ViewModel
         private readonly ILecturerSubjectServices _lecturerSubjectServices;
         private readonly IGroupNameService _groupNameService;
         private readonly INotificationService _notificationService;
+        private readonly ICurriculumSubjectServices _curriculumSubjectServices;
 
         private int _selectedYear;
         private string _selectedWeek;
         private string _selectedGroupName;
         private string _selectedRoomName;
         private string _selectedLecturer;
+        private string _selectedSubjectCode;
         private ObservableCollection<string> _groupNames;
         private bool _isEditScheduleFormOpen = false; // Flag to track if the cell is being edited
         private Schedule _editingSchedule;
         private ObservableCollection<Room> _listRooms;
+        private ObservableCollection<GroupClass> _listGroupClass;
         private ObservableCollection<LecturerSubject> _lecturerSubjects; // All rooms loaded from the service
+        private ObservableCollection<string> _listSubjectByGroupClass; // All rooms loaded from the service
         private Room _selectedRoom;
+        private GroupClass _selectedGroupCLass;
         private LecturerSubject _selectedLecturerSubject;
         private ObservableCollection<string> _rooms;
         private ObservableCollection<string> _lecturers; // List of lecturers to display in the timetable
@@ -52,6 +58,10 @@ namespace SchedulerWpfApp.ViewModel
 
         private ObservableCollection<string> _allMajorsBackup;
         private DateTime _selectedDate = DateTime.Now;
+        private bool _isOpenDialog;
+        private bool _isOpenCreateSlotDialog;
+        public ObservableCollection<string> PartOfDayInTheFirstTerms { get; } = new() { "A", "P" }; // AM, PM 
+        public ObservableCollection<string> TypeSlots { get; } = new() { "NEW SLOT", "OLD SLOT" }; // AM, PM 
         #endregion
 
         #region Constructor
@@ -73,6 +83,18 @@ namespace SchedulerWpfApp.ViewModel
         {
             get => _listRooms;
             set => SetProperty(ref _listRooms, value);
+        }
+
+        public ObservableCollection<GroupClass> ListGroupClass
+        {
+            get => _listGroupClass;
+            set => SetProperty(ref _listGroupClass, value);
+        }
+
+        public ObservableCollection<string> ListSubjectByGroupClass
+        {
+            get => _listSubjectByGroupClass;
+            set => SetProperty(ref _listSubjectByGroupClass, value);
         }
 
         public ObservableCollection<LecturerSubject> LecturerSubjects
@@ -124,19 +146,26 @@ namespace SchedulerWpfApp.ViewModel
             set => SetProperty(ref _isEditScheduleFormOpen, value);
         }
 
+        public bool IsOpenCreateSlotDialog
+        {
+            get => _isOpenCreateSlotDialog;
+            set => SetProperty(ref _isOpenCreateSlotDialog, value);
+        }
+
         public Schedule EditingSchedule
         {
             get => _editingSchedule;
             set
             {
                 SetProperty(ref _editingSchedule, value);
-                IsEditScheduleFormOpen = value != null; // Open edit form if a schedule is being edited
+                IsEditScheduleFormOpen = value != null && value.ScheduleId != 0; // Open edit form if a schedule is being edited
                 if (value != null)
                 {
                     // Load the rooms for the selected schedule
                     _ = GetAllRooms();
+                    _ = GetAllGroupClass();
                     _ = GetAllLecturerBySubjectCode(value.SubjectCode); // Load lecturers for the selected subject code
-                    SelectedRoom = ListRooms.FirstOrDefault(r => r.RoomName == EditingSchedule?.RoomName);
+                    SelectedRoom = ListRooms.FirstOrDefault(r => r.RoomId == EditingSchedule?.RoomId);
                     SelectedLecturerSubject = LecturerSubjects.FirstOrDefault(l => l.LecturerId == EditingSchedule?.LecturerId);
                 }
             }
@@ -156,6 +185,36 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
+        public GroupClass SelectedGroupCLass
+        {
+            get => _selectedGroupCLass;
+            set
+            {
+                SetProperty(ref _selectedGroupCLass, value);
+                if (EditingSchedule != null && value != null)
+                {
+                    EditingSchedule.GroupName = value.GroupName;
+                    EditingSchedule.Major = value.CurriculumCode;
+
+                    _ = GetAllSubjectCodeByCurriculumCode(value.CurriculumCode); // Load subjects for the selected group class
+                }
+            }
+        }
+
+        public string SelectedSubjectCode
+        {
+            get => _selectedSubjectCode;
+            set
+            {
+                SetProperty(ref _selectedSubjectCode, value);
+                if (EditingSchedule != null && !string.IsNullOrEmpty(value))
+                {
+                    EditingSchedule.SubjectCode = value;
+                    _ = GetAllLecturerBySubjectCode(value); // Load lecturers for the selected subject code
+                }
+            }
+        }
+
         public LecturerSubject SelectedLecturerSubject
         {
             get => _selectedLecturerSubject;
@@ -165,6 +224,7 @@ namespace SchedulerWpfApp.ViewModel
                 if (EditingSchedule != null && value != null)
                 {
                     EditingSchedule.LecturerName = value.LecturerName;
+                    EditingSchedule.LecturerAccount = value.Lecturer.LecturerAccount;
                     EditingSchedule.LecturerId = value.LecturerId;
                 }
             }
@@ -236,6 +296,12 @@ namespace SchedulerWpfApp.ViewModel
             set => SetProperty(ref _selectedDate, value);
         }
 
+        public bool IsOpenDialog
+        {
+            get => _isOpenDialog;
+            set => SetProperty(ref _isOpenDialog, value);
+        }
+
         public ICommand CreateScheduleCommand { get; }
         public ICommand ExportExcelCommand { get; }
         public ICommand UpdateScheduleCommand { get; }
@@ -244,6 +310,13 @@ namespace SchedulerWpfApp.ViewModel
 
         public ICommand OpenPopupCreateCommand { get; }
         public ICommand CancelCreateScheduleCommand { get; }
+        public ICommand DeleteScheduleCommand { get; }
+        public ICommand ConfirmDeleteCommand { get; }
+        public ICommand CancelDeleteScheduleCommand { get; }
+        public ICommand OpenPopupCreateSlotCommand { get; }
+        public ICommand CreateSlotCommand { get; }
+        public ICommand CancelSCreateSlotCommand { get; }
+        public ICommand SaveSCreateSlotCommand { get; }
 
         public ObservableCollection<string> FilteredMajorFirst { get; set; } = new();
         public ObservableCollection<string> FilteredMajorSecond { get; set; } = new();
@@ -265,7 +338,7 @@ namespace SchedulerWpfApp.ViewModel
             RefreshFilteredMajors();
         });
 
-        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices, IRoomService roomService, ILecturerSubjectServices lecturerSubjectServices, IGroupNameService groupNameService, INotificationService notificationService)
+        public CreateScheduleViewModel(CreateScheduleTree createScheduleTree, IScheduleServices implementScheduleServices, IRoomService roomService, ILecturerSubjectServices lecturerSubjectServices, IGroupNameService groupNameService, INotificationService notificationService, ICurriculumSubjectServices curriculumSubjectServices)
         {
             _createScheduleTree = createScheduleTree;
             _implementScheduleServices = implementScheduleServices;
@@ -273,6 +346,7 @@ namespace SchedulerWpfApp.ViewModel
             _lecturerSubjectServices = lecturerSubjectServices;
             _groupNameService = groupNameService;
             _notificationService = notificationService;
+            _curriculumSubjectServices = curriculumSubjectServices;
 
             SelectedYear = DateTime.Now.Year; // Default to current year
             CreateScheduleCommand = new RelayCommand(async () => await CreateScheduleDemo());
@@ -284,6 +358,12 @@ namespace SchedulerWpfApp.ViewModel
             OpenPopupCreateCommand = new RelayCommand(OpenScheduleForm); // Command to open the schedule creation popup
             CancelCreateScheduleCommand = new RelayCommand(CancelScheduleForm); // Command to close the schedule creation popup
 
+            DeleteScheduleCommand = new RelayCommandGeneric<Schedule>(async (schedule) => await DeleteScheduleAsync(schedule), (schedule) => schedule != null); // Command to delete a schedule
+            ConfirmDeleteCommand = new RelayCommand(async () => await ConfirmDeleteAsync()); // Command to confirm deletion of a schedule
+            CancelDeleteScheduleCommand = new RelayCommand(() => CancelDelete()); // Command to cancel deletion of a schedule
+            OpenPopupCreateSlotCommand = new RelayCommand(() => OpenCreateSlotForm()); // Command to open the create slot dialog
+            CancelSCreateSlotCommand = new RelayCommand(() => CancelCreateSlot()); // Command to cancel creating a slot
+            SaveSCreateSlotCommand = new RelayCommand(async () => await CreateSlot()); // Command to create a new slot
             ListMajorGroupA = new ObservableCollection<string>();
             ListMajorGroupB = new ObservableCollection<string>();
             _allMajorsBackup = new ObservableCollection<string>();
@@ -296,6 +376,68 @@ namespace SchedulerWpfApp.ViewModel
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Opens the form to edit an existing schedule.
+        /// </summary>
+        /// <param name="Schedule"></param>
+        private async Task DeleteScheduleAsync(Schedule schedule)
+        {
+            if (schedule == null) return;
+
+            EditingSchedule = schedule;
+            IsEditScheduleFormOpen = false; // Close the schedule creation form if it's open
+            IsOpenDialog = true;
+        }
+
+        /// <summary>
+        /// Confirms the deletion of the selected curriculum and removes it from the data source.
+        /// </summary>
+        private async Task ConfirmDeleteAsync()
+        {
+            if (EditingSchedule == null)
+            {
+                _notificationService.ShowWarning("Không có slot nào được chọn để xóa.");
+                IsOpenDialog = false;
+                return;
+            }
+
+            try
+            {
+                // Delete the selected curriculum from the data source
+                await _implementScheduleServices.DeleteScheduleAsync(EditingSchedule.ScheduleId);
+
+                _notificationService.ShowSuccess("Xóa slot học thành công.");
+                Schedule deleteItem = AllSchedules.FirstOrDefault(s => s.ScheduleId == EditingSchedule.ScheduleId);
+                AllSchedules.Remove(deleteItem); // Remove the deleted schedule from the AllSchedules collection
+                EditingSchedule = null; // Clear the editing schedule after deletion
+                FilterSchedules();
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError("Xóa slot học thất bại.");
+                IsEditScheduleFormOpen = true;
+            }
+            finally
+            {
+                IsOpenDialog = false;
+            }
+        }
+
+        /// <summary>
+        /// Cancels the delete operation and closes the confirmation dialog.
+        /// </summary>
+        public void CancelDelete()
+        {
+            IsOpenDialog = false;
+            IsEditScheduleFormOpen = true; // Reopen the schedule form if it was open before deletion
+        }
+
+        public void CancelCreateSlot()
+        {
+            IsOpenCreateSlotDialog = false; // Close the create slot dialog
+            EditingSchedule = null; // Reopen the schedule form if it was open before deletion
+        }
+
         private void ChangeDisplayMode(string mode)
         {
             if (mode == "CLASS") CurrentDisplayMode = DisplayMode.CLASS;
@@ -319,6 +461,12 @@ namespace SchedulerWpfApp.ViewModel
             // Reset major selections when opening form
             RestoreAllMajors();
             IsScheduleFormOpen = true;
+        }
+
+        private void OpenCreateSlotForm()
+        {
+            EditingSchedule = new Schedule();
+            IsOpenCreateSlotDialog = true;
         }
 
         private void CancelScheduleForm()
@@ -972,6 +1120,7 @@ namespace SchedulerWpfApp.ViewModel
                 GroupName = originalSchedule.GroupName,
                 LecturerId = originalSchedule.LecturerId,
                 LecturerName = originalSchedule.LecturerName,
+                LecturerAccount = originalSchedule.LecturerAccount,
                 SlotTypeCode = originalSchedule.SlotTypeCode,
                 TypeSlot = originalSchedule.TypeSlot,
                 SessionNo = originalSchedule.SessionNo,
@@ -1045,6 +1194,72 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
+        private async Task CreateSlot()
+        {
+            try
+            {
+                if (EditingSchedule == null)
+                {
+                    _notificationService.ShowWarning("Không có lịch nào để cập nhật.");
+                    return;
+                }
+                else
+                {
+                    if (string.IsNullOrWhiteSpace(EditingSchedule.RoomName) ||
+                        string.IsNullOrWhiteSpace(EditingSchedule.PartOfDay) ||
+                        !EditingSchedule.SlotTime.HasValue ||
+                        !EditingSchedule.Date.HasValue ||
+                        string.IsNullOrWhiteSpace(EditingSchedule.Major) ||
+                        string.IsNullOrWhiteSpace(EditingSchedule.SubjectCode) ||
+                        string.IsNullOrWhiteSpace(EditingSchedule.GroupName) ||
+                        string.IsNullOrWhiteSpace(EditingSchedule.LecturerId))
+                    {
+                        _notificationService.ShowWarning("Vui lòng nhập đầy đủ thông tin bắt buộc.");
+                        return;
+                    }
+
+                    // Validate the selected room before updating
+                    if (EditingSchedule.StatusSlot == "OFF")
+                    {
+                        var checkRoom = CheckConflictRoom(EditingSchedule, EditingSchedule.Date ?? new DateTime(), EditingSchedule.SlotTime ?? 0);
+
+                        if (checkRoom)
+                        {
+                            _notificationService.ShowWarning("Phòng học này đã bị trùng lịch.");
+                            return;
+                        }
+                    }
+
+                    // Validate the selected lecturer before updating
+                    var checkLecturer = AllSchedules.Any(schedule => schedule.LecturerId == EditingSchedule.LecturerId &&
+                           schedule.Date == EditingSchedule.Date &&
+                           schedule.SlotTime == EditingSchedule.SlotTime &&
+                           schedule.ScheduleId != EditingSchedule.ScheduleId);
+                    if (checkLecturer)
+                    {
+                        _notificationService.ShowWarning("Giảng viên này đã bị trùng lịch.");
+                        return;
+                    }
+                }
+                bool result = await _implementScheduleServices.AddSlot(EditingSchedule);
+
+                if (result)
+                {
+                    AllSchedules.Add(EditingSchedule);
+
+                    FilterSchedules(); // Refresh the filtered schedules
+                    _notificationService.ShowSuccess("Tạo mới slot học thành công.");
+                }
+                else throw new Exception("Tạo mới slot học không thành công. Vui lòng thử lại sau.");
+
+                IsOpenCreateSlotDialog = false;
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError("Có lỗi trong quá trình tạo mới slot học. Vui lòng thử lại.");
+            }
+        }
+
         /// <summary>
         /// Cancels the edit operation and closes the edit schedule form.
         /// </summary>
@@ -1063,6 +1278,30 @@ namespace SchedulerWpfApp.ViewModel
             try
             {
                 ListRooms = new ObservableCollection<Room>(await _roomService.GetAllAsync());
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError("Lỗi khi tải danh sách phòng."); // Show error notification
+            }
+        }
+
+        private async Task GetAllGroupClass()
+        {
+            try
+            {
+                ListGroupClass = new ObservableCollection<GroupClass>(await _groupNameService.GetAllAsync());
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError("Lỗi khi tải danh sách phòng."); // Show error notification
+            }
+        }
+
+        private async Task GetAllSubjectCodeByCurriculumCode(string curriculumCode)
+        {
+            try
+            {
+                ListSubjectByGroupClass = new ObservableCollection<string>(await _curriculumSubjectServices.GetSubjectCodeByCurriculumCodeAsync(curriculumCode)); // Fetch subject codes by curriculum code
             }
             catch (Exception ex)
             {

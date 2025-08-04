@@ -128,6 +128,23 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         }
 
         /// <summary>
+        /// Retrieves all curriculum subjects from the database asynchronously
+        /// </summary>
+        /// <returns>Task<List<CurriculumSubject>></returns>
+        public async Task<List<string>> GetSubjectCodeByCurriculumCodeAsync(string curriculumCode)
+        {
+            try
+            {
+                var subjectCodes = await _unitOfWork.CurriculumSubjectsRepository.GetSubjectCodeByCurriculumCode(curriculumCode);
+                return subjectCodes;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving subject code.", ex);
+            }
+        }
+
+        /// <summary>
         /// Imports a list of curriculum subjects from an Excel file into the database
         /// </summary>
         /// <param name="listCurriculumSubjectFromExcel"></param>
@@ -274,7 +291,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                             IsCombo = isCombo,
                             Credit = credit,
                             TotalSlots = totalSlots,
-                            TeachingMode = teachingMode, 
+                            TeachingMode = teachingMode,
                             PartOfTerm = partOfTerm
                         };
 

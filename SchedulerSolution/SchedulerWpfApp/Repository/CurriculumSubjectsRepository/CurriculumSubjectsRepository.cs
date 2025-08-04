@@ -39,5 +39,14 @@ namespace SchedulerWpfApp.Repository.CurriculumSubjectsRepository
             }
             #endregion
         }
+
+        public Task<List<string>> GetSubjectCodeByCurriculumCode(string curriculumCode)
+        {
+            return _context.CurriculumSubjects
+                .Where(cs => cs.CurriculumCode.ToLower() == curriculumCode.ToLower())
+                .Select(cs => cs.SubjectCode)
+                .Distinct()
+                .ToListAsync();
+        }
     }
 }

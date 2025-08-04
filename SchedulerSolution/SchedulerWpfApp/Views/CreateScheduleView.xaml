@@ -263,6 +263,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <!-- Search Box -->
@@ -339,11 +340,24 @@
                 <!-- Add Person Button -->
                 <Button Grid.Column="3"
                         Style="{StaticResource SuccessButtonStyle}"
+                        Margin="0,0,10,0"
                         Command="{Binding OpenPopupCreateCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕"
                                    VerticalAlignment="Center" />
                         <TextBlock Text="Tạo Lịch"
+                                   Margin="5,0,0,0"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="4"
+                        Style="{StaticResource SuccessButtonStyle}"
+                        Command="{Binding OpenPopupCreateSlotCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗂️"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="Tạo Mới Slot"
                                    Margin="5,0,0,0"
                                    VerticalAlignment="Center" />
                     </StackPanel>
@@ -672,7 +686,7 @@
                                                                            FontSize="10"
                                                                            VerticalAlignment="Center"
                                                                            Margin="0,0,3,0" />
-                                                                <TextBlock Text="{Binding Schedule.LecturerName}"
+                                                                <TextBlock Text="{Binding Schedule.LecturerAccount}"
                                                                            FontSize="12"
                                                                            Foreground="#495057"
                                                                            VerticalAlignment="Center" />
@@ -842,7 +856,7 @@
                         <ComboBox ItemsSource="{Binding LecturerSubjects}"
                                   SelectedItem="{Binding SelectedLecturerSubject, Mode=TwoWay}"
                                   IsEditable="True"
-                                  DisplayMemberPath="LecturerName" />
+                                  DisplayMemberPath="Lecturer.LecturerAccount" />
 
                         <TextBlock Text="Trạng thái"
                                    FontWeight="Bold"
@@ -855,12 +869,21 @@
                     <!-- Form Actions -->
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0"
+                                Content="Xóa"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Background="#EA4335"
+                                Margin="0,0,10,0"
+                                Padding="20,8"
+                                Command="{Binding DeleteScheduleCommand}"
+                                CommandParameter="{Binding EditingSchedule}" />
 
-                        <Button Grid.Column="1"
+                        <Button Grid.Column="2"
                                 Content="Hủy"
                                 Style="{StaticResource ActionButtonStyle}"
                                 Background="#95a5a6"
@@ -868,7 +891,7 @@
                                 Padding="20,8"
                                 Command="{Binding CancelEditScheduleCommand}" />
 
-                        <Button Grid.Column="2"
+                        <Button Grid.Column="3"
                                 x:Name="btnSaveLecturer"
                                 Content="Lưu"
                                 Style="{StaticResource SuccessButtonStyle}"
@@ -1044,6 +1067,290 @@
                                 Cursor="Hand" />
                     </StackPanel>
                 </StackPanel>
+            </Border>
+        </Popup>
+        <!-- Confirmation Dialog -->
+        <Popup x:Name="confirmationPopup"
+               StaysOpen="False"
+               Placement="Center"
+               IsOpen="{Binding IsOpenDialog}"
+               AllowsTransparency="True">
+            <Border Background="#F0F4F8"
+                    BorderThickness="0"
+                    CornerRadius="8"
+                    Padding="25"
+                    Width="400">
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="2"
+                                      BlurRadius="15"
+                                      Opacity="0.2"
+                                      Color="Black" />
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Dialog Header -->
+                    <TextBlock Grid.Row="0"
+                               Text="Xác nhận xóa"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource TextColor}"
+                               Margin="0,0,0,15" />
+
+                    <!-- Dialog Content -->
+                    <TextBlock Grid.Row="1"
+                               Text="Bạn có chắc chắn muốn xóa slot học này không?"
+                               TextWrapping="Wrap"
+                               Foreground="{StaticResource TextColor}"
+                               Margin="0,0,0,20" />
+
+                    <!-- Dialog Actions -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="1"
+                                Content="Hủy"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Background="#95a5a6"
+                                Margin="0,0,10,0"
+                                Padding="20,8"
+                                Command="{Binding CancelDeleteScheduleCommand}" />
+
+                        <Button Grid.Column="2"
+                                Content="Xóa"
+                                Style="{StaticResource DeleteButtonStyle}"
+                                Padding="20,8"
+                                Command="{Binding ConfirmDeleteCommand}" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </Popup>
+
+        <Popup x:Name="CreateSlotFormPopup"
+               StaysOpen="False"
+               Placement="Center"
+               IsOpen="{Binding IsOpenCreateSlotDialog}"
+               AllowsTransparency="True">
+            <Border Background="#F0F4F8"
+                    BorderThickness="0"
+                    CornerRadius="8"
+                    Padding="25"
+                    Width="700">
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="2"
+                                      BlurRadius="15"
+                                      Opacity="0.2"
+                                      Color="Black" />
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Form Header -->
+                    <Grid Grid.Row="0"
+                          Margin="0,0,0,20">
+                        <TextBlock Text="Tạo mới slot học"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextColor}" />
+                    </Grid>
+
+                    <!-- Form Fields -->
+                    <Grid Grid.Row="1"
+                          Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="15" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Row 0 -->
+                        <StackPanel Grid.Row="0"
+                                    Grid.Column="0"
+                                    Margin="0,0,0,15">
+                            <TextBlock Text="Mã Phòng"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <ComboBox ItemsSource="{Binding ListRooms}"
+                                      SelectedItem="{Binding SelectedRoom, Mode=TwoWay}"
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      IsEditable="True"
+                                      DisplayMemberPath="RoomName"
+                                      Height="50" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="0,0,0,15">
+                            <TextBlock Text="Ca Trong Ngày (AM/PM)"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <ComboBox SelectedValue="{Binding EditingSchedule.PartOfDay, UpdateSourceTrigger=PropertyChanged}"
+                                      ItemsSource="{Binding PartOfDayInTheFirstTerms}"
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      IsEditable="True"
+                                      Height="50" />
+                        </StackPanel>
+
+                        <!-- Row 1 -->
+                        <StackPanel Grid.Row="1"
+                                    Grid.Column="0"
+                                    Margin="0,0,0,15">
+                            <TextBlock Text="Slot Time"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <ComboBox ItemsSource="{Binding Slots}"
+                                      SelectedItem="{Binding EditingSchedule.SlotTime}"
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      IsEditable="True"
+                                      Height="50" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1"
+                                    Grid.Column="2"
+                                    Margin="0,0,0,15">
+                            <TextBlock Text="Trạng Thái Slot"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <ComboBox ItemsSource="{Binding SlotStatusList}"
+                                      SelectedItem="{Binding EditingSchedule.StatusSlot, Mode=TwoWay}"
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      IsEditable="True"
+                                      Height="50" />
+                        </StackPanel>
+
+                        <!-- Row 2 -->
+                        <StackPanel Grid.Row="2"
+                                    Grid.Column="0"
+                                    Margin="0,0,0,15">
+                            <TextBlock Text="Ngày Dạy"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <DatePicker SelectedDate="{Binding EditingSchedule.Date}"
+                                        Height="50"
+                                        Background="White"
+                                        BorderBrush="{StaticResource SearchBorder}"
+                                        BorderThickness="1" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="2"
+                                    Grid.Column="2"
+                                    Margin="0,0,0,15">
+                            <TextBlock Text="Tên Nhóm Lớp"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <ComboBox ItemsSource="{Binding ListGroupClass}"
+                                      SelectedItem="{Binding SelectedGroupCLass, Mode=TwoWay}"
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      IsEditable="True"
+                                      DisplayMemberPath="GroupName"
+                                      Height="50" />
+                        </StackPanel>
+
+                        <!-- Row 3 -->
+                        <StackPanel Grid.Row="3"
+                                    Grid.Column="0"
+                                    Margin="0,0,0,15">
+                            <TextBlock Text="Mã Môn học"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <ComboBox ItemsSource="{Binding ListSubjectByGroupClass}"
+                                      SelectedItem="{Binding SelectedSubjectCode, Mode=TwoWay}"
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      IsEditable="True"
+                                      Height="50" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="3"
+                                    Grid.Column="2"
+                                    Margin="0,0,0,15">
+                            <TextBlock Text="Mã Giảng Viên"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <ComboBox ItemsSource="{Binding LecturerSubjects}"
+                                      SelectedItem="{Binding SelectedLecturerSubject, Mode=TwoWay}"
+                                      IsEditable="True"
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      DisplayMemberPath="Lecturer.LecturerAccount"
+                                      Height="50" />
+                        </StackPanel>
+
+                        <!-- Row 4 -->
+                        <StackPanel Grid.Row="4"
+                                    Grid.Column="0"
+                                    Margin="0,0,0,0">
+                            <TextBlock Text="Thứ Tự Của Slot"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <TextBox Text="{Binding EditingSchedule.SessionNo, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModernTextBoxStyle}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="4"
+                                    Grid.Column="2"
+                                    Margin="0,0,0,0">
+                            <TextBlock Text="Loại Slot"
+                                       Margin="0,0,0,5"
+                                       Foreground="{StaticResource TextColor}" />
+                            <ComboBox ItemsSource="{Binding TypeSlots}"
+                                      SelectedItem="{Binding EditingSchedule.TypeSlot, Mode=TwoWay}"
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Height="50"
+                                      IsEditable="True" />
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Grid.Row="2">
+                        <TextBlock Text="Loại Slot (a24, p35)"
+                                   Margin="0,0,0,5"
+                                   Foreground="{StaticResource TextColor}" />
+                        <TextBox Text="{Binding EditingSchedule.SlotTypeCode, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBoxStyle}"
+                                 Margin="0,0,0,15" />
+                    </StackPanel>
+                    <!-- Form Actions -->
+                    <Grid Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="1"
+                                Content="Hủy"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Background="#95a5a6"
+                                Margin="0,0,10,0"
+                                Padding="20,8"
+                                Command="{Binding CancelSCreateSlotCommand}" />
+
+                        <Button Grid.Column="2"
+                                Content="Lưu"
+                                Style="{StaticResource SuccessButtonStyle}"
+                                Padding="20,8"
+                                Command="{Binding SaveSCreateSlotCommand}" />
+                    </Grid>
+                </Grid>
             </Border>
         </Popup>
     </Grid>
