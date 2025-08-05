@@ -28,6 +28,7 @@ namespace SchedulerWpfApp.Repository.LecturerSubjectRepository
             try
             {
                 return await _context.LecturerSubjects
+                    .Include(ls => ls.Lecturer)
                     .Where(ls => ls.SubjectCode == subjectCode)
                     .ToListAsync();
             }

@@ -61,6 +61,20 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
             }
         }
 
+        public async Task<bool> AddSlotAsync(Schedule schedule)
+        {
+            try
+            {
+                await _context.Schedules.AddAsync(schedule);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                return false;
+            }
+        }
+
         public Task DeleteAllAsync()
         {
             _logger.LogInformation("Marking all schedules as deleted from the database.");
@@ -75,6 +89,22 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
 
             // Execute the SQL command asynchronously using EF Core
             await _context.Database.ExecuteSqlRawAsync(sql);
+        }
+
+        public async Task DeleteScheduleAsync(Schedule schedule)
+        {
+            try
+            {
+                if (schedule != null)
+                {
+                    _context.Schedules.Remove(schedule);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to delete schedule with.");
+            }
         }
         #endregion
     }
