@@ -406,6 +406,12 @@ namespace SchedulerWpfApp.ViewModel
                 IsLecturerSubjectFormOpen = true;
                 return;
             }
+            if (SelectedLecturerSubject.TotalSlots <= 0)
+            {
+                _notificationService.ShowWarning("Dữ liệu tổng slot phải lớn hơn 0");
+                IsLecturerSubjectFormOpen = true;
+                return;
+            }
             try
             {
                 var existingLecturerSubject = await _lecturerSubjectService.CheckLecturerSubjectExits(SelectedLecturerSubject);

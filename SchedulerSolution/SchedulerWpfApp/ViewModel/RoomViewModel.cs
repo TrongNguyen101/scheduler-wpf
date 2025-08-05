@@ -379,19 +379,21 @@ namespace SchedulerWpfApp.ViewModel
             if (string.IsNullOrWhiteSpace(SelectedRoom.RoomName) ||
                 string.IsNullOrWhiteSpace(SelectedRoom.TypeOfRoom) ||
                 string.IsNullOrWhiteSpace(SelectedRoom.Building) ||
-                string.IsNullOrWhiteSpace(SelectedRoom.Status))
+                string.IsNullOrWhiteSpace(SelectedRoom.Status) ||
+                SelectedRoom.TotalPersons == 0 ||
+                SelectedRoom.Floor == 0)
             {
                 _notificationService.ShowWarning("Dữ liệu phòng học không được để trống");
                 IsRoomFormOpen = true;
                 return;
             }
-            else if (SelectedRoom.TotalPersons <= 0 || SelectedRoom.TotalPersons > 50)
+            else if (SelectedRoom.TotalPersons < 0 || SelectedRoom.TotalPersons > 50)
             {
                 _notificationService.ShowWarning("Số người trong phòng không vượt quá 50 người và không được nhỏ hơn bằng 0");
                 IsRoomFormOpen = true;
                 return;
             }
-            else if (SelectedRoom.Floor <= 0)
+            else if (SelectedRoom.Floor < 0)
             {
                 _notificationService.ShowWarning("Số tầng không được nhỏ hơn hoặc bằng 0");
                 IsRoomFormOpen = true;
