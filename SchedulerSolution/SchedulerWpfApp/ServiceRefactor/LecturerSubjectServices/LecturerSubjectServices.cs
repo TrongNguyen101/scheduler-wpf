@@ -331,6 +331,29 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
             }
             return nullRows;
         }
+
+        public async Task<bool> CheckSubjectExits(string subjectCode)
+        {
+            try
+            {
+                return await _unitOfWork.LecturerSubjectRepository.CheckSubjectExits(subjectCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi kiểm tra mã môn học", ex);
+            }
+        }
+        public async Task<bool> CheckLecturerExits(string lecturerCode)
+        {
+            try
+            {
+                return await _unitOfWork.LecturerSubjectRepository.CheckLecturerExits(lecturerCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi kiểm tra mã môn học", ex);
+            }
+        }
         #endregion
     }
 }

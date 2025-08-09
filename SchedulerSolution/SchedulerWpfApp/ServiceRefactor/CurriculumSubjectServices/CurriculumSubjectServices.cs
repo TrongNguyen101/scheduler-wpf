@@ -343,6 +343,29 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
             }
             workbook.SaveAs(filePath);
         }
+
+        public async Task<bool> CheckSubjectExits(string subjectCode)
+        {
+            try
+            {
+                return await _unitOfWork.CurriculumSubjectsRepository.CheckSubjectExists(subjectCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi kiểm tra mã lớp", ex);
+            }
+        }
+        public async Task<bool> CheckCurriculumExits(string curriculumCode)
+        {
+            try
+            {
+                return await _unitOfWork.CurriculumSubjectsRepository.CheckCurriculumExists(curriculumCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi kiểm tra khung chương trình", ex);
+            }
+        }
         #endregion
     }
 }

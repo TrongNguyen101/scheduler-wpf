@@ -40,6 +40,31 @@ namespace SchedulerWpfApp.Repository.CurriculumSubjectsRepository
             #endregion
         }
 
+        public Task<bool> CheckSubjectExists(string subjectCode)
+        {
+            try
+            {
+                return _context.CurriculumSubjects
+                    .AnyAsync(cs => cs.SubjectCode.ToLower() == subjectCode.ToLower());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra sự tồn tại của mã môn học trong CurriculumSubject.", ex);
+            }
+        }
+        public Task<bool> CheckCurriculumExists(string curriculumCode)
+        {
+            try
+            {
+                return _context.CurriculumSubjects
+                    .AnyAsync(cs => cs.CurriculumCode.ToLower() == curriculumCode.ToLower());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra sự tồn tại của khung chương trình học trong CurriculumSubject.", ex);
+            }
+        }
+
         public Task<List<string>> GetSubjectCodeByCurriculumCode(string curriculumCode)
         {
             return _context.CurriculumSubjects

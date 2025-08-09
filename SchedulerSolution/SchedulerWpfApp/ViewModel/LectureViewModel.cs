@@ -5,6 +5,7 @@ using SchedulerWpfApp.Model;
 using Microsoft.Win32;
 using SchedulerWpfApp.ServiceRefactor.LecturerServices;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
+using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -17,6 +18,7 @@ namespace SchedulerWpfApp.ViewModel
         // Dependencies injected via constructor
         private readonly ILecturerServices _lecturerService;
         private readonly INotificationService _notificationService;
+        private readonly ILecturerSubjectServices _lecturerSubjectService;
         // Internal data fields
         private ObservableCollection<Lecturer> _lecturers;
         private Lecturer? _selectedLecture;
@@ -138,10 +140,11 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public LectureViewModel(ILecturerServices lecturerService, INotificationService notificationService)
+        public LectureViewModel(ILecturerServices lecturerService, INotificationService notificationService, ILecturerSubjectServices lecturerSubjectServices)
         {
             _lecturerService = lecturerService;
             _notificationService = notificationService;
+            _lecturerSubjectService = lecturerSubjectServices;
 
             Lectures = new ObservableCollection<Lecturer>();
 
@@ -337,6 +340,12 @@ namespace SchedulerWpfApp.ViewModel
 
             try
             {
+                bool lecturerExistsInLecturerSubject = await _lecturerSubjectService.CheckLecturerExits(SelectedLecture.LecturerId);
+                if (lecturerExistsInLecturerSubject)
+                {
+                    _notificationService.ShowWarning("Giảng Viên này đang có lịch phân công. Không thể xóa.");
+                    return;
+                }
                 // Call the service to delete the lecturer
                 await _lecturerService.DeleteLecturer(SelectedLecture.LecturerId);
 

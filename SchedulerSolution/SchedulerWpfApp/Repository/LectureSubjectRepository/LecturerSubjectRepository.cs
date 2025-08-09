@@ -71,6 +71,31 @@ namespace SchedulerWpfApp.Repository.LecturerSubjectRepository
             }
         }
 
+        public Task<bool> CheckSubjectExits(string subjectCode)
+        {
+            try
+            {
+                return _context.LecturerSubjects
+              .AnyAsync(ls => ls.SubjectCode.ToLower() == subjectCode.ToLower());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra xem Subject có trong LecturerSubject không.", ex);
+            }
+        }
+        public Task<bool> CheckLecturerExits(string lecturerCode)
+        {
+            try
+            {
+                return _context.LecturerSubjects
+              .AnyAsync(ls => ls.LecturerId.ToLower() == lecturerCode.ToLower());
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Đã xảy ra lỗi khi kiểm tra xem Lecturer có trong LecturerSubject không.", ex);
+            }
+        }
+
         #endregion
     }
 }
