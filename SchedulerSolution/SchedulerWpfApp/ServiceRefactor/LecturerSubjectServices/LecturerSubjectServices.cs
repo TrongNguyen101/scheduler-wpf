@@ -203,7 +203,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 
                     int rowCount = worksheet.UsedRange.LastRow;
                     int colCount = worksheet.UsedRange.LastColumn;
-
+                    Utility.IsOnlyHeader(worksheet);
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
                     Utility.IsColumnDuplicatedLsExcel(worksheet);
 
@@ -218,7 +218,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
 
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
-                            throw new Exception($"Missing required column: {h}");
+                            throw new Exception($"Thiếu cột bắt buộc: {h}");
 
                     for (int r = 2; r <= rowCount; r++)
                     {

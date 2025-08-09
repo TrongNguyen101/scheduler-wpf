@@ -245,7 +245,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                     string[] requiredHeaders = { "CurriculumCode", "SubjectCode", "TermNo", "IsCombo", "Credits", "TotalSLots", "TeachingMode", "PartOfTerm" };
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
-                            throw new Exception($"Missing required column: {h}");
+                            throw new Exception($"Thiếu cột bắt buộc: {h}");
 
                     for (int r = 2; r <= rowCount; r++)
                     {

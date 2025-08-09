@@ -231,10 +231,10 @@ namespace SchedulerWpfApp.ViewModel
                     _notificationService.ShowSuccess("Nhập danh sách lớp học thành công!!");
                     await LoadGroupNameAsync();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Nhập danh sách lớp học thất bại.");
+                    _notificationService.ShowError($"Nhập danh sách lớp học thất bại. {ex.Message}");
                 }
             }
         }

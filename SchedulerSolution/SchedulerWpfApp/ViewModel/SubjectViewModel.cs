@@ -442,7 +442,7 @@ namespace SchedulerWpfApp.ViewModel
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError("Nhập môn học thất bại.");
+                    _notificationService.ShowError($"Nhập môn học thất bại. {ex.Message}");
                 }
             }
         }

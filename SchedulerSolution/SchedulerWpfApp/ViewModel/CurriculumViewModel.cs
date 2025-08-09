@@ -415,7 +415,7 @@ namespace SchedulerWpfApp.ViewModel
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError("Nhập khung chương trình thất bại.");
+                    _notificationService.ShowError($"Nhập khung chương trình thất bại. {ex.Message}");
                 }
             }
         }
