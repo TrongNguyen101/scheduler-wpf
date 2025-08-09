@@ -274,15 +274,6 @@ namespace SchedulerWpfApp.ViewModel
             {
                 var subject = await _subjectServices.GetBySubjectCodeAsync(subjectCode);
                 SelectedSubject = subject ?? new Subject();
-
-                // Update SelectedCurriculumSubject with subject information
-                if (SelectedCurriculumSubject != null)
-                {
-                    SelectedCurriculumSubject.SubjectNameEnglish = SelectedSubject.SubjectNameEnglish;
-                    SelectedCurriculumSubject.SubjectNameVietnamese = SelectedSubject.SubjectNameVietnamese;
-                    // Trigger property change notification for UI update
-                    OnPropertyChanged(nameof(SelectedCurriculumSubject));
-                }
             }
             catch (Exception ex)
             {
@@ -361,8 +352,6 @@ namespace SchedulerWpfApp.ViewModel
                 Id = curriculumSubject.Id,
                 CurriculumCode = curriculumSubject.CurriculumCode,
                 SubjectCode = curriculumSubject.SubjectCode,
-                SubjectNameEnglish = curriculumSubject.SubjectNameEnglish,
-                SubjectNameVietnamese = curriculumSubject.SubjectNameVietnamese,
                 TermNo = curriculumSubject.TermNo,
                 IsCombo = curriculumSubject.IsCombo,
                 Credit = curriculumSubject.Credit,
@@ -469,8 +458,6 @@ namespace SchedulerWpfApp.ViewModel
                     {
                         existingCurriculumSubject.CurriculumCode = SelectedCurriculumSubject.CurriculumCode;
                         existingCurriculumSubject.SubjectCode = SelectedCurriculumSubject.SubjectCode;
-                        existingCurriculumSubject.SubjectNameEnglish = SelectedCurriculumSubject.SubjectNameEnglish;
-                        existingCurriculumSubject.SubjectNameVietnamese = SelectedCurriculumSubject.SubjectNameVietnamese;
                         existingCurriculumSubject.TermNo = SelectedCurriculumSubject.TermNo;
                         existingCurriculumSubject.IsCombo = SelectedCurriculumSubject.IsCombo;
                         existingCurriculumSubject.Credit = SelectedCurriculumSubject.Credit;
@@ -661,9 +648,7 @@ namespace SchedulerWpfApp.ViewModel
                 // can search by CurriculumSubjectCode
                 var filtered = _allCurriculumSubjects.Where(CurriculumSubject =>
                 (!string.IsNullOrEmpty(CurriculumSubject.CurriculumCode) && CurriculumSubject.CurriculumCode.ToLower().Contains(lowerKeyword)) ||
-                (!string.IsNullOrEmpty(CurriculumSubject.SubjectCode) && CurriculumSubject.SubjectCode.ToLower().Contains(lowerKeyword)) ||
-                (!string.IsNullOrEmpty(CurriculumSubject.SubjectNameEnglish) && CurriculumSubject.SubjectNameEnglish.ToLower().Contains(lowerKeyword)) ||
-                (!string.IsNullOrEmpty(CurriculumSubject.SubjectNameVietnamese) && CurriculumSubject.SubjectNameVietnamese?.ToLower().Contains(lowerKeyword) == true)
+                (!string.IsNullOrEmpty(CurriculumSubject.SubjectCode) && CurriculumSubject.SubjectCode.ToLower().Contains(lowerKeyword)) == true
                 ).ToList();
 
                 CurriculumSubjects = new ObservableCollection<CurriculumSubject>(filtered);

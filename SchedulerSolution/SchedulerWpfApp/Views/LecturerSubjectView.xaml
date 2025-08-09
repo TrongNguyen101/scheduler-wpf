@@ -133,12 +133,28 @@
                     </StackPanel>
                 </Button>
             </Grid>
-            
-            <Border Grid.Row="1" Background="#FFF3CD" BorderBrush="#FFEAA7" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,15">
+
+            <Border Grid.Row="1"
+                    Background="#FFF3CD"
+                    BorderBrush="#FFEAA7"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="12,8"
+                    Margin="0,0,0,15">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="ℹ️" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
-                    <TextBlock Text="Template import: " FontSize="14" VerticalAlignment="Center" Foreground="#856404" />
-                    <TextBlock Text="MAGV, GIANGVIEN, MAMH, TENMH, NGANH, KY, SLL, TONGSLOT" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Foreground="#856404" />
+                    <TextBlock Text="ℹ️"
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0" />
+                    <TextBlock Text="Template import: "
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Foreground="#856404" />
+                    <TextBlock Text="MAGV, GIANGVIEN, MAMH, TENMH, NGANH, KY, SLL, TONGSLOT"
+                               FontWeight="Bold"
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Foreground="#856404" />
                 </StackPanel>
             </Border>
             <!-- Syncfusion DataGrid -->
@@ -296,7 +312,8 @@
                                       ItemsSource="{Binding Lecturers}"
                                       SelectedValue="{Binding SelectedLecturerId, UpdateSourceTrigger=PropertyChanged}"
                                       SelectedValuePath="LecturerId"
-                                      DisplayMemberPath="LecturerId" />
+                                      DisplayMemberPath="LecturerAccount"
+                                      Height="50" />
                         </StackPanel>
 
                         <StackPanel Grid.Row="0"
@@ -322,7 +339,8 @@
                                       ItemsSource="{Binding Subjects}"
                                       SelectedValue="{Binding SelectedSubjectId, UpdateSourceTrigger=PropertyChanged}"
                                       SelectedValuePath="SubjectCode"
-                                      DisplayMemberPath="SubjectCode" />
+                                      DisplayMemberPath="SubjectCode"
+                                      Height="50" />
                         </StackPanel>
 
                         <StackPanel Grid.Row="1"
@@ -354,7 +372,8 @@
                             <TextBlock Text="Kỳ Học"
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
-                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.Term, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}"
+                                     Text="{Binding SelectedLecturerSubject.Term, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}" />
                         </StackPanel>
 
                         <!-- Dòng 4: Số Lượng Lớp và Tổng Slots -->
@@ -364,7 +383,8 @@
                             <TextBlock Text="Số Lượng Lớp"
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
-                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}"
+                                     Text="{Binding SelectedLecturerSubject.NumberOfClasses, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}" />
                         </StackPanel>
 
                         <StackPanel Grid.Row="3"
@@ -373,7 +393,8 @@
                             <TextBlock Text="Tổng Slots"
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
-                            <TextBox Style="{StaticResource ModernTextBoxStyle}" Text="{Binding SelectedLecturerSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}" />
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}"
+                                     Text="{Binding SelectedLecturerSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}" />
                         </StackPanel>
                     </Grid>
 

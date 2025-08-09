@@ -134,11 +134,27 @@
             </Grid>
 
             <!-- Import Template Notice -->
-            <Border Grid.Row="1" Background="#FFF3CD" BorderBrush="#FFEAA7" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,15">
+            <Border Grid.Row="1"
+                    Background="#FFF3CD"
+                    BorderBrush="#FFEAA7"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="12,8"
+                    Margin="0,0,0,15">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="ℹ️" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
-                    <TextBlock Text="Template import: " FontSize="14" VerticalAlignment="Center" Foreground="#856404" />
-                    <TextBlock Text="GroupName, Khóa, Ngành, BM, Kỳ, Tổ chức, Buổi" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Foreground="#856404" />
+                    <TextBlock Text="ℹ️"
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0" />
+                    <TextBlock Text="Template import: "
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Foreground="#856404" />
+                    <TextBlock Text="GroupName, Khóa, Ngành, BM, Kỳ, Tổ chức, Buổi"
+                               FontWeight="Bold"
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Foreground="#856404" />
                 </StackPanel>
             </Border>
 
@@ -354,7 +370,8 @@
                                            Foreground="{StaticResource TextColor}" />
                                 <ComboBox SelectedValue="{Binding SelectedGroupname.PartOfDayInTheFirstTerm, UpdateSourceTrigger=PropertyChanged}"
                                           ItemsSource="{Binding PartOfDayInTheFirstTerms}"
-                                          Style="{StaticResource ModernComboBoxStyle}" />
+                                          Style="{StaticResource ModernComboBoxStyle}"
+                                          Height="50" />
                             </StackPanel>
 
                             <!-- Cột phải -->
@@ -378,7 +395,8 @@
                                 <ComboBox SelectedValue="{Binding SelectedGroupname.TeachingMode, UpdateSourceTrigger=PropertyChanged}"
                                           ItemsSource="{Binding TeachingMode}"
                                           Style="{StaticResource ModernComboBoxStyle}"
-                                          Margin="0,0,0,15" />
+                                          Margin="0,0,0,15"
+                                          Height="50" />
                             </StackPanel>
                         </Grid>
 
