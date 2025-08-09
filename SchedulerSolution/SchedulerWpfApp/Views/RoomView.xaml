@@ -202,7 +202,10 @@
                         <TextBox Text="{Binding SelectedRoom.TotalPersons, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
                         <TextBlock Text="Trạng thái" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding StatusOptions}" SelectedValue="{Binding SelectedRoom.Status, UpdateSourceTrigger=PropertyChanged}" />
+                        <ComboBox Style="{StaticResource ModernComboBoxStyle}"
+                                  ItemsSource="{Binding StatusOptions}"
+                                  SelectedValue="{Binding SelectedRoom.Status, UpdateSourceTrigger=PropertyChanged}"
+                                  Height="50" />
                     </StackPanel>
 
                     <!-- Form Actions -->
