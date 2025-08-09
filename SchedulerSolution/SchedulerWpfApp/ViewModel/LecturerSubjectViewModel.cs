@@ -194,6 +194,8 @@ namespace SchedulerWpfApp.ViewModel
             CancelDeleteLectureSubjectCommand = new RelayCommand(CancelDelete);
             SaveLectureSubjectCommand = new RelayCommand(async () => await SaveLecturerSubjectAsync());
             ConfirmDeleteLectureSubjectCommand = new RelayCommand(async () => await ConfirmDeleteLecturerSubjectAsync());
+            SelectedLecturerSubject = new LecturerSubject();
+
             _ = LoadLecturerSubjects();
         }
         /// <summary>
@@ -334,7 +336,6 @@ namespace SchedulerWpfApp.ViewModel
         /// <returns></returns>
         public async Task AddLecturerSubjectAsync()
         {
-            SelectedLecturerSubject = new LecturerSubject();
             IsLecturerSubjectFormOpen = true;
             // check if it is an edit event
             _isEditing = false;
@@ -373,7 +374,7 @@ namespace SchedulerWpfApp.ViewModel
         private void CancelEdit()
         {
             // set SelectedLecturerSubject null 
-            SelectedLecturerSubject = null;
+            SelectedLecturerSubject = new LecturerSubject();
             IsLecturerSubjectFormOpen = false;
         }
 
@@ -393,10 +394,9 @@ namespace SchedulerWpfApp.ViewModel
                 IsLecturerSubjectFormOpen = true;
                 return;
             }
-            if (SelectedLecturerSubject.NumberOfClasses <= 0 ||
-                SelectedLecturerSubject.TotalSlots <= 0)
+            if (SelectedLecturerSubject.NumberOfClasses == null || SelectedLecturerSubject.NumberOfClasses <= 0)
             {
-                _notificationService.ShowWarning("Số lượng lớp học và tổng số tiết phải lớn hơn 0.");
+                _notificationService.ShowWarning("Số lượng lớp học lớn hơn 0.");
                 IsLecturerSubjectFormOpen = true;
                 return;
             }
@@ -406,7 +406,7 @@ namespace SchedulerWpfApp.ViewModel
                 IsLecturerSubjectFormOpen = true;
                 return;
             }
-            if (SelectedLecturerSubject.TotalSlots <= 0)
+            if (SelectedLecturerSubject.TotalSlots == null || SelectedLecturerSubject.TotalSlots <= 0)
             {
                 _notificationService.ShowWarning("Dữ liệu tổng slot phải lớn hơn 0");
                 IsLecturerSubjectFormOpen = true;
@@ -439,6 +439,8 @@ namespace SchedulerWpfApp.ViewModel
                     _notificationService.ShowSuccess("Thêm mới lịch phân công giảng dạy cho giảng viên thành công!");
                 }
                 IsLecturerSubjectFormOpen = false;
+                SelectedLecturerSubject = new LecturerSubject();
+
                 await LoadLecturerSubjects();
             }
             catch (Exception)

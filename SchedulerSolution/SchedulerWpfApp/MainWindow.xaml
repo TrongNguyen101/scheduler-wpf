@@ -432,6 +432,6 @@
                 </Grid>
             </Grid>
         </Grid>
-        <notifications:NotificationArea x:Name="WindowArea" Position="BottomRight" MaxItems="3" IsHitTestVisible="False" />
+        <notifications:NotificationArea x:Name="WindowArea" Position="BottomRight" MaxItems="3"  />
     </Grid>
 </Window>

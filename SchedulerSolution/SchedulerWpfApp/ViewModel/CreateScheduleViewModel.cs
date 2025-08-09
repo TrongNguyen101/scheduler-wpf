@@ -367,6 +367,7 @@ namespace SchedulerWpfApp.ViewModel
             ListMajorGroupA = new ObservableCollection<string>();
             ListMajorGroupB = new ObservableCollection<string>();
             _allMajorsBackup = new ObservableCollection<string>();
+            EditingSchedule = new Schedule();
 
             LoadMockSchedules(); // Load initial schedules from the service
             InitCurrentWeekDays(); // Initialize current week days
@@ -435,7 +436,7 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelCreateSlot()
         {
             IsOpenCreateSlotDialog = false; // Close the create slot dialog
-            EditingSchedule = null; // Reopen the schedule form if it was open before deletion
+            EditingSchedule = new Schedule(); // Reopen the schedule form if it was open before deletion
         }
 
         private void ChangeDisplayMode(string mode)
@@ -465,7 +466,6 @@ namespace SchedulerWpfApp.ViewModel
 
         private void OpenCreateSlotForm()
         {
-            EditingSchedule = new Schedule();
             IsOpenCreateSlotDialog = true;
         }
 
@@ -1253,6 +1253,7 @@ namespace SchedulerWpfApp.ViewModel
                 else throw new Exception("Tạo mới slot học không thành công. Vui lòng thử lại sau.");
 
                 IsOpenCreateSlotDialog = false;
+                EditingSchedule = new Schedule();
             }
             catch (Exception ex)
             {
