@@ -93,18 +93,6 @@
                         <Image Source="Images/Logo/FPTU_logo.png" Width="166" Height="85" VerticalAlignment="Center" />
                     </StackPanel>
 
-                    <!-- Menu Items -->
-                    <Border Style="{StaticResource MenuItemStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="📊" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
-                            <TextBlock Text="Tổng quan" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
-                        </Grid>
-                    </Border>
-
                     <Border>
                         <Border.Style>
                             <Style TargetType="Border" BasedOn="{StaticResource MenuItemStyle}">
@@ -394,17 +382,6 @@
                                 </TextBlock>
                             </Grid>
                         </Button>
-                    </Border>
-
-                    <Border Style="{StaticResource MenuItemStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="⚙️" Grid.Column="0" Style="{StaticResource MenuIconStyle}" />
-                            <TextBlock Text="Cài đặt" Grid.Column="1" Style="{StaticResource MenuTextStyle}" />
-                        </Grid>
                     </Border>
 
                     <!-- Version info at bottom -->
