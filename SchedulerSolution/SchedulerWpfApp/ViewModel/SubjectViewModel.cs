@@ -4,6 +4,8 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
+using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
+using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 
@@ -18,7 +20,8 @@ namespace SchedulerWpfApp.ViewModel
         // Dependencies injected via constructor
         private readonly ISubjectServices _subjectService;
         private readonly INotificationService _notificationService;
-
+        private readonly ICurriculumSubjectServices _curriculumSubjectServices;
+        private readonly ILecturerSubjectServices _lecturerSubjectServices;
         // Internal data fields
         private ObservableCollection<Subject> _subjects;
         private Subject? _selectedSubject;
@@ -141,10 +144,12 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public SubjectViewModel(ISubjectServices courseService, INotificationService notificationService)
+        public SubjectViewModel(ISubjectServices courseService, INotificationService notificationService, ICurriculumSubjectServices curriculumSubjectServices, ILecturerSubjectServices lecturerSubjectServices)
         {
             _subjectService = courseService;
             _notificationService = notificationService;
+            _curriculumSubjectServices = curriculumSubjectServices;
+            _lecturerSubjectServices = lecturerSubjectServices;
 
             Subjects = new ObservableCollection<Subject>();
 
@@ -343,6 +348,18 @@ namespace SchedulerWpfApp.ViewModel
 
             try
             {
+                 bool subjectExistsInCurriculum = await _curriculumSubjectServices.CheckSubjectExits(SelectedSubject.SubjectCode);
+                if (subjectExistsInCurriculum)
+                {
+                    _notificationService.ShowWarning("Môn học này đã được sử dụng trong chương trình đào tạo. Không thể xóa.");
+                    return;
+                }
+                bool subjectExistsInLecturerSubject = await _lecturerSubjectServices.CheckSubjectExits(SelectedSubject.SubjectCode);
+                if (subjectExistsInLecturerSubject)
+                {
+                    _notificationService.ShowWarning("Môn học này đã được sử dụng trong lịch phân công của giảng viên. Không thể xóa.");
+                    return;
+                }
                 // Delete the selected subject from the data source
                 await _subjectService.DeleteSubject(SelectedSubject.SubjectCode);
 
@@ -425,7 +442,7 @@ namespace SchedulerWpfApp.ViewModel
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError("Nhập môn học thất bại.");
+                    _notificationService.ShowError($"Nhập môn học thất bại. {ex.Message}");
                 }
             }
         }

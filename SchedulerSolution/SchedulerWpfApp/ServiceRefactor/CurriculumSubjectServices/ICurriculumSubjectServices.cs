@@ -13,5 +13,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         Task ImportCurriculumSubjectFromExcel(List<CurriculumSubject> listCurriculumFromExcel, IProgress<int> progress);
         void ExportToExcel(List<CurriculumSubject> curriculumSubjects, string filePath);
         List<CurriculumSubject> ReadCurriculumSubjectsFromExcel(string filePath);
+        Task<bool> CheckSubjectExits(string subjectCode);
+        Task<bool> CheckCurriculumExits(string curriculumCode);
     }
 }

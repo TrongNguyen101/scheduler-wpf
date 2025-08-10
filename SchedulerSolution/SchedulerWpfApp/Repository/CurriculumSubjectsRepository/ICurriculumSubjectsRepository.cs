@@ -6,5 +6,7 @@ namespace SchedulerWpfApp.Repository.CurriculumSubjectsRepository
     { 
         Task<bool> CheckCurriculumSubjectCodeExistsAsync(CurriculumSubject curriculumSubject);
         Task<List<string>> GetSubjectCodeByCurriculumCode(string curriculumCode);
+        Task<bool> CheckSubjectExists(string subjectCode);
+        Task<bool> CheckCurriculumExists(string curriculumCode);
     }
 }
