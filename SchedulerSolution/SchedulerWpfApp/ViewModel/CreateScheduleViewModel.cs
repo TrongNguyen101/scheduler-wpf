@@ -15,6 +15,7 @@ using System.Windows.Input;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
+using System.IO;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -62,6 +63,12 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isOpenCreateSlotDialog;
         public ObservableCollection<string> PartOfDayInTheFirstTerms { get; } = new() { "A", "P" }; // AM, PM 
         public ObservableCollection<string> TypeSlots { get; } = new() { "NEW SLOT", "OLD SLOT" }; // AM, PM 
+        private bool _isOpenConfirmDeleteData;
+        private bool _isOpenConfirmSwapSchedule;
+        private string _textSwapSchedule;
+
+        private TimetableCellViewModel _sourceCell, _targetCell; // Cells for drag-and-drop functionality
+        private Schedule _droppedSchedule; // Schedule being dragged and dropped
         #endregion
 
         #region Constructor
@@ -302,6 +309,24 @@ namespace SchedulerWpfApp.ViewModel
             set => SetProperty(ref _isOpenDialog, value);
         }
 
+        public bool IsOpenConfirmDeleteData
+        {
+            get => _isOpenConfirmDeleteData;
+            set => SetProperty(ref _isOpenConfirmDeleteData, value);
+        }
+
+        public bool IsOpenConfirmSwapSchedule
+        {
+            get => _isOpenConfirmSwapSchedule;
+            set => SetProperty(ref _isOpenConfirmSwapSchedule, value);
+        }
+
+        public string TextSwapSchedule
+        {
+            get => _textSwapSchedule;
+            set => SetProperty(ref _textSwapSchedule, value);
+        }
+
         public ICommand CreateScheduleCommand { get; }
         public ICommand ExportExcelCommand { get; }
         public ICommand UpdateScheduleCommand { get; }
@@ -317,6 +342,12 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand CreateSlotCommand { get; }
         public ICommand CancelSCreateSlotCommand { get; }
         public ICommand SaveSCreateSlotCommand { get; }
+
+        public ICommand DeleteDataCommand { get; }
+        public ICommand ConfirmDeleteDataCommand { get; }
+        public ICommand CancelDeleteDataCommand { get; }
+        public ICommand CancelSwapScheduleCommand { get; }
+        public ICommand ConfirmSwapScheduleCommand { get; }
 
         public ObservableCollection<string> FilteredMajorFirst { get; set; } = new();
         public ObservableCollection<string> FilteredMajorSecond { get; set; } = new();
@@ -364,9 +395,15 @@ namespace SchedulerWpfApp.ViewModel
             OpenPopupCreateSlotCommand = new RelayCommand(() => OpenCreateSlotForm()); // Command to open the create slot dialog
             CancelSCreateSlotCommand = new RelayCommand(() => CancelCreateSlot()); // Command to cancel creating a slot
             SaveSCreateSlotCommand = new RelayCommand(async () => await CreateSlot()); // Command to create a new slot
+            ConfirmDeleteDataCommand = new RelayCommand(() => DeleteData()); // Command to delete all schedules
+            CancelDeleteDataCommand = new RelayCommand(() => IsOpenConfirmDeleteData = false); // Command to cancel deletion of all schedules
+            DeleteDataCommand = new RelayCommand(() => IsOpenConfirmDeleteData = true); // Command to open the confirmation dialog for deleting all schedules
+            CancelSwapScheduleCommand = new RelayCommand(() => IsOpenConfirmSwapSchedule = false); // Command to cancel swapping schedules
+            ConfirmSwapScheduleCommand = new RelayCommand(async () => await ConfirmSwapSchdule()); // Command to confirm swapping schedules
             ListMajorGroupA = new ObservableCollection<string>();
             ListMajorGroupB = new ObservableCollection<string>();
             _allMajorsBackup = new ObservableCollection<string>();
+            EditingSchedule = new Schedule();
 
             LoadMockSchedules(); // Load initial schedules from the service
             InitCurrentWeekDays(); // Initialize current week days
@@ -376,6 +413,62 @@ namespace SchedulerWpfApp.ViewModel
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Delete all data in the system
+        /// </summary>
+        private void DeleteData()
+        {
+            try
+            {
+                string userDbPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "SchedulerApp",
+                "app.db"
+                );
+
+                // Get the application's base directory
+                string binDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                // Navigate up three directories to the project root
+                string baseDirectory = Path.GetFullPath(Path.Combine(binDirectory, @"..\\..\\..\\"));
+                // Define the path for storing application data
+                string appDataPath = Path.Combine(baseDirectory, "AppData");
+
+                // Fallback logic if the directory structure is different (possibly in production)
+                if (!Directory.Exists(appDataPath))
+                {
+                    baseDirectory = Path.GetFullPath(Path.Combine(binDirectory, "@..\\.."));
+                    Directory.CreateDirectory(appDataPath);
+                }
+
+                // Define the database file path
+                string dbPath = Path.Combine(appDataPath, "app.db");
+
+                if (File.Exists(userDbPath))
+                {
+                    File.Delete(userDbPath);
+                }
+
+                Directory.CreateDirectory(Path.GetDirectoryName(userDbPath));
+
+                if (File.Exists(dbPath))
+                {
+                    File.Copy(dbPath, userDbPath);
+                }
+                else
+                {
+                    throw new FileNotFoundException("Không tìm thấy file database gốc trong thư mục dự án.");
+                }
+
+                IsOpenConfirmDeleteData = false; // Close the confirmation dialog after deletion
+                LoadMockSchedules(); // Reload schedules after deletion
+                _notificationService.ShowSuccess("Đã xóa toàn bộ dữ liệu thành công.");
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError($"Lỗi khi xóa dữ liệu: {ex.Message}");
+            }
+        }
+
         /// <summary>
         /// Opens the form to edit an existing schedule.
         /// </summary>
@@ -435,7 +528,7 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelCreateSlot()
         {
             IsOpenCreateSlotDialog = false; // Close the create slot dialog
-            EditingSchedule = null; // Reopen the schedule form if it was open before deletion
+            EditingSchedule = new Schedule(); // Reopen the schedule form if it was open before deletion
         }
 
         private void ChangeDisplayMode(string mode)
@@ -465,7 +558,6 @@ namespace SchedulerWpfApp.ViewModel
 
         private void OpenCreateSlotForm()
         {
-            EditingSchedule = new Schedule();
             IsOpenCreateSlotDialog = true;
         }
 
@@ -936,24 +1028,32 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 if (targetCell.Schedule != null)
                 {
-                    MessageBoxResult result = MessageBox.Show($@"Bạn có muốn chuyển đổi slot của môn
-                    {droppedSchedule.SubjectCode} ngày {sourceCell.DayOfWeek:dd / MM / yyyy} {sourceCell.SlotNumber}
-                    với môn {targetCell.Schedule.SubjectCode} ngày {targetCell.DayOfWeek:dd / MM / yyyy} {targetCell.SlotNumber} không?", "Xác nhận", MessageBoxButton.YesNo
-                        , MessageBoxImage.Question, MessageBoxResult.Yes);
-
-                    if (result == MessageBoxResult.No)
-                    {
-                        return; // User chose not to swap, exit the method
-                    }
-                    else
-                    {
-                        await HandelSwapSchedule(sourceCell, targetCell, droppedSchedule); // Swap schedules
-                    }
+                    TextSwapSchedule = $@"Bạn có muốn chuyển đổi slot của môn
+                    {droppedSchedule.SubjectCode} ngày {sourceCell.DayOfWeek:dd / MM / yyyy} slot {sourceCell.SlotNumber}
+                    với môn {targetCell.Schedule.SubjectCode} ngày {targetCell.DayOfWeek:dd / MM / yyyy} slot {targetCell.SlotNumber} không?";
+                    _sourceCell = sourceCell;
+                    _targetCell = targetCell; // Assign the source and target cells for swapping
+                    _droppedSchedule = droppedSchedule; // Assign the schedule being moved
+                    IsOpenConfirmSwapSchedule = true; // Open confirmation dialog for swapping schedules
                 }
                 else
                 {
                     await HandelSwapSchedule(sourceCell, targetCell, droppedSchedule); // Swap schedules
                 }
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError($"Có lỗi khi di chuyển lịch. Vui lòng thử lại."); // Show error notification
+            }
+        }
+
+        private async Task ConfirmSwapSchdule()
+        {
+            try
+            {
+                await HandelSwapSchedule(_sourceCell, _targetCell, _droppedSchedule);
+                IsOpenConfirmSwapSchedule = false; // Close the confirmation dialog after swapping
+                _notificationService.ShowSuccess("Đã hoán đổi lịch thành công."); // Show success notification
             }
             catch (Exception ex)
             {
@@ -1253,6 +1353,7 @@ namespace SchedulerWpfApp.ViewModel
                 else throw new Exception("Tạo mới slot học không thành công. Vui lòng thử lại sau.");
 
                 IsOpenCreateSlotDialog = false;
+                EditingSchedule = new Schedule();
             }
             catch (Exception ex)
             {

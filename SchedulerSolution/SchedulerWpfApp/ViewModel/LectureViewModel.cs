@@ -165,6 +165,7 @@ namespace SchedulerWpfApp.ViewModel
             ConfirmDeleteCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
             CancelDeleteLectureCommand = new RelayCommand(CancelDelete);
 
+            SelectedLecture = new Lecturer(); // Initialize a new Lecturer object
             // Load data immediately when ViewModel is constructed
             _ = LoadLectureAsync();
         }
@@ -191,7 +192,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddLectureAsync()
         {
-            SelectedLecture = new Lecturer(); // Initialize a new Lecturer object
             IsLectureFormOpen = true;
             _isEdit = false;
             IsLectureCodeEdit = false;
@@ -304,7 +304,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 // Close form and reset
                 IsLectureFormOpen = false;
-                SelectedLecture = null;
+                SelectedLecture = new Lecturer();
                 LoadLectureAsync();
             }
         }
@@ -315,7 +315,7 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelEdit()
         {
             IsLectureFormOpen = false;
-            SelectedLecture = null;
+            SelectedLecture = new Lecturer();
         }
 
         /// <summary>

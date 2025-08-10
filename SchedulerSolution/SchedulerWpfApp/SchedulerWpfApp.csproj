@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\Logo\FPTU_logo.png" />
+	  <None Remove="Images\Logo\FPTU_logo.png" />
+	  <None Remove="Images\Logo\Schedule.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,7 +41,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Images\Logo\FPTU_logo.png" />
+	  <Resource Include="Images\Logo\FPTU_logo.png" />
+	  <Resource Include="Images\Logo\Schedule.png" />
   </ItemGroup>
 
   <ItemGroup>

@@ -179,6 +179,7 @@ namespace SchedulerWpfApp.ViewModel
             // cancel delete
             CancelDeleteGroupNameCommand = new RelayCommand(CancelDelete);
             // asynchronous processing without async await
+            SelectedGroupname = new GroupClass();
             _ = LoadGroupNameAsync();
 
         }
@@ -280,7 +281,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddGroupNameAsync()
         {
-            SelectedGroupname = new GroupClass();
             // turn on pop up
             IsGroupNameFormOpen = true;
             // check if it is an edit event
@@ -384,6 +384,7 @@ namespace SchedulerWpfApp.ViewModel
                         await _groupnamelistService.AddGroupName(SelectedGroupname);
                         _notificationService.ShowSuccess("Thêm lớp mới thành công");
                         await LoadGroupNameAsync();
+                        SelectedGroupname = new GroupClass();
                         IsGroupNameFormOpen = false; // Đóng form sau khi save thành công
                         _isEditing = false;
                     }
@@ -450,7 +451,7 @@ namespace SchedulerWpfApp.ViewModel
         private void CancelEdit()
         {
             // set SelectedGroupname null 
-            SelectedGroupname = null;
+            SelectedGroupname = new GroupClass();
             IsGroupNameFormOpen = false;
         }
         /// <summary>

@@ -254,6 +254,9 @@ namespace SchedulerWpfApp.ViewModel
             CancelEditCurriculumSubjectCommand = new RelayCommand(CancelEdit);
             ConfirmDeleteCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
             CancelDeleteCurriculumSubjectCommand = new RelayCommand(CancelDelete);
+            SelectedCurriculumSubject = new CurriculumSubject(); // Initialize a new curriculumSubject object
+            SelectedSubject = new Subject(); // Initialize a new subject object
+            SelectedCurriculum = new Curriculum(); // Initialize a new curriculum object
 
             // Load data immediately when ViewModel is constructed
             _ = LoadCurriculumSubjectAsync();
@@ -330,11 +333,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddCurriculumSubjectAsync()
         {
-            SelectedCurriculumSubject = new CurriculumSubject(); // Initialize a new curriculumSubject object
-            SelectedSubject = new Subject(); // Initialize a new subject object
-            SelectedCurriculum = new Curriculum(); // Initialize a new curriculum object
-            SelectedSubjectCode = null; // Reset selected codes
-            SelectedCurriculumCode = null;
             IsCurriculumSubjectFormOpen = true;
             _isEdit = false;
             IsCurriculumSubjectCodeEdit = false;
@@ -484,9 +482,9 @@ namespace SchedulerWpfApp.ViewModel
             {
                 // Close form  reset
                 IsCurriculumSubjectFormOpen = false;
-                SelectedCurriculumSubject = null;
-                SelectedSubjectCode = string.Empty;
-                SelectedCurriculumCode = string.Empty;
+                SelectedCurriculumSubject = new CurriculumSubject();
+                SelectedSubjectCode = null;
+                SelectedCurriculumCode = null;
                 LoadCurriculumSubjectAsync();
             }
         }
@@ -497,9 +495,9 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelEdit()
         {
             IsCurriculumSubjectFormOpen = false;
-            SelectedCurriculumSubject = null;
-            SelectedSubjectCode = string.Empty;
-            SelectedCurriculumCode = string.Empty;
+            SelectedCurriculumSubject = new CurriculumSubject();
+            SelectedSubjectCode = null;
+            SelectedCurriculumCode = null;
         }
 
         /// <summary>

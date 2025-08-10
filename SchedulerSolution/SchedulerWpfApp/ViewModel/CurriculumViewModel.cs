@@ -165,6 +165,7 @@ namespace SchedulerWpfApp.ViewModel
             CancelEditCurriculumCommand = new RelayCommand(CancelEdit);
             ConfirmDeleteCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
             CancelDeleteCurriculumCommand = new RelayCommand(CancelDelete);
+            SelectedCurriculum = new Curriculum(); // Initialize a new curriculum object
 
             // Load data immediately when ViewModel is constructed
             _ = LoadCurriculumAsync();
@@ -192,7 +193,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddCurriculumAsync()
         {
-            SelectedCurriculum = new Curriculum(); // Initialize a new curriculum object
             IsCurriculumFormOpen = true;
             _isEdit = false;
             IsCurriculumCodeEdit = false;
@@ -290,7 +290,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 // Close form  reset
                 IsCurriculumFormOpen = false;
-                SelectedCurriculum = null;
+                SelectedCurriculum = new Curriculum();
                 LoadCurriculumAsync();
             }
         }
@@ -301,7 +301,7 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelEdit()
         {
             IsCurriculumFormOpen = false;
-            SelectedCurriculum = null;
+            SelectedCurriculum = new Curriculum();
         }
 
         /// <summary>

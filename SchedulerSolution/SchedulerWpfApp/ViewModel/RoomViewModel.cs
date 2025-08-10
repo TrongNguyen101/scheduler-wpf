@@ -167,6 +167,8 @@ namespace SchedulerWpfApp.ViewModel
             ConfirmDeleteRoomCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
             DeleteRoomListCommand = new RelayCommandGeneric<Room>(async (room) => await DeleteRoomAsync(room));
             CancelDeleteRoomCommand = new RelayCommand(CancelDelete);
+            SelectedRoom = new Room();
+
             _ = LoadRoomAsync(); // Load the room list asynchronously when the view model is created
         }
 
@@ -265,7 +267,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         public async Task AddRoomAsync()
         {
-            SelectedRoom = new Room();
             IsRoomFormOpen = true;
             // check if it is an edit event
             _isEditing = false;
@@ -363,7 +364,7 @@ namespace SchedulerWpfApp.ViewModel
         private void CancelEdit()
         {
             // set SelectedRoom null 
-            SelectedRoom = null;
+            SelectedRoom = new Room();
             IsRoomFormOpen = false;
         }
 
@@ -419,7 +420,7 @@ namespace SchedulerWpfApp.ViewModel
                     _notificationService.ShowSuccess("Thêm phòng mới thành công!");
                 }
                 IsRoomFormOpen = false;
-                SelectedRoom = null;
+                SelectedRoom = new Room();
                 await LoadRoomAsync();
             }
             catch (Exception)

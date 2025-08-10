@@ -259,58 +259,28 @@
             <Grid Grid.Row="0"
                   Margin="0,0,0,15">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Search Box -->
-                <Border Background="#EEF2F6"
-                        BorderBrush="#D0D0D0"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="10,5"
-                        Margin="0,0,10,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="🔍"
-                                   FontSize="14"
+                <Button Grid.Column="0"
+                        Style="{StaticResource ExportButtonStyle}"
+                        Command="{Binding DeleteDataCommand}"
+                        Background="{StaticResource ErrorColor}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🗑️"
                                    VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1"
-                                 Margin="8,0,0,0"
-                                 BorderThickness="0"
-                                 Background="Transparent"
-                                 Foreground="{StaticResource TextColor}"
-                                 VerticalAlignment="Center"
-                                 Name="SearchBox"
-                                 Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
-                                 Padding="0,5">
-                            <TextBox.Resources>
-                                <Style TargetType="{x:Type TextBox}">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type TextBox}">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}">
-                                                    <ScrollViewer x:Name="PART_ContentHost"
-                                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </TextBox.Resources>
-                        </TextBox>
-                    </Grid>
-                </Border>
+                        <TextBlock Text=" Xoá Toàn Bộ Dữ Liệu"
+                                   Margin="5,0,0,0"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
 
-                <Button Grid.Column="1"
+                <Button Grid.Column="2"
                         Style="{StaticResource ExportButtonStyle}"
                         Margin="0,0,10,0"
                         Command="{Binding ExportExcelCommand}">
@@ -324,7 +294,7 @@
                 </Button>
 
                 <!-- Import Button -->
-                <Button Grid.Column="2"
+                <Button Grid.Column="3"
                         Style="{StaticResource ActionButtonStyle}"
                         Margin="0,0,10,0"
                         Command="{Binding ImportPersonCommand}">
@@ -338,7 +308,7 @@
                 </Button>
 
                 <!-- Add Person Button -->
-                <Button Grid.Column="3"
+                <Button Grid.Column="4"
                         Style="{StaticResource SuccessButtonStyle}"
                         Margin="0,0,10,0"
                         Command="{Binding OpenPopupCreateCommand}">
@@ -351,7 +321,7 @@
                     </StackPanel>
                 </Button>
 
-                <Button Grid.Column="4"
+                <Button Grid.Column="5"
                         Style="{StaticResource SuccessButtonStyle}"
                         Command="{Binding OpenPopupCreateSlotCommand}">
                     <StackPanel Orientation="Horizontal">
@@ -1356,6 +1326,138 @@
                                 Style="{StaticResource SuccessButtonStyle}"
                                 Padding="20,8"
                                 Command="{Binding SaveSCreateSlotCommand}" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </Popup>
+
+        <!-- Confirmation Dialog -->
+        <Popup x:Name="ConfirmDeleteAllData"
+               StaysOpen="False"
+               Placement="Center"
+               IsOpen="{Binding IsOpenConfirmDeleteData}"
+               AllowsTransparency="True">
+            <Border Background="#F0F4F8"
+                    BorderThickness="0"
+                    CornerRadius="8"
+                    Padding="25"
+                    Width="400">
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="2"
+                                      BlurRadius="15"
+                                      Opacity="0.2"
+                                      Color="Black" />
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Dialog Header -->
+                    <TextBlock Grid.Row="0"
+                               Text="Xác nhận xóa"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource TextColor}"
+                               Margin="0,0,0,15" />
+
+                    <!-- Dialog Content -->
+                    <TextBlock Grid.Row="1"
+                               Text="Bạn có chắc chắn muốn xóa toàn bộ dữ liệu trong hệ thống không?"
+                               TextWrapping="Wrap"
+                               Foreground="{StaticResource TextColor}"
+                               Margin="0,0,0,20" />
+
+                    <!-- Dialog Actions -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="1"
+                                Content="Hủy"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Background="#95a5a6"
+                                Margin="0,0,10,0"
+                                Padding="20,8"
+                                Command="{Binding CancelDeleteDataCommand}" />
+
+                        <Button Grid.Column="2"
+                                Content="Xóa"
+                                Style="{StaticResource DeleteButtonStyle}"
+                                Padding="20,8"
+                                Command="{Binding ConfirmDeleteDataCommand}" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </Popup>
+
+        <!-- Confirmation Swap Dialog -->
+        <Popup x:Name="ConfirmSwapSchedule"
+               StaysOpen="False"
+               Placement="Center"
+               IsOpen="{Binding IsOpenConfirmSwapSchedule}"
+               AllowsTransparency="True">
+            <Border Background="#F0F4F8"
+                    BorderThickness="0"
+                    CornerRadius="8"
+                    Padding="25"
+                    Width="400">
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="2"
+                                      BlurRadius="15"
+                                      Opacity="0.2"
+                                      Color="Black" />
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Dialog Header -->
+                    <TextBlock Grid.Row="0"
+                               Text="Xác nhận di chuyển"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource TextColor}"
+                               Margin="0,0,0,15" />
+
+                    <!-- Dialog Content -->
+                    <TextBlock Grid.Row="1"
+                               Text="{Binding TextSwapSchedule}"
+                               TextWrapping="Wrap"
+                               Foreground="{StaticResource TextColor}"
+                               Margin="0,0,0,20" />
+
+                    <!-- Dialog Actions -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="1"
+                                Content="Hủy"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Background="#95a5a6"
+                                Margin="0,0,10,0"
+                                Padding="20,8"
+                                Command="{Binding CancelSwapScheduleCommand}" />
+
+                        <Button Grid.Column="2"
+                                Content="Chấp nhận"
+                                Style="{StaticResource SuccessButtonStyle}"
+                                Padding="20,8"
+                                Command="{Binding ConfirmSwapScheduleCommand}" />
                     </Grid>
                 </Grid>
             </Border>

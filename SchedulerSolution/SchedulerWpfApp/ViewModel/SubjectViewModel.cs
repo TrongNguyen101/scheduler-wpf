@@ -170,6 +170,7 @@ namespace SchedulerWpfApp.ViewModel
             ConfirmDeleteCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
             CancelDeleteSubjectCommand = new RelayCommand(CancelDelete);
 
+            SelectedSubject = new Subject(); // Initialize a new Subject object
             // Load data immediately when ViewModel is constructed
             _ = LoadSubjectAsync();
         }
@@ -196,7 +197,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddSubjectAsync()
         {
-            SelectedSubject = new Subject(); // Initialize a new Subject object
             IsSubjectFormOpen = true;
             _isEdit = false;
             IsSubjectCodeEdit = false;
@@ -312,7 +312,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 // Close form  reset
                 IsSubjectFormOpen = false;
-                SelectedSubject = null;
+                SelectedSubject = new Subject();
                 LoadSubjectAsync();
             }
         }
@@ -323,7 +323,7 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelEdit()
         {
             IsSubjectFormOpen = false;
-            SelectedSubject = null;
+            SelectedSubject = new Subject();
         }
 
         /// <summary>
