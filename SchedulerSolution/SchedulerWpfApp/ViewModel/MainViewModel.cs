@@ -1,8 +1,6 @@
 ﻿using System.Windows.Input;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Algorithm;
-using SchedulerWpfApp.ServiceRefactor.NotificationService;
-using System.Windows;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -15,7 +13,6 @@ namespace SchedulerWpfApp.ViewModel
         private object _currentViewModel;
 
         private readonly CreateScheduleTree _scheduleTree;
-        private INotificationService _notificationService;
 
         private TypeTab _currentTab;
         // Factory delegates to lazily create view models
@@ -57,7 +54,6 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ShowLectureSubjectCommand { get; }
         public ICommand ShowCurriculumCommand { get; }
         public ICommand ShowCurriculumSubjectCommand { get; }
-        public ICommand DeleteDataCommand { get; }
 
         /// <summary>
         /// Initializes the MainViewModel with view model factories.
@@ -70,8 +66,7 @@ namespace SchedulerWpfApp.ViewModel
             Func<GroupNameViewModel> groupNameViewModelFactory,
             Func<LecturerSubjectViewModel> lectureSubjectViewModelFactory,
             Func<CurriculumViewModel> curriculumViewModelFactory,
-            Func<CurriculumSubjectViewModel> curriculumSubjectViewModelFactory,
-            INotificationService notificationService)
+            Func<CurriculumSubjectViewModel> curriculumSubjectViewModelFactory)
         {
             // Assign factory methods
             _subjectViewModelFactory = courseViewModelFactory;
@@ -82,7 +77,6 @@ namespace SchedulerWpfApp.ViewModel
             _lecturerSubjectViewModelFactory = lectureSubjectViewModelFactory;
             _curriculumViewModelFactory = curriculumViewModelFactory;
             _curriculumSubjectViewModelFactory = curriculumSubjectViewModelFactory;
-            _notificationService = notificationService;
 
             // Initialize commands for switching views
             ShowCourseCommand = new RelayCommand(ShowCourse);
@@ -93,7 +87,6 @@ namespace SchedulerWpfApp.ViewModel
             ShowLectureSubjectCommand = new RelayCommand(ShowLectureSubject);
             ShowCurriculumCommand = new RelayCommand(ShowCurriculumList);
             ShowCurriculumSubjectCommand = new RelayCommand(ShowCurriculumSubjectList);
-            DeleteDataCommand = new RelayCommand(DeleteData);
 
             // Set default view to GroupNameViewModel
             CurrentViewModel = _GroupNameViewModelFactory();
@@ -152,32 +145,6 @@ namespace SchedulerWpfApp.ViewModel
         {
             CurrentViewModel = _curriculumSubjectViewModelFactory();
             CurrentTab = TypeTab.CurriculumSubject;
-        }
-
-        private void DeleteData()
-        {
-            var result = MessageBox.Show(
-                "Bạn có chắc chắn muốn xóa toàn bộ dữ liệu trong hệ thống không?",
-                "Xác nhận xóa",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning,
-                MessageBoxResult.Yes
-            );
-
-            if (result == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    // Gọi service hoặc repository để xóa toàn bộ data
-                    DatabaseHelper.ClearAllData();
-
-                    _notificationService.ShowSuccess("Đã xóa toàn bộ dữ liệu thành công.");
-                }
-                catch (Exception ex)
-                {
-                    _notificationService.ShowError($"Lỗi khi xóa dữ liệu: {ex.Message}");
-                }
-            }
         }
     }
 }

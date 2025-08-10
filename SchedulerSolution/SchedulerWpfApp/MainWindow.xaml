@@ -541,52 +541,6 @@
                         </Button>
                     </Border>
 
-                    <Border>
-                        <Border.Style>
-                            <Style TargetType="Border"
-                                   BasedOn="{StaticResource MenuItemStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentTab.NameTab}"
-                                                 Value="DeleteData">
-                                        <Setter Property="Background"
-                                                Value="#4285F4" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-
-                        <Button Style="{StaticResource MenuButtonStyle}"
-                                Command="{Binding DeleteDataCommand}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="🗑️"
-                                           Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
-
-                                <TextBlock Text="Xoá toàn bộ dữ liệu"
-                                           Grid.Column="1">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock"
-                                               BasedOn="{StaticResource MenuTextStyle}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding CurrentTab.NameTab}"
-                                                             Value="DeleteData">
-                                                    <Setter Property="Foreground"
-                                                            Value="White" />
-                                                    <Setter Property="FontWeight"
-                                                            Value="SemiBold" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Grid>
-                        </Button>
-                    </Border>
-
                     <!-- Version info at bottom -->
                     <TextBlock Text="Phiên bản: 1.0.2"
                                Margin="20,40,0,0"
