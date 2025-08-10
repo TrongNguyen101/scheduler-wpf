@@ -32,6 +32,10 @@ using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
 using SchedulerWpfApp.Algorithm.ReportVersion;
 using SchedulerWpfApp.Algorithm.CommonSubject;
+using System.Threading;
+using System.Threading.Tasks;
+//using SchedulerWpfApp.ServiceRefactor.Maintenance;
+using Microsoft.EntityFrameworkCore;
 
 namespace SchedulerWpfApp
 {
@@ -114,6 +118,24 @@ namespace SchedulerWpfApp
                     MessageBox.Show("Syncfusion license key is not configured.", "Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+
+                // Configure file logging by attaching a Debug/Trace listener that writes to a rolling log file
+                try
+                {
+                    string logsDirectory = Path.Combine(baseDirectory, "logsTime");
+                    Directory.CreateDirectory(logsDirectory);
+                    string logFilePath = Path.Combine(logsDirectory, $"app_{DateTime.Now:yyyyMMdd}.log");
+
+                    var stream = new StreamWriter(logFilePath, append: true, System.Text.Encoding.UTF8) { AutoFlush = true };
+                    var fileListener = new System.Diagnostics.TextWriterTraceListener(stream, "FileLogger");
+                    //  System.Diagnostics.Debug.Listeners.Add(fileListener);
+                    System.Diagnostics.Trace.Listeners.Add(fileListener);
+                    System.Diagnostics.Trace.AutoFlush = true;
+                }
+                catch
+                {
+                    // Ignore file logging errors to avoid blocking app startup
+                }
             }
             catch (Exception ex)
             {
@@ -138,6 +160,7 @@ namespace SchedulerWpfApp
                 config.ClearProviders(); // Delete all existing providers
                 config.AddConsole();     // Show log in Console output
                 config.AddDebug();       // Show log in Debug output
+                config.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
             });
 
             // Register the AutoMapper configuration
@@ -171,6 +194,9 @@ namespace SchedulerWpfApp
             services.AddScoped<ICurriculumServices, CurriculumServices>();
             services.AddScoped<ICurriculumSubjectServices, CurriculumSubjectServices>();
             services.AddScoped<INotificationService, NotificationService>();
+
+            // Đăng ký service dọn DB
+            //     services.AddScoped<IDatabaseMaintenanceService, DatabaseMaintenanceService>();
             //services.AddScoped<IPersonService, PersonService>();
             //services.AddScoped<ISubjectServices, SubjectServices>();
             //services.AddScoped<IGroupNameService, GroupNameService>();
@@ -248,6 +274,12 @@ namespace SchedulerWpfApp
                 // Release all resources held by the host
                 _host.Dispose();
             }
+            try
+            {
+                System.Diagnostics.Trace.Flush();
+                System.Diagnostics.Trace.Close();
+            }
+            catch { }
             base.OnExit(e);
         }
         #endregion
