@@ -95,7 +95,6 @@ namespace SchedulerWpfApp.Repository.LecturerSubjectRepository
                 throw new Exception("Đã xảy ra lỗi khi kiểm tra xem Lecturer có trong LecturerSubject không.", ex);
             }
         }
-
         #endregion
     }
 }
