@@ -14,5 +14,7 @@ namespace SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices
         List<LecturerSubject> ReadLecturerSubjectFromExcel(string filePath);
         void ExportToLecturerSubjectExcel(List<LecturerSubject> lectureSubjects, string filePath);
         Task<LecturerSubject> CheckLecturerSubjectExits(LecturerSubject lecturerSubject);
+        Task<bool> CheckSubjectExits(string subjectCode);
+        Task<bool> CheckLecturerExits(string lecturerCode);
     }
 }

@@ -245,7 +245,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                     string[] requiredHeaders = { "CurriculumCode", "SubjectCode", "TermNo", "IsCombo", "Credits", "TotalSLots", "TeachingMode", "PartOfTerm" };
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
-                            throw new Exception($"Missing required column: {h}");
+                            throw new Exception($"Thiếu cột bắt buộc: {h}");
 
                     for (int r = 2; r <= rowCount; r++)
                     {
@@ -342,6 +342,29 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                 row++;
             }
             workbook.SaveAs(filePath);
+        }
+
+        public async Task<bool> CheckSubjectExits(string subjectCode)
+        {
+            try
+            {
+                return await _unitOfWork.CurriculumSubjectsRepository.CheckSubjectExists(subjectCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi kiểm tra mã lớp", ex);
+            }
+        }
+        public async Task<bool> CheckCurriculumExits(string curriculumCode)
+        {
+            try
+            {
+                return await _unitOfWork.CurriculumSubjectsRepository.CheckCurriculumExists(curriculumCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi kiểm tra khung chương trình", ex);
+            }
         }
         #endregion
     }

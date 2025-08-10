@@ -183,8 +183,9 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
                     int rowCount = worksheet.UsedRange.LastRow;
                     int colCount = worksheet.UsedRange.LastColumn;
 
+                    Utility.IsOnlyHeader(worksheet);
                     Utility.IsEmptyExcelRow(worksheet, rowCount, colCount);
-                    Utility.IsRowDuplicated(worksheet, rowCount, colCount);
+                    Utility.IsColumnDuplicated(worksheet, "CurriculumCode");
 
                     for (int c = 1; c <= colCount; c++)
                     {
@@ -197,7 +198,7 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumServices
                     string[] requiredHeaders = { "CurriculumCode", "IsActive" };
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
-                            throw new Exception($"Missing required column: {h}");
+                            throw new Exception($"Thiếu cột bắt buộc: {h}");
 
                     for (int r = 2; r <= rowCount; r++)
                     {

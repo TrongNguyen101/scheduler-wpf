@@ -217,10 +217,10 @@ namespace SchedulerWpfApp.ViewModel
                     _notificationService.ShowSuccess("Nhập danh sách phòng học thành công!");
                     await LoadRoomAsync();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Nhập danh sách phòng học không thành công.");
+                    _notificationService.ShowError($"Nhập danh sách phòng học không thành công. {ex.Message}");
                 }
             }
         }

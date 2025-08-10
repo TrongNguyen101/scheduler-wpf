@@ -267,10 +267,10 @@ namespace SchedulerWpfApp.ViewModel
                     _notificationService.ShowSuccess("Thêm mới danh sách phân công giảng dạy cho giảng viên thành công!");
                     await LoadLecturerSubjects();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Thêm mới danh sách phân công giảng dạy cho giảng viên không thành công.");
+                    _notificationService.ShowError($"Thêm mới danh sách phân công giảng dạy cho giảng viên không thành công. {ex.Message}");
                 }
             }
         }
