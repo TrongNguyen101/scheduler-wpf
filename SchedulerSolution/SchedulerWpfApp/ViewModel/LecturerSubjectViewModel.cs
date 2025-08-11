@@ -259,11 +259,19 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     // call ReadLectureSubjectFromExcel function to process file and read file when importing
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var data = _lecturerSubjectService.ReadLecturerSubjectFromExcel(dialog.FileName);
+                    stopwatch.Stop();
+                    System.Diagnostics.Trace.WriteLine($"[ImportLecturerSubject] Read file: {stopwatch.Elapsed.TotalSeconds:N2}s, records: {data?.Count ?? 0}");
+                  //  _notificationService.ShowInfo($"Đọc file phân công: {stopwatch.Elapsed.TotalSeconds:N2}s, bản ghi: {data?.Count ?? 0}");
                     // call ImportLecturerSubjectFromExcel function to add new data to database
                     IsProgressBarOpen = true;
+                    stopwatch.Restart();
                     await _lecturerSubjectService.ImportLecturerSubjectFromExcel(data, progress);
+                    stopwatch.Stop();
                     IsProgressBarOpen = false;
+                    System.Diagnostics.Trace.WriteLine($"[ImportLecturerSubject] Import: {stopwatch.Elapsed.TotalSeconds:N2}s");
+                  //  _notificationService.ShowInfo($"Import phân công: {stopwatch.Elapsed.TotalSeconds:N2}s");
                     _notificationService.ShowSuccess("Thêm mới danh sách phân công giảng dạy cho giảng viên thành công!");
                     await LoadLecturerSubjects();
                 }
