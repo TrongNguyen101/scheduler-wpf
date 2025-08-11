@@ -114,6 +114,20 @@ namespace SchedulerWpfApp
                     MessageBox.Show("Syncfusion license key is not configured.", "Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+
+                string sourcePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AppData\\app.db");
+                string appDataPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "SchedulerApp"
+                );
+                Directory.CreateDirectory(appDataPath);
+
+                string destPath = Path.Combine(appDataPath, "app.db");
+
+                if (!File.Exists(destPath) && File.Exists(sourcePath))
+                {
+                    File.Copy(sourcePath, destPath);
+                }
             }
             catch (Exception ex)
             {

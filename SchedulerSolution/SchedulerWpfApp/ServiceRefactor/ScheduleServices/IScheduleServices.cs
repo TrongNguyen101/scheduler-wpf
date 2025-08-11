@@ -11,5 +11,6 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
         void ExportToExcel(List<Schedule> schedules, string filePath);
         Task DeleteAllAsync();
         Task DeleteScheduleAsync(int scheduleId);
+        Task DeleteAllData();
     }
 }

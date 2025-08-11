@@ -416,51 +416,16 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Delete all data in the system
         /// </summary>
-        private void DeleteData()
+        private async void DeleteData()
         {
             try
             {
-                string userDbPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "SchedulerApp",
-                "app.db"
-                );
-
-                // Get the application's base directory
-                string binDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                // Navigate up three directories to the project root
-                string baseDirectory = Path.GetFullPath(Path.Combine(binDirectory, @"..\\..\\..\\"));
-                // Define the path for storing application data
-                string appDataPath = Path.Combine(baseDirectory, "AppData");
-
-                // Fallback logic if the directory structure is different (possibly in production)
-                if (!Directory.Exists(appDataPath))
-                {
-                    baseDirectory = Path.GetFullPath(Path.Combine(binDirectory, "@..\\.."));
-                    Directory.CreateDirectory(appDataPath);
-                }
-
-                // Define the database file path
-                string dbPath = Path.Combine(appDataPath, "app.db");
-
-                if (File.Exists(userDbPath))
-                {
-                    File.Delete(userDbPath);
-                }
-
-                Directory.CreateDirectory(Path.GetDirectoryName(userDbPath));
-
-                if (File.Exists(dbPath))
-                {
-                    File.Copy(dbPath, userDbPath);
-                }
-                else
-                {
-                    throw new FileNotFoundException("Không tìm thấy file database gốc trong thư mục dự án.");
-                }
+                // Delete all data from the data source
+                await _implementScheduleServices.DeleteAllData();
 
                 IsOpenConfirmDeleteData = false; // Close the confirmation dialog after deletion
                 LoadMockSchedules(); // Reload schedules after deletion
+                FilterSchedules();
                 _notificationService.ShowSuccess("Đã xóa toàn bộ dữ liệu thành công.");
             }
             catch (Exception ex)
@@ -725,6 +690,12 @@ namespace SchedulerWpfApp.ViewModel
                 Rooms = new ObservableCollection<string>(schedules.Select(s => s.RoomName).Distinct().OrderBy(name => name)); // Get distinct room names from the schedules
                 Lecturers = new ObservableCollection<string>(schedules.Select(s => s.LecturerAccount).Distinct().OrderBy(name => name)); // Get distinct lecturer IDs from the schedules
             }
+            else
+            {
+                GroupNames = new ObservableCollection<string>(); // Get distinct group names from the schedules
+                Rooms = new ObservableCollection<string>(); // Get distinct room names from the schedules
+                Lecturers = new ObservableCollection<string>(); // Get distinct lecturer IDs from the schedules
+            }
         }
 
         /// <summary>
@@ -743,7 +714,7 @@ namespace SchedulerWpfApp.ViewModel
             //{
             //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, ListMajorGroupA.ToList(), ListMajorGroupB.ToList());
             var schedules = await _createScheduleTree.GenerateSchedules();
-
+            IsScheduleFormOpen = false;
             LoadMockSchedules(); // Reload schedules after generating new ones
                                  // PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
             if (schedules == null || !schedules.Any())

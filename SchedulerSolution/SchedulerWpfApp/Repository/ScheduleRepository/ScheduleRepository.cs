@@ -106,6 +106,43 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
                 _logger.LogError(ex, "Failed to delete schedule with.");
             }
         }
+
+        public Task DeleteAllDataAsync()
+        {
+            _context.Schedules.RemoveRange(_context.Schedules);
+            _context.GroupName.RemoveRange(_context.GroupName);
+            _context.Lecturers.RemoveRange(_context.Lecturers);
+            _context.Subjects.RemoveRange(_context.Subjects);
+            _context.Rooms.RemoveRange(_context.Rooms);
+            _context.Curriculums.RemoveRange(_context.Curriculums);
+            _context.LecturerSubjects.RemoveRange(_context.LecturerSubjects);
+            _context.CurriculumSubjects.RemoveRange(_context.CurriculumSubjects);
+
+            return Task.CompletedTask;
+        }
+
+        public async Task ResetIdentityAllTableAsync()
+        {
+            // SQL query to reset the auto-increment value in SQLite
+            var sqlSchedule = "DELETE FROM sqlite_sequence WHERE name='Schedules';";
+            var sqlGroupName = "DELETE FROM sqlite_sequence WHERE name='GroupClass';";
+            var sqlLecturer = "DELETE FROM sqlite_sequence WHERE name='Lecturer';";
+            var sqlSubject = "DELETE FROM sqlite_sequence WHERE name='Subject';";
+            var sqlRoom = "DELETE FROM sqlite_sequence WHERE name='Room';";
+            var sqlCurriculum = "DELETE FROM sqlite_sequence WHERE name='Curriculum';";
+            var sqLectuerSubject = "DELETE FROM sqlite_sequence WHERE name='LecturerSubject';";
+            var sqlCurriculumSubject = "DELETE FROM sqlite_sequence WHERE name='CurriculumSubject';";
+
+            // Execute the SQL command asynchronously using EF Core
+            await _context.Database.ExecuteSqlRawAsync(sqlSchedule);
+            await _context.Database.ExecuteSqlRawAsync(sqlGroupName);
+            await _context.Database.ExecuteSqlRawAsync(sqlLecturer);
+            await _context.Database.ExecuteSqlRawAsync(sqlSubject);
+            await _context.Database.ExecuteSqlRawAsync(sqlRoom);
+            await _context.Database.ExecuteSqlRawAsync(sqlCurriculum);
+            await _context.Database.ExecuteSqlRawAsync(sqLectuerSubject);
+            await _context.Database.ExecuteSqlRawAsync(sqlCurriculumSubject);
+        }
         #endregion
     }
 }
