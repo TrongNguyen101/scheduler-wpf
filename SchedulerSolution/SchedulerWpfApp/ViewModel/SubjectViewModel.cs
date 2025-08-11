@@ -430,12 +430,19 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var data = _subjectService.ReadSubjectsFromExcel(dialog.FileName);
+                    stopwatch.Stop();
+                    System.Diagnostics.Trace.WriteLine($"[ImportSubject] Read file: {stopwatch.Elapsed.TotalSeconds:N2}s, records: {data?.Count ?? 0}");
+                   // _notificationService.ShowInfo($"Đọc file môn học: {stopwatch.Elapsed.TotalSeconds:N2}s, bản ghi: {data?.Count ?? 0}");
 
                     IsProgressBarOpen = true;
+                    stopwatch.Restart();
                     await _subjectService.ImportSubjectFromExcel(data, progress);
+                    stopwatch.Stop();
                     IsProgressBarOpen = false;
-
+                    System.Diagnostics.Trace.WriteLine($"[ImportSubject] Import: {stopwatch.Elapsed.TotalSeconds:N2}s");
+                  //  _notificationService.ShowInfo($"Import môn học: {stopwatch.Elapsed.TotalSeconds:N2}s");
                     _notificationService.ShowSuccess("Nhập môn học thành công.");
                     await LoadSubjectAsync();
                 }

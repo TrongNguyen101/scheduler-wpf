@@ -415,11 +415,19 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var data = _lecturerService.ReadLecturersFromExcel(dialog.FileName);
+                    stopwatch.Stop();
+                    System.Diagnostics.Trace.WriteLine($"[ImportLecturer] Read file: {stopwatch.Elapsed.TotalSeconds:N2}s, records: {data?.Count ?? 0}");
+                  //  _notificationService.ShowInfo($"Đọc file giảng viên: {stopwatch.Elapsed.TotalSeconds:N2}s, bản ghi: {data?.Count ?? 0}");
 
                     IsProgressBarOpen = true;
+                    stopwatch.Restart();
                     await _lecturerService.ImportLecturerFromExcel(data, progress);
+                    stopwatch.Stop();
                     IsProgressBarOpen = false;
+                    System.Diagnostics.Trace.WriteLine($"[ImportLecturer] Import: {stopwatch.Elapsed.TotalSeconds:N2}s");
+                 //   _notificationService.ShowInfo($"Import giảng viên: {stopwatch.Elapsed.TotalSeconds:N2}s");
 
                     _notificationService.ShowSuccess("Nhập giảng viên thành công!");
                     await LoadLectureAsync();
