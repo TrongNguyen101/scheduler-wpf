@@ -1171,9 +1171,10 @@
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
                             <ComboBox ItemsSource="{Binding ListRooms}"
-                                      SelectedItem="{Binding SelectedRoom, Mode=TwoWay}"
+                                      SelectedItem="{Binding SelectedRoomForCreateSlot, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
+                                      IsTextSearchEnabled="True"
                                       DisplayMemberPath="RoomName"
                                       Height="50" />
                         </StackPanel>
@@ -1184,7 +1185,7 @@
                             <TextBlock Text="Ca Trong Ngày (AM/PM)"
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
-                            <ComboBox SelectedValue="{Binding EditingSchedule.PartOfDay, UpdateSourceTrigger=PropertyChanged}"
+                            <ComboBox SelectedValue="{Binding CreateNewSchedule.PartOfDay, UpdateSourceTrigger=PropertyChanged}"
                                       ItemsSource="{Binding PartOfDayInTheFirstTerms}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
@@ -1199,7 +1200,7 @@
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
                             <ComboBox ItemsSource="{Binding Slots}"
-                                      SelectedItem="{Binding EditingSchedule.SlotTime}"
+                                      SelectedItem="{Binding CreateNewSchedule.SlotTime}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
                                       Height="50" />
@@ -1212,7 +1213,7 @@
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
                             <ComboBox ItemsSource="{Binding SlotStatusList}"
-                                      SelectedItem="{Binding EditingSchedule.StatusSlot, Mode=TwoWay}"
+                                      SelectedItem="{Binding CreateNewSchedule.StatusSlot, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
                                       Height="50" />
@@ -1225,7 +1226,7 @@
                             <TextBlock Text="Ngày Dạy"
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
-                            <DatePicker SelectedDate="{Binding EditingSchedule.Date}"
+                            <DatePicker SelectedDate="{Binding CreateNewSchedule.Date}"
                                         Height="50"
                                         Background="White"
                                         BorderBrush="{StaticResource SearchBorder}"
@@ -1238,7 +1239,7 @@
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
                             <ComboBox ItemsSource="{Binding ListGroupClass}"
-                                      SelectedItem="{Binding SelectedGroupCLass, Mode=TwoWay}"
+                                      SelectedItem="{Binding SelectedGroupCLassForCreateSlot, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
                                       DisplayMemberPath="GroupName"
@@ -1253,7 +1254,7 @@
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
                             <ComboBox ItemsSource="{Binding ListSubjectByGroupClass}"
-                                      SelectedItem="{Binding SelectedSubjectCode, Mode=TwoWay}"
+                                      SelectedItem="{Binding SelectedSubjectCodeForCreateSlot, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
                                       Height="50" />
@@ -1266,7 +1267,7 @@
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
                             <ComboBox ItemsSource="{Binding LecturerSubjects}"
-                                      SelectedItem="{Binding SelectedLecturerSubject, Mode=TwoWay}"
+                                      SelectedItem="{Binding SelectedLecturerSubjectForCreateSlot, Mode=TwoWay}"
                                       IsEditable="True"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       DisplayMemberPath="Lecturer.LecturerAccount"
@@ -1280,7 +1281,7 @@
                             <TextBlock Text="Thứ Tự Của Slot"
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
-                            <TextBox Text="{Binding EditingSchedule.SessionNo, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding CreateNewSchedule.SessionNo, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource ModernTextBoxStyle}" />
                         </StackPanel>
 
@@ -1291,7 +1292,7 @@
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
                             <ComboBox ItemsSource="{Binding TypeSlots}"
-                                      SelectedItem="{Binding EditingSchedule.TypeSlot, Mode=TwoWay}"
+                                      SelectedItem="{Binding CreateNewSchedule.TypeSlot, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       Height="50"
                                       IsEditable="True" />
@@ -1301,7 +1302,7 @@
                         <TextBlock Text="Loại Slot (a24, p35)"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding EditingSchedule.SlotTypeCode, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding CreateNewSchedule.SlotTypeCode, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModernTextBoxStyle}"
                                  Margin="0,0,0,15" />
                     </StackPanel>

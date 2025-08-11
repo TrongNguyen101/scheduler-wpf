@@ -36,16 +36,21 @@ namespace SchedulerWpfApp.ViewModel
         private string _selectedRoomName;
         private string _selectedLecturer;
         private string _selectedSubjectCode;
+        private string _selectedSubjectCodeForCreateSlot;
         private ObservableCollection<string> _groupNames;
         private bool _isEditScheduleFormOpen = false; // Flag to track if the cell is being edited
         private Schedule _editingSchedule;
+        private Schedule _createNewSchedule;
         private ObservableCollection<Room> _listRooms;
         private ObservableCollection<GroupClass> _listGroupClass;
         private ObservableCollection<LecturerSubject> _lecturerSubjects; // All rooms loaded from the service
         private ObservableCollection<string> _listSubjectByGroupClass; // All rooms loaded from the service
         private Room _selectedRoom;
+        private Room _selectedRoomForCreateSlot;
         private GroupClass _selectedGroupCLass;
+        private GroupClass _selectedGroupCLassForCreate;
         private LecturerSubject _selectedLecturerSubject;
+        private LecturerSubject _selectedLecturerSubjectForCreateSlot;
         private ObservableCollection<string> _rooms;
         private ObservableCollection<string> _lecturers; // List of lecturers to display in the timetable
 
@@ -178,6 +183,24 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
+        public Schedule CreateNewSchedule
+        {
+            get => _createNewSchedule;
+            set
+            {
+                SetProperty(ref _createNewSchedule, value);
+                if (value != null)
+                {
+                    // Load the rooms for the selected schedule
+                    _ = GetAllRooms();
+                    _ = GetAllGroupClass();
+                    _ = GetAllLecturerBySubjectCode(value.SubjectCode); // Load lecturers for the selected subject code
+                    SelectedRoomForCreateSlot = ListRooms.FirstOrDefault(r => r.RoomId == CreateNewSchedule?.RoomId);
+                    SelectedLecturerSubjectForCreateSlot = LecturerSubjects.FirstOrDefault(l => l.LecturerId == CreateNewSchedule?.LecturerId);
+                }
+            }
+        }
+
         public Room SelectedRoom
         {
             get => _selectedRoom;
@@ -188,6 +211,20 @@ namespace SchedulerWpfApp.ViewModel
                 {
                     EditingSchedule.RoomName = value.RoomName;
                     EditingSchedule.RoomId = value.RoomId;
+                }
+            }
+        }
+
+        public Room SelectedRoomForCreateSlot
+        {
+            get => _selectedRoomForCreateSlot;
+            set
+            {
+                SetProperty(ref _selectedRoomForCreateSlot, value);
+                if (CreateNewSchedule != null && value != null)
+                {
+                    CreateNewSchedule.RoomName = value.RoomName;
+                    CreateNewSchedule.RoomId = value.RoomId;
                 }
             }
         }
@@ -208,6 +245,22 @@ namespace SchedulerWpfApp.ViewModel
             }
         }
 
+        public GroupClass SelectedGroupCLassForCreateSlot
+        {
+            get => _selectedGroupCLassForCreate;
+            set
+            {
+                SetProperty(ref _selectedGroupCLassForCreate, value);
+                if (CreateNewSchedule != null && value != null)
+                {
+                    CreateNewSchedule.GroupName = value.GroupName;
+                    CreateNewSchedule.Major = value.CurriculumCode;
+
+                    _ = GetAllSubjectCodeByCurriculumCode(value.CurriculumCode); // Load subjects for the selected group class
+                }
+            }
+        }
+
         public string SelectedSubjectCode
         {
             get => _selectedSubjectCode;
@@ -217,6 +270,20 @@ namespace SchedulerWpfApp.ViewModel
                 if (EditingSchedule != null && !string.IsNullOrEmpty(value))
                 {
                     EditingSchedule.SubjectCode = value;
+                    _ = GetAllLecturerBySubjectCode(value); // Load lecturers for the selected subject code
+                }
+            }
+        }
+
+        public string SelectedSubjectCodeForCreateSlot
+        {
+            get => _selectedSubjectCodeForCreateSlot;
+            set
+            {
+                SetProperty(ref _selectedSubjectCodeForCreateSlot, value);
+                if (CreateNewSchedule != null && !string.IsNullOrEmpty(value))
+                {
+                    CreateNewSchedule.SubjectCode = value;
                     _ = GetAllLecturerBySubjectCode(value); // Load lecturers for the selected subject code
                 }
             }
@@ -233,6 +300,21 @@ namespace SchedulerWpfApp.ViewModel
                     EditingSchedule.LecturerName = value.LecturerName;
                     EditingSchedule.LecturerAccount = value.Lecturer.LecturerAccount;
                     EditingSchedule.LecturerId = value.LecturerId;
+                }
+            }
+        }
+
+        public LecturerSubject SelectedLecturerSubjectForCreateSlot
+        {
+            get => _selectedLecturerSubjectForCreateSlot;
+            set
+            {
+                SetProperty(ref _selectedLecturerSubjectForCreateSlot, value);
+                if (EditingSchedule != null && value != null)
+                {
+                    CreateNewSchedule.LecturerName = value.LecturerName;
+                    CreateNewSchedule.LecturerAccount = value.Lecturer.LecturerAccount;
+                    CreateNewSchedule.LecturerId = value.LecturerId;
                 }
             }
         }
@@ -404,6 +486,7 @@ namespace SchedulerWpfApp.ViewModel
             ListMajorGroupB = new ObservableCollection<string>();
             _allMajorsBackup = new ObservableCollection<string>();
             EditingSchedule = new Schedule();
+            CreateNewSchedule = new Schedule();
 
             LoadMockSchedules(); // Load initial schedules from the service
             InitCurrentWeekDays(); // Initialize current week days
@@ -493,7 +576,11 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelCreateSlot()
         {
             IsOpenCreateSlotDialog = false; // Close the create slot dialog
-            EditingSchedule = new Schedule(); // Reopen the schedule form if it was open before deletion
+            CreateNewSchedule = new Schedule(); // Reopen the schedule form if it was open before deletion
+            SelectedGroupCLassForCreateSlot = null;
+            SelectedSubjectCodeForCreateSlot = null;
+            SelectedLecturerSubjectForCreateSlot = null; // Reset the selected lecturer subject after creating a new slot
+            SelectedRoomForCreateSlot = null; // Reset the selected room after creating a new slot
         }
 
         private void ChangeDisplayMode(string mode)
@@ -725,7 +812,7 @@ namespace SchedulerWpfApp.ViewModel
                 _notificationService.ShowInfo("Không có lịch nào được tạo.");
             else
             {
-              //  _notificationService.ShowInfo($"Tạo lịch mất: {stopwatch.Elapsed.TotalSeconds:N2}s, lịch tạo: {schedules.Count}");
+                //  _notificationService.ShowInfo($"Tạo lịch mất: {stopwatch.Elapsed.TotalSeconds:N2}s, lịch tạo: {schedules.Count}");
                 _notificationService.ShowSuccess("Tạo lịch thành công.");
             }
             //}
@@ -1222,6 +1309,19 @@ namespace SchedulerWpfApp.ViewModel
                 }
                 else
                 {
+                    if (!EditingSchedule.RoomId.HasValue ||
+                       string.IsNullOrWhiteSpace(EditingSchedule.RoomName) ||
+                       string.IsNullOrWhiteSpace(EditingSchedule.LecturerId) ||
+                       string.IsNullOrWhiteSpace(EditingSchedule.LecturerName) ||
+                       string.IsNullOrWhiteSpace(EditingSchedule.LecturerAccount) ||
+                       string.IsNullOrWhiteSpace(EditingSchedule.StatusSlot)
+                       )
+                    {
+                        _notificationService.ShowWarning("Vui lòng chọn đầy đủ thông tin bắt buộc.");
+                        return;
+                    }
+
+
                     // Validate the selected room before updating
                     if (EditingSchedule.StatusSlot == "OFF")
                     {
@@ -1276,30 +1376,37 @@ namespace SchedulerWpfApp.ViewModel
         {
             try
             {
-                if (EditingSchedule == null)
+                if (CreateNewSchedule == null)
                 {
-                    _notificationService.ShowWarning("Không có lịch nào để cập nhật.");
+                    _notificationService.ShowWarning("Vui lòng nhập đầy đủ thông tin trước khi lưu.");
                     return;
                 }
                 else
                 {
-                    if (string.IsNullOrWhiteSpace(EditingSchedule.RoomName) ||
-                        string.IsNullOrWhiteSpace(EditingSchedule.PartOfDay) ||
-                        !EditingSchedule.SlotTime.HasValue ||
-                        !EditingSchedule.Date.HasValue ||
-                        string.IsNullOrWhiteSpace(EditingSchedule.Major) ||
-                        string.IsNullOrWhiteSpace(EditingSchedule.SubjectCode) ||
-                        string.IsNullOrWhiteSpace(EditingSchedule.GroupName) ||
-                        string.IsNullOrWhiteSpace(EditingSchedule.LecturerId))
+                    if (!CreateNewSchedule.RoomId.HasValue ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.RoomName) ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.PartOfDay) ||
+                        !CreateNewSchedule.SlotTime.HasValue ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.StatusSlot) ||
+                        !CreateNewSchedule.Date.HasValue ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.Major) ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.SubjectCode) ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.GroupName) ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.LecturerId) ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.LecturerName) ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.LecturerAccount) ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.TypeSlot) ||
+                        string.IsNullOrWhiteSpace(CreateNewSchedule.SlotTypeCode)
+                        )
                     {
                         _notificationService.ShowWarning("Vui lòng nhập đầy đủ thông tin bắt buộc.");
                         return;
                     }
 
                     // Validate the selected room before updating
-                    if (EditingSchedule.StatusSlot == "OFF")
+                    if (CreateNewSchedule.StatusSlot == "OFF")
                     {
-                        var checkRoom = CheckConflictRoom(EditingSchedule, EditingSchedule.Date ?? new DateTime(), EditingSchedule.SlotTime ?? 0);
+                        var checkRoom = CheckConflictRoom(CreateNewSchedule, CreateNewSchedule.Date ?? new DateTime(), CreateNewSchedule.SlotTime ?? 0);
 
                         if (checkRoom)
                         {
@@ -1309,21 +1416,21 @@ namespace SchedulerWpfApp.ViewModel
                     }
 
                     // Validate the selected lecturer before updating
-                    var checkLecturer = AllSchedules.Any(schedule => schedule.LecturerId == EditingSchedule.LecturerId &&
-                           schedule.Date == EditingSchedule.Date &&
-                           schedule.SlotTime == EditingSchedule.SlotTime &&
-                           schedule.ScheduleId != EditingSchedule.ScheduleId);
+                    var checkLecturer = AllSchedules.Any(schedule => schedule.LecturerId == CreateNewSchedule.LecturerId &&
+                           schedule.Date == CreateNewSchedule.Date &&
+                           schedule.SlotTime == CreateNewSchedule.SlotTime &&
+                           schedule.ScheduleId != CreateNewSchedule.ScheduleId);
                     if (checkLecturer)
                     {
                         _notificationService.ShowWarning("Giảng viên này đã bị trùng lịch.");
                         return;
                     }
                 }
-                bool result = await _implementScheduleServices.AddSlot(EditingSchedule);
+                bool result = await _implementScheduleServices.AddSlot(CreateNewSchedule);
 
                 if (result)
                 {
-                    AllSchedules.Add(EditingSchedule);
+                    AllSchedules.Add(CreateNewSchedule);
 
                     FilterSchedules(); // Refresh the filtered schedules
                     _notificationService.ShowSuccess("Tạo mới slot học thành công.");
@@ -1331,7 +1438,10 @@ namespace SchedulerWpfApp.ViewModel
                 else throw new Exception("Tạo mới slot học không thành công. Vui lòng thử lại sau.");
 
                 IsOpenCreateSlotDialog = false;
-                EditingSchedule = new Schedule();
+                CreateNewSchedule = new Schedule();
+                SelectedGroupCLassForCreateSlot = null;
+                SelectedSubjectCodeForCreateSlot = null;
+                SelectedLecturerSubjectForCreateSlot = null; // Reset the selected lecturer subject after creating a new slot
             }
             catch (Exception ex)
             {
