@@ -156,8 +156,6 @@ namespace SchedulerWpfApp.Algorithm
                 }
             }
 
-
-
             return subsequentSchedules;
         }
 

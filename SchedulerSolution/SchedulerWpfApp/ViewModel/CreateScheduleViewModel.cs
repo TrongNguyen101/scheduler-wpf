@@ -41,6 +41,10 @@ namespace SchedulerWpfApp.ViewModel
         private LecturerSubject _selectedLecturerSubject;
         private ObservableCollection<string> _rooms;
         private ObservableCollection<string> _lecturers; // List of lecturers to display in the timetable
+        private bool _isProgressBarOpen;
+        private int _progressValue;
+        private bool _isDeletedProgressBarOpen;
+        private int _deletedProgressValue;
 
         private bool _isScheduleFormOpen;
         private ObservableCollection<string> _listMajors;
@@ -52,6 +56,8 @@ namespace SchedulerWpfApp.ViewModel
 
         private ObservableCollection<string> _allMajorsBackup;
         private DateTime _selectedDate = DateTime.Now;
+
+
         #endregion
 
         #region Constructor
@@ -86,6 +92,30 @@ namespace SchedulerWpfApp.ViewModel
             CLASS,
             ROOM,
             LECTURER
+        }
+
+        public int ProgressValue
+        {
+            get => _progressValue;
+            set { _progressValue = value; OnPropertyChanged(); }
+        }
+
+        public bool IsProgressBarOpen
+        {
+            get => _isProgressBarOpen;
+            set => SetProperty(ref _isProgressBarOpen, value);
+        }
+
+        public int DeletedProgressValue
+        {
+            get => _deletedProgressValue;
+            set { _deletedProgressValue = value; OnPropertyChanged(); }
+        }
+
+        public bool IsDeletedProgressBarOpen
+        {
+            get => _isDeletedProgressBarOpen;
+            set => SetProperty(ref _isDeletedProgressBarOpen, value);
         }
 
         private DisplayMode _currentDisplayMode = DisplayMode.CLASS;
@@ -502,15 +532,41 @@ namespace SchedulerWpfApp.ViewModel
             //else
             //{
             //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, ListMajorGroupA.ToList(), ListMajorGroupB.ToList());
-            var schedules = await _createScheduleTree.GenerateSchedules();
+            var progress = new Progress<int>(percentCompleted =>
+            {
+                ProgressValue = percentCompleted;
+            });
+
+            var deletedProgress = new Progress<int>(percentCompleted =>
+            {
+                DeletedProgressValue = percentCompleted;
+            });
+
+            var scheduleExists = await _implementScheduleServices.GetAllAsync(); // Check if schedules already exist
+
+            if (scheduleExists != null)
+            {
+                IsDeletedProgressBarOpen = true; // Show progress bar while deleting existing schedules
+                await _implementScheduleServices.DeleteAllAsync(deletedProgress); // Delete existing schedules before generating new ones
+                IsDeletedProgressBarOpen = false; // Hide progress bar after deletion
+            }
+
+            IsProgressBarOpen = true; // Show progress bar while generating schedules
+            var schedules = await _createScheduleTree.GenerateSchedules(progress);
+            IsProgressBarOpen = false;
 
             LoadMockSchedules(); // Reload schedules after generating new ones
                                  // PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
             if (schedules == null || !schedules.Any())
+            {
                 _notificationService.ShowInfo("Không có lịch nào được tạo.");
+                IsProgressBarOpen = false;
+            }
             else
+            {
                 _notificationService.ShowSuccess("Tạo lịch thành công.");
-            //}
+            }
+
         }
 
         /// <summary>

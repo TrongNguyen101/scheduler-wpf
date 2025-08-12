@@ -15,7 +15,7 @@ namespace SchedulerWpfApp.Algorithm
             _version2CreateSchedule = version2CreateSchedule;
         }
 
-        public async Task<List<Schedule>> GenerateSchedules()
+        public async Task<List<Schedule>> GenerateSchedules(Progress<int> progress)
         {
             var listMajorGroupA = new List<string> { "FN", "HM", "MC", "BA", "TM", "IB", "EC", };
             var listMajorGroupB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
@@ -26,9 +26,9 @@ namespace SchedulerWpfApp.Algorithm
 
             //schedulesTest = await _reportV1.GenerateSchedules(startDate, listMajorGroupA, listMajorGroupB);
 
-            schedulesTest = await _version2CreateSchedule.GenerateSchedules(startDate, listMajorGroupA, listMajorGroupB);
+            schedulesTest = await _version2CreateSchedule.GenerateSchedules(startDate, listMajorGroupA, listMajorGroupB, progress);
 
-            await _scheduleServices.AddScheduleAsync(schedulesTest);
+            await _scheduleServices.AddScheduleAsync(schedulesTest, progress);
 
             return schedulesTest;
         }

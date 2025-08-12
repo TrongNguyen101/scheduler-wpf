@@ -51,7 +51,7 @@ namespace SchedulerWpfApp.Algorithm
             _roomSchedulerOnOff = roomSchedulerOnOff;
         }
 
-        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
+        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB, Progress<int> progress)
         {
             try
             {
@@ -66,7 +66,11 @@ namespace SchedulerWpfApp.Algorithm
                 List<GroupClass> listGroupNameNoOJT = _context.GroupNames.Where(g => g.TeachingMode != "OJT").ToList();
                 var allSchedules = new List<Schedule>();
                 List<int> firstAndFinalWeek = new List<int> { 9 };
-                (List<Schedule> templateSchedules, List<string> Conflicts) = _scheduleCommonSubjectVersion3.GenerateSchedule(listGroupNameNoOJT, _context.LecturerSubjects, _context.CurriculumLookup, startDate, firstAndFinalWeek);
+                (List<Schedule> templateSchedules, List<string> Conflicts, int TotalPlannedSchedules,
+                int TotalUnits,
+                int ScheduledUnits,
+                int CompletionPercent,
+                List<(string GroupName, string SubjectCode)> UnscheduledUnits) = _scheduleCommonSubjectVersion3.GenerateSchedule(listGroupNameNoOJT, _context.LecturerSubjects, _context.CurriculumLookup, startDate, progress);
 
                 var schedulesOfFirstAndFinalWeek = templateSchedules;
 
@@ -75,6 +79,9 @@ namespace SchedulerWpfApp.Algorithm
                 {
                     _logger.LogWarning(conflict);
                 }
+                _logger.LogWarning($"Total Units: {TotalUnits}");
+                _logger.LogWarning($"Total UnscheduledUnits: {UnscheduledUnits.Count}");
+                _logger.LogWarning($"Completion Percent: {CompletionPercent}%");
 
 
                 AssignRooms(schedulesOfFirstAndFinalWeek, _context.Rooms);
@@ -99,10 +106,9 @@ namespace SchedulerWpfApp.Algorithm
             var groupNameTask = _groupNameService.GetAllAsync();
             var lecturerSubjectTask = _lecturerSubjectServices.GetAllAsync();
             var curriculumSubjectTask = _curriculumSubjectServices.GetAllCurriculumSubjectAsync();
-            var deleteAllSchedulesTask = _scheduleServices.DeleteAllAsync();
 
             // Chờ tất cả các Task hoàn thành
-            await Task.WhenAll(lecturerTask, roomTask, groupNameTask, lecturerSubjectTask, curriculumSubjectTask, deleteAllSchedulesTask);
+            await Task.WhenAll(lecturerTask, roomTask, groupNameTask, lecturerSubjectTask, curriculumSubjectTask);
 
             // Lấy kết quả từ các Task
             var listLecturer = await lecturerTask;
