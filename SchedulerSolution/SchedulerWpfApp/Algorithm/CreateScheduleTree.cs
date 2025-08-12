@@ -15,14 +15,14 @@ namespace SchedulerWpfApp.Algorithm
             _version2CreateSchedule = version2CreateSchedule;
         }
 
-        public async Task<List<Schedule>> GenerateSchedules(Progress<int> progress)
+        public async Task<List<Schedule>> GenerateSchedules(Progress<int> progress, DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
         {
-            var listMajorGroupA = new List<string> { "FN", "HM", "MC", "BA", "TM", "IB", "EC", };
-            var listMajorGroupB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
+            //var listMajorGroupA = new List<string> { "FN", "HM", "MC", "BA", "TM", "IB", "EC", };
+            //var listMajorGroupB = new List<string> { "AI", "SE", "AI", "JL", "KR", "EL" };
+            //DateTime startDate = new DateTime(2025, 01, 06);
             
             //Comment 
             List<Schedule> schedulesTest = new List<Schedule>();
-            DateTime startDate = new DateTime(2025, 01, 06);
 
             //schedulesTest = await _reportV1.GenerateSchedules(startDate, listMajorGroupA, listMajorGroupB);
 

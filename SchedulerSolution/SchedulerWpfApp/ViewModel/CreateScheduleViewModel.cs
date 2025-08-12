@@ -760,55 +760,57 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task CreateScheduleDemo()
         {
-            DateTime startDate = new DateTime(2025, 01, 06);
+            //DateTime startDate = new DateTime(2025, 01, 06);
+            List<Schedule> schedules = new List<Schedule>();
 
-            //if (ListMajorGroupA.Count <= 0 || ListMajorGroupB.Count <= 0)
-            //{
-            //    MessageBox.Show("Vui lòng chọn đầy đủ thông tin trước khi tạo lịch.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //    IsScheduleFormOpen = true;
-            //}
-            //else
-            //{
-            //var schedules = await _createScheduleTree.GenerateSchedules(SelectedDate, ListMajorGroupA.ToList(), ListMajorGroupB.ToList());
-            var progress = new Progress<int>(percentCompleted =>
+            if (ListMajorGroupA.Count <= 0 || ListMajorGroupB.Count <= 0)
             {
-                ProgressValue = percentCompleted;
-            });
-
-            var deletedProgress = new Progress<int>(percentCompleted =>
-            {
-                DeletedProgressValue = percentCompleted;
-            });
-
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            var scheduleExists = await _implementScheduleServices.GetAllAsync(); // Check if schedules already exist
-
-            if (scheduleExists != null)
-            {
-                IsDeletedProgressBarOpen = true; // Show progress bar while deleting existing schedules
-                await _implementScheduleServices.DeleteAllAsync(deletedProgress); // Delete existing schedules before generating new ones
-                IsDeletedProgressBarOpen = false; // Hide progress bar after deletion
-            }
-
-            IsProgressBarOpen = true; // Show progress bar while generating schedules
-            var schedules = await _createScheduleTree.GenerateSchedules(progress);
-            IsProgressBarOpen = false;
-            stopwatch.Stop();
-            System.Diagnostics.Trace.WriteLine($"[CreateSchedule] GenerateSchedules: {stopwatch.Elapsed.TotalSeconds:N2}s, created: {schedules?.Count ?? 0}");
-
-            LoadMockSchedules(); // Reload schedules after generating new ones
-                                 // PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
-            if (schedules == null || !schedules.Any())
-            {
-                _notificationService.ShowInfo("Không có lịch nào được tạo.");
-                IsProgressBarOpen = false;
+                MessageBox.Show("Vui lòng chọn đầy đủ thông tin trước khi tạo lịch.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsScheduleFormOpen = true;
             }
             else
             {
-              //  _notificationService.ShowInfo($"Tạo lịch mất: {stopwatch.Elapsed.TotalSeconds:N2}s, lịch tạo: {schedules.Count}");
-                _notificationService.ShowSuccess("Tạo lịch thành công.");
+                var progress = new Progress<int>(percentCompleted =>
+                {
+                    ProgressValue = percentCompleted;
+                });
+
+                CancelScheduleForm();
+
+                var deletedProgress = new Progress<int>(percentCompleted =>
+                {
+                    DeletedProgressValue = percentCompleted;
+                });
+
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                var scheduleExists = await _implementScheduleServices.GetAllAsync(); // Check if schedules already exist
+
+                if (scheduleExists != null)
+                {
+                    IsDeletedProgressBarOpen = true; // Show progress bar while deleting existing schedules
+                    await _implementScheduleServices.DeleteAllAsync(deletedProgress); // Delete existing schedules before generating new ones
+                    IsDeletedProgressBarOpen = false; // Hide progress bar after deletion
+                }
+
+                IsProgressBarOpen = true; // Show progress bar while generating schedules
+                schedules.AddRange(await _createScheduleTree.GenerateSchedules(progress, SelectedDate, ListMajorGroupA.ToList(), ListMajorGroupB.ToList()));
+                IsProgressBarOpen = false;
+                stopwatch.Stop();
+                System.Diagnostics.Trace.WriteLine($"[CreateSchedule] GenerateSchedules: {stopwatch.Elapsed.TotalSeconds:N2}s, created: {schedules?.Count ?? 0}");
+                LoadMockSchedules(); // Reload schedules after generating new ones
+                                     // PrintTimetableGroupByWeek(schedules); // Print the timetable grouped by week for debugging purposes
+                if (schedules == null || !schedules.Any())
+                {
+                    _notificationService.ShowInfo("Không có lịch nào được tạo.");
+                    IsProgressBarOpen = false;
+                }
+                else
+                {
+                    //  _notificationService.ShowInfo($"Tạo lịch mất: {stopwatch.Elapsed.TotalSeconds:N2}s, lịch tạo: {schedules.Count}");
+                    _notificationService.ShowSuccess("Tạo lịch thành công.");
+                }
+
             }
-            //}
         }
 
         /// <summary>

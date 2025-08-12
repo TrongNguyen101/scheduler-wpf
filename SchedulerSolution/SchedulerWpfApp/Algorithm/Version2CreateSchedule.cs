@@ -85,6 +85,7 @@ namespace SchedulerWpfApp.Algorithm
 
 
                 AssignRooms(schedulesOfFirstAndFinalWeek, _context.Rooms);
+
                 allSchedules.AddRange(GenerateFullSchedule(schedulesOfFirstAndFinalWeek));
 
                 allSchedules.AddRange(_roomSchedulerOnOff.GenerateSchedulesForSubsequentWeeks(templateSchedules, _context.Rooms, _context.GroupNames));

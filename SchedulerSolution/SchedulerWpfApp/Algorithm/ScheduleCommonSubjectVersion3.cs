@@ -9,6 +9,7 @@ namespace SchedulerWpfApp.Algorithm
         private record SlotPair(string Code, int Day1, int Slot1, int Day2, int Slot2, string PartOfDay);
 
         private readonly List<SlotPair> _availablePairs;
+        private readonly List<SlotPair> _availablePairsForFiveDays;
 
         public ScheduleCommonSubjectVersion3()
         {
@@ -31,6 +32,36 @@ namespace SchedulerWpfApp.Algorithm
                 new SlotPair("P26", 2, 3, 6, 4, "P"),
                 new SlotPair("P62", 6, 3, 2, 4, "P"),
                 new SlotPair("P46", 4, 3, 6, 4, "P"),
+                new SlotPair("P64", 6, 3, 4, 4, "P"),
+            };
+            _availablePairsForFiveDays = new List<SlotPair>
+            {
+                // A (morning)
+                new SlotPair("A24", 2, 1, 4, 2, "A"),
+                new SlotPair("A62", 6, 1, 2, 2, "A"),
+                new SlotPair("A35", 3, 1, 5, 2, "A"),
+                new SlotPair("A53", 5, 1, 3, 2, "A"),
+                new SlotPair("A46", 4, 1, 6, 2, "A"),
+
+                new SlotPair("A26", 2, 1, 6, 2, "A"),
+                new SlotPair("A42", 4, 1, 2, 2, "A"),
+                new SlotPair("A53", 5, 1, 3, 2, "A"),
+                new SlotPair("A35", 3, 1, 5, 2, "A"),
+                new SlotPair("P64", 6, 3, 4, 4, "P"),
+
+
+                //new SlotPair("A64", 6, 1, 4, 2, "A"),
+                // P (afternoon)
+                new SlotPair("P24", 2, 3, 4, 4, "P"),
+                new SlotPair("P62", 6, 3, 2, 4, "P"),
+                new SlotPair("P35", 3, 3, 5, 4, "P"),
+                new SlotPair("P53", 5, 3, 3, 4, "P"),
+                new SlotPair("P46", 4, 3, 6, 4, "P"),
+
+                new SlotPair("P26", 2, 3, 6, 4, "P"),
+                new SlotPair("P42", 4, 3, 2, 4, "P"),
+                new SlotPair("A53", 5, 1, 3, 2, "A"),
+                new SlotPair("A35", 3, 1, 5, 2, "A"),
                 new SlotPair("P64", 6, 3, 4, 4, "P"),
             };
         }
@@ -105,23 +136,30 @@ namespace SchedulerWpfApp.Algorithm
                 .ToHashSet();
 
             // Tạo danh sách Unit = (Group, Subject)
+            var totalSubjectsPerGroup = new Dictionary<string, int>();
             var allUnitsToSchedule = new List<(GroupClass Group, CurriculumSubject Subject)>();
             foreach (var g in groups)
             {
                 var subjectsOfClass = curriculumLookup[(g.CurriculumCode, g.Term.GetValueOrDefault())].ToList();
-                foreach (var subject in subjectsOfClass)
+                // Lọc môn không hợp lệ
+                var validSubjects = subjectsOfClass
+                    .Where(subject =>
+                        subject.TeachingMode != ScheduleConstants.TechingModeIsOJT &&
+                        subject.TeachingMode != ScheduleConstants.TechingModeIsCoursera &&
+                        subject.TeachingMode != ScheduleConstants.TechingModeIsEXE &&
+                        subject.TeachingMode != ScheduleConstants.TechingModeIsFullOff &&
+                        !subject.SubjectCode.Contains("GRA") &&
+                        !subject.PartOfTerm.Contains("H2"))
+                    .ToList();
+
+                // Thêm vào danh sách unit
+                foreach (var subject in validSubjects)
                 {
-                    if (subject.TeachingMode == ScheduleConstants.TechingModeIsOJT ||
-                        subject.TeachingMode == ScheduleConstants.TechingModeIsCoursera ||
-                        subject.TeachingMode == ScheduleConstants.TechingModeIsEXE ||
-                        subject.TeachingMode == ScheduleConstants.TechingModeIsFullOff ||
-                        subject.SubjectCode.Contains("GRA") ||
-                        subject.PartOfTerm.Contains("H2"))
-                    {
-                        continue;
-                    }
                     allUnitsToSchedule.Add((g, subject));
                 }
+
+                // Lưu tổng số môn hợp lệ của group
+                totalSubjectsPerGroup[g.GroupName] = validSubjects.Count;
             }
 
             // NEW: ưu tiên Common ở kỳ 8–9 trước, sau đó giữ nguyên ưu tiên term giảm dần
@@ -169,11 +207,25 @@ namespace SchedulerWpfApp.Algorithm
                     continue;
                 }
 
-                var requiredPartOfDay = group.PartOfDayInTheFirstTerm;
-                var suitablePairs = _availablePairs.Where(p => p.PartOfDay == requiredPartOfDay);
+                var majorSubject = lecturerSubjects.FirstOrDefault(l => l.SubjectCode == subject.SubjectCode);
 
+                var requiredPartOfDay = group.PartOfDayInTheFirstTerm;
+                List<SlotPair> suitablePairs;
+
+                if (totalSubjectsPerGroup[group.GroupName] == 5)
+                {
+                    suitablePairs = _availablePairsForFiveDays.Where(p => p.PartOfDay == requiredPartOfDay).ToList();
+                }
+                else
+                {
+                    suitablePairs = _availablePairs.Where(p => p.PartOfDay == requiredPartOfDay).ToList();
+                }
+
+
+                // === Nâng cấp phần xếp lịch ===
                 foreach (var lecturer in lecturersWithCapacity)
                 {
+
                     foreach (var pair in suitablePairs)
                     {
                         if ((lecturer.Lecturer.Role ?? string.Empty).Trim() == "TBM" && pair.Code == "A53")
@@ -182,6 +234,7 @@ namespace SchedulerWpfApp.Algorithm
                         var groupTable = groupTimetables[group.GroupName];
                         var lecturerTable = lecturerTimetables[lecturer.LecturerId];
 
+                        // Case 1: cả lớp và GV đều trống ở cả 2 ca -> xếp hoàn chỉnh
                         if (groupTable.IsSlotFree(pair.Day1, pair.Slot1) &&
                             groupTable.IsSlotFree(pair.Day2, pair.Slot2) &&
                             lecturerTable.IsSlotFree(pair.Day1, pair.Slot1) &&
@@ -203,9 +256,53 @@ namespace SchedulerWpfApp.Algorithm
                             isScheduled = true;
                             break;
                         }
+
+                        // KHÔNG còn nhánh else-if ở đây nữa
                     }
+
                     if (isScheduled) break;
                 }
+
+                // Fallback: sau khi thử hết giảng viên mà vẫn chưa xếp được
+                if (!isScheduled)
+                {
+                    var groupTable = groupTimetables[group.GroupName];
+
+                    // Chọn cặp slot phù hợp buổi mà GROUP trống cả 2 ca
+                    var fallbackPair = suitablePairs.FirstOrDefault(p =>
+                        groupTable.IsSlotFree(p.Day1, p.Slot1) &&
+                        groupTable.IsSlotFree(p.Day2, p.Slot2));
+
+                    if (fallbackPair != null)
+                    {
+                        // Tạo lịch với giảng viên rỗng ("")
+                        var schedule1 = CreateScheduleEntry(group, subject, null, fallbackPair, 1, startDate);
+                        var schedule2 = CreateScheduleEntry(group, subject, null, fallbackPair, 2, startDate);
+
+                        finalSchedule.Add(schedule1);
+                        finalSchedule.Add(schedule2);
+
+                        // Chỉ book vào GROUP, không book vào giảng viên
+                        groupTable.Book(fallbackPair.Day1, fallbackPair.Slot1, schedule1);
+                        groupTable.Book(fallbackPair.Day2, fallbackPair.Slot2, schedule2);
+
+                        scheduledUnitsSet.Add((group.GroupName, subject.SubjectCode));
+
+                        // Ghi conflict “slot chưa có giảng viên”
+                        conflicts.Add(
+                            $"Lớp {group.GroupName} - môn {subject.SubjectCode}: chưa gán giảng viên, đã giữ chỗ cặp {fallbackPair.Code} " +
+                            $"(D{fallbackPair.Day1}-S{fallbackPair.Slot1} & D{fallbackPair.Day2}-S{fallbackPair.Slot2}).");
+
+                        isScheduled = true;
+                    }
+                    else
+                    {
+                        // Không còn slot trống cho group
+                        conflicts.Add($"Không thể tìm thấy lịch trống cho môn {subject.SubjectCode} của lớp {group.GroupName}.");
+                        unscheduledUnits.Add((group.GroupName, subject.SubjectCode));
+                    }
+                }
+
 
                 if (!isScheduled)
                 {
@@ -238,9 +335,9 @@ namespace SchedulerWpfApp.Algorithm
             {
                 GroupName = groupName.GroupName,
                 SubjectCode = curriculumSubject.SubjectCode,
-                LecturerId = lecturer.LecturerId,
-                LecturerName = lecturer.LecturerName,
-                LecturerAccount = lecturer.Lecturer.LecturerAccount,
+                LecturerId = lecturer?.LecturerId ?? "",
+                LecturerName = lecturer?.LecturerName ?? "",
+                LecturerAccount = lecturer?.Lecturer?.LecturerAccount ?? "",
                 SlotTypeCode = pair.Code,
                 PartOfDay = pair.PartOfDay,
                 SlotTime = slotTime,
