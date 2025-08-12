@@ -15,7 +15,6 @@ using System.Windows.Input;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
-using System.IO;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -550,7 +549,7 @@ namespace SchedulerWpfApp.ViewModel
                 _notificationService.ShowSuccess("Xóa slot học thành công.");
                 Schedule deleteItem = AllSchedules.FirstOrDefault(s => s.ScheduleId == EditingSchedule.ScheduleId);
                 AllSchedules.Remove(deleteItem); // Remove the deleted schedule from the AllSchedules collection
-                EditingSchedule = null; // Clear the editing schedule after deletion
+                EditingSchedule = new Schedule(); // Clear the editing schedule after deletion
                 FilterSchedules();
             }
             catch (Exception ex)
@@ -1057,7 +1056,7 @@ namespace SchedulerWpfApp.ViewModel
             int minutesPerSlot = 135; // Default slot duration of NewSlot
             int minutesPerBreak = 60; // Default break duration of NewSlot
 
-            if (typeSlot == "OldSlot")
+            if (typeSlot.ToLower() == "Old Slot".ToLower())
             {
                 minutesPerSlot = 90; // Old slots have a different duration
                 minutesPerBreak = 30; // Shorter break for old slots
@@ -1088,7 +1087,6 @@ namespace SchedulerWpfApp.ViewModel
                 // Validate the drop operation
                 if (!ValidateScheduleMove(sourceCell, targetCell, droppedSchedule))
                 {
-                    _notificationService.ShowError("Đã bị trùng lịch. Không thể di chuyển slot này.");
                     return;
                 }
                 if (targetCell.Schedule != null)
@@ -1208,13 +1206,68 @@ namespace SchedulerWpfApp.ViewModel
         /// <param name="date"></param>
         /// <param name="slotTime"></param>
         /// <returns></returns>
-        private bool CheckConflictLecturer(Schedule schedule, DateTime date, int slotTime)
+        private bool CheckConflictLecturer(Schedule schedule, DateTime date, int slotTime, Schedule? target)
         {
             return AllSchedules.Any(s => s.LecturerId == schedule.LecturerId &&
                                          s.Date == date &&
                                          s.SlotTime == slotTime &&
+                                         s.ScheduleId != target?.ScheduleId && // Ensure we don't conflict with the same schedule
                                          s.ScheduleId != schedule.ScheduleId);
         }
+
+        private static readonly Dictionary<int, (TimeSpan Start, TimeSpan End)> NewSlotTimes =
+    new()
+{
+    { 1, (TimeSpan.FromHours(7),  TimeSpan.FromHours(9).Add(TimeSpan.FromMinutes(15))) },
+    { 2, (TimeSpan.FromHours(9).Add(TimeSpan.FromMinutes(30)),  TimeSpan.FromHours(11).Add(TimeSpan.FromMinutes(45))) },
+    { 3, (TimeSpan.FromHours(13), TimeSpan.FromHours(15).Add(TimeSpan.FromMinutes(15))) },
+    { 4, (TimeSpan.FromHours(15).Add(TimeSpan.FromMinutes(30)), TimeSpan.FromHours(17).Add(TimeSpan.FromMinutes(45))) },
+    { 5, (TimeSpan.FromHours(18), TimeSpan.FromHours(20).Add(TimeSpan.FromMinutes(15))) }
+};
+
+        private static readonly Dictionary<int, (TimeSpan Start, TimeSpan End)> OldSlotTimes =
+            new()
+        {
+    { 1, (TimeSpan.FromHours(7),  TimeSpan.FromHours(8).Add(TimeSpan.FromMinutes(30))) },
+    { 2, (TimeSpan.FromHours(8).Add(TimeSpan.FromMinutes(45)), TimeSpan.FromHours(10).Add(TimeSpan.FromMinutes(15))) },
+    { 3, (TimeSpan.FromHours(10).Add(TimeSpan.FromMinutes(30)), TimeSpan.FromHours(12)) },
+    { 4, (TimeSpan.FromHours(12).Add(TimeSpan.FromMinutes(45)), TimeSpan.FromHours(14).Add(TimeSpan.FromMinutes(15))) },
+    { 5, (TimeSpan.FromHours(14).Add(TimeSpan.FromMinutes(30)), TimeSpan.FromHours(16)) },
+    { 6, (TimeSpan.FromHours(16).Add(TimeSpan.FromMinutes(15)), TimeSpan.FromHours(17).Add(TimeSpan.FromMinutes(45))) },
+    { 7, (TimeSpan.FromHours(18), TimeSpan.FromHours(19).Add(TimeSpan.FromMinutes(30))) },
+    { 8, (TimeSpan.FromHours(19).Add(TimeSpan.FromMinutes(45)), TimeSpan.FromHours(21).Add(TimeSpan.FromMinutes(15))) }
+        };
+
+        private bool CheckConflictTime(Schedule schedule)
+        {
+            if (!schedule.Date.HasValue || !schedule.SlotTime.HasValue || string.IsNullOrEmpty(schedule.TypeSlot))
+                return false; // thiếu dữ liệu thì không check
+
+            var currentSlotTable = schedule.TypeSlot.ToLower() == "New Slot".ToLower() ? NewSlotTimes : OldSlotTimes;
+            if (!currentSlotTable.ContainsKey(schedule.SlotTime.Value)) return false;
+
+            var (startOffset, endOffset) = currentSlotTable[schedule.SlotTime.Value];
+            var start = schedule.Date.Value.Date + startOffset;
+            var end = schedule.Date.Value.Date + endOffset;
+
+            return AllSchedules.Any(s =>
+            {
+                if (s.ScheduleId == schedule.ScheduleId) return false;
+                if (!s.Date.HasValue || !s.SlotTime.HasValue || string.IsNullOrEmpty(s.TypeSlot)) return false;
+                if (s.Date.Value.Date != schedule.Date.Value.Date) return false; // khác ngày thì không trùng
+                if(s.TypeSlot.ToLower() == schedule.TypeSlot.ToLower()) return false; // khác loại slot thì không trùng
+
+                var otherSlotTable = s.TypeSlot.ToLower() == "New Slot".ToLower() ? NewSlotTimes : OldSlotTimes;
+                if (!otherSlotTable.ContainsKey(s.SlotTime.Value)) return false;
+
+                var (oStartOffset, oEndOffset) = otherSlotTable[s.SlotTime.Value];
+                var otherStart = s.Date.Value.Date + oStartOffset;
+                var otherEnd = s.Date.Value.Date + oEndOffset;
+
+                return start < otherEnd && otherStart < end; // overlap
+            });
+        }
+
         /// <summary>
         /// Validates if a schedule can be moved to the target cell
         /// </summary>
@@ -1226,10 +1279,16 @@ namespace SchedulerWpfApp.ViewModel
 
             if (schedule.StatusSlot == "OFF")
             {
-                var checkRoom = CheckConflictRoom(schedule, targetCell.DayOfWeek.Date, targetCell.SlotNumber);
+                var checkRoom = AllSchedules.Any(s => s.RoomId == schedule.RoomId &&
+                           s.Date == sourceCell.DayOfWeek.Date &&
+                           s.SlotTime == sourceCell.SlotNumber &&
+                           s.StatusSlot == "OFF" &&
+                           s.ScheduleId != targetCell.Schedule.ScheduleId &&
+                           s.ScheduleId != schedule.ScheduleId);
 
                 if (checkRoom)
                 {
+                    _notificationService.ShowWarning("Phòng học này đã bị trùng lịch.");
                     return false;
                 }
             }
@@ -1239,27 +1298,57 @@ namespace SchedulerWpfApp.ViewModel
                 var targetSchedule = targetCell.Schedule;
                 if (targetSchedule.StatusSlot == "OFF")
                 {
-                    var checkRoom = CheckConflictRoom(targetSchedule, sourceCell.DayOfWeek.Date, sourceCell.SlotNumber);
+                    var checkRoom = AllSchedules.Any(s => s.RoomId == targetSchedule.RoomId &&
+                           s.Date == sourceCell.DayOfWeek.Date &&
+                           s.SlotTime == sourceCell.SlotNumber &&
+                           s.StatusSlot == "OFF" &&
+                           s.ScheduleId != sourceCell.Schedule.ScheduleId &&
+                           s.ScheduleId != schedule.ScheduleId);
 
                     if (checkRoom)
                     {
+                        _notificationService.ShowWarning("Phòng học này đã bị trùng lịch.");
                         return false;
                     }
                 }
 
-                var conflictingTargetSchedule = CheckConflictLecturer(targetSchedule, sourceCell.DayOfWeek.Date, sourceCell.SlotNumber);
+                var conflictingTargetSchedule = CheckConflictLecturer(targetSchedule, sourceCell.DayOfWeek.Date, sourceCell.SlotNumber, sourceCell.Schedule);
 
                 if (conflictingTargetSchedule)
                 {
+                    _notificationService.ShowWarning("Giảng viên này đã bị trùng lịch.");
                     return false; // Lecturer conflict
+                }
+
+                var checkGroupClass = AllSchedules.Any(s => s.GroupName == targetSchedule.GroupName &&
+                           s.Date == sourceCell.DayOfWeek.Date &&
+                           s.SlotTime == sourceCell.SlotNumber &&
+                           s.ScheduleId != sourceCell.Schedule.ScheduleId && 
+                           s.ScheduleId != targetSchedule.ScheduleId);
+                if (checkGroupClass)
+                {
+                    _notificationService.ShowWarning("Lớp học này đã bị trùng lịch.");
+                    return false;
                 }
             }
 
-            var conflictingSchedule = CheckConflictLecturer(schedule, targetCell.DayOfWeek.Date, targetCell.SlotNumber);
+            var conflictingSchedule = CheckConflictLecturer(schedule, targetCell.DayOfWeek.Date, targetCell.SlotNumber, targetCell.Schedule);
 
             if (conflictingSchedule)
             {
+                _notificationService.ShowWarning("Giảng viên này đã bị trùng lịch.");
                 return false; // Lecturer conflict
+            }
+
+            var checkGroupClassSource = AllSchedules.Any(s => s.GroupName == schedule.GroupName &&
+                           s.Date == targetCell.DayOfWeek.Date &&
+                           s.SlotTime == targetCell.SlotNumber &&
+                           s.ScheduleId != schedule.ScheduleId &&
+                           s.ScheduleId != targetCell.Schedule.ScheduleId);
+            if (checkGroupClassSource)
+            {
+                _notificationService.ShowWarning("Lớp học này đã bị trùng lịch.");
+                return false; // Group class conflict
             }
 
             // Add more validation rules as needed:
@@ -1344,6 +1433,23 @@ namespace SchedulerWpfApp.ViewModel
                         _notificationService.ShowWarning("Giảng viên này đã bị trùng lịch.");
                         return;
                     }
+
+                    var checkGroupClass = AllSchedules.Any(schedule => schedule.GroupName == EditingSchedule.GroupName &&
+                           schedule.Date == EditingSchedule.Date &&
+                           schedule.SlotTime == EditingSchedule.SlotTime &&
+                           schedule.ScheduleId != EditingSchedule.ScheduleId);
+                    if (checkGroupClass)
+                    {
+                        _notificationService.ShowWarning("Lớp học này đã bị trùng lịch.");
+                        return;
+                    }
+
+                    var checkTimeConflict = CheckConflictTime(EditingSchedule);
+                    if (checkTimeConflict)
+                    {
+                        _notificationService.ShowWarning("Thời gian này đã bị trùng lịch.");
+                        return;
+                    }
                 }
                 bool result = await _implementScheduleServices.UpdateScheduleAsync(EditingSchedule);
 
@@ -1425,6 +1531,23 @@ namespace SchedulerWpfApp.ViewModel
                         _notificationService.ShowWarning("Giảng viên này đã bị trùng lịch.");
                         return;
                     }
+
+                    // Validate the selected group class before creating a new slot
+                    var checkGroupClass = AllSchedules.Any(schedule => schedule.GroupName == CreateNewSchedule.GroupName &&
+                           schedule.Date == CreateNewSchedule.Date &&
+                           schedule.SlotTime == CreateNewSchedule.SlotTime);
+                    if (checkGroupClass)
+                    {
+                        _notificationService.ShowWarning("Lớp học này đã bị trùng lịch.");
+                        return;
+                    }
+
+                    var checkTimeConflict = CheckConflictTime(CreateNewSchedule);
+                    if (checkTimeConflict)
+                    {
+                        _notificationService.ShowWarning("Thời gian này đã bị trùng lịch.");
+                        return;
+                    }
                 }
                 bool result = await _implementScheduleServices.AddSlot(CreateNewSchedule);
 
@@ -1455,7 +1578,7 @@ namespace SchedulerWpfApp.ViewModel
         private void CancelEditSchedule()
         {
             IsEditScheduleFormOpen = false; // Close the edit form
-            EditingSchedule = null; // Clear the editing schedule
+            EditingSchedule = new Schedule(); // Clear the editing schedule
         }
 
         /// <summary>
