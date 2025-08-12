@@ -128,6 +128,23 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
         }
 
         /// <summary>
+        /// Retrieves all curriculum subjects from the database asynchronously
+        /// </summary>
+        /// <returns>Task<List<CurriculumSubject>></returns>
+        public async Task<List<string>> GetSubjectCodeByCurriculumCodeAsync(string curriculumCode)
+        {
+            try
+            {
+                var subjectCodes = await _unitOfWork.CurriculumSubjectsRepository.GetSubjectCodeByCurriculumCode(curriculumCode);
+                return subjectCodes;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving subject code.", ex);
+            }
+        }
+
+        /// <summary>
         /// Imports a list of curriculum subjects from an Excel file into the database
         /// </summary>
         /// <param name="listCurriculumSubjectFromExcel"></param>
@@ -225,10 +242,10 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                             headerMap[header] = c;
                     }
 
-                    string[] requiredHeaders = { "CurriculumCode", "SubjectCode", "SubjectName", "SubjectV", "TermNo", "IsCombo", "Credits", "TotalSLots", "TeachingMode", "PartOfTerm" };
+                    string[] requiredHeaders = { "CurriculumCode", "SubjectCode", "TermNo", "IsCombo", "Credits", "TotalSLots", "TeachingMode", "PartOfTerm" };
                     foreach (var h in requiredHeaders)
                         if (!headerMap.ContainsKey(h))
-                            throw new Exception($"Missing required column: {h}");
+                            throw new Exception($"Thiếu cột bắt buộc: {h}");
 
                     for (int r = 2; r <= rowCount; r++)
                     {
@@ -238,8 +255,6 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
 
                         var curriculumCode = worksheet[r, headerMap["CurriculumCode"]].Value?.ToString();
                         var subjectCode = worksheet[r, headerMap["SubjectCode"]].Value?.ToString();
-                        var subjectNameEnglish = worksheet[r, headerMap["SubjectName"]].Value?.ToString();
-                        var subjectNameVietnamese = worksheet[r, headerMap["SubjectV"]].Value?.ToString();
                         var teachingMode = worksheet[r, headerMap["TeachingMode"]].Value?.ToString();
                         var partOfTerm = worksheet[r, headerMap["PartOfTerm"]].Value?.ToString();
 
@@ -268,13 +283,11 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
                         {
                             CurriculumCode = curriculumCode,
                             SubjectCode = subjectCode,
-                            SubjectNameEnglish = subjectNameEnglish,
-                            SubjectNameVietnamese = subjectNameVietnamese,
                             TermNo = termNo,
                             IsCombo = isCombo,
                             Credit = credit,
                             TotalSlots = totalSlots,
-                            TeachingMode = teachingMode, 
+                            TeachingMode = teachingMode,
                             PartOfTerm = partOfTerm
                         };
 
@@ -308,31 +321,50 @@ namespace SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices
             // Header
             sheet[1, 1].Text = "CurriculumCode";
             sheet[1, 2].Text = "SubjectCode";
-            sheet[1, 3].Text = "SubjectName";
-            sheet[1, 4].Text = "SubjectV";
-            sheet[1, 5].Text = "TermNo";
-            sheet[1, 6].Text = "IsCombo";
-            sheet[1, 7].Text = "Credits";
-            sheet[1, 8].Text = "TotalSLots";
-            sheet[1, 9].Text = "TeachingMode";
-            sheet[1, 10].Text = "PartOfTerm";
+            sheet[1, 3].Text = "TermNo";
+            sheet[1, 4].Text = "IsCombo";
+            sheet[1, 5].Text = "Credits";
+            sheet[1, 6].Text = "TotalSLots";
+            sheet[1, 7].Text = "TeachingMode";
+            sheet[1, 8].Text = "PartOfTerm";
 
             int row = 2;
             foreach (var curriculumSubject in curriculumSubjects)
             {
                 sheet[row, 1].Text = curriculumSubject.CurriculumCode ?? "";
                 sheet[row, 2].Text = curriculumSubject.SubjectCode ?? "";
-                sheet[row, 3].Text = curriculumSubject.SubjectNameEnglish ?? "";
-                sheet[row, 4].Text = curriculumSubject.SubjectNameVietnamese ?? "";
-                sheet[row, 5].Text = curriculumSubject.TermNo.ToString() ?? "";
-                sheet[row, 6].Text = curriculumSubject.IsCombo.ToString() ?? "";
-                sheet[row, 7].Text = curriculumSubject.Credit.ToString() ?? "";
-                sheet[row, 8].Text = curriculumSubject.TotalSlots.ToString() ?? "";
-                sheet[row, 9].Text = curriculumSubject.TeachingMode ?? "";
-                sheet[row, 10].Text = curriculumSubject.PartOfTerm ?? "";
+                sheet[row, 3].Text = curriculumSubject.TermNo.ToString() ?? "";
+                sheet[row, 4].Text = curriculumSubject.IsCombo.ToString() ?? "";
+                sheet[row, 5].Text = curriculumSubject.Credit.ToString() ?? "";
+                sheet[row, 6].Text = curriculumSubject.TotalSlots.ToString() ?? "";
+                sheet[row, 7].Text = curriculumSubject.TeachingMode ?? "";
+                sheet[row, 8].Text = curriculumSubject.PartOfTerm ?? "";
                 row++;
             }
             workbook.SaveAs(filePath);
+        }
+
+        public async Task<bool> CheckSubjectExits(string subjectCode)
+        {
+            try
+            {
+                return await _unitOfWork.CurriculumSubjectsRepository.CheckSubjectExists(subjectCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi kiểm tra mã lớp", ex);
+            }
+        }
+        public async Task<bool> CheckCurriculumExits(string curriculumCode)
+        {
+            try
+            {
+                return await _unitOfWork.CurriculumSubjectsRepository.CheckCurriculumExists(curriculumCode);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi kiểm tra khung chương trình", ex);
+            }
         }
         #endregion
     }

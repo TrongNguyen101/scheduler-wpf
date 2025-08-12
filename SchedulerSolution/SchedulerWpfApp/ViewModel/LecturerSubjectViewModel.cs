@@ -194,6 +194,8 @@ namespace SchedulerWpfApp.ViewModel
             CancelDeleteLectureSubjectCommand = new RelayCommand(CancelDelete);
             SaveLectureSubjectCommand = new RelayCommand(async () => await SaveLecturerSubjectAsync());
             ConfirmDeleteLectureSubjectCommand = new RelayCommand(async () => await ConfirmDeleteLecturerSubjectAsync());
+            SelectedLecturerSubject = new LecturerSubject();
+
             _ = LoadLecturerSubjects();
         }
         /// <summary>
@@ -257,18 +259,26 @@ namespace SchedulerWpfApp.ViewModel
                 try
                 {
                     // call ReadLectureSubjectFromExcel function to process file and read file when importing
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var data = _lecturerSubjectService.ReadLecturerSubjectFromExcel(dialog.FileName);
+                    stopwatch.Stop();
+                    System.Diagnostics.Trace.WriteLine($"[ImportLecturerSubject] Read file: {stopwatch.Elapsed.TotalSeconds:N2}s, records: {data?.Count ?? 0}");
+                  //  _notificationService.ShowInfo($"Đọc file phân công: {stopwatch.Elapsed.TotalSeconds:N2}s, bản ghi: {data?.Count ?? 0}");
                     // call ImportLecturerSubjectFromExcel function to add new data to database
                     IsProgressBarOpen = true;
+                    stopwatch.Restart();
                     await _lecturerSubjectService.ImportLecturerSubjectFromExcel(data, progress);
+                    stopwatch.Stop();
                     IsProgressBarOpen = false;
+                    System.Diagnostics.Trace.WriteLine($"[ImportLecturerSubject] Import: {stopwatch.Elapsed.TotalSeconds:N2}s");
+                  //  _notificationService.ShowInfo($"Import phân công: {stopwatch.Elapsed.TotalSeconds:N2}s");
                     _notificationService.ShowSuccess("Thêm mới danh sách phân công giảng dạy cho giảng viên thành công!");
                     await LoadLecturerSubjects();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Thêm mới danh sách phân công giảng dạy cho giảng viên không thành công.");
+                    _notificationService.ShowError($"Thêm mới danh sách phân công giảng dạy cho giảng viên không thành công. {ex.Message}");
                 }
             }
         }
@@ -334,7 +344,6 @@ namespace SchedulerWpfApp.ViewModel
         /// <returns></returns>
         public async Task AddLecturerSubjectAsync()
         {
-            SelectedLecturerSubject = new LecturerSubject();
             IsLecturerSubjectFormOpen = true;
             // check if it is an edit event
             _isEditing = false;
@@ -373,7 +382,7 @@ namespace SchedulerWpfApp.ViewModel
         private void CancelEdit()
         {
             // set SelectedLecturerSubject null 
-            SelectedLecturerSubject = null;
+            SelectedLecturerSubject = new LecturerSubject();
             IsLecturerSubjectFormOpen = false;
         }
 
@@ -393,16 +402,21 @@ namespace SchedulerWpfApp.ViewModel
                 IsLecturerSubjectFormOpen = true;
                 return;
             }
-            if (SelectedLecturerSubject.NumberOfClasses <= 0 ||
-                SelectedLecturerSubject.TotalSlots <= 0)
+            if (SelectedLecturerSubject.NumberOfClasses == null || SelectedLecturerSubject.NumberOfClasses <= 0)
             {
-                _notificationService.ShowWarning("Số lượng lớp học và tổng số tiết phải lớn hơn 0.");
+                _notificationService.ShowWarning("Số lượng lớp học lớn hơn 0.");
                 IsLecturerSubjectFormOpen = true;
                 return;
             }
             if (SelectedLecturerSubject.Term <= 0 || SelectedLecturerSubject.Term > 9)
             {
                 _notificationService.ShowWarning("Dữ liệu kỳ phải lớn hơn 0 và bé hơn 9.");
+                IsLecturerSubjectFormOpen = true;
+                return;
+            }
+            if (SelectedLecturerSubject.TotalSlots == null || SelectedLecturerSubject.TotalSlots <= 0)
+            {
+                _notificationService.ShowWarning("Dữ liệu tổng slot phải lớn hơn 0");
                 IsLecturerSubjectFormOpen = true;
                 return;
             }
@@ -433,6 +447,8 @@ namespace SchedulerWpfApp.ViewModel
                     _notificationService.ShowSuccess("Thêm mới lịch phân công giảng dạy cho giảng viên thành công!");
                 }
                 IsLecturerSubjectFormOpen = false;
+                SelectedLecturerSubject = new LecturerSubject();
+
                 await LoadLecturerSubjects();
             }
             catch (Exception)

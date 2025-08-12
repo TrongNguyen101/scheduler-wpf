@@ -32,6 +32,7 @@
               Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -131,8 +132,32 @@
                 </Button>
             </Grid>
 
-            <!-- Syncfusion DataGrid -->
+            <!-- Import Template Notice -->
             <Border Grid.Row="1"
+                    Background="#FFF3CD"
+                    BorderBrush="#FFEAA7"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="12,8"
+                    Margin="0,0,0,15">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="ℹ️"
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0" />
+                    <TextBlock Text="Template import: "
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Foreground="#856404" />
+                    <TextBlock Text="CurriculumCode, IsActive"
+                               FontWeight="Bold"
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Foreground="#856404" />
+                </StackPanel>
+            </Border>
+            <!-- Syncfusion DataGrid -->
+            <Border Grid.Row="2"
                     Background="White"
                     CornerRadius="8"
                     Padding="0">
@@ -196,7 +221,7 @@
             </Border>
 
             <!-- Pagination Controls -->
-            <Grid Grid.Row="2"
+            <Grid Grid.Row="3"
                   Margin="0,15,0,0"
                   HorizontalAlignment="Right"
                   Width="760">
@@ -267,6 +292,8 @@
                                    Foreground="{StaticResource TextColor}" />
                         <ComboBox SelectedValue="{Binding SelectedCurriculum.IsActive}"
                                   SelectedValuePath="Tag"
+                                  Style="{StaticResource ModernComboBoxStyle}"
+                                  Height="50"
                                   Margin="0,0,0,15">
                             <ComboBoxItem Content="Kích hoạt"
                                           Tag="{x:Static sys:Boolean.TrueString}" />
@@ -367,12 +394,24 @@
                 </Grid>
             </Border>
         </Popup>
-        <Popup IsOpen="{Binding IsProgressBarOpen}" StaysOpen="True" Placement="Center" AllowsTransparency="True">
-            <Border Background="#CCFFFFFF" Padding="20" CornerRadius="8" 
-                    BorderBrush="Gray" BorderThickness="1" >
+        <Popup IsOpen="{Binding IsProgressBarOpen}"
+               StaysOpen="True"
+               Placement="Center"
+               AllowsTransparency="True">
+            <Border Background="#CCFFFFFF"
+                    Padding="20"
+                    CornerRadius="8"
+                    BorderBrush="Gray"
+                    BorderThickness="1">
                 <StackPanel>
-                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..." Margin="0,0,0,8" HorizontalAlignment="Center"/>
-                    <ProgressBar Height="24" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" Width="300"/>
+                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..."
+                               Margin="0,0,0,8"
+                               HorizontalAlignment="Center" />
+                    <ProgressBar Height="24"
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="{Binding ProgressValue}"
+                                 Width="300" />
                 </StackPanel>
             </Border>
         </Popup>

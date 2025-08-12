@@ -167,6 +167,8 @@ namespace SchedulerWpfApp.ViewModel
             ConfirmDeleteRoomCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
             DeleteRoomListCommand = new RelayCommandGeneric<Room>(async (room) => await DeleteRoomAsync(room));
             CancelDeleteRoomCommand = new RelayCommand(CancelDelete);
+            SelectedRoom = new Room();
+
             _ = LoadRoomAsync(); // Load the room list asynchronously when the view model is created
         }
 
@@ -208,17 +210,25 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var data = _roomService.ReadRoomListFromExcel(dialog.FileName);
+                    stopwatch.Stop();
+                    System.Diagnostics.Trace.WriteLine($"[ImportRoom] Read file: {stopwatch.Elapsed.TotalSeconds:N2}s, records: {data?.Count ?? 0}");
+                   // _notificationService.ShowInfo($"Đọc file phòng: {stopwatch.Elapsed.TotalSeconds:N2}s, bản ghi: {data?.Count ?? 0}");
                     IsProgressBarOpen = true;
+                    stopwatch.Restart();
                     await _roomService.ImportRoomFromExcel(data, progress);
+                    stopwatch.Stop();
                     IsProgressBarOpen = false;
+                    System.Diagnostics.Trace.WriteLine($"[ImportRoom] Import: {stopwatch.Elapsed.TotalSeconds:N2}s");
+                   // _notificationService.ShowInfo($"Import phòng: {stopwatch.Elapsed.TotalSeconds:N2}s");
                     _notificationService.ShowSuccess("Nhập danh sách phòng học thành công!");
                     await LoadRoomAsync();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Nhập danh sách phòng học không thành công.");
+                    _notificationService.ShowError($"Nhập danh sách phòng học không thành công. {ex.Message}");
                 }
             }
         }
@@ -265,7 +275,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         public async Task AddRoomAsync()
         {
-            SelectedRoom = new Room();
             IsRoomFormOpen = true;
             // check if it is an edit event
             _isEditing = false;
@@ -363,7 +372,7 @@ namespace SchedulerWpfApp.ViewModel
         private void CancelEdit()
         {
             // set SelectedRoom null 
-            SelectedRoom = null;
+            SelectedRoom = new Room();
             IsRoomFormOpen = false;
         }
 
@@ -379,19 +388,21 @@ namespace SchedulerWpfApp.ViewModel
             if (string.IsNullOrWhiteSpace(SelectedRoom.RoomName) ||
                 string.IsNullOrWhiteSpace(SelectedRoom.TypeOfRoom) ||
                 string.IsNullOrWhiteSpace(SelectedRoom.Building) ||
-                string.IsNullOrWhiteSpace(SelectedRoom.Status))
+                string.IsNullOrWhiteSpace(SelectedRoom.Status) ||
+                SelectedRoom.TotalPersons == 0 ||
+                SelectedRoom.Floor == 0)
             {
                 _notificationService.ShowWarning("Dữ liệu phòng học không được để trống");
                 IsRoomFormOpen = true;
                 return;
             }
-            else if (SelectedRoom.TotalPersons <= 0 || SelectedRoom.TotalPersons > 50)
+            else if (SelectedRoom.TotalPersons < 0 || SelectedRoom.TotalPersons > 50)
             {
                 _notificationService.ShowWarning("Số người trong phòng không vượt quá 50 người và không được nhỏ hơn bằng 0");
                 IsRoomFormOpen = true;
                 return;
             }
-            else if (SelectedRoom.Floor <= 0)
+            else if (SelectedRoom.Floor < 0)
             {
                 _notificationService.ShowWarning("Số tầng không được nhỏ hơn hoặc bằng 0");
                 IsRoomFormOpen = true;
@@ -417,7 +428,7 @@ namespace SchedulerWpfApp.ViewModel
                     _notificationService.ShowSuccess("Thêm phòng mới thành công!");
                 }
                 IsRoomFormOpen = false;
-                SelectedRoom = null;
+                SelectedRoom = new Room();
                 await LoadRoomAsync();
             }
             catch (Exception)

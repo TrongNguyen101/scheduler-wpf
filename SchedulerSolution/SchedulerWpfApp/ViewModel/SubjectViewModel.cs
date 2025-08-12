@@ -4,6 +4,8 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
+using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
+using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
 using SchedulerWpfApp.ServiceRefactor.SubjectServices;
 
@@ -18,7 +20,8 @@ namespace SchedulerWpfApp.ViewModel
         // Dependencies injected via constructor
         private readonly ISubjectServices _subjectService;
         private readonly INotificationService _notificationService;
-
+        private readonly ICurriculumSubjectServices _curriculumSubjectServices;
+        private readonly ILecturerSubjectServices _lecturerSubjectServices;
         // Internal data fields
         private ObservableCollection<Subject> _subjects;
         private Subject? _selectedSubject;
@@ -141,10 +144,12 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public SubjectViewModel(ISubjectServices courseService, INotificationService notificationService)
+        public SubjectViewModel(ISubjectServices courseService, INotificationService notificationService, ICurriculumSubjectServices curriculumSubjectServices, ILecturerSubjectServices lecturerSubjectServices)
         {
             _subjectService = courseService;
             _notificationService = notificationService;
+            _curriculumSubjectServices = curriculumSubjectServices;
+            _lecturerSubjectServices = lecturerSubjectServices;
 
             Subjects = new ObservableCollection<Subject>();
 
@@ -165,6 +170,7 @@ namespace SchedulerWpfApp.ViewModel
             ConfirmDeleteCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
             CancelDeleteSubjectCommand = new RelayCommand(CancelDelete);
 
+            SelectedSubject = new Subject(); // Initialize a new Subject object
             // Load data immediately when ViewModel is constructed
             _ = LoadSubjectAsync();
         }
@@ -191,7 +197,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddSubjectAsync()
         {
-            SelectedSubject = new Subject(); // Initialize a new Subject object
             IsSubjectFormOpen = true;
             _isEdit = false;
             IsSubjectCodeEdit = false;
@@ -307,7 +312,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 // Close form  reset
                 IsSubjectFormOpen = false;
-                SelectedSubject = null;
+                SelectedSubject = new Subject();
                 LoadSubjectAsync();
             }
         }
@@ -318,7 +323,7 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelEdit()
         {
             IsSubjectFormOpen = false;
-            SelectedSubject = null;
+            SelectedSubject = new Subject();
         }
 
         /// <summary>
@@ -343,6 +348,18 @@ namespace SchedulerWpfApp.ViewModel
 
             try
             {
+                 bool subjectExistsInCurriculum = await _curriculumSubjectServices.CheckSubjectExits(SelectedSubject.SubjectCode);
+                if (subjectExistsInCurriculum)
+                {
+                    _notificationService.ShowWarning("Môn học này đã được sử dụng trong chương trình đào tạo. Không thể xóa.");
+                    return;
+                }
+                bool subjectExistsInLecturerSubject = await _lecturerSubjectServices.CheckSubjectExits(SelectedSubject.SubjectCode);
+                if (subjectExistsInLecturerSubject)
+                {
+                    _notificationService.ShowWarning("Môn học này đã được sử dụng trong lịch phân công của giảng viên. Không thể xóa.");
+                    return;
+                }
                 // Delete the selected subject from the data source
                 await _subjectService.DeleteSubject(SelectedSubject.SubjectCode);
 
@@ -413,19 +430,26 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var data = _subjectService.ReadSubjectsFromExcel(dialog.FileName);
+                    stopwatch.Stop();
+                    System.Diagnostics.Trace.WriteLine($"[ImportSubject] Read file: {stopwatch.Elapsed.TotalSeconds:N2}s, records: {data?.Count ?? 0}");
+                   // _notificationService.ShowInfo($"Đọc file môn học: {stopwatch.Elapsed.TotalSeconds:N2}s, bản ghi: {data?.Count ?? 0}");
 
                     IsProgressBarOpen = true;
+                    stopwatch.Restart();
                     await _subjectService.ImportSubjectFromExcel(data, progress);
+                    stopwatch.Stop();
                     IsProgressBarOpen = false;
-
+                    System.Diagnostics.Trace.WriteLine($"[ImportSubject] Import: {stopwatch.Elapsed.TotalSeconds:N2}s");
+                  //  _notificationService.ShowInfo($"Import môn học: {stopwatch.Elapsed.TotalSeconds:N2}s");
                     _notificationService.ShowSuccess("Nhập môn học thành công.");
                     await LoadSubjectAsync();
                 }
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError("Nhập môn học thất bại.");
+                    _notificationService.ShowError($"Nhập môn học thất bại. {ex.Message}");
                 }
             }
         }

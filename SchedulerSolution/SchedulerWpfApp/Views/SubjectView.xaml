@@ -31,6 +31,7 @@
               Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -130,8 +131,17 @@
                 </Button>
             </Grid>
 
+            <!-- Import Template Notice -->
+            <Border Grid.Row="1" Background="#FFF3CD" BorderBrush="#FFEAA7" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,15">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="ℹ️" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock Text="Template import: " FontSize="14" VerticalAlignment="Center" Foreground="#856404" />
+                    <TextBlock Text="SubjectCode, SubjectNameEnglish, SubjectNameVietnamese, TotalTime, TotalCredits" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Foreground="#856404" />
+                </StackPanel>
+            </Border>
+
             <!-- Syncfusion DataGrid -->
-            <Border Grid.Row="1"
+            <Border Grid.Row="2"
                     Background="White"
                     CornerRadius="8"
                     Padding="0">
@@ -204,7 +214,7 @@
             </Border>
 
             <!-- Pagination Controls -->
-            <Grid Grid.Row="2"
+            <Grid Grid.Row="3"
                   Margin="0,15,0,0"
                   HorizontalAlignment="Right"
                   Width="760">
@@ -287,13 +297,13 @@
                         <TextBlock Text="Thời Gian Học"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedSubject.TotalTime, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SelectedSubject.TotalTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}"
                                  Style="{StaticResource ModernTextBoxStyle}" />
 
                         <TextBlock Text="Tổng Tín Chỉ"
                                    Margin="0,0,0,5"
                                    Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedSubject.TotalCredits, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SelectedSubject.TotalCredits, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}"
                                  Style="{StaticResource ModernTextBoxStyle}" />
                     </StackPanel>
 

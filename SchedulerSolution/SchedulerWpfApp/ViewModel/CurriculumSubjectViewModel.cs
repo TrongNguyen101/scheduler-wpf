@@ -254,6 +254,9 @@ namespace SchedulerWpfApp.ViewModel
             CancelEditCurriculumSubjectCommand = new RelayCommand(CancelEdit);
             ConfirmDeleteCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
             CancelDeleteCurriculumSubjectCommand = new RelayCommand(CancelDelete);
+            SelectedCurriculumSubject = new CurriculumSubject(); // Initialize a new curriculumSubject object
+            SelectedSubject = new Subject(); // Initialize a new subject object
+            SelectedCurriculum = new Curriculum(); // Initialize a new curriculum object
 
             // Load data immediately when ViewModel is constructed
             _ = LoadCurriculumSubjectAsync();
@@ -274,15 +277,6 @@ namespace SchedulerWpfApp.ViewModel
             {
                 var subject = await _subjectServices.GetBySubjectCodeAsync(subjectCode);
                 SelectedSubject = subject ?? new Subject();
-
-                // Update SelectedCurriculumSubject with subject information
-                if (SelectedCurriculumSubject != null)
-                {
-                    SelectedCurriculumSubject.SubjectNameEnglish = SelectedSubject.SubjectNameEnglish;
-                    SelectedCurriculumSubject.SubjectNameVietnamese = SelectedSubject.SubjectNameVietnamese;
-                    // Trigger property change notification for UI update
-                    OnPropertyChanged(nameof(SelectedCurriculumSubject));
-                }
             }
             catch (Exception ex)
             {
@@ -339,11 +333,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddCurriculumSubjectAsync()
         {
-            SelectedCurriculumSubject = new CurriculumSubject(); // Initialize a new curriculumSubject object
-            SelectedSubject = new Subject(); // Initialize a new subject object
-            SelectedCurriculum = new Curriculum(); // Initialize a new curriculum object
-            SelectedSubjectCode = null; // Reset selected codes
-            SelectedCurriculumCode = null;
             IsCurriculumSubjectFormOpen = true;
             _isEdit = false;
             IsCurriculumSubjectCodeEdit = false;
@@ -361,8 +350,6 @@ namespace SchedulerWpfApp.ViewModel
                 Id = curriculumSubject.Id,
                 CurriculumCode = curriculumSubject.CurriculumCode,
                 SubjectCode = curriculumSubject.SubjectCode,
-                SubjectNameEnglish = curriculumSubject.SubjectNameEnglish,
-                SubjectNameVietnamese = curriculumSubject.SubjectNameVietnamese,
                 TermNo = curriculumSubject.TermNo,
                 IsCombo = curriculumSubject.IsCombo,
                 Credit = curriculumSubject.Credit,
@@ -427,6 +414,12 @@ namespace SchedulerWpfApp.ViewModel
                 IsCurriculumSubjectFormOpen = true;
                 return;
             }
+            if (SelectedCurriculumSubject.TotalSlots <= 0 || SelectedCurriculumSubject.Credit <= 0)
+            {
+                _notificationService.ShowWarning("Số tín chỉ và tổng số giờ học phải lớn hơn 0");
+                IsCurriculumSubjectFormOpen = true;
+                return;
+            }
 
             try
             {
@@ -463,8 +456,6 @@ namespace SchedulerWpfApp.ViewModel
                     {
                         existingCurriculumSubject.CurriculumCode = SelectedCurriculumSubject.CurriculumCode;
                         existingCurriculumSubject.SubjectCode = SelectedCurriculumSubject.SubjectCode;
-                        existingCurriculumSubject.SubjectNameEnglish = SelectedCurriculumSubject.SubjectNameEnglish;
-                        existingCurriculumSubject.SubjectNameVietnamese = SelectedCurriculumSubject.SubjectNameVietnamese;
                         existingCurriculumSubject.TermNo = SelectedCurriculumSubject.TermNo;
                         existingCurriculumSubject.IsCombo = SelectedCurriculumSubject.IsCombo;
                         existingCurriculumSubject.Credit = SelectedCurriculumSubject.Credit;
@@ -491,9 +482,9 @@ namespace SchedulerWpfApp.ViewModel
             {
                 // Close form  reset
                 IsCurriculumSubjectFormOpen = false;
-                SelectedCurriculumSubject = null;
-                SelectedSubjectCode = string.Empty;
-                SelectedCurriculumCode = string.Empty;
+                SelectedCurriculumSubject = new CurriculumSubject();
+                SelectedSubjectCode = null;
+                SelectedCurriculumCode = null;
                 LoadCurriculumSubjectAsync();
             }
         }
@@ -504,9 +495,9 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelEdit()
         {
             IsCurriculumSubjectFormOpen = false;
-            SelectedCurriculumSubject = null;
-            SelectedSubjectCode = string.Empty;
-            SelectedCurriculumCode = string.Empty;
+            SelectedCurriculumSubject = new CurriculumSubject();
+            SelectedSubjectCode = null;
+            SelectedCurriculumCode = null;
         }
 
         /// <summary>
@@ -621,11 +612,19 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var data = _curriculumSubjectService.ReadCurriculumSubjectsFromExcel(dialog.FileName);
+                    stopwatch.Stop();
+                    System.Diagnostics.Trace.WriteLine($"[ImportCurriculumSubject] Read file: {stopwatch.Elapsed.TotalSeconds:N2}s, records: {data?.Count ?? 0}");
+                  //  _notificationService.ShowInfo($"Đọc file khung môn: {stopwatch.Elapsed.TotalSeconds:N2}s, bản ghi: {data?.Count ?? 0}");
 
                     IsProgressBarOpen = true;
+                    stopwatch.Restart();
                     await _curriculumSubjectService.ImportCurriculumSubjectFromExcel(data, progress);
+                    stopwatch.Stop();
                     IsProgressBarOpen = false;
+                    System.Diagnostics.Trace.WriteLine($"[ImportCurriculumSubject] Import: {stopwatch.Elapsed.TotalSeconds:N2}s");
+                 //   _notificationService.ShowInfo($"Import khung môn: {stopwatch.Elapsed.TotalSeconds:N2}s");
 
                     _notificationService.ShowSuccess("Nhập khung môn thành công.");
                     await LoadCurriculumSubjectAsync();
@@ -633,7 +632,7 @@ namespace SchedulerWpfApp.ViewModel
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError("Nhập khung môn thất bại.");
+                    _notificationService.ShowError($"Nhập khung môn thất bại. {ex.Message}");
                 }
             }
         }
@@ -655,9 +654,7 @@ namespace SchedulerWpfApp.ViewModel
                 // can search by CurriculumSubjectCode
                 var filtered = _allCurriculumSubjects.Where(CurriculumSubject =>
                 (!string.IsNullOrEmpty(CurriculumSubject.CurriculumCode) && CurriculumSubject.CurriculumCode.ToLower().Contains(lowerKeyword)) ||
-                (!string.IsNullOrEmpty(CurriculumSubject.SubjectCode) && CurriculumSubject.SubjectCode.ToLower().Contains(lowerKeyword)) ||
-                (!string.IsNullOrEmpty(CurriculumSubject.SubjectNameEnglish) && CurriculumSubject.SubjectNameEnglish.ToLower().Contains(lowerKeyword)) ||
-                (!string.IsNullOrEmpty(CurriculumSubject.SubjectNameVietnamese) && CurriculumSubject.SubjectNameVietnamese?.ToLower().Contains(lowerKeyword) == true)
+                (!string.IsNullOrEmpty(CurriculumSubject.SubjectCode) && CurriculumSubject.SubjectCode.ToLower().Contains(lowerKeyword)) == true
                 ).ToList();
 
                 CurriculumSubjects = new ObservableCollection<CurriculumSubject>(filtered);

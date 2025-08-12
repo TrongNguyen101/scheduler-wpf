@@ -71,6 +71,25 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
             }
         }
 
+        public async Task<bool> AddSlot(Schedule schedule)
+        {
+            if (schedule == null)
+                throw new ArgumentNullException(nameof(schedule));
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _unitOfWork.ScheduleRepository.AddSlotAsync(schedule); // Sử dụng phương thức AddRange từ IUnitOfWork
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                _logger?.LogError(ex, "Failed to add slot due to an unexpected error.");
+                return false;
+            }
+        }
+
         /// <summary>
         /// Update schedule in database
         /// </summary>
@@ -170,6 +189,37 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
             }
         }
 
+        public async Task DeleteScheduleAsync(int scheduleId)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                // Call delete and reset identity operations
+                var existingSchedule = await _unitOfWork.ScheduleRepository.GetByIdAsync(scheduleId);
+                if (existingSchedule == null)
+                {
+                    throw new Exception($"Lịch học với ID {scheduleId} không tồn tại.");
+                }
+
+                await _unitOfWork.ScheduleRepository.DeleteScheduleAsync(existingSchedule);
+                await _unitOfWork.ScheduleRepository.ResetIdentitySchedulesAsync();  // Ensure ResetIdentity is part of the transaction
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger?.LogError(dbEx, "Database error while deleting schedules.");
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Lỗi khi xóa lịch học do lỗi cơ sở dữ liệu.", dbEx);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error while deleting schedules.");
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Lỗi khi xóa lịch học.", ex);
+            }
+        }
         public void ExportToExcel(List<Schedule> schedules, string filePath)
         {
             using ExcelEngine excelEngine = new();
@@ -199,7 +249,7 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
                 sheet[row, 1].Number = s.ScheduleId;
                 sheet[row, 2].Text = s.GroupName ?? "";
                 sheet[row, 3].Text = s.SubjectCode ?? "";
-                sheet[row, 4].Text = s.Date?.ToString("yyyy-MM-dd") ?? "";
+                sheet[row, 4].Text = s.Date?.ToString("dd-MM-yyyy") ?? "";
                 sheet[row, 5].Number = s.SlotTime ?? 0;
                 sheet[row, 6].Text = s.RoomName ?? "";
                 sheet[row, 7].Number = s.SessionNo ?? 0;

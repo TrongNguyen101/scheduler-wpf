@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
+using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
 
 namespace SchedulerWpfApp.ViewModel
@@ -18,6 +19,7 @@ namespace SchedulerWpfApp.ViewModel
         // Dependencies injected via constructor
         private readonly ICurriculumServices _curriculumService;
         private readonly INotificationService _notificationService;
+        private readonly ICurriculumSubjectServices _curriculumSubjectServices;
 
         // Internal data fields
         private ObservableCollection<Curriculum> _curriculums;
@@ -139,10 +141,11 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public CurriculumViewModel(ICurriculumServices curriculumService, INotificationService notificationService)
+        public CurriculumViewModel(ICurriculumServices curriculumService, INotificationService notificationService, ICurriculumSubjectServices curriculumSubjectServices)
         {
             _curriculumService = curriculumService;
             _notificationService = notificationService;
+            _curriculumSubjectServices = curriculumSubjectServices;
 
             Curriculums = new ObservableCollection<Curriculum>();
 
@@ -162,6 +165,7 @@ namespace SchedulerWpfApp.ViewModel
             CancelEditCurriculumCommand = new RelayCommand(CancelEdit);
             ConfirmDeleteCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
             CancelDeleteCurriculumCommand = new RelayCommand(CancelDelete);
+            SelectedCurriculum = new Curriculum(); // Initialize a new curriculum object
 
             // Load data immediately when ViewModel is constructed
             _ = LoadCurriculumAsync();
@@ -189,7 +193,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddCurriculumAsync()
         {
-            SelectedCurriculum = new Curriculum(); // Initialize a new curriculum object
             IsCurriculumFormOpen = true;
             _isEdit = false;
             IsCurriculumCodeEdit = false;
@@ -287,7 +290,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 // Close form  reset
                 IsCurriculumFormOpen = false;
-                SelectedCurriculum = null;
+                SelectedCurriculum = new Curriculum();
                 LoadCurriculumAsync();
             }
         }
@@ -298,7 +301,7 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelEdit()
         {
             IsCurriculumFormOpen = false;
-            SelectedCurriculum = null;
+            SelectedCurriculum = new Curriculum();
         }
 
         /// <summary>
@@ -323,6 +326,12 @@ namespace SchedulerWpfApp.ViewModel
 
             try
             {
+                bool curriculumExistsInCurriculumSubject = await _curriculumSubjectServices.CheckCurriculumExits(SelectedCurriculum.CurriculumCode);
+                if (curriculumExistsInCurriculumSubject)
+                {
+                    _notificationService.ShowWarning("Khung chương trình này đã được sử dụng trong chương trình đào tạo. Không thể xóa.");
+                    return;
+                }
                 // Delete the selected curriculum from the data source
                 await _curriculumService.DeleteCurriculum(SelectedCurriculum.CurriculumCode);
 
@@ -393,11 +402,19 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var data = _curriculumService.ReadCurriculumsFromExcel(dialog.FileName);
+                    stopwatch.Stop();
+                    System.Diagnostics.Trace.WriteLine($"[ImportCurriculum] Read file: {stopwatch.Elapsed.TotalSeconds:N2}s, records: {data?.Count ?? 0}");
+                  //  _notificationService.ShowInfo($"Đọc file khung CT: {stopwatch.Elapsed.TotalSeconds:N2}s, bản ghi: {data?.Count ?? 0}");
 
                     IsProgressBarOpen = true;
+                    stopwatch.Restart();
                     await _curriculumService.ImportCurriculumFromExcel(data, progress);
+                    stopwatch.Stop();
                     IsProgressBarOpen = false;
+                    System.Diagnostics.Trace.WriteLine($"[ImportCurriculum] Import: {stopwatch.Elapsed.TotalSeconds:N2}s");
+                  //  _notificationService.ShowInfo($"Import khung CT: {stopwatch.Elapsed.TotalSeconds:N2}s");
 
                     _notificationService.ShowSuccess("Nhập khung chương trình thành công.");
 
@@ -406,7 +423,7 @@ namespace SchedulerWpfApp.ViewModel
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError("Nhập khung chương trình thất bại.");
+                    _notificationService.ShowError($"Nhập khung chương trình thất bại. {ex.Message}");
                 }
             }
         }

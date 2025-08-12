@@ -5,6 +5,7 @@ using SchedulerWpfApp.Model;
 using Microsoft.Win32;
 using SchedulerWpfApp.ServiceRefactor.LecturerServices;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
+using SchedulerWpfApp.ServiceRefactor.LecturerSubjectServices;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -17,6 +18,7 @@ namespace SchedulerWpfApp.ViewModel
         // Dependencies injected via constructor
         private readonly ILecturerServices _lecturerService;
         private readonly INotificationService _notificationService;
+        private readonly ILecturerSubjectServices _lecturerSubjectService;
         // Internal data fields
         private ObservableCollection<Lecturer> _lecturers;
         private Lecturer? _selectedLecture;
@@ -138,10 +140,11 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Constructor initializes dependencies and commands.
         /// </summary>
-        public LectureViewModel(ILecturerServices lecturerService, INotificationService notificationService)
+        public LectureViewModel(ILecturerServices lecturerService, INotificationService notificationService, ILecturerSubjectServices lecturerSubjectServices)
         {
             _lecturerService = lecturerService;
             _notificationService = notificationService;
+            _lecturerSubjectService = lecturerSubjectServices;
 
             Lectures = new ObservableCollection<Lecturer>();
 
@@ -162,6 +165,7 @@ namespace SchedulerWpfApp.ViewModel
             ConfirmDeleteCommand = new RelayCommand(async () => await ConfirmDeleteAsync());
             CancelDeleteLectureCommand = new RelayCommand(CancelDelete);
 
+            SelectedLecture = new Lecturer(); // Initialize a new Lecturer object
             // Load data immediately when ViewModel is constructed
             _ = LoadLectureAsync();
         }
@@ -188,7 +192,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddLectureAsync()
         {
-            SelectedLecture = new Lecturer(); // Initialize a new Lecturer object
             IsLectureFormOpen = true;
             _isEdit = false;
             IsLectureCodeEdit = false;
@@ -301,7 +304,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 // Close form and reset
                 IsLectureFormOpen = false;
-                SelectedLecture = null;
+                SelectedLecture = new Lecturer();
                 LoadLectureAsync();
             }
         }
@@ -312,7 +315,7 @@ namespace SchedulerWpfApp.ViewModel
         public void CancelEdit()
         {
             IsLectureFormOpen = false;
-            SelectedLecture = null;
+            SelectedLecture = new Lecturer();
         }
 
         /// <summary>
@@ -337,6 +340,12 @@ namespace SchedulerWpfApp.ViewModel
 
             try
             {
+                bool lecturerExistsInLecturerSubject = await _lecturerSubjectService.CheckLecturerExits(SelectedLecture.LecturerId);
+                if (lecturerExistsInLecturerSubject)
+                {
+                    _notificationService.ShowWarning("Giảng Viên này đang có lịch phân công. Không thể xóa.");
+                    return;
+                }
                 // Call the service to delete the lecturer
                 await _lecturerService.DeleteLecturer(SelectedLecture.LecturerId);
 
@@ -406,11 +415,19 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var data = _lecturerService.ReadLecturersFromExcel(dialog.FileName);
+                    stopwatch.Stop();
+                    System.Diagnostics.Trace.WriteLine($"[ImportLecturer] Read file: {stopwatch.Elapsed.TotalSeconds:N2}s, records: {data?.Count ?? 0}");
+                  //  _notificationService.ShowInfo($"Đọc file giảng viên: {stopwatch.Elapsed.TotalSeconds:N2}s, bản ghi: {data?.Count ?? 0}");
 
                     IsProgressBarOpen = true;
+                    stopwatch.Restart();
                     await _lecturerService.ImportLecturerFromExcel(data, progress);
+                    stopwatch.Stop();
                     IsProgressBarOpen = false;
+                    System.Diagnostics.Trace.WriteLine($"[ImportLecturer] Import: {stopwatch.Elapsed.TotalSeconds:N2}s");
+                 //   _notificationService.ShowInfo($"Import giảng viên: {stopwatch.Elapsed.TotalSeconds:N2}s");
 
                     _notificationService.ShowSuccess("Nhập giảng viên thành công!");
                     await LoadLectureAsync();
@@ -418,7 +435,7 @@ namespace SchedulerWpfApp.ViewModel
                 catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError("Nhập giảng viên thất bại.");
+                    _notificationService.ShowError($"Nhập giảng viên thất bại. {ex.Message}");
                 }
             }
         }

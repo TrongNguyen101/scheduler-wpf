@@ -13,6 +13,7 @@ namespace SchedulerWpfApp.ViewModel
         private object _currentViewModel;
 
         private readonly CreateScheduleTree _scheduleTree;
+
         private TypeTab _currentTab;
         // Factory delegates to lazily create view models
         private readonly Func<SubjectViewModel> _subjectViewModelFactory;

@@ -32,6 +32,7 @@
               Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -131,8 +132,32 @@
                 </Button>
             </Grid>
 
-            <!-- Syncfusion DataGrid -->
             <Border Grid.Row="1"
+                    Background="#FFF3CD"
+                    BorderBrush="#FFEAA7"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="12,8"
+                    Margin="0,0,0,15">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="ℹ️"
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0" />
+                    <TextBlock Text="Template import: "
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Foreground="#856404" />
+                    <TextBlock Text="CurriculumCode, SubjectCode, TermNo, IsCombo, Credits, TotalSLots, TeachingMode, PartOfTerm"
+                               FontWeight="Bold"
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Foreground="#856404" />
+                </StackPanel>
+            </Border>
+
+            <!-- Syncfusion DataGrid -->
+            <Border Grid.Row="2"
                     Background="White"
                     CornerRadius="8"
                     Padding="0">
@@ -163,12 +188,6 @@
                                                    AllowResizing="True" />
                         <syncfusion:GridTextColumn HeaderText="Mã Môn Học"
                                                    MappingName="SubjectCode"
-                                                   AllowResizing="True" />
-                        <syncfusion:GridTextColumn HeaderText="Tên Môn"
-                                                   MappingName="SubjectNameEnglish"
-                                                   AllowResizing="True" />
-                        <syncfusion:GridTextColumn HeaderText="Tên Môn Tiếng Việt"
-                                                   MappingName="SubjectNameVietnamese"
                                                    AllowResizing="True" />
                         <syncfusion:GridTextColumn HeaderText="Kỳ"
                                                    MappingName="TermNo"
@@ -220,7 +239,7 @@
             </Border>
 
             <!-- Pagination Controls -->
-            <Grid Grid.Row="2"
+            <Grid Grid.Row="3"
                   Margin="0,15,0,0"
                   HorizontalAlignment="Right"
                   Width="760">
@@ -301,7 +320,7 @@
                             <ComboBox SelectedItem="{Binding SelectedCurriculumCode, UpdateSourceTrigger=PropertyChanged}"
                                       ItemsSource="{Binding AllCurriculumCodes}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Background="#F5F5F5" />
+                                      Height="50" />
                         </StackPanel>
 
                         <StackPanel Grid.Row="0"
@@ -313,46 +332,21 @@
                             <ComboBox SelectedItem="{Binding SelectedSubjectCode, UpdateSourceTrigger=PropertyChanged}"
                                       ItemsSource="{Binding AllSubjectCodes}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Background="#F5F5F5" />
-                        </StackPanel>
-
-                        <!-- Dòng 2: Tên Môn Tiếng Anh và Tên Môn Tiếng Việt -->
-                        <StackPanel Grid.Row="1"
-                                    Grid.Column="0"
-                                    Margin="0,0,0,15">
-                            <TextBlock Text="Tên Môn Tiếng Anh"
-                                       Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
-                            <TextBox Text="{Binding SelectedSubject.SubjectNameEnglish, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource ModernTextBoxStyle}"
-                                     IsReadOnly="True"
-                                     Background="#F5F5F5" />
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="1"
-                                    Grid.Column="2"
-                                    Margin="0,0,0,15">
-                            <TextBlock Text="Tên Môn Tiếng Việt"
-                                       Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
-                            <TextBox Text="{Binding SelectedSubject.SubjectNameVietnamese, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource ModernTextBoxStyle}"
-                                     IsReadOnly="True"
-                                     Background="#F5F5F5" />
+                                      Height="50" />
                         </StackPanel>
 
                         <!-- Dòng 3: Kỳ và Combo -->
-                        <StackPanel Grid.Row="2"
+                        <StackPanel Grid.Row="1"
                                     Grid.Column="0"
                                     Margin="0,0,0,15">
                             <TextBlock Text="Kỳ"
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
-                            <TextBox Text="{Binding SelectedCurriculumSubject.TermNo, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding SelectedCurriculumSubject.TermNo, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}"
                                      Style="{StaticResource ModernTextBoxStyle}" />
                         </StackPanel>
 
-                        <StackPanel Grid.Row="2"
+                        <StackPanel Grid.Row="1"
                                     Grid.Column="2"
                                     Margin="0,0,0,15">
                             <TextBlock Text="Combo"
@@ -360,7 +354,8 @@
                                        Foreground="{StaticResource TextColor}" />
                             <ComboBox SelectedValue="{Binding SelectedCurriculumSubject.IsCombo, UpdateSourceTrigger=PropertyChanged}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      SelectedValuePath="Tag">
+                                      SelectedValuePath="Tag"
+                                      Height="50">
                                 <ComboBoxItem Content="Yes"
                                               Tag="{x:Static sys:Boolean.TrueString}" />
                                 <ComboBoxItem Content="No"
@@ -369,28 +364,28 @@
                         </StackPanel>
 
                         <!-- Dòng 4: Tín Chỉ và Tổng Slot -->
-                        <StackPanel Grid.Row="3"
+                        <StackPanel Grid.Row="2"
                                     Grid.Column="0"
                                     Margin="0,0,0,15">
                             <TextBlock Text="Tín Chỉ"
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
-                            <TextBox Text="{Binding SelectedCurriculumSubject.Credit, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding SelectedCurriculumSubject.Credit, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}"
                                      Style="{StaticResource ModernTextBoxStyle}" />
                         </StackPanel>
 
-                        <StackPanel Grid.Row="3"
+                        <StackPanel Grid.Row="2"
                                     Grid.Column="2"
                                     Margin="0,0,0,15">
                             <TextBlock Text="Tổng Slot"
                                        Margin="0,0,0,5"
                                        Foreground="{StaticResource TextColor}" />
-                            <TextBox Text="{Binding SelectedCurriculumSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding SelectedCurriculumSubject.TotalSlots, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}"
                                      Style="{StaticResource ModernTextBoxStyle}" />
                         </StackPanel>
 
                         <!-- Dòng 5: TeachingMode and PartOfTerm -->
-                        <StackPanel Grid.Row="4"
+                        <StackPanel Grid.Row="3"
                                     Grid.Column="0"
                                     Margin="0,0,0,15">
                             <TextBlock Text="Hình Thức Tổ Chức"
@@ -398,9 +393,10 @@
                                        Foreground="{StaticResource TextColor}" />
                             <ComboBox SelectedValue="{Binding SelectedCurriculumSubject.TeachingMode, UpdateSourceTrigger=PropertyChanged}"
                                       ItemsSource="{Binding TeachingMode}"
-                                      Style="{StaticResource ModernComboBoxStyle}" />
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Height="50" />
                         </StackPanel>
-                        <StackPanel Grid.Row="4"
+                        <StackPanel Grid.Row="3"
                                     Grid.Column="2"
                                     Margin="0,0,0,15">
                             <TextBlock Text="Loại Thời Gian"
@@ -408,7 +404,8 @@
                                        Foreground="{StaticResource TextColor}" />
                             <ComboBox SelectedValue="{Binding SelectedCurriculumSubject.PartOfTerm, UpdateSourceTrigger=PropertyChanged}"
                                       ItemsSource="{Binding PartOfTerm}"
-                                      Style="{StaticResource ModernComboBoxStyle}" />
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Height="50" />
                         </StackPanel>
                     </Grid>
 

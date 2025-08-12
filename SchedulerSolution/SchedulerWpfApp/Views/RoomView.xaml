@@ -16,6 +16,7 @@
         <Grid Grid.Row="1" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -79,14 +80,22 @@
                 </Button>
             </Grid>
 
+            <!-- Import Template Notice -->
+            <Border Grid.Row="1" Background="#FFF3CD" BorderBrush="#FFEAA7" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,15">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="ℹ️" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock Text="Template import: " FontSize="14" VerticalAlignment="Center" Foreground="#856404" />
+                    <TextBlock Text="RoomName, Loại phòng, Tầng, Tòa, SLSV, Status" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Foreground="#856404" />
+                </StackPanel>
+            </Border>
+
             <!-- Syncfusion DataGrid -->
-            <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="0">
+            <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="0">
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="1" BlurRadius="10" Opacity="0.1" Color="Gray" />
                 </Border.Effect>
 
-                <syncfusion:SfDataGrid x:Name="ClassRoomDataGrid"
-                                       ItemsSource="{Binding ElementName=dataPager,Path=PagedSource}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
+                <syncfusion:SfDataGrid x:Name="ClassRoomDataGrid" ItemsSource="{Binding ElementName=dataPager,Path=PagedSource}" AutoGenerateColumns="False" AllowFiltering="True" ShowRowHeader="False" RowHeight="45" HeaderRowHeight="50" SelectionMode="Single" AllowSorting="True" GridLinesVisibility="Both" ColumnSizer="Star" HeaderStyle="{StaticResource GridHeaderStyle}" CellStyle="{StaticResource GridCellStyle}" Focusable="False" FocusVisualStyle="{x:Null}" CurrentCellBorderBrush="White">
                     <syncfusion:SfDataGrid.RowStyle>
                         <Style TargetType="syncfusion:VirtualizingCellsControl">
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -113,12 +122,12 @@
                         </Style>
                     </syncfusion:SfDataGrid.Resources>
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn HeaderText="Mã Phòng" MappingName="RoomId" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Tên Phòng" MappingName="RoomName" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Loại Phòng" MappingName="TypeOfRoom" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Tầng" MappingName="Floor" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="Tòa Nhà" MappingName="Building" AllowResizing="True"/>
-                        <syncfusion:GridTextColumn HeaderText="SLSV" MappingName="TotalPersons" AllowResizing="True"/>
+                        <syncfusion:GridTextColumn HeaderText="Mã Phòng" MappingName="RoomId" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Tên Phòng" MappingName="RoomName" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Loại Phòng" MappingName="TypeOfRoom" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Tầng" MappingName="Floor" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="Tòa Nhà" MappingName="Building" AllowResizing="True" />
+                        <syncfusion:GridTextColumn HeaderText="SLSV" MappingName="TotalPersons" AllowResizing="True" />
                         <syncfusion:GridTextColumn HeaderText="Trạng Thái" MappingName="Status" AllowResizing="True" />
                         <syncfusion:GridTemplateColumn HeaderText="Action" Width="90" AllowFiltering="False" MappingName="ActionPlaceholder">
 
@@ -140,7 +149,7 @@
             </Border>
 
             <!-- Pagination Controls -->
-            <Grid Grid.Row="2" Margin="0,15,0,0" HorizontalAlignment="Right" Width="760">
+            <Grid Grid.Row="3" Margin="0,15,0,0" HorizontalAlignment="Right" Width="760">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -184,16 +193,19 @@
                         <TextBox Text="{Binding SelectedRoom.TypeOfRoom, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
                         <TextBlock Text="Tầng" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedRoom.Floor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+                        <TextBox Text="{Binding SelectedRoom.Floor, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
                         <TextBlock Text="Tòa nhà" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
                         <TextBox Text="{Binding SelectedRoom.Building, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
                         <TextBlock Text="SLSV" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <TextBox Text="{Binding SelectedRoom.TotalPersons, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
+                        <TextBox Text="{Binding SelectedRoom.TotalPersons, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringConverter}}" Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,15" />
 
                         <TextBlock Text="Trạng thái" Margin="0,0,0,5" Foreground="{StaticResource TextColor}" />
-                        <ComboBox Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding StatusOptions}" SelectedValue="{Binding SelectedRoom.Status, UpdateSourceTrigger=PropertyChanged}" />
+                        <ComboBox Style="{StaticResource ModernComboBoxStyle}"
+                                  ItemsSource="{Binding StatusOptions}"
+                                  SelectedValue="{Binding SelectedRoom.Status, UpdateSourceTrigger=PropertyChanged}"
+                                  Height="50" />
                     </StackPanel>
 
                     <!-- Form Actions -->
@@ -248,11 +260,10 @@
             </Border>
         </Popup>
         <Popup IsOpen="{Binding IsProgressBarOpen}" StaysOpen="True" Placement="Center" AllowsTransparency="True">
-            <Border Background="#CCFFFFFF" Padding="20" CornerRadius="8" 
-             BorderBrush="Gray" BorderThickness="1" >
+            <Border Background="#CCFFFFFF" Padding="20" CornerRadius="8" BorderBrush="Gray" BorderThickness="1">
                 <StackPanel>
-                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..." Margin="0,0,0,8" HorizontalAlignment="Center"/>
-                    <ProgressBar Height="24" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" Width="300"/>
+                    <TextBlock Text="Đang import dữ liệu vào phần mềm, xin vui lòng chờ..." Margin="0,0,0,8" HorizontalAlignment="Center" />
+                    <ProgressBar Height="24" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" Width="300" />
                 </StackPanel>
             </Border>
         </Popup>

@@ -179,6 +179,7 @@ namespace SchedulerWpfApp.ViewModel
             // cancel delete
             CancelDeleteGroupNameCommand = new RelayCommand(CancelDelete);
             // asynchronous processing without async await
+            SelectedGroupname = new GroupClass();
             _ = LoadGroupNameAsync();
 
         }
@@ -223,18 +224,26 @@ namespace SchedulerWpfApp.ViewModel
             {
                 try
                 {
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var data = _groupnamelistService.ReadGroupNameFromExcel(dialog.FileName);
+                    stopwatch.Stop();
+                    System.Diagnostics.Trace.WriteLine($"[ImportGroupName] Read file: {stopwatch.Elapsed.TotalSeconds:N2}s, records: {data?.Count ?? 0}");
+                  //  _notificationService.ShowInfo($"Đọc file lớp: {stopwatch.Elapsed.TotalSeconds:N2}s, bản ghi: {data?.Count ?? 0}");
 
                     IsProgressBarOpen = true;
+                    stopwatch.Restart();
                     await _groupnamelistService.ImportGroupNameFromExcel(data, progres);
+                    stopwatch.Stop();
                     IsProgressBarOpen = false;
+                    System.Diagnostics.Trace.WriteLine($"[ImportGroupName] Import: {stopwatch.Elapsed.TotalSeconds:N2}s");
+                  //  _notificationService.ShowInfo($"Import lớp: {stopwatch.Elapsed.TotalSeconds:N2}s");
                     _notificationService.ShowSuccess("Nhập danh sách lớp học thành công!!");
                     await LoadGroupNameAsync();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     IsProgressBarOpen = false;
-                    _notificationService.ShowError($"Nhập danh sách lớp học thất bại.");
+                    _notificationService.ShowError($"Nhập danh sách lớp học thất bại. {ex.Message}");
                 }
             }
         }
@@ -280,7 +289,6 @@ namespace SchedulerWpfApp.ViewModel
         /// </summary>
         private async Task AddGroupNameAsync()
         {
-            SelectedGroupname = new GroupClass();
             // turn on pop up
             IsGroupNameFormOpen = true;
             // check if it is an edit event
@@ -336,13 +344,14 @@ namespace SchedulerWpfApp.ViewModel
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Major) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.Department) ||
                     string.IsNullOrWhiteSpace(SelectedGroupname?.TeachingMode) ||
-                    string.IsNullOrWhiteSpace(SelectedGroupname?.PartOfDayInTheFirstTerm))
+                    string.IsNullOrWhiteSpace(SelectedGroupname?.PartOfDayInTheFirstTerm) ||
+                    SelectedGroupname.Term == 0)
                 {
                     _notificationService.ShowWarning("Dữ liệu lớp học không được để trống");
                     IsGroupNameFormOpen = true; // Mở lại form nếu có dữ liệu trống
                     return;
                 }
-                if (SelectedGroupname.Term <= 0 || SelectedGroupname.Term > 9)
+                if (SelectedGroupname.Term < 0 || SelectedGroupname.Term > 9)
                 {
                     _notificationService.ShowWarning("Học kỳ phải lớn hơn 0 và bé hơn 9");
                     IsGroupNameFormOpen = true; // Mở lại form nếu học kỳ không hợp lệ
@@ -383,6 +392,7 @@ namespace SchedulerWpfApp.ViewModel
                         await _groupnamelistService.AddGroupName(SelectedGroupname);
                         _notificationService.ShowSuccess("Thêm lớp mới thành công");
                         await LoadGroupNameAsync();
+                        SelectedGroupname = new GroupClass();
                         IsGroupNameFormOpen = false; // Đóng form sau khi save thành công
                         _isEditing = false;
                     }
@@ -449,7 +459,7 @@ namespace SchedulerWpfApp.ViewModel
         private void CancelEdit()
         {
             // set SelectedGroupname null 
-            SelectedGroupname = null;
+            SelectedGroupname = new GroupClass();
             IsGroupNameFormOpen = false;
         }
         /// <summary>
