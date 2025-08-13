@@ -1,10 +1,12 @@
-﻿using System.Windows;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.Repository;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
 using Syncfusion.XlsIO;
+using System;
+using System.Diagnostics;
+using System.Windows;
 
 namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
 {
@@ -37,15 +39,27 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
         /// <param name="schedules"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<bool> AddScheduleAsync(List<Schedule> schedules)
+        public async Task<bool> AddScheduleAsync(List<Schedule> schedules, IProgress<int> progress)
         {
+            await _unitOfWork.BeginTransactionAsync();
+            int index = 0;
             if (schedules == null)
                 throw new ArgumentNullException(nameof(schedules));
 
-            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _unitOfWork.ScheduleRepository.AddScheduleAsync(schedules); // Sử dụng phương thức AddRange từ IUnitOfWork
+                foreach (var schedule in schedules)
+                {
+                    await _unitOfWork.Repository<Schedule>().AddAsync(schedule);
+
+                    await Task.Delay(10); // Simulate some delay for UI responsiveness
+
+                    index++;
+
+                    var percentCompleted = (int)((double)index / schedules.Count * 100);
+                    progress?.Report(percentCompleted);
+                }
+
                 await _unitOfWork.CommitAsync();
                 return true;
             }
@@ -138,14 +152,25 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
             }
         }
 
-        public async Task DeleteAllAsync()
+        public async Task DeleteAllAsync(IProgress<int> progress)
         {
+            await _unitOfWork.BeginTransactionAsync();
+            int index = 0;
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
-
+                var schedules = await _unitOfWork.ScheduleRepository.GetAllAsync();
                 // Call delete and reset identity operations
-                await _unitOfWork.ScheduleRepository.DeleteAllAsync();
+                foreach (var schedule in schedules)
+                {
+                    await _unitOfWork.ScheduleRepository.DeleteAsync(schedule.ScheduleId);
+
+                    await Task.Delay(10); // Simulate some delay for UI responsiveness
+
+                    index++;
+                    // Simulate progress reporting
+                    var percentCompleted = (int)((double)index / schedules.Count * 100);
+                    progress?.Report(percentCompleted);
+                }
                 await _unitOfWork.ScheduleRepository.ResetIdentitySchedulesAsync();  // Ensure ResetIdentity is part of the transaction
 
                 await _unitOfWork.CommitAsync();

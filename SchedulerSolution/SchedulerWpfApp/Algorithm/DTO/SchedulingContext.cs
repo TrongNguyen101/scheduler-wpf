@@ -11,6 +11,5 @@ namespace SchedulerWpfApp.Algorithm.DTO
         public List<GroupClass> GroupNames { get; set; }
         public ILookup<(string CurriculumCode, int TermNo), CurriculumSubject> CurriculumLookup { get; set; }
         public Dictionary<string, List<LecturerSubject>> LecturersTeachSubjects { get; set; }
-        public Dictionary<string, CurriculumSubjectWithCount[,,]> SchedulesSubjectsLookup { get; set; }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using SchedulerWpfApp.Algorithm.CommonSubject;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.Model;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
@@ -24,6 +23,7 @@ namespace SchedulerWpfApp.Algorithm
         private readonly IRoomService _roomService;
 
         private readonly ScheduleCommonSubjectVersion3 _scheduleCommonSubjectVersion3;
+        private readonly RoomSchedulerOnOff _roomSchedulerOnOff;
 
         private SchedulingContext _context; // Lưu trữ ngữ cảnh đã chuẩn bị
 
@@ -35,7 +35,8 @@ namespace SchedulerWpfApp.Algorithm
                                       ICurriculumSubjectServices curriculumSubjectServices,
                                       IRoomService roomService,
                                       SchedulingContext context,
-                                      ScheduleCommonSubjectVersion3 scheduleCommonSubjectVersion3)
+                                      ScheduleCommonSubjectVersion3 scheduleCommonSubjectVersion3,
+                                      RoomSchedulerOnOff roomSchedulerOnOff)
         {
             _logger = logger;
             _scheduleServices = scheduleServices;
@@ -46,9 +47,11 @@ namespace SchedulerWpfApp.Algorithm
             _context = context;
             _scheduleCommonSubjectVersion3 = scheduleCommonSubjectVersion3;
             _roomService = roomService;
+            _roomSchedulerOnOff = roomSchedulerOnOff;
+            _roomSchedulerOnOff = roomSchedulerOnOff;
         }
 
-        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB)
+        public async Task<List<Schedule>> GenerateSchedules(DateTime startDate, List<string> listMajorGroupA, List<string> listMajorGroupB, Progress<int> progress)
         {
             try
             {
@@ -61,18 +64,31 @@ namespace SchedulerWpfApp.Algorithm
                 }
 
                 List<GroupClass> listGroupNameNoOJT = _context.GroupNames.Where(g => g.TeachingMode != "OJT").ToList();
+                var allSchedules = new List<Schedule>();
+                List<int> firstAndFinalWeek = new List<int> { 9 };
+                (List<Schedule> templateSchedules, List<string> Conflicts, int TotalPlannedSchedules,
+                int TotalUnits,
+                int ScheduledUnits,
+                int CompletionPercent,
+                List<(string GroupName, string SubjectCode)> UnscheduledUnits) = _scheduleCommonSubjectVersion3.GenerateSchedule(listGroupNameNoOJT, _context.LecturerSubjects, _context.CurriculumLookup, startDate, progress);
 
-                (List<Schedule> allSchedules, List<string> Conflicts) = _scheduleCommonSubjectVersion3.GenerateSchedule(listGroupNameNoOJT, _context.LecturerSubjects, _context.CurriculumLookup);
+                var schedulesOfFirstAndFinalWeek = templateSchedules;
 
                 _logger.LogWarning($"Total Conflicts: {Conflicts.Count}");
                 foreach (var conflict in Conflicts)
                 {
                     _logger.LogWarning(conflict);
                 }
+                _logger.LogWarning($"Total Units: {TotalUnits}");
+                _logger.LogWarning($"Total UnscheduledUnits: {UnscheduledUnits.Count}");
+                _logger.LogWarning($"Completion Percent: {CompletionPercent}%");
 
-                AssignRooms(allSchedules, _context.Rooms);
 
-                allSchedules.AddRange(GenerateFullSchedule(allSchedules));
+                AssignRooms(schedulesOfFirstAndFinalWeek, _context.Rooms);
+
+                allSchedules.AddRange(GenerateFullSchedule(schedulesOfFirstAndFinalWeek));
+
+                allSchedules.AddRange(_roomSchedulerOnOff.GenerateSchedulesForSubsequentWeeks(templateSchedules, _context.Rooms, _context.GroupNames));
 
                 return allSchedules;
             }
@@ -91,10 +107,9 @@ namespace SchedulerWpfApp.Algorithm
             var groupNameTask = _groupNameService.GetAllAsync();
             var lecturerSubjectTask = _lecturerSubjectServices.GetAllAsync();
             var curriculumSubjectTask = _curriculumSubjectServices.GetAllCurriculumSubjectAsync();
-            var deleteAllSchedulesTask = _scheduleServices.DeleteAllAsync();
 
             // Chờ tất cả các Task hoàn thành
-            await Task.WhenAll(lecturerTask, roomTask, groupNameTask, lecturerSubjectTask, curriculumSubjectTask, deleteAllSchedulesTask);
+            await Task.WhenAll(lecturerTask, roomTask, groupNameTask, lecturerSubjectTask, curriculumSubjectTask);
 
             // Lấy kết quả từ các Task
             var listLecturer = await lecturerTask;
@@ -212,28 +227,27 @@ namespace SchedulerWpfApp.Algorithm
         /// <returns>Danh sách lịch hoàn chỉnh cho tất cả các tuần.</returns>
         private List<Schedule> GenerateFullSchedule(List<Schedule> firstWeekSchedules)
         {
-            // Bắt đầu với danh sách lịch của tuần 1
             var fullSchedule = new List<Schedule>(firstWeekSchedules);
-            int totalWeeks = 10; // Tổng số tuần cần tạo lịch, ví dụ: 10 tuần
+            int finalWeek = 10; // Tuần cuối cùng cần tạo lịch, vì tuần 0 là tuần gốc
 
-            if (totalWeeks <= 1)
-            {
-                return fullSchedule;
-            }
-
-            // Lặp để tạo lịch cho các tuần còn lại (từ tuần thứ 2 đến totalWeeks)
             // weekIndex bắt đầu từ 1 vì tuần 0 là tuần gốc
-            for (int weekIndex = 1; weekIndex < totalWeeks; weekIndex++)
+            // Với mỗi lịch trong tuần đầu tiên...
+            foreach (var originalSchedule in firstWeekSchedules)
             {
-                // Với mỗi lịch trong tuần đầu tiên...
-                foreach (var originalSchedule in firstWeekSchedules)
-                {
-                    // ...tạo một bản sao mới
-                    var newSchedule = CreateNewSchedule (originalSchedule, weekIndex);
+                // ...tạo một bản sao mới
+                var newSchedule = CreateNewSchedule(originalSchedule, finalWeek);
 
-                    // Thêm lịch của tuần mới vào danh sách tổng
-                    fullSchedule.Add(newSchedule);
+                if (newSchedule.SessionNo == 2)
+                {
+                    newSchedule.SessionNo = 2 * finalWeek;
                 }
+                else
+                {
+                    newSchedule.SessionNo = (2 * finalWeek) - 1;
+                }
+
+                // Thêm lịch của tuần mới vào danh sách tổng
+                fullSchedule.Add(newSchedule);
             }
 
             return fullSchedule;
@@ -249,7 +263,7 @@ namespace SchedulerWpfApp.Algorithm
                 PartOfDay = originalSchedule.PartOfDay,
                 SlotTime = originalSchedule.SlotTime,
                 StatusSlot = originalSchedule.StatusSlot,
-                Date = originalSchedule.Date.GetValueOrDefault().AddDays(weekIndex * 7),
+                Date = originalSchedule.Date.GetValueOrDefault().AddDays((weekIndex - 1) * 7),
                 Major = originalSchedule.Major,
                 SubjectCode = originalSchedule.SubjectCode,
                 GroupName = originalSchedule.GroupName,
