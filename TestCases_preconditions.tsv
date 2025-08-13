@@ -1,0 +1,53 @@
+Test Case ID	Test Case Description	Test Case Procedure	Expected Results	Pre-conditions
+GroupClass-0	Add new class group successfully	1) Open app; 2) Navigate to GroupClass; 3) Click Add; 4) Fill valid form; 5) Submit	Class group is created and listed	App started; user has permission
+GroupClass-1	Required validation for add	1) Open Add form; 2) Leave required fields empty; 3) Submit	Required error messages shown per field	App started
+GroupClass-2	Disallow duplicate group name	1) Create class group 'A'; 2) Create 'A' again	Duplicate is blocked; record not saved	Class group 'A' already exists
+GroupClass-3	Update class group	1) Select existing group; 2) Edit with valid data; 3) Save	Data updated and shown correctly	At least one class group exists
+GroupClass-4	Delete unused class group	1) Create group Gx (unused); 2) Delete Gx	Gx is deleted successfully	Group Gx exists and is not referenced
+GroupClass-5	Block delete when referenced by schedules	1) Create schedule using group X; 2) Try delete X	Deletion blocked with clear message	Group X exists and is referenced by schedules
+GroupClass-6	Search/Filter groups	1) Enter keyword/filter; 2) Observe list	List matches filter criteria	Multiple groups exist
+GroupClass-7	List majors in Create Schedule	1) Open Create Schedule; 2) Open majors combobox	Majors appear complete and correct	Majors data available in DB
+Room-0	Add new room successfully	1) Open Room; 2) Click Add; 3) Fill RoomName/Building; 4) Submit	Room is created and listed	App started; permission granted
+Room-1	Required validation for room	1) Open Add; 2) Leave required fields; 3) Submit	Required errors are shown	App started
+Room-2	Disallow duplicate RoomName	1) Add room G101; 2) Add G101 again	Duplicate blocked by index	Room G101 exists
+Room-3	Update room	1) Select room; 2) Edit valid data; 3) Save	Room updated correctly	At least one room exists
+Room-4	Block delete when room used in schedules	1) Create OFF schedule with room R; 2) Try delete R	Deletion blocked with reason	Room R exists and is referenced by schedules
+Room-5	Filter rooms by building	1) Set Building=G; 2) Observe	Only rooms in G displayed	Rooms across buildings exist
+Subject-0	Add new subject successfully	1) Open Subject; 2) Add; 3) Fill SubjectCode/Name; 4) Submit	Subject is created	App started
+Subject-1	Required validation for subject	1) Open Add; 2) Leave required fields; 3) Submit	Required errors are shown	App started
+Subject-2	Disallow duplicate SubjectCode	1) Add PRJ301; 2) Add PRJ301 again	Duplicate blocked	Subject PRJ301 exists
+Subject-3	Block delete referenced subject	1) Reference subject X in mapping/schedule; 2) Try delete X	Deletion blocked with message	Subject X exists and is referenced
+Subject-4	Search/Filter subjects	1) Enter code/name; 2) Observe	Results match filter	Subjects exist with varied codes/names
+Lecturer-0	Add new lecturer successfully	1) Open Lecturer; 2) Add; 3) Fill ID/Account/Name; 4) Submit	Lecturer is created	App started
+Lecturer-1	Required validation for lecturer	1) Open Add; 2) Leave required fields; 3) Submit	Required errors are shown	App started
+Lecturer-2	Disallow duplicate LecturerAccount	1) Add account a@fpt.edu.vn; 2) Add again	Duplicate blocked	Account a@fpt.edu.vn exists
+Lecturer-3	Block delete lecturer with schedules	1) Create schedule with L1; 2) Try delete L1	Deletion blocked with message	Lecturer L1 exists and is referenced
+Lecturer-4	Search/Filter lecturers	1) Enter name/account; 2) Observe	Results match filter	Lecturers exist with varied names/accounts
+Curriculum-0	Add new curriculum	1) Open Curriculum; 2) Add; 3) Fill Code/Name; 4) Submit	Curriculum is created	App started
+Curriculum-1	Required validation for curriculum	1) Open Add; 2) Leave required fields; 3) Submit	Required errors are shown	App started
+Curriculum-2	Disallow duplicate CurriculumCode	1) Add code SE; 2) Add SE again	Duplicate blocked	Curriculum SE exists
+Curriculum-3	Block delete curriculum with dependencies	1) Create GroupClass/CurriculumSubject for C1; 2) Try delete C1	Deletion blocked with message	Curriculum C1 exists and is referenced
+Curriculum-4	List majors API/UI	1) Call/Display GetAllMajor; 2) Observe	Majors returned completely	Majors seeded in DB
+CurriculumSubject-0	Add Curriculum-Subject mapping	1) Open CurriculumSubject; 2) Add; 3) Select valid Curriculum & Subject; 4) Submit	Mapping created	Curriculum and Subject exist
+CurriculumSubject-1	Required validation for mapping	1) Open Add; 2) Leave one field empty; 3) Submit	Required errors shown	Module available
+CurriculumSubject-2	Disallow duplicate (CurriculumCode, SubjectCode)	1) Add C=SE,S=PRJ301; 2) Add same again	Duplicate blocked by composite index	Pair C=SE,S=PRJ301 exists
+CurriculumSubject-3	Get subject list by curriculum	1) Call GetSubjectCodeByCurriculumCode; 2) Observe	Correct SubjectCode list returned	Curriculum has mapped subjects
+CurriculumSubject-4	Block delete mapping in use	1) Use mapping for schedules; 2) Try delete mapping	Deletion blocked with message	Mapping exists and is referenced
+LecturerSubject-0	Add Lecturer-Subject mapping	1) Open LecturerSubject; 2) Add; 3) Select Lecturer & Subject; 4) Submit	Mapping created	Lecturer and Subject exist
+LecturerSubject-1	Required validation for mapping	1) Open Add; 2) Leave Lecturer or Subject empty; 3) Submit	Required errors shown	Module available
+LecturerSubject-2	Disallow duplicate (LecturerId, SubjectCode)	1) Add L1-PRJ301; 2) Add same again	Duplicate blocked by composite index	Pair L1-PRJ301 exists
+LecturerSubject-3	Get lecturers by SubjectCode	1) Call GetBySubjectCode; 2) Observe	Correct lecturers returned	Lecturer-Subject data exists
+LecturerSubject-4	Block delete mapping used by schedules	1) Create schedules using mapping; 2) Try delete mapping	Deletion blocked with message	Mapping exists and is referenced
+Scheduler-0	Auto-generate schedules successfully	1) Open Create Schedule; 2) Select majors A/B; 3) Pick start date; 4) Generate	Schedules created and shown by week; success toast	Majors exist; rooms/lecturers/mappings available
+Scheduler-1	Block generate when majors missing	1) Do not select majors A/B; 2) Generate	Warning shown to select required info	Create Schedule screen open
+Scheduler-2	Detect room OFF conflicts	1) Generate schedules; 2) Check same day/slot per room	No two OFF slots share same room-day-slot	Rooms exist; offline slots generated
+Scheduler-3	Detect lecturer conflicts	1) Generate schedules; 2) Check same day/slot per lecturer	No lecturer double-booking	Lecturers/mappings exist
+Scheduler-4	Drag-and-drop swap slot	1) Drag A onto empty or slot B; 2) Confirm if prompted	Swap succeeds; no conflicts; UI+DB synced	Two valid slots visible; permissions to edit
+Scheduler-5	Edit slot	1) Open Edit; 2) Change room/lecturer/slot; 3) Save	Updated with validations passed	Selected slot exists; room/lecturer available
+Scheduler-6	Create slot manually	1) Open Create Slot; 2) Fill all mandatory fields; 3) Save	New slot created and displayed	Rooms, lecturers, groups, subjects available
+Scheduler-7	Delete slot	1) Select a slot; 2) Delete; 3) Confirm	Slot removed; identity reset maintained	Slot exists; user can delete
+Scheduler-8	Delete all schedules	1) Click Delete all data; 2) Confirm	User DB replaced by base DB; progress bar shown	AppData/app.db available; disk write permitted
+Scheduler-9	Export schedules to Excel	1) Click Export; 2) Choose path	.xlsx generated with correct columns/data	At least one schedule exists; write access to path
+Scheduler-10	Filter by week/class/room/lecturer	1) Select year/week; 2) Choose mode & value	Timetable shows correct range and filter	Schedules exist spanning the week
+Scheduler-11	Display slot time (NewSlot/OldSlot)	1) Observe time column; 2) Compare with rules	HH:mm - HH:mm matches calculation rules	Slots have TypeSlot and SlotTime set
+
