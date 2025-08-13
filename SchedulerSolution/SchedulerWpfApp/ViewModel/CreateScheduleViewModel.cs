@@ -1336,7 +1336,7 @@ namespace SchedulerWpfApp.ViewModel
                            s.Date == sourceCell.DayOfWeek.Date &&
                            s.SlotTime == sourceCell.SlotNumber &&
                            s.StatusSlot == "OFF" &&
-                           s.ScheduleId != targetCell.Schedule.ScheduleId &&
+                           s.ScheduleId != targetCell.Schedule?.ScheduleId &&
                            s.ScheduleId != schedule.ScheduleId);
 
                 if (checkRoom)
@@ -1355,7 +1355,7 @@ namespace SchedulerWpfApp.ViewModel
                            s.Date == sourceCell.DayOfWeek.Date &&
                            s.SlotTime == sourceCell.SlotNumber &&
                            s.StatusSlot == "OFF" &&
-                           s.ScheduleId != sourceCell.Schedule.ScheduleId &&
+                           s.ScheduleId != sourceCell.Schedule?.ScheduleId &&
                            s.ScheduleId != schedule.ScheduleId);
 
                     if (checkRoom)
@@ -1376,7 +1376,7 @@ namespace SchedulerWpfApp.ViewModel
                 var checkGroupClass = AllSchedules.Any(s => s.GroupName == targetSchedule.GroupName &&
                            s.Date == sourceCell.DayOfWeek.Date &&
                            s.SlotTime == sourceCell.SlotNumber &&
-                           s.ScheduleId != sourceCell.Schedule.ScheduleId && 
+                           s.ScheduleId != sourceCell.Schedule?.ScheduleId && 
                            s.ScheduleId != targetSchedule.ScheduleId);
                 if (checkGroupClass)
                 {
@@ -1397,7 +1397,7 @@ namespace SchedulerWpfApp.ViewModel
                            s.Date == targetCell.DayOfWeek.Date &&
                            s.SlotTime == targetCell.SlotNumber &&
                            s.ScheduleId != schedule.ScheduleId &&
-                           s.ScheduleId != targetCell.Schedule.ScheduleId);
+                           s.ScheduleId != targetCell.Schedule?.ScheduleId);
             if (checkGroupClassSource)
             {
                 _notificationService.ShowWarning("Lớp học này đã bị trùng lịch.");

@@ -132,7 +132,7 @@ namespace SchedulerWpfApp
                 // Configure file logging by attaching a Debug/Trace listener that writes to a rolling log file
                 try
                 {
-                    string logsDirectory = Path.Combine(baseDirectory, "logsTime");
+                    string logsDirectory = Path.Combine(appDataPath, "logsTime");
                     Directory.CreateDirectory(logsDirectory);
                     string logFilePath = Path.Combine(logsDirectory, $"app_{DateTime.Now:yyyyMMdd}.log");
 
