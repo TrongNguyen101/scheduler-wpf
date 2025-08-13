@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SchedulerWpfApp.Data;
 using SchedulerWpfApp.Model;
@@ -47,11 +46,11 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
         /// </summary>
         /// <param name="schedules"></param>
         /// <returns></returns>
-        public Task<bool> AddScheduleAsync(List<Schedule> schedules)
+        public Task<bool> AddScheduleAsync(Schedule schedules)
         {
             try
             {
-                _context.Schedules.AddRange(schedules);
+                _context.Schedules.Add(schedules);
                 return Task.FromResult(true);
             }
             catch (Exception ex)
@@ -75,11 +74,14 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
             }
         }
 
-        public Task DeleteAllAsync()
+        public async Task DeleteAllAsync(int scheduleId)
         {
+            var schedule = await _context.Schedules.FindAsync(scheduleId);
             _logger.LogInformation("Marking all schedules as deleted from the database.");
-            _context.Schedules.RemoveRange(_context.Schedules);
-            return Task.CompletedTask;
+            if (schedule != null)
+            {
+                _context.Schedules.Remove(schedule);
+            }
         }
 
         public async Task ResetIdentitySchedulesAsync()
