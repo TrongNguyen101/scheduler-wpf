@@ -189,6 +189,30 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
             }
         }
 
+        public async Task DeleteAllData()
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                // Call delete and reset identity operations
+                await _unitOfWork.ScheduleRepository.DeleteAllDataAsync();
+                await _unitOfWork.ScheduleRepository.ResetIdentityAllTableAsync();  // Ensure ResetIdentity is part of the transaction
+                await _unitOfWork.CommitAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger?.LogError(dbEx, "Database error while deleting all data.");
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Lỗi khi xóa tất cả dữ liệu do lỗi cơ sở dữ liệu.", dbEx);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error while deleting all data.");
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Lỗi khi xóa tất cả dữ liệu.", ex);
+            }
+        }
+
         public async Task DeleteScheduleAsync(int scheduleId)
         {
             try

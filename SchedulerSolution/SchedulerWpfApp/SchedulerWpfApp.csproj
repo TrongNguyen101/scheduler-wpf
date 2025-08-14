@@ -9,8 +9,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <None Remove="AppData\app.db" />
+	  <None Remove="appsettings.json" />
 	  <None Remove="Images\Logo\FPTU_logo.png" />
 	  <None Remove="Images\Logo\Schedule.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="AppData\app.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -43,10 +54,6 @@
   <ItemGroup>
 	  <Resource Include="Images\Logo\FPTU_logo.png" />
 	  <Resource Include="Images\Logo\Schedule.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="AppData\" />
   </ItemGroup>
 
 </Project>

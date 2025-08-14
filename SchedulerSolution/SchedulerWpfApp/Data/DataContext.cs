@@ -54,6 +54,8 @@ namespace SchedulerWpfApp.Data
                     // Navigate up three directories to the project root
                     string baseDirectory = Path.GetFullPath(Path.Combine(binDirectory, @"..\\..\\..\\"));
                     // Define the path for storing application data
+                    //string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
                     string appDataPath = Path.Combine(baseDirectory, "AppData");
 
                     // Fallback logic if the directory structure is different (possibly in production)
@@ -64,7 +66,12 @@ namespace SchedulerWpfApp.Data
                     }
 
                     // Define the database file path
-                    string dbPath = Path.Combine(appDataPath, "app.db");
+                    //string dbPath = Path.Combine(appDataPath, "app.db");
+                    string dbPath = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "SchedulerApp",
+                        "app.db"
+                    );
                     // Configure the context to use SQLite with the specified database file
                     optionsBuilder.UseSqlite($"Data Source={dbPath}");
                 }

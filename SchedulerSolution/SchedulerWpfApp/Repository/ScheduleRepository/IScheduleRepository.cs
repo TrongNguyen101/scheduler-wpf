@@ -7,7 +7,9 @@ namespace SchedulerWpfApp.Repository.ScheduleRepository
         Task<bool> AddScheduleAsync(Schedule schedules);
         Task<bool> AddSlotAsync(Schedule schedule);
         Task DeleteAllAsync(int schedulerId);
+        Task DeleteAllDataAsync();
         Task ResetIdentitySchedulesAsync();
+        Task ResetIdentityAllTableAsync();
         Task DeleteScheduleAsync(Schedule schedule);
     }
 }
