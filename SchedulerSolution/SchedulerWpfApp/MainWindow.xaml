@@ -563,6 +563,11 @@
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Top"
                                 Margin="0,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,8,0" Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="👤 " VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding CurrentUsername}" Margin="4,0,12,0" VerticalAlignment="Center"/>
+                            <Button Content="Đăng xuất" Command="{Binding LogoutCommand}" Background="#EF4444" Foreground="White" Padding="8,4" Margin="0,0,12,0"/>
+                        </StackPanel>
                         <Button Content="🗕"
                                 Width="35"
                                 Height="30"
@@ -590,9 +595,19 @@
                     <!-- Main Dynamic Content -->
                     <Border Grid.Row="1"
                             Margin="20,5,20,0"
-                            CornerRadius="10">
+                            CornerRadius="10"
+                            Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <ContentControl Content="{Binding CurrentViewModel}" />
                     </Border>
+
+                    <!-- Login overlay only over main content area (keeps top bar & sidebar visible) -->
+                    <Grid Grid.Row="1"
+                          Margin="20,5,20,0"
+                          Background="#F7FAFF"
+                          Panel.ZIndex="100"
+                          Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}">
+                        <ContentControl Content="{Binding LoginVm}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </Grid>
             </Grid>
         </Grid>
