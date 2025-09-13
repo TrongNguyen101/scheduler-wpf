@@ -30,7 +30,7 @@ namespace SchedulerWpfApp.Algorithm
             List<GroupClass> allGroupClasses)
         {
             var subsequentSchedules = new List<Schedule>();
-            var availableRooms = new Queue<Room>(allRooms.Where(r => r.Status == "available"));
+            var availableRooms = new Queue<Room>(allRooms.Where(r => r.Status == "available" && r.TypeOfRoom == "Phòng học"));
             var usedRoomIds = new HashSet<int>();
 
             // 1. Phân loại các GroupName vào nhóm A và B dựa trên Major

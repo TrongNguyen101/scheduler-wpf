@@ -88,13 +88,13 @@ namespace SchedulerWpfApp.Algorithm
                 DateTime startDate,
                 IProgress<int> progress)
         {
-            // --- PREP ---
+            // --- PREP ---   
 
             var groupTimetables = groups.ToDictionary(g => g.GroupName, _ => new Timetable());
             var lecturerTimetables = lecturerSubjects.Select(ls => ls.LecturerId).Distinct()
                 .ToDictionary(id => id, _ => new Timetable());
 
-            // capacity per subject
+            // capacity per subject           
             var capacityPerSubject = lecturerSubjects
                 .GroupBy(ls => (ls.LecturerId, ls.SubjectCode))
                 .ToDictionary(g => g.Key, g => g.Max(x => x.NumberOfClasses));
@@ -263,7 +263,7 @@ namespace SchedulerWpfApp.Algorithm
                     if (isScheduled) break;
                 }
 
-                // Fallback: sau khi thử hết giảng viên mà vẫn chưa xếp được
+                //// Fallback: sau khi thử hết giảng viên mà vẫn chưa xếp được
                 if (!isScheduled)
                 {
                     var groupTable = groupTimetables[group.GroupName];
@@ -286,7 +286,7 @@ namespace SchedulerWpfApp.Algorithm
                         groupTable.Book(fallbackPair.Day1, fallbackPair.Slot1, schedule1);
                         groupTable.Book(fallbackPair.Day2, fallbackPair.Slot2, schedule2);
 
-                        scheduledUnitsSet.Add((group.GroupName, subject.SubjectCode));
+                        //scheduledUnitsSet.Add((group.GroupName, subject.SubjectCode));
 
                         // Ghi conflict “slot chưa có giảng viên”
                         conflicts.Add(
