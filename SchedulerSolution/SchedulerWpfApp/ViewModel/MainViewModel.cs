@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using SchedulerWpfApp.Helper;
 using SchedulerWpfApp.Algorithm;
+using SchedulerWpfApp.ServiceRefactor.Auth;
 
 namespace SchedulerWpfApp.ViewModel
 {
@@ -24,6 +25,11 @@ namespace SchedulerWpfApp.ViewModel
         private readonly Func<LecturerSubjectViewModel> _lecturerSubjectViewModelFactory;
         private readonly Func<CurriculumViewModel> _curriculumViewModelFactory;
         private readonly Func<CurriculumSubjectViewModel> _curriculumSubjectViewModelFactory;
+        private readonly Func<LoginViewModel> _loginViewModelFactory;
+        private readonly AuthState _authState;
+        private readonly AuthService _authService;
+
+        public LoginViewModel LoginVm { get; }
 
         /// <summary>
         /// The current view model being shown in the main content area.
@@ -66,7 +72,10 @@ namespace SchedulerWpfApp.ViewModel
             Func<GroupNameViewModel> groupNameViewModelFactory,
             Func<LecturerSubjectViewModel> lectureSubjectViewModelFactory,
             Func<CurriculumViewModel> curriculumViewModelFactory,
-            Func<CurriculumSubjectViewModel> curriculumSubjectViewModelFactory)
+            Func<CurriculumSubjectViewModel> curriculumSubjectViewModelFactory,
+            Func<LoginViewModel> loginViewModelFactory,
+            AuthState authState,
+            AuthService authService)
         {
             // Assign factory methods
             _subjectViewModelFactory = courseViewModelFactory;
@@ -77,6 +86,10 @@ namespace SchedulerWpfApp.ViewModel
             _lecturerSubjectViewModelFactory = lectureSubjectViewModelFactory;
             _curriculumViewModelFactory = curriculumViewModelFactory;
             _curriculumSubjectViewModelFactory = curriculumSubjectViewModelFactory;
+            _loginViewModelFactory = loginViewModelFactory;
+            _authState = authState;
+            _authService = authService;
+            LoginVm = _loginViewModelFactory();
 
             // Initialize commands for switching views
             ShowCourseCommand = new RelayCommand(ShowCourse);
@@ -88,10 +101,42 @@ namespace SchedulerWpfApp.ViewModel
             ShowCurriculumCommand = new RelayCommand(ShowCurriculumList);
             ShowCurriculumSubjectCommand = new RelayCommand(ShowCurriculumSubjectList);
 
-            // Set default view to GroupNameViewModel
-            CurrentViewModel = _GroupNameViewModelFactory();
-            // Set default tab to GroupName
-            CurrentTab = TypeTab.GroupName;
+            // Navigate based on auth state and listen for changes
+            _authState.Changed += OnAuthChanged;
+            UpdateViewForAuth();
+            RefreshAuthBindings();
+
+            LogoutCommand = new RelayCommand(() =>
+            {
+                _authService.Logout();
+            });
+        }
+
+        private void OnAuthChanged()
+        {
+            UpdateViewForAuth();
+            RefreshAuthBindings();
+        }
+
+        private void UpdateViewForAuth()
+        {
+            if (_authState.IsAuthenticated)
+            {
+                CurrentViewModel = _GroupNameViewModelFactory();
+                CurrentTab = TypeTab.GroupName;
+            }
+            // When not authenticated, shell is hidden; Login overlay is shown via LoginVm
+        }
+
+        public string CurrentUsername => _authState?.CurrentUser?.username ?? string.Empty;
+        public bool IsAuthenticated => _authState?.IsAuthenticated ?? false;
+
+        public ICommand LogoutCommand { get; }
+
+        private void RefreshAuthBindings()
+        {
+            OnPropertyChanged(nameof(CurrentUsername));
+            OnPropertyChanged(nameof(IsAuthenticated));
         }
 
         /// <summary>

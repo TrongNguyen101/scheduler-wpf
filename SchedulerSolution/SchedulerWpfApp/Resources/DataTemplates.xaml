@@ -44,5 +44,11 @@
         <views:CurriculumSubjectView />
     </DataTemplate>
 
+    <!-- DataTemplate for LoginView -->
+    <DataTemplate DataType="{x:Type vm:LoginViewModel}">
+        <views:LoginView />
+    </DataTemplate>
+
     <converters:IntToStringConverter x:Key="IntToStringConverter" />
+    <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 </ResourceDictionary>

@@ -30,8 +30,10 @@ using SchedulerWpfApp.ServiceRefactor.CurriculumServices;
 using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
+using SchedulerWpfApp.ServiceRefactor.Auth;
 //using SchedulerWpfApp.ServiceRefactor.Maintenance;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http;
 
 namespace SchedulerWpfApp
 {
@@ -153,6 +155,14 @@ namespace SchedulerWpfApp
                 MessageBox.Show($"Error registering Syncfusion license: {ex.Message}",
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            // Silent login nếu có refresh token
+            try
+            {
+                var auth = _host.Services.GetRequiredService<AuthService>();
+                await auth.TrySilentLoginAsync();
+            }
+            catch { }
+
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             mainWindow.DataContext = _host.Services.GetRequiredService<MainViewModel>();
             mainWindow.Show();
@@ -205,6 +215,15 @@ namespace SchedulerWpfApp
             services.AddScoped<ICurriculumSubjectServices, CurriculumSubjectServices>();
             services.AddScoped<INotificationService, NotificationService>();
 
+            // Auth
+            services.AddSingleton<AuthState>();
+            services.AddSingleton<AuthConfig>();
+            services.AddSingleton<ITokenStore, DpapiTokenStore>();
+            services.AddSingleton(sp => new HttpClient());
+            services.AddSingleton<AuthService>();
+            services.AddTransient<LoginViewModel>();
+            services.AddTransient<LoginView>();
+
             // Register the main window as singleton (single instance for the application)
             services.AddSingleton<MainWindow>();
 
@@ -230,6 +249,7 @@ namespace SchedulerWpfApp
             services.AddSingleton<Func<RoomViewModel>>(sp => () => sp.GetRequiredService<RoomViewModel>());
             services.AddSingleton<Func<CurriculumViewModel>>(sp => () => sp.GetRequiredService<CurriculumViewModel>());
             services.AddSingleton<Func<CurriculumSubjectViewModel>>(sp => () => sp.GetRequiredService<CurriculumSubjectViewModel>());
+            services.AddSingleton<Func<LoginViewModel>>(sp => () => sp.GetRequiredService<LoginViewModel>());
 
             services.AddScoped<CreateScheduleTree>(); // Register ScheduleTreeDAO with a scoped lifetime
             services.AddScoped<Version2CreateSchedule>(); // Register Version2CreateSchedule with a scoped lifetime

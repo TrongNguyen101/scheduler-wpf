@@ -14,6 +14,11 @@ namespace SchedulerWpfApp.Helper
         {
             if (value is bool boolValue)
             {
+                var invert = parameter as string;
+                if (!string.IsNullOrEmpty(invert) && invert.Equals("Invert", StringComparison.OrdinalIgnoreCase))
+                {
+                    boolValue = !boolValue;
+                }
                 return boolValue ? Visibility.Visible : Visibility.Collapsed;
             }
             return Visibility.Collapsed;
