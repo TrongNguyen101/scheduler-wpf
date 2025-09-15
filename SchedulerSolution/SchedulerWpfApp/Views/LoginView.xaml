@@ -4,33 +4,158 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d">
-    <Grid Background="#F7FAFF">
+    
+    <!-- Login Card -->
+    <Grid Background="{StaticResource BackgroundColor}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Border Grid.Row="1" Width="360" Padding="16" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" HorizontalAlignment="Center" >
+            
+            <!-- Login Card -->
+            <Border Grid.Row="1" 
+                    Width="400" 
+                    Padding="32" 
+                    Background="{StaticResource SearchBackground}" 
+                    CornerRadius="12" 
+                    BorderBrush="{StaticResource SearchBorder}" 
+                    BorderThickness="1" 
+                    HorizontalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="3"
+                                      Direction="270"
+                                      BlurRadius="15"
+                                      Opacity="0.1"
+                                      Color="Gray" />
+                </Border.Effect>
+                
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Đăng nhập" FontSize="20" FontWeight="Bold" Foreground="#111827"/>
-                    <StackPanel Grid.Row="1" Margin="0,8,0,0">
-                        <TextBlock Text="Tài khoản" FontSize="12" Foreground="#6B7280"/>
-                        <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"/>
+                    
+                    <!-- Logo and Title -->
+                    <StackPanel Grid.Row="0" 
+                                HorizontalAlignment="Center" 
+                                Margin="0,0,0,24">
+                        <Image Source="/Images/Logo/FPTU_logo.png"
+                               Width="120"
+                               Height="60"
+                               Margin="0,0,0,16"/>
+                        <TextBlock Text="Đăng nhập hệ thống" 
+                                   FontSize="24" 
+                                   FontWeight="Bold" 
+                                   Foreground="{StaticResource TextColor}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Quản lý lịch học FPTU" 
+                                   FontSize="14" 
+                                   Foreground="{StaticResource LightTextColor}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,4,0,0"/>
                     </StackPanel>
-                    <StackPanel Grid.Row="2" Margin="0,8,0,0">
-                        <TextBlock Text="Mật khẩu" FontSize="12" Foreground="#6B7280"/>
-                        <PasswordBox x:Name="Pwd" PasswordChar="*"/>
+                    
+                    <!-- Username Field -->
+                    <StackPanel Grid.Row="1" Margin="0,0,0,16">
+                        <TextBlock Text="Tài khoản" 
+                                   FontSize="14" 
+                                   FontWeight="Medium"
+                                   Foreground="{StaticResource TextColor}"
+                                   Margin="0,0,0,6"/>
+                        <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBoxStyle}"
+                                 TabIndex="1"
+                                 Height="44"
+                                 Padding="10,6"
+                                 IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}"/>
                     </StackPanel>
-                    <StackPanel Grid.Row="3" Margin="0,8,0,0">
-                        <TextBlock Text="{Binding Error}" Foreground="#DC2626"/>
-                        <Button Content="Đăng nhập" Margin="0,8,0,0" Background="#4F46E5" Foreground="White" Command="{Binding LoginCommand}"/>
+                    
+                    <!-- Password Field -->
+                    <StackPanel Grid.Row="2" Margin="0,0,0,16">
+                        <TextBlock Text="Mật khẩu" 
+                                   FontSize="14" 
+                                   FontWeight="Medium"
+                                   Foreground="{StaticResource TextColor}"
+                                   Margin="0,0,0,6"/>
+                        <PasswordBox x:Name="Pwd" 
+                                     PasswordChar="*"
+                                     TabIndex="2"
+                                     Height="44"
+                                     Background="White"
+                                     Foreground="{StaticResource TextColor}"
+                                     BorderBrush="{StaticResource SearchBorder}"
+                                     BorderThickness="1"
+                                     Padding="10,8"
+                                     IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}">
+                            <PasswordBox.Template>
+                                <ControlTemplate TargetType="PasswordBox">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="6">
+                                        <ScrollViewer x:Name="PART_ContentHost"
+                                                      Margin="{TemplateBinding Padding}" />
+                                    </Border>
+                                </ControlTemplate>
+                            </PasswordBox.Template>
+                        </PasswordBox>
+                    </StackPanel>
+                    
+                    <!-- Error Message -->
+                    <StackPanel Grid.Row="3" Margin="0,0,0,16">
+                        <TextBlock Text="{Binding Error}" 
+                                   Foreground="{StaticResource ErrorColor}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   Visibility="{Binding Error, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    </StackPanel>
+                    
+                    <!-- Login Button -->
+                    <StackPanel Grid.Row="4">
+                        <Button Command="{Binding LoginCommand}"
+                                TabIndex="3"
+                                Height="44"
+                                FontSize="16"
+                                FontWeight="Medium"
+                                HorizontalAlignment="Stretch">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+                                    <Setter Property="Content" Value="Đăng nhập" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="6"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center" />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource PrimaryColorDark}" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Background" Value="{StaticResource CancelColor}" />
+                                                        <Setter Property="Opacity" Value="0.6" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                            <Setter Property="Content" Value="Đang đăng nhập..." />
+                                            <Setter Property="IsEnabled" Value="False" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>

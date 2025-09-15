@@ -19,38 +19,38 @@
     <Window.Resources>
         <!-- Colors for UI consistency -->
         <SolidColorBrush x:Key="AccentColor"
-                         Color="#f39c12" />
+                         Color="#f39c12"/>
         <SolidColorBrush x:Key="TextColor"
-                         Color="#2c3e50" />
+                         Color="#2c3e50"/>
         <SolidColorBrush x:Key="LightTextColor"
-                         Color="#7f8c8d" />
+                         Color="#7f8c8d"/>
         <!-- Base Style for Menu Items -->
         <Style x:Key="MenuItemStyle"
                TargetType="Border">
             <Setter Property="CornerRadius"
-                    Value="8" />
+                    Value="8"/>
             <Setter Property="Padding"
-                    Value="2" />
+                    Value="2"/>
             <Setter Property="Margin"
-                    Value="20,0,0,2" />
+                    Value="20,0,0,2"/>
             <Setter Property="Background"
-                    Value="Transparent" />
+                    Value="Transparent"/>
             <Setter Property="Height"
-                    Value="50" />
+                    Value="50"/>
             <Setter Property="Width"
-                    Value="230" />
+                    Value="230"/>
             <Setter Property="HorizontalAlignment"
-                    Value="Left" />
+                    Value="Left"/>
             <Setter Property="VerticalAlignment"
-                    Value="Center" />
+                    Value="Center"/>
             <Style.Triggers>
                 <!-- Highlight on Mouse Over -->
                 <Trigger Property="IsMouseOver"
                          Value="True">
                     <Setter Property="Background"
-                            Value="#E3F2FD" />
+                            Value="#E3F2FD"/>
                     <Setter Property="Cursor"
-                            Value="Hand" />
+                            Value="Hand"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -59,17 +59,17 @@
                TargetType="Button">
             <!-- Remove default button visuals -->
             <Setter Property="Background"
-                    Value="Transparent" />
+                    Value="Transparent"/>
             <Setter Property="BorderBrush"
-                    Value="Transparent" />
+                    Value="Transparent"/>
             <Setter Property="Padding"
-                    Value="0" />
+                    Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <!-- Use ContentPresenter so we can use Grid inside Button -->
                         <ContentPresenter HorizontalAlignment="Stretch"
-                                          VerticalAlignment="Stretch" />
+                                          VerticalAlignment="Stretch"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -79,12 +79,12 @@
                TargetType="Border"
                BasedOn="{StaticResource MenuItemStyle}">
             <Setter Property="Background"
-                    Value="{StaticResource PrimaryColor}" />
+                    Value="{StaticResource PrimaryColor}"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver"
                          Value="True">
                     <Setter Property="Background"
-                            Value="#4285F4" />
+                            Value="#4285F4"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -92,46 +92,90 @@
         <Style x:Key="MenuIconStyle"
                TargetType="TextBlock">
             <Setter Property="FontSize"
-                    Value="18" />
+                    Value="18"/>
             <Setter Property="VerticalAlignment"
-                    Value="Center" />
+                    Value="Center"/>
         </Style>
 
         <Style x:Key="MenuTextStyle"
                TargetType="TextBlock">
             <Setter Property="FontSize"
-                    Value="14" />
+                    Value="14"/>
             <Setter Property="FontWeight"
-                    Value="Normal" />
+                    Value="Normal"/>
             <Setter Property="Margin"
-                    Value="12,0,0,0" />
+                    Value="12,0,0,0"/>
             <Setter Property="VerticalAlignment"
-                    Value="Center" />
+                    Value="Center"/>
             <Setter Property="Foreground"
-                    Value="{StaticResource TextColor}" />
+                    Value="{StaticResource TextColor}"/>
         </Style>
 
         <Style x:Key="ActiveMenuTextStyle"
                TargetType="TextBlock"
                BasedOn="{StaticResource MenuTextStyle}">
             <Setter Property="Foreground"
-                    Value="White" />
+                    Value="White"/>
             <Setter Property="FontWeight"
-                    Value="SemiBold" />
+                    Value="SemiBold"/>
         </Style>
     </Window.Resources>
 
     <!-- Main Layout for Window -->
     <Grid MouseDown="TitleBar_MouseDown">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <!-- Main Content -->
-        <Grid Grid.ColumnSpan="2">
+        <!-- Login overlay (full window when not authenticated) -->
+        <Grid Background="{StaticResource BackgroundColor}"
+              Panel.ZIndex="100"
+              Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Title bar for login window -->
+            <StackPanel Grid.Row="0"
+                        Background="Transparent"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,5,5,0">
+                <Button Content="🗕"
+                        Width="35"
+                        Height="30"
+                        Click="MinimizeButton_Click"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        VerticalAlignment="Center"
+                        Foreground="#2c3e50"/>
+                <Button Content="🗖"
+                        Width="35"
+                        Height="30"
+                        Click="MaximizeRestoreButton_Click"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Foreground="#2c3e50"/>
+                <Button Content="✖"
+                        Width="35"
+                        Height="30"
+                        Click="CloseButton_Click"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Foreground="#2c3e50"/>
+            </StackPanel>
+            
+            <!-- Login content -->
+            <ContentControl Grid.Row="1" Content="{Binding LoginVm}"/>
+        </Grid>
+
+        <!-- Main Content (only visible when authenticated) -->
+        <Grid Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- Sidebar Navigation -->
@@ -145,7 +189,7 @@
                                       Direction="0"
                                       BlurRadius="8"
                                       Opacity="0.1"
-                                      Color="Gray" />
+                                      Color="Gray"/>
                 </Border.Effect>
                 <StackPanel Margin="0,10,0,0">
                     <StackPanel Grid.Column="0"
@@ -157,7 +201,7 @@
                         <Image Source="Images/Logo/FPTU_logo.png"
                                Width="166"
                                Height="85"
-                               VerticalAlignment="Center" />
+                               VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <Border>
@@ -168,7 +212,7 @@
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                  Value="GroupName">
                                         <Setter Property="Background"
-                                                Value="#4285F4" />
+                                                Value="#4285F4"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -178,13 +222,13 @@
                                 Command="{Binding ShowRoomCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="🏢"
                                            Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
+                                           Style="{StaticResource MenuIconStyle}"/>
 
                                 <TextBlock Text="Quản lý lớp học"
                                            Grid.Column="1">
@@ -195,9 +239,9 @@
                                                 <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                              Value="GroupName">
                                                     <Setter Property="Foreground"
-                                                            Value="White" />
+                                                            Value="White"/>
                                                     <Setter Property="FontWeight"
-                                                            Value="SemiBold" />
+                                                            Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -215,7 +259,7 @@
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                  Value="Lecture">
                                         <Setter Property="Background"
-                                                Value="#4285F4" />
+                                                Value="#4285F4"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -225,12 +269,12 @@
                                 Command="{Binding ShowLectureCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="👨‍🏫"
                                            Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
+                                           Style="{StaticResource MenuIconStyle}"/>
 
                                 <TextBlock Text="Quản lý giảng viên"
                                            Grid.Column="1">
@@ -241,9 +285,9 @@
                                                 <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                              Value="Lecture">
                                                     <Setter Property="Foreground"
-                                                            Value="White" />
+                                                            Value="White"/>
                                                     <Setter Property="FontWeight"
-                                                            Value="SemiBold" />
+                                                            Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -261,7 +305,7 @@
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                  Value="Subject">
                                         <Setter Property="Background"
-                                                Value="#4285F4" />
+                                                Value="#4285F4"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -271,13 +315,13 @@
                                 Command="{Binding ShowCourseCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="📚"
                                            Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
+                                           Style="{StaticResource MenuIconStyle}"/>
 
                                 <TextBlock Text="Quản lý môn học"
                                            Grid.Column="1">
@@ -288,9 +332,9 @@
                                                 <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                              Value="Subject">
                                                     <Setter Property="Foreground"
-                                                            Value="White" />
+                                                            Value="White"/>
                                                     <Setter Property="FontWeight"
-                                                            Value="SemiBold" />
+                                                            Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -309,7 +353,7 @@
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                  Value="RoomList">
                                         <Setter Property="Background"
-                                                Value="#4285F4" />
+                                                Value="#4285F4"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -319,13 +363,13 @@
                                 Command="{Binding ShowRoomlistCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="🏫"
                                            Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
+                                           Style="{StaticResource MenuIconStyle}"/>
 
                                 <TextBlock Text="Quản lý phòng"
                                            Grid.Column="1">
@@ -336,9 +380,9 @@
                                                 <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                              Value="RoomList">
                                                     <Setter Property="Foreground"
-                                                            Value="White" />
+                                                            Value="White"/>
                                                     <Setter Property="FontWeight"
-                                                            Value="SemiBold" />
+                                                            Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -356,7 +400,7 @@
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                  Value="Curriculum">
                                         <Setter Property="Background"
-                                                Value="#4285F4" />
+                                                Value="#4285F4"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -366,13 +410,13 @@
                                 Command="{Binding ShowCurriculumCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="📑"
                                            Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
+                                           Style="{StaticResource MenuIconStyle}"/>
 
                                 <TextBlock Text="Quản lý khung chương trình"
                                            Grid.Column="1">
@@ -383,9 +427,9 @@
                                                 <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                              Value="Curriculum">
                                                     <Setter Property="Foreground"
-                                                            Value="White" />
+                                                            Value="White"/>
                                                     <Setter Property="FontWeight"
-                                                            Value="SemiBold" />
+                                                            Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -404,7 +448,7 @@
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                  Value="LectureSubject">
                                         <Setter Property="Background"
-                                                Value="#4285F4" />
+                                                Value="#4285F4"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -414,13 +458,13 @@
                                 Command="{Binding ShowLectureSubjectCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="📅"
                                            Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
+                                           Style="{StaticResource MenuIconStyle}"/>
 
                                 <TextBlock Text="Phân công giảng dạy"
                                            Grid.Column="1">
@@ -431,9 +475,9 @@
                                                 <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                              Value="LectureSubject">
                                                     <Setter Property="Foreground"
-                                                            Value="White" />
+                                                            Value="White"/>
                                                     <Setter Property="FontWeight"
-                                                            Value="SemiBold" />
+                                                            Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -451,7 +495,7 @@
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                  Value="CurriculumSubject">
                                         <Setter Property="Background"
-                                                Value="#4285F4" />
+                                                Value="#4285F4"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -461,14 +505,14 @@
                                 Command="{Binding ShowCurriculumSubjectCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="119*" />
-                                    <ColumnDefinition Width="83*" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="119*"/>
+                                    <ColumnDefinition Width="83*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="🗂️"
                                            Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
+                                           Style="{StaticResource MenuIconStyle}"/>
 
                                 <TextBlock Text="Quản lý khung môn"
                                            Grid.Column="1"
@@ -481,9 +525,9 @@
                                                 <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                              Value="CurriculumSubject">
                                                     <Setter Property="Foreground"
-                                                            Value="White" />
+                                                            Value="White"/>
                                                     <Setter Property="FontWeight"
-                                                            Value="SemiBold" />
+                                                            Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -502,7 +546,7 @@
                                     <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                  Value="CreateSchedule">
                                         <Setter Property="Background"
-                                                Value="#4285F4" />
+                                                Value="#4285F4"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -512,12 +556,12 @@
                                 Command="{Binding ShowCreateScheduleCommand}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="🗒️"
                                            Grid.Column="0"
-                                           Style="{StaticResource MenuIconStyle}" />
+                                           Style="{StaticResource MenuIconStyle}"/>
 
                                 <!-- Đổi style TextBlock nếu active -->
                                 <TextBlock Text="Xếp lịch học"
@@ -529,9 +573,9 @@
                                                 <DataTrigger Binding="{Binding CurrentTab.NameTab}"
                                                              Value="CreateSchedule">
                                                     <Setter Property="Foreground"
-                                                            Value="White" />
+                                                            Value="White"/>
                                                     <Setter Property="FontWeight"
-                                                            Value="SemiBold" />
+                                                            Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -541,33 +585,87 @@
                         </Button>
                     </Border>
 
+                    <!-- Account Information Section -->
+                    <Border Margin="20,40,20,0"
+                            Background="White"
+                            CornerRadius="8"
+                            BorderBrush="{StaticResource SearchBorder}"
+                            BorderThickness="1"
+                            Padding="12">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,8">
+                                <TextBlock Text="👤"
+                                           FontSize="16"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="Tài khoản"
+                                           FontSize="12"
+                                           FontWeight="Medium"
+                                           Foreground="{StaticResource LightTextColor}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <TextBlock Text="{Binding CurrentUsername}"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextColor}"
+                                       Margin="0,0,0,12"
+                                       TextTrimming="CharacterEllipsis"/>
+                            
+                            <Button Content="Đăng xuất"
+                                    Command="{Binding LogoutCommand}"
+                                    Height="32"
+                                    FontSize="12"
+                                    HorizontalAlignment="Stretch">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+                                        <Setter Property="Background" Value="{StaticResource ErrorColor}"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="4"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource ErrorColorDark}"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
                     <!-- Version info at bottom -->
                     <TextBlock Text="Phiên bản: 1.0.2"
-                               Margin="20,40,0,0"
+                               Margin="20,20,0,0"
                                Foreground="{StaticResource LightTextColor}"
-                               FontSize="12" />
+                               FontSize="12"/>
                 </StackPanel>
             </Border>
             <Grid Grid.Column="1"
                   Background="White">
                 <Grid Margin="0,0,0,10">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Optional Top Content -->
+                    <!-- Window Controls -->
                     <StackPanel Grid.Row="0"
                                 Background="White"
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Top"
-                                Margin="0,0,0,0">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,8,0" Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="👤 " VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding CurrentUsername}" Margin="4,0,12,0" VerticalAlignment="Center"/>
-                            <Button Content="Đăng xuất" Command="{Binding LogoutCommand}" Background="#EF4444" Foreground="White" Padding="8,4" Margin="0,0,12,0"/>
-                        </StackPanel>
+                                Margin="0,5,5,0">
                         <Button Content="🗕"
                                 Width="35"
                                 Height="30"
@@ -575,44 +673,35 @@
                                 Background="Transparent"
                                 BorderBrush="Transparent"
                                 VerticalAlignment="Center"
-                                Foreground="#2c3e50" />
+                                Foreground="#2c3e50"/>
                         <Button Content="🗖"
                                 Width="35"
                                 Height="30"
                                 Click="MaximizeRestoreButton_Click"
                                 Background="Transparent"
                                 BorderBrush="Transparent"
-                                Foreground="#2c3e50" />
+                                Foreground="#2c3e50"/>
                         <Button Content="✖"
                                 Width="35"
                                 Height="30"
                                 Click="CloseButton_Click"
                                 Background="Transparent"
                                 BorderBrush="Transparent"
-                                Foreground="#2c3e50" />
+                                Foreground="#2c3e50"/>
                     </StackPanel>
 
                     <!-- Main Dynamic Content -->
                     <Border Grid.Row="1"
                             Margin="20,5,20,0"
-                            CornerRadius="10"
-                            Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <ContentControl Content="{Binding CurrentViewModel}" />
+                            CornerRadius="10">
+                        <ContentControl Content="{Binding CurrentViewModel}"/>
                     </Border>
-
-                    <!-- Login overlay only over main content area (keeps top bar & sidebar visible) -->
-                    <Grid Grid.Row="1"
-                          Margin="20,5,20,0"
-                          Background="#F7FAFF"
-                          Panel.ZIndex="100"
-                          Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}">
-                        <ContentControl Content="{Binding LoginVm}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Grid>
                 </Grid>
             </Grid>
         </Grid>
+
         <notifications:NotificationArea x:Name="WindowArea"
                                         Position="BottomRight"
-                                        MaxItems="3" />
+                                        MaxItems="3"/>
     </Grid>
 </Window>
