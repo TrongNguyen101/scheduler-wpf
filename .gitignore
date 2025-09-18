@@ -26,4 +26,6 @@ Thumbs.db
 **/bin/
 **/obj/
 
+.vs/
+*/.vs/
 
