@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vm="clr-namespace:SchedulerWpfApp.ViewModel"
-                    xmlns:views="clr-namespace:SchedulerWpfApp.Views" 
+                    xmlns:views="clr-namespace:SchedulerWpfApp.Views"
                     xmlns:converters="clr-namespace:SchedulerWpfApp.Helper">
 
     <!-- DataTemplate for CourseView -->
@@ -16,7 +16,7 @@
 
     <!-- DataTemplate for RoomView -->
     <DataTemplate DataType="{x:Type vm:RoomViewModel}">
-        <views:RoomView />
+        <views:RoomView/>
     </DataTemplate>
 
     <!-- DataTemplate for CreateScheduleView -->
@@ -26,7 +26,7 @@
 
     <!-- DataTemplate for LectureView -->
     <DataTemplate DataType="{x:Type vm:LectureViewModel}">
-        <views:LectureView />
+        <views:LectureView/>
     </DataTemplate>
 
     <!-- DataTemplate for LectureSubjectView -->
@@ -36,13 +36,21 @@
 
     <!-- DataTemplate for CurriculumView -->
     <DataTemplate DataType="{x:Type vm:CurriculumViewModel}">
-        <views:CurriculumView />
+        <views:CurriculumView/>
     </DataTemplate>
 
     <!-- DataTemplate for CurriculumSubjectView -->
     <DataTemplate DataType="{x:Type vm:CurriculumSubjectViewModel}">
-        <views:CurriculumSubjectView />
+        <views:CurriculumSubjectView/>
     </DataTemplate>
 
-    <converters:IntToStringConverter x:Key="IntToStringConverter" />
+    <!-- DataTemplate for LoginView -->
+    <DataTemplate DataType="{x:Type vm:LoginViewModel}">
+        <views:LoginView/>
+    </DataTemplate>
+
+    <converters:IntToStringConverter x:Key="IntToStringConverter"/>
+    <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
 </ResourceDictionary>

@@ -1,0 +1,31 @@
+# Root ignores for whole repo
+
+# Node/Frontend
+auth-admin/node_modules/
+auth-service/node_modules/
+auth-admin/dist/
+auth-admin/.cache/
+auth-admin/.vite/
+auth-admin/.env
+auth-service/.env
+auth-service/data/
+auth-service/logs/
+auth-admin/package-lock.json
+auth-service/package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# IDE/OS
+.vs/
+.vscode/
+*.code-workspace
+Thumbs.db
+*.log
+
+# Build outputs (fallback)
+**/bin/
+**/obj/
+
+.vs/
+*/.vs/
+

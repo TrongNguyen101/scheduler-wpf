@@ -297,6 +297,21 @@ FakesAssemblies/
 .ntvs_analysis.dat
 node_modules/
 
+auth-admin/node_modules/
+auth-service/node_modules/
+
+# Frontend build outputs
+auth-admin/dist/
+
+# Env files
+auth-service/.env
+auth-admin/.env
+
+# Local data & logs
+auth-service/data/
+auth-service/logs/
+auth-admin/.cache/
+
 # Visual Studio 6 build log
 *.plg
 
@@ -488,3 +503,5 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+.vs/
+*/.vs/
