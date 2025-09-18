@@ -48,6 +48,10 @@ namespace SchedulerWpfApp.ViewModel
                 _isBusy = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CanLogin));
+                if (LoginCommand is RelayCommand relay)
+                {
+                    relay.RaiseCanExecuteChanged();
+                }
             }
         }
 
@@ -85,14 +89,7 @@ namespace SchedulerWpfApp.ViewModel
                 if (!ok)
                 {
                     Error = "Tài khoản hoặc mật khẩu không chính xác";
-                    // Clear password on failed login for security
-                    Password = string.Empty;
                 }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                Error = "Tài khoản hoặc mật khẩu không chính xác";
-                Password = string.Empty;
             }
             catch (System.Net.Http.HttpRequestException)
             {
