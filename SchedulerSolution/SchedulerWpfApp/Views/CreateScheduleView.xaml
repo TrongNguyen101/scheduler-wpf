@@ -10,26 +10,26 @@
              xmlns:controls="clr-namespace:SchedulerWpfApp.Controls">
 
     <UserControl.Resources>
-        <helper:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <helper:DisplayModeToVisibilityConverter x:Key="DisplayModeToVisibilityConverter" />
-        <helper:DisplayModeToBrushConverter x:Key="DisplayModeToBrushConverter" />
+        <helper:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <helper:DisplayModeToVisibilityConverter x:Key="DisplayModeToVisibilityConverter"/>
+        <helper:DisplayModeToBrushConverter x:Key="DisplayModeToBrushConverter"/>
 
         <Style x:Key="TabButtonStyle"
                TargetType="Button">
             <Setter Property="Padding"
-                    Value="10,5" />
+                    Value="10,5"/>
             <Setter Property="Margin"
-                    Value="0,0,10,0" />
+                    Value="0,0,10,0"/>
             <Setter Property="FontWeight"
-                    Value="SemiBold" />
+                    Value="SemiBold"/>
             <Setter Property="Foreground"
-                    Value="White" />
+                    Value="White"/>
             <Setter Property="BorderBrush"
-                    Value="Transparent" />
+                    Value="Transparent"/>
             <Setter Property="Cursor"
-                    Value="Hand" />
+                    Value="Hand"/>
             <Setter Property="FontSize"
-                    Value="14" />
+                    Value="14"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -38,20 +38,20 @@
                                 CornerRadius="6"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" />
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver"
                                      Value="True">
                                 <Setter TargetName="border"
                                         Property="Opacity"
-                                        Value="0.9" />
+                                        Value="0.9"/>
                             </Trigger>
                             <Trigger Property="IsPressed"
                                      Value="True">
                                 <Setter TargetName="border"
                                         Property="Opacity"
-                                        Value="0.8" />
+                                        Value="0.8"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -62,12 +62,12 @@
         <Style x:Key="ScheduleContentStyle"
                TargetType="StackPanel">
             <Setter Property="Visibility"
-                    Value="Visible" />
+                    Value="Visible"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Schedule}"
                              Value="{x:Null}">
                     <Setter Property="Visibility"
-                            Value="Collapsed" />
+                            Value="Collapsed"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -75,12 +75,12 @@
         <Style x:Key="EmptySlotStyle"
                TargetType="TextBlock">
             <Setter Property="Visibility"
-                    Value="Collapsed" />
+                    Value="Collapsed"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Schedule}"
                              Value="{x:Null}">
                     <Setter Property="Visibility"
-                            Value="Visible" />
+                            Value="Visible"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -89,30 +89,30 @@
         <Style x:Key="DragOverCellStyle"
                TargetType="Border">
             <Setter Property="Background"
-                    Value="LightBlue" />
+                    Value="LightBlue"/>
             <Setter Property="BorderBrush"
-                    Value="Blue" />
+                    Value="Blue"/>
             <Setter Property="BorderThickness"
-                    Value="0.5" />
+                    Value="0.5"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsDragOver}"
                              Value="True">
                     <Setter Property="Background"
-                            Value="LightGreen" />
+                            Value="LightGreen"/>
                     <Setter Property="BorderBrush"
-                            Value="Green" />
+                            Value="Green"/>
                     <Setter Property="BorderThickness"
-                            Value="3" />
+                            Value="3"/>
                 </DataTrigger>
 
                 <DataTrigger Binding="{Binding IsDragSource}"
                              Value="True">
                     <Setter Property="Background"
-                            Value="OrangeRed" />
+                            Value="OrangeRed"/>
                     <Setter Property="BorderBrush"
-                            Value="Brown" />
+                            Value="Brown"/>
                     <Setter Property="BorderThickness"
-                            Value="3" />
+                            Value="3"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -128,27 +128,27 @@
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDown">
                         <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
-                                               PassEventArgsToCommand="True" />
+                                               PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
                     <i:EventTrigger EventName="MouseMove">
                         <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
-                                               PassEventArgsToCommand="True" />
+                                               PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
                     <i:EventTrigger EventName="DragEnter">
                         <i:InvokeCommandAction Command="{Binding DragEnterCommand}"
-                                               PassEventArgsToCommand="True" />
+                                               PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
                     <i:EventTrigger EventName="DragLeave">
                         <i:InvokeCommandAction Command="{Binding DragLeaveCommand}"
-                                               PassEventArgsToCommand="True" />
+                                               PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
                     <i:EventTrigger EventName="DragOver">
                         <i:InvokeCommandAction Command="{Binding DragOverCommand}"
-                                               PassEventArgsToCommand="True" />
+                                               PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
                     <i:EventTrigger EventName="Drop">
                         <i:InvokeCommandAction Command="{Binding DropCommand}"
-                                               PassEventArgsToCommand="True" />
+                                               PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
 
@@ -159,32 +159,32 @@
                                VerticalAlignment="Center"
                                Foreground="Gray"
                                FontStyle="Italic"
-                               Style="{StaticResource EmptySlotStyle}" />
+                               Style="{StaticResource EmptySlotStyle}"/>
 
                     <!-- Schedule content -->
                     <StackPanel Margin="5"
                                 Style="{StaticResource ScheduleContentStyle}">
                         <TextBlock Text="{Binding Schedule.SubjectCode}"
                                    FontWeight="Bold"
-                                   FontSize="12" />
+                                   FontSize="12"/>
                         <TextBlock Text="{Binding Schedule.LecturerId}"
-                                   FontSize="10" />
+                                   FontSize="10"/>
                         <TextBlock Text="{Binding Schedule.RoomId}"
                                    FontSize="10"
-                                   Foreground="Gray" />
+                                   Foreground="Gray"/>
                         <TextBlock Text="{Binding Schedule.StatusSlot}"
                                    FontSize="9"
-                                   Foreground="DarkBlue" />
+                                   Foreground="DarkBlue"/>
                     </StackPanel>
 
                     <!-- Visual indicator khi đang drag -->
                     <Rectangle Fill="Yellow"
                                Opacity="0.3"
-                               Visibility="{Binding IsDragOver, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                               Visibility="{Binding IsDragOver, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                     <Rectangle Fill="Red"
                                Opacity="0.3"
-                               Visibility="{Binding IsDragSource, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                               Visibility="{Binding IsDragSource, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -193,8 +193,8 @@
         <DataTemplate x:Key="SlotRowTemplate">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="60" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Slot number -->
@@ -206,7 +206,7 @@
                     <TextBlock Text="{Binding SlotNumber}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               FontWeight="Bold" />
+                               FontWeight="Bold"/>
                 </Border>
 
                 <!-- Cells for each day -->
@@ -215,7 +215,7 @@
                               ItemTemplate="{StaticResource TimetableCellTemplate}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Rows="1" />
+                            <UniformGrid Rows="1"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
@@ -225,8 +225,8 @@
 
     <Grid Background="#f8f9fa">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
@@ -241,7 +241,7 @@
                            Foreground="White"
                            VerticalAlignment="Center"
                            HorizontalAlignment="center"
-                           Padding="0, 0, 0, 0" />
+                           Padding="0, 0, 0, 0"/>
             </Border>
         </Grid>
 
@@ -249,22 +249,22 @@
         <Grid Grid.Row="1"
               Margin="20">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <!-- Top Controls -->
             <Grid Grid.Row="0"
                   Margin="0,0,0,15">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0"
@@ -273,10 +273,29 @@
                         Background="{StaticResource ErrorColor}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🗑️"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"/>
                         <TextBlock Text=" Xoá Toàn Bộ Dữ Liệu"
                                    Margin="5,0,0,0"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Upload Button -->
+                <Button Grid.Column="1"
+                        Style="{StaticResource SuccessButtonStyle}"
+                        Margin="10,0,10,0"
+                        Command="{Binding UploadSchedulesCommand}"
+                        IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBooleanConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="☁️"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text=" Tải Lên Server"
+                                   Margin="5,0,0,0"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text=" (Đang tải...)"
+                                   Margin="5,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Visibility="{Binding IsUploading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     </StackPanel>
                 </Button>
 
@@ -286,10 +305,10 @@
                         Command="{Binding ExportExcelCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📤"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"/>
                         <TextBlock Text=" Export Dữ Liệu"
                                    Margin="5,0,0,0"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
 
@@ -300,10 +319,10 @@
                         Command="{Binding ImportPersonCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="📥"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"/>
                         <TextBlock Text=" Import Dữ Liệu"
                                    Margin="5,0,0,0"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
 
@@ -314,10 +333,10 @@
                         Command="{Binding OpenPopupCreateCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➕"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"/>
                         <TextBlock Text="Tạo Lịch"
                                    Margin="5,0,0,0"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
 
@@ -326,10 +345,10 @@
                         Command="{Binding OpenPopupCreateSlotCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🗂️"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"/>
                         <TextBlock Text="Tạo Mới Slot"
                                    Margin="5,0,0,0"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </Grid>
@@ -345,7 +364,7 @@
                             Command="{Binding SetDisplayModeCommand}"
                             CommandParameter="CLASS"
                             FontSize="14"
-                            Style="{StaticResource ExportButtonStyle}" />
+                            Style="{StaticResource ExportButtonStyle}"/>
                 </Border>
 
                 <Border BorderThickness="2"
@@ -356,7 +375,7 @@
                             Command="{Binding SetDisplayModeCommand}"
                             FontSize="14"
                             CommandParameter="ROOM"
-                            Style="{StaticResource ActionButtonStyle}" />
+                            Style="{StaticResource ActionButtonStyle}"/>
                 </Border>
 
                 <Border BorderThickness="2"
@@ -367,7 +386,7 @@
                             Command="{Binding SetDisplayModeCommand}"
                             FontSize="14"
                             CommandParameter="LECTURER"
-                            Style="{StaticResource SuccessButtonStyle}" />
+                            Style="{StaticResource SuccessButtonStyle}"/>
                 </Border>
 
             </StackPanel>
@@ -382,28 +401,28 @@
                             Margin="0,0,10,0">
                     <TextBlock Text="YEAR "
                                VerticalAlignment="Center"
-                               Margin="0,0,5,0" />
+                               Margin="0,0,5,0"/>
                     <ComboBox Width="100"
                               IsEditable="True"
                               ItemsSource="{Binding Years}"
-                              SelectedItem="{Binding SelectedYear}" />
+                              SelectedItem="{Binding SelectedYear}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal"
                             Margin="0,0,10,0">
                     <TextBlock Text="WEEK "
                                VerticalAlignment="Center"
-                               Margin="0,0,5,0" />
+                               Margin="0,0,5,0"/>
                     <ComboBox Width="150"
                               IsEditable="True"
                               ItemsSource="{Binding Weeks}"
-                              SelectedItem="{Binding SelectedWeek}" />
+                              SelectedItem="{Binding SelectedWeek}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding CurrentDisplayMode}"
                                VerticalAlignment="Center"
-                               Margin="0,0,5,0" />
+                               Margin="0,0,5,0"/>
                     <StackPanel Orientation="Horizontal"
                                 Margin="0,0,10,0">
                         <!-- ComboBox class -->
@@ -412,21 +431,21 @@
                                   Width="150"
                                   IsEditable="True"
                                   Margin="0,0,10,0"
-                                  Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=CLASS}" />
+                                  Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=CLASS}"/>
 
                         <!-- ComboBox room -->
                         <ComboBox ItemsSource="{Binding Rooms}"
                                   SelectedItem="{Binding SelectedRoomName}"
                                   Width="150"
                                   IsEditable="True"
-                                  Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=ROOM}" />
+                                  Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=ROOM}"/>
 
                         <!-- ComboBox lecturer -->
                         <ComboBox ItemsSource="{Binding Lecturers}"
                                   SelectedItem="{Binding SelectedLecturer}"
                                   Width="150"
                                   IsEditable="True"
-                                  Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=LECTURER}" />
+                                  Visibility="{Binding CurrentDisplayMode, Converter={StaticResource DisplayModeToVisibilityConverter}, ConverterParameter=LECTURER}"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -443,7 +462,7 @@
                         <ItemsControl ItemsSource="{Binding WeekDays}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Rows="1" />
+                                    <UniformGrid Rows="1"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
@@ -460,13 +479,13 @@
                                                        Foreground="White"
                                                        FontWeight="Bold"
                                                        FontSize="14"
-                                                       HorizontalAlignment="Center" />
+                                                       HorizontalAlignment="Center"/>
                                             <TextBlock Text="{Binding Path=., StringFormat='{}{0:dd/MM}'}"
                                                        Foreground="White"
                                                        FontSize="12"
                                                        FontWeight="Bold"
                                                        HorizontalAlignment="Center"
-                                                       Margin="0,2,0,0" />
+                                                       Margin="0,2,0,0"/>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
@@ -480,8 +499,8 @@
                             <DataTemplate>
                                 <Grid Margin="0,0,0,2">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="60" />
-                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Enhanced Slot number styling -->
@@ -498,7 +517,7 @@
                                                        VerticalAlignment="Center"
                                                        FontWeight="Bold"
                                                        Foreground="White"
-                                                       Padding="5" />
+                                                       Padding="5"/>
                                         </StackPanel>
                                     </Border>
 
@@ -507,7 +526,7 @@
                                                   ItemsSource="{Binding Cells}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <UniformGrid Rows="1" />
+                                                <UniformGrid Rows="1"/>
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
@@ -527,43 +546,43 @@
                                                                                       Direction="270"
                                                                                       ShadowDepth="1"
                                                                                       BlurRadius="3"
-                                                                                      Opacity="0.08" />
+                                                                                      Opacity="0.08"/>
                                                                 </Setter.Value>
                                                             </Setter>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding Schedule}"
                                                                              Value="{x:Null}">
                                                                     <Setter Property="Background"
-                                                                            Value="#F8F9FA" />
+                                                                            Value="#F8F9FA"/>
                                                                     <Setter Property="BorderBrush"
-                                                                            Value="#DEE2E6" />
+                                                                            Value="#DEE2E6"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding IsDragOver}"
                                                                              Value="True">
                                                                     <Setter Property="Background"
-                                                                            Value="#D4EDDA" />
+                                                                            Value="#D4EDDA"/>
                                                                     <Setter Property="BorderBrush"
-                                                                            Value="#28A745" />
+                                                                            Value="#28A745"/>
                                                                     <Setter Property="BorderThickness"
-                                                                            Value="2" />
+                                                                            Value="2"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding IsDragSource}"
                                                                              Value="True">
                                                                     <Setter Property="Background"
-                                                                            Value="#F8D7DA" />
+                                                                            Value="#F8D7DA"/>
                                                                     <Setter Property="BorderBrush"
-                                                                            Value="#DC3545" />
+                                                                            Value="#DC3545"/>
                                                                     <Setter Property="BorderThickness"
-                                                                            Value="2" />
+                                                                            Value="2"/>
                                                                 </DataTrigger>
                                                                 <Trigger Property="IsMouseOver"
                                                                          Value="True">
                                                                     <Setter Property="Background"
-                                                                            Value="#E7F3FF" />
+                                                                            Value="#E7F3FF"/>
                                                                     <Setter Property="BorderBrush"
-                                                                            Value="#0066CC" />
+                                                                            Value="#0066CC"/>
                                                                     <Setter Property="Cursor"
-                                                                            Value="Hand" />
+                                                                            Value="Hand"/>
                                                                 </Trigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -573,31 +592,31 @@
                                                     <i:Interaction.Triggers>
                                                         <i:EventTrigger EventName="MouseDown">
                                                             <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
-                                                                                   PassEventArgsToCommand="True" />
+                                                                                   PassEventArgsToCommand="True"/>
                                                         </i:EventTrigger>
                                                         <i:EventTrigger EventName="MouseMove">
                                                             <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"
-                                                                                   PassEventArgsToCommand="True" />
+                                                                                   PassEventArgsToCommand="True"/>
                                                         </i:EventTrigger>
                                                         <i:EventTrigger EventName="DragEnter">
                                                             <i:InvokeCommandAction Command="{Binding DragEnterCommand}"
-                                                                                   PassEventArgsToCommand="True" />
+                                                                                   PassEventArgsToCommand="True"/>
                                                         </i:EventTrigger>
                                                         <i:EventTrigger EventName="DragLeave">
                                                             <i:InvokeCommandAction Command="{Binding DragLeaveCommand}"
-                                                                                   PassEventArgsToCommand="True" />
+                                                                                   PassEventArgsToCommand="True"/>
                                                         </i:EventTrigger>
                                                         <i:EventTrigger EventName="DragOver">
                                                             <i:InvokeCommandAction Command="{Binding DragOverCommand}"
-                                                                                   PassEventArgsToCommand="True" />
+                                                                                   PassEventArgsToCommand="True"/>
                                                         </i:EventTrigger>
                                                         <i:EventTrigger EventName="Drop">
                                                             <i:InvokeCommandAction Command="{Binding DropCommand}"
-                                                                                   PassEventArgsToCommand="True" />
+                                                                                   PassEventArgsToCommand="True"/>
                                                         </i:EventTrigger>
                                                         <i:EventTrigger EventName="MouseLeftButtonDown">
                                                             <i:InvokeCommandAction Command="{Binding EditScheduleCommand}"
-                                                                                   PassEventArgsToCommand="True" />
+                                                                                   PassEventArgsToCommand="True"/>
                                                         </i:EventTrigger>
                                                     </i:Interaction.Triggers>
 
@@ -609,12 +628,12 @@
                                                             <StackPanel.Style>
                                                                 <Style TargetType="StackPanel">
                                                                     <Setter Property="Visibility"
-                                                                            Value="Collapsed" />
+                                                                            Value="Collapsed"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding Schedule}"
                                                                                      Value="{x:Null}">
                                                                             <Setter Property="Visibility"
-                                                                                    Value="Visible" />
+                                                                                    Value="Visible"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
@@ -622,7 +641,7 @@
                                                             <TextBlock Text="-"
                                                                        FontSize="16"
                                                                        HorizontalAlignment="Center"
-                                                                       Opacity="0.4" />
+                                                                       Opacity="0.4"/>
                                                         </StackPanel>
 
                                                         <!-- Schedule content with enhanced styling -->
@@ -630,12 +649,12 @@
                                                             <StackPanel.Style>
                                                                 <Style TargetType="StackPanel">
                                                                     <Setter Property="Visibility"
-                                                                            Value="Visible" />
+                                                                            Value="Visible"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding Schedule}"
                                                                                      Value="{x:Null}">
                                                                             <Setter Property="Visibility"
-                                                                                    Value="Collapsed" />
+                                                                                    Value="Collapsed"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
@@ -647,7 +666,7 @@
                                                                        FontSize="14"
                                                                        Foreground="#1A1A1A"
                                                                        TextWrapping="Wrap"
-                                                                       LineHeight="16" />
+                                                                       LineHeight="16"/>
 
                                                             <StackPanel HorizontalAlignment="Center"
                                                                         Orientation="Horizontal"
@@ -655,11 +674,11 @@
                                                                 <TextBlock Text="👨‍🏫"
                                                                            FontSize="10"
                                                                            VerticalAlignment="Center"
-                                                                           Margin="0,0,3,0" />
+                                                                           Margin="0,0,3,0"/>
                                                                 <TextBlock Text="{Binding Schedule.LecturerAccount}"
                                                                            FontSize="12"
                                                                            Foreground="#495057"
-                                                                           VerticalAlignment="Center" />
+                                                                           VerticalAlignment="Center"/>
                                                             </StackPanel>
 
                                                             <StackPanel HorizontalAlignment="Center"
@@ -668,11 +687,11 @@
                                                                 <TextBlock Text="🏫"
                                                                            FontSize="11"
                                                                            VerticalAlignment="Center"
-                                                                           Margin="0,0,3,0" />
+                                                                           Margin="0,0,3,0"/>
                                                                 <TextBlock Text="{Binding Schedule.RoomName}"
                                                                            FontSize="13"
                                                                            Foreground="#6C757D"
-                                                                           VerticalAlignment="Center" />
+                                                                           VerticalAlignment="Center"/>
                                                             </StackPanel>
 
                                                             <StackPanel HorizontalAlignment="Center"
@@ -681,11 +700,11 @@
                                                                 <TextBlock Text="👥"
                                                                            FontSize="11"
                                                                            VerticalAlignment="Center"
-                                                                           Margin="0,0,3,0" />
+                                                                           Margin="0,0,3,0"/>
                                                                 <TextBlock Text="{Binding Schedule.GroupName}"
                                                                            FontSize="13"
                                                                            Foreground="#6C757D"
-                                                                           VerticalAlignment="Center" />
+                                                                           VerticalAlignment="Center"/>
                                                             </StackPanel>
 
                                                             <Border Background="#5cb85c"
@@ -696,7 +715,7 @@
                                                                 <TextBlock Text="{Binding SlotTime}"
                                                                            FontSize="15"
                                                                            FontWeight="Medium"
-                                                                           Foreground="White" />
+                                                                           Foreground="White"/>
                                                             </Border>
 
                                                             <Border Background="#E8F5E8"
@@ -707,7 +726,7 @@
                                                                 <TextBlock Text="{Binding Schedule.StatusSlot}"
                                                                            FontSize="15"
                                                                            FontWeight="Medium"
-                                                                           Foreground="#155724" />
+                                                                           Foreground="#155724"/>
                                                             </Border>
                                                         </StackPanel>
 
@@ -720,19 +739,19 @@
                                                             <Border.Style>
                                                                 <Style TargetType="Border">
                                                                     <Setter Property="Visibility"
-                                                                            Value="Collapsed" />
+                                                                            Value="Collapsed"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding IsDragOver}"
                                                                                      Value="True">
                                                                             <Setter Property="Visibility"
-                                                                                    Value="Visible" />
+                                                                                    Value="Visible"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
                                                             </Border.Style>
                                                             <TextBlock FontWeight="Bold"
                                                                        FontSize="12"
-                                                                       Foreground="#856404" />
+                                                                       Foreground="#856404"/>
                                                         </Border>
 
                                                         <Border Background="#F5C6CB"
@@ -743,19 +762,19 @@
                                                             <Border.Style>
                                                                 <Style TargetType="Border">
                                                                     <Setter Property="Visibility"
-                                                                            Value="Collapsed" />
+                                                                            Value="Collapsed"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding IsDragSource}"
                                                                                      Value="True">
                                                                             <Setter Property="Visibility"
-                                                                                    Value="Visible" />
+                                                                                    Value="Visible"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
                                                             </Border.Style>
                                                             <TextBlock FontWeight="Bold"
                                                                        FontSize="12"
-                                                                       Foreground="#721C24" />
+                                                                       Foreground="#721C24"/>
                                                         </Border>
                                                     </Grid>
                                                 </Border>
@@ -784,14 +803,14 @@
                     <DropShadowEffect ShadowDepth="2"
                                       BlurRadius="15"
                                       Opacity="0.2"
-                                      Color="Black" />
+                                      Color="Black"/>
                 </Border.Effect>
 
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Form Header -->
@@ -801,7 +820,7 @@
                                    Text="Chỉnh sửa lịch học"
                                    FontSize="18"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource TextColor}" />
+                                   Foreground="{StaticResource TextColor}"/>
                     </Grid>
 
                     <!-- Form Fields -->
@@ -809,47 +828,47 @@
                                 Margin="0,0,0,20">
                         <TextBlock Text="Mã môn học"
                                    FontWeight="Bold"
-                                   Margin="0,0,0,5" />
+                                   Margin="0,0,0,5"/>
                         <TextBox Text="{Binding EditingSchedule.SubjectCode}"
                                  Style="{StaticResource ModernTextBoxStyle}"
-                                 IsEnabled="False" />
+                                 IsEnabled="False"/>
                         <TextBlock Text="Tên phòng học"
                                    FontWeight="Bold"
-                                   Margin="0,10,0,5" />
+                                   Margin="0,10,0,5"/>
                         <ComboBox ItemsSource="{Binding ListRooms}"
                                   Style="{StaticResource ModernComboBoxStyle}"
                                   SelectedItem="{Binding SelectedRoom, Mode=TwoWay}"
                                   IsEditable="True"
                                   DisplayMemberPath="RoomName"
-                                  Height="50" />
+                                  Height="50"/>
 
                         <TextBlock Text="Giảng viên"
                                    FontWeight="Bold"
-                                   Margin="0,10,0,5" />
+                                   Margin="0,10,0,5"/>
                         <ComboBox ItemsSource="{Binding LecturerSubjects}"
                                   Style="{StaticResource ModernComboBoxStyle}"
                                   SelectedItem="{Binding SelectedLecturerSubject, Mode=TwoWay}"
                                   IsEditable="True"
                                   DisplayMemberPath="Lecturer.LecturerAccount"
-                                  Height="50" />
+                                  Height="50"/>
 
                         <TextBlock Text="Trạng thái"
                                    FontWeight="Bold"
-                                   Margin="0,10,0,5" />
+                                   Margin="0,10,0,5"/>
                         <ComboBox ItemsSource="{Binding SlotStatusList}"
                                   Style="{StaticResource ModernComboBoxStyle}"
                                   SelectedItem="{Binding EditingSchedule.StatusSlot, Mode=TwoWay}"
                                   IsEditable="True"
-                                  Height="50" />
+                                  Height="50"/>
                     </StackPanel>
 
                     <!-- Form Actions -->
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0"
                                 Content="Xóa"
@@ -858,7 +877,7 @@
                                 Margin="0,0,10,0"
                                 Padding="20,8"
                                 Command="{Binding DeleteScheduleCommand}"
-                                CommandParameter="{Binding EditingSchedule}" />
+                                CommandParameter="{Binding EditingSchedule}"/>
 
                         <Button Grid.Column="2"
                                 Content="Hủy"
@@ -866,14 +885,14 @@
                                 Background="#95a5a6"
                                 Margin="0,0,10,0"
                                 Padding="20,8"
-                                Command="{Binding CancelEditScheduleCommand}" />
+                                Command="{Binding CancelEditScheduleCommand}"/>
 
                         <Button Grid.Column="3"
                                 x:Name="btnSaveLecturer"
                                 Content="Lưu"
                                 Style="{StaticResource SuccessButtonStyle}"
                                 Padding="20,8"
-                                Command="{Binding UpdateScheduleCommand}" />
+                                Command="{Binding UpdateScheduleCommand}"/>
                     </Grid>
                 </Grid>
             </Border>
@@ -897,7 +916,7 @@
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="15"
                                       ShadowDepth="2"
-                                      Opacity="0.2" />
+                                      Opacity="0.2"/>
                 </Border.Effect>
 
                 <StackPanel>
@@ -907,19 +926,19 @@
                                FontWeight="SemiBold"
                                Foreground="#2c3e50"
                                Margin="0,0,0,20"
-                               TextAlignment="Center" />
+                               TextAlignment="Center"/>
 
                     <StackPanel Margin="0,0,0,20">
                         <TextBlock Text="Chọn ngày bắt đầu lịch"
                                    FontWeight="Bold"
                                    Margin="0,0,0,5"
-                                   Foreground="#333" />
+                                   Foreground="#333"/>
                         <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
                                     Language="vi-VN">
                             <DatePicker.Resources>
                                 <Style TargetType="DatePickerTextBox">
                                     <Setter Property="IsReadOnly"
-                                            Value="True" />
+                                            Value="True"/>
                                 </Style>
                             </DatePicker.Resources>
                         </DatePicker>
@@ -930,13 +949,13 @@
                         <TextBlock Text="Nhóm chuyên ngành A"
                                    FontWeight="Bold"
                                    Margin="0,0,0,5"
-                                   Foreground="#333" />
+                                   Foreground="#333"/>
 
                         <!-- Tag -->
                         <ItemsControl ItemsSource="{Binding ListMajorGroupA}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel />
+                                    <WrapPanel/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
@@ -951,7 +970,7 @@
                                                     VerticalAlignment="Center">
                                             <TextBlock Text="{Binding}"
                                                        FontSize="12"
-                                                       Foreground="#007c91" />
+                                                       Foreground="#007c91"/>
                                             <Button Content="x"
                                                     FontSize="10"
                                                     Width="16"
@@ -963,7 +982,7 @@
                                                     Foreground="Gray"
                                                     Cursor="Hand"
                                                     Command="{Binding DataContext.RemoveMajorFirstItemCommand, RelativeSource={RelativeSource AncestorType=Popup}}"
-                                                    CommandParameter="{Binding}" />
+                                                    CommandParameter="{Binding}"/>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
@@ -971,7 +990,7 @@
                         </ItemsControl>
 
                         <controls:ComboBoxTemplate ItemsSource="{Binding FilteredMajorFirst}"
-                                                   SelectedItem="{Binding SelectedMajorFirstCombo, Mode=TwoWay}" />
+                                                   SelectedItem="{Binding SelectedMajorFirstCombo, Mode=TwoWay}"/>
                     </StackPanel>
 
                     <!-- Major second -->
@@ -979,12 +998,12 @@
                         <TextBlock Text="Nhóm chuyên ngành B"
                                    FontWeight="Bold"
                                    Margin="0,0,0,5"
-                                   Foreground="#333" />
+                                   Foreground="#333"/>
 
                         <ItemsControl ItemsSource="{Binding ListMajorGroupB}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel />
+                                    <WrapPanel/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
@@ -999,7 +1018,7 @@
                                                     VerticalAlignment="Center">
                                             <TextBlock Text="{Binding}"
                                                        FontSize="12"
-                                                       Foreground="#558b2f" />
+                                                       Foreground="#558b2f"/>
                                             <Button Content="x"
                                                     FontSize="10"
                                                     Width="16"
@@ -1011,7 +1030,7 @@
                                                     Foreground="Gray"
                                                     Cursor="Hand"
                                                     Command="{Binding DataContext.RemoveMajorSecondItemCommand, RelativeSource={RelativeSource AncestorType=Popup}}"
-                                                    CommandParameter="{Binding}" />
+                                                    CommandParameter="{Binding}"/>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
@@ -1019,7 +1038,7 @@
                         </ItemsControl>
 
                         <controls:ComboBoxTemplate ItemsSource="{Binding FilteredMajorSecond}"
-                                                   SelectedItem="{Binding SelectedMajorSecondCombo, Mode=TwoWay}" />
+                                                   SelectedItem="{Binding SelectedMajorSecondCombo, Mode=TwoWay}"/>
                     </StackPanel>
 
                     <!-- Action buttons -->
@@ -1033,7 +1052,7 @@
                                 Foreground="White"
                                 BorderBrush="Transparent"
                                 BorderThickness="0"
-                                Cursor="Hand" />
+                                Cursor="Hand"/>
                         <Button Content="Tạo"
                                 Command="{Binding CreateScheduleCommand}"
                                 Padding="12,6"
@@ -1041,7 +1060,7 @@
                                 Foreground="White"
                                 BorderBrush="Transparent"
                                 BorderThickness="0"
-                                Cursor="Hand" />
+                                Cursor="Hand"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -1061,14 +1080,14 @@
                     <DropShadowEffect ShadowDepth="2"
                                       BlurRadius="15"
                                       Opacity="0.2"
-                                      Color="Black" />
+                                      Color="Black"/>
                 </Border.Effect>
 
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Dialog Header -->
@@ -1077,21 +1096,21 @@
                                FontSize="18"
                                FontWeight="Bold"
                                Foreground="{StaticResource TextColor}"
-                               Margin="0,0,0,15" />
+                               Margin="0,0,0,15"/>
 
                     <!-- Dialog Content -->
                     <TextBlock Grid.Row="1"
                                Text="Bạn có chắc chắn muốn xóa slot học này không?"
                                TextWrapping="Wrap"
                                Foreground="{StaticResource TextColor}"
-                               Margin="0,0,0,20" />
+                               Margin="0,0,0,20"/>
 
                     <!-- Dialog Actions -->
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="1"
@@ -1100,13 +1119,13 @@
                                 Background="#95a5a6"
                                 Margin="0,0,10,0"
                                 Padding="20,8"
-                                Command="{Binding CancelDeleteScheduleCommand}" />
+                                Command="{Binding CancelDeleteScheduleCommand}"/>
 
                         <Button Grid.Column="2"
                                 Content="Xóa"
                                 Style="{StaticResource DeleteButtonStyle}"
                                 Padding="20,8"
-                                Command="{Binding ConfirmDeleteCommand}" />
+                                Command="{Binding ConfirmDeleteCommand}"/>
                     </Grid>
                 </Grid>
             </Border>
@@ -1126,15 +1145,15 @@
                     <DropShadowEffect ShadowDepth="2"
                                       BlurRadius="15"
                                       Opacity="0.2"
-                                      Color="Black" />
+                                      Color="Black"/>
                 </Border.Effect>
 
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Form Header -->
@@ -1143,24 +1162,24 @@
                         <TextBlock Text="Tạo mới slot học"
                                    FontSize="18"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource TextColor}" />
+                                   Foreground="{StaticResource TextColor}"/>
                     </Grid>
 
                     <!-- Form Fields -->
                     <Grid Grid.Row="1"
                           Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="15" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <!-- Row 0 -->
@@ -1169,14 +1188,14 @@
                                     Margin="0,0,0,15">
                             <TextBlock Text="Mã Phòng"
                                        Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
+                                       Foreground="{StaticResource TextColor}"/>
                             <ComboBox ItemsSource="{Binding ListRooms}"
                                       SelectedItem="{Binding SelectedRoomForCreateSlot, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
                                       IsTextSearchEnabled="True"
                                       DisplayMemberPath="RoomName"
-                                      Height="50" />
+                                      Height="50"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="0"
@@ -1184,12 +1203,12 @@
                                     Margin="0,0,0,15">
                             <TextBlock Text="Ca Trong Ngày (AM/PM)"
                                        Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
+                                       Foreground="{StaticResource TextColor}"/>
                             <ComboBox SelectedValue="{Binding CreateNewSchedule.PartOfDay, UpdateSourceTrigger=PropertyChanged}"
                                       ItemsSource="{Binding PartOfDayInTheFirstTerms}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
-                                      Height="50" />
+                                      Height="50"/>
                         </StackPanel>
 
                         <!-- Row 1 -->
@@ -1198,12 +1217,12 @@
                                     Margin="0,0,0,15">
                             <TextBlock Text="Slot Time"
                                        Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
+                                       Foreground="{StaticResource TextColor}"/>
                             <ComboBox ItemsSource="{Binding Slots}"
                                       SelectedItem="{Binding CreateNewSchedule.SlotTime}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
-                                      Height="50" />
+                                      Height="50"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1"
@@ -1211,12 +1230,12 @@
                                     Margin="0,0,0,15">
                             <TextBlock Text="Trạng Thái Slot"
                                        Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
+                                       Foreground="{StaticResource TextColor}"/>
                             <ComboBox ItemsSource="{Binding SlotStatusList}"
                                       SelectedItem="{Binding CreateNewSchedule.StatusSlot, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
-                                      Height="50" />
+                                      Height="50"/>
                         </StackPanel>
 
                         <!-- Row 2 -->
@@ -1225,25 +1244,25 @@
                                     Margin="0,0,0,15">
                             <TextBlock Text="Ngày Dạy"
                                        Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
+                                       Foreground="{StaticResource TextColor}"/>
                             <DatePicker SelectedDate="{Binding CreateNewSchedule.Date}"
                                         Height="50"
                                         Background="White"
                                         BorderBrush="{StaticResource SearchBorder}"
-                                        BorderThickness="1" />
+                                        BorderThickness="1"/>
                         </StackPanel>
                         <StackPanel Grid.Row="2"
                                     Grid.Column="2"
                                     Margin="0,0,0,15">
                             <TextBlock Text="Tên Nhóm Lớp"
                                        Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
+                                       Foreground="{StaticResource TextColor}"/>
                             <ComboBox ItemsSource="{Binding ListGroupClass}"
                                       SelectedItem="{Binding SelectedGroupCLassForCreateSlot, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
                                       DisplayMemberPath="GroupName"
-                                      Height="50" />
+                                      Height="50"/>
                         </StackPanel>
 
                         <!-- Row 3 -->
@@ -1252,12 +1271,12 @@
                                     Margin="0,0,0,15">
                             <TextBlock Text="Mã Môn học"
                                        Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
+                                       Foreground="{StaticResource TextColor}"/>
                             <ComboBox ItemsSource="{Binding ListSubjectByGroupClass}"
                                       SelectedItem="{Binding SelectedSubjectCodeForCreateSlot, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       IsEditable="True"
-                                      Height="50" />
+                                      Height="50"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="3"
@@ -1265,13 +1284,13 @@
                                     Margin="0,0,0,15">
                             <TextBlock Text="Mã Giảng Viên"
                                        Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
+                                       Foreground="{StaticResource TextColor}"/>
                             <ComboBox ItemsSource="{Binding LecturerSubjects}"
                                       SelectedItem="{Binding SelectedLecturerSubjectForCreateSlot, Mode=TwoWay}"
                                       IsEditable="True"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       DisplayMemberPath="Lecturer.LecturerAccount"
-                                      Height="50" />
+                                      Height="50"/>
                         </StackPanel>
 
                         <!-- Row 4 -->
@@ -1280,9 +1299,9 @@
                                     Margin="0,0,0,0">
                             <TextBlock Text="Thứ Tự Của Slot"
                                        Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
+                                       Foreground="{StaticResource TextColor}"/>
                             <TextBox Text="{Binding CreateNewSchedule.SessionNo, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource ModernTextBoxStyle}" />
+                                     Style="{StaticResource ModernTextBoxStyle}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="4"
@@ -1290,28 +1309,28 @@
                                     Margin="0,0,0,0">
                             <TextBlock Text="Loại Slot"
                                        Margin="0,0,0,5"
-                                       Foreground="{StaticResource TextColor}" />
+                                       Foreground="{StaticResource TextColor}"/>
                             <ComboBox ItemsSource="{Binding TypeSlots}"
                                       SelectedItem="{Binding CreateNewSchedule.TypeSlot, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
                                       Height="50"
-                                      IsEditable="True" />
+                                      IsEditable="True"/>
                         </StackPanel>
                     </Grid>
                     <StackPanel Grid.Row="2">
                         <TextBlock Text="Loại Slot (a24, p35)"
                                    Margin="0,0,0,5"
-                                   Foreground="{StaticResource TextColor}" />
+                                   Foreground="{StaticResource TextColor}"/>
                         <TextBox Text="{Binding CreateNewSchedule.SlotTypeCode, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModernTextBoxStyle}"
-                                 Margin="0,0,0,15" />
+                                 Margin="0,0,0,15"/>
                     </StackPanel>
                     <!-- Form Actions -->
                     <Grid Grid.Row="3">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="1"
@@ -1320,13 +1339,13 @@
                                 Background="#95a5a6"
                                 Margin="0,0,10,0"
                                 Padding="20,8"
-                                Command="{Binding CancelSCreateSlotCommand}" />
+                                Command="{Binding CancelSCreateSlotCommand}"/>
 
                         <Button Grid.Column="2"
                                 Content="Lưu"
                                 Style="{StaticResource SuccessButtonStyle}"
                                 Padding="20,8"
-                                Command="{Binding SaveSCreateSlotCommand}" />
+                                Command="{Binding SaveSCreateSlotCommand}"/>
                     </Grid>
                 </Grid>
             </Border>
@@ -1347,14 +1366,14 @@
                     <DropShadowEffect ShadowDepth="2"
                                       BlurRadius="15"
                                       Opacity="0.2"
-                                      Color="Black" />
+                                      Color="Black"/>
                 </Border.Effect>
 
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Dialog Header -->
@@ -1363,21 +1382,21 @@
                                FontSize="18"
                                FontWeight="Bold"
                                Foreground="{StaticResource TextColor}"
-                               Margin="0,0,0,15" />
+                               Margin="0,0,0,15"/>
 
                     <!-- Dialog Content -->
                     <TextBlock Grid.Row="1"
                                Text="Bạn có chắc chắn muốn xóa toàn bộ dữ liệu trong hệ thống không?"
                                TextWrapping="Wrap"
                                Foreground="{StaticResource TextColor}"
-                               Margin="0,0,0,20" />
+                               Margin="0,0,0,20"/>
 
                     <!-- Dialog Actions -->
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="1"
@@ -1386,13 +1405,13 @@
                                 Background="#95a5a6"
                                 Margin="0,0,10,0"
                                 Padding="20,8"
-                                Command="{Binding CancelDeleteDataCommand}" />
+                                Command="{Binding CancelDeleteDataCommand}"/>
 
                         <Button Grid.Column="2"
                                 Content="Xóa"
                                 Style="{StaticResource DeleteButtonStyle}"
                                 Padding="20,8"
-                                Command="{Binding ConfirmDeleteDataCommand}" />
+                                Command="{Binding ConfirmDeleteDataCommand}"/>
                     </Grid>
                 </Grid>
             </Border>
@@ -1413,14 +1432,14 @@
                     <DropShadowEffect ShadowDepth="2"
                                       BlurRadius="15"
                                       Opacity="0.2"
-                                      Color="Black" />
+                                      Color="Black"/>
                 </Border.Effect>
 
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Dialog Header -->
@@ -1429,21 +1448,21 @@
                                FontSize="18"
                                FontWeight="Bold"
                                Foreground="{StaticResource TextColor}"
-                               Margin="0,0,0,15" />
+                               Margin="0,0,0,15"/>
 
                     <!-- Dialog Content -->
                     <TextBlock Grid.Row="1"
                                Text="{Binding TextSwapSchedule}"
                                TextWrapping="Wrap"
                                Foreground="{StaticResource TextColor}"
-                               Margin="0,0,0,20" />
+                               Margin="0,0,0,20"/>
 
                     <!-- Dialog Actions -->
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="1"
@@ -1452,32 +1471,56 @@
                                 Background="#95a5a6"
                                 Margin="0,0,10,0"
                                 Padding="20,8"
-                                Command="{Binding CancelSwapScheduleCommand}" />
+                                Command="{Binding CancelSwapScheduleCommand}"/>
 
                         <Button Grid.Column="2"
                                 Content="Chấp nhận"
                                 Style="{StaticResource SuccessButtonStyle}"
                                 Padding="20,8"
-                                Command="{Binding ConfirmSwapScheduleCommand}" />
+                                Command="{Binding ConfirmSwapScheduleCommand}"/>
                     </Grid>
                 </Grid>
             </Border>
         </Popup>
-        <Popup IsOpen="{Binding IsDeletedProgressBarOpen}" StaysOpen="True" Placement="Center" AllowsTransparency="True">
-            <Border Background="#CCFFFFFF" Padding="20" CornerRadius="8" 
-            BorderBrush="Gray" BorderThickness="1" >
+        <Popup IsOpen="{Binding IsDeletedProgressBarOpen}"
+                StaysOpen="True"
+                Placement="Center"
+                AllowsTransparency="True">
+            <Border Background="#CCFFFFFF"
+                    Padding="20"
+                    CornerRadius="8"
+                    BorderBrush="Gray"
+                    BorderThickness="1">
                 <StackPanel>
-                    <TextBlock Text="Đang xóa lịch cũ, xin vui lòng chờ..." Margin="0,0,0,8" HorizontalAlignment="Center"/>
-                    <ProgressBar Height="24" Minimum="0" Maximum="100" Value="{Binding DeletedProgressValue}" Width="300"/>
+                    <TextBlock Text="Đang xóa lịch cũ, xin vui lòng chờ..."
+                            Margin="0,0,0,8"
+                            HorizontalAlignment="Center"/>
+                    <ProgressBar Height="24"
+                            Minimum="0"
+                            Maximum="100"
+                            Value="{Binding DeletedProgressValue}"
+                            Width="300"/>
                 </StackPanel>
             </Border>
         </Popup>
-        <Popup IsOpen="{Binding IsProgressBarOpen}" StaysOpen="True" Placement="Center" AllowsTransparency="True">
-            <Border Background="#CCFFFFFF" Padding="20" CornerRadius="8" 
-            BorderBrush="Gray" BorderThickness="1" >
+        <Popup IsOpen="{Binding IsProgressBarOpen}"
+                StaysOpen="True"
+                Placement="Center"
+                AllowsTransparency="True">
+            <Border Background="#CCFFFFFF"
+                    Padding="20"
+                    CornerRadius="8"
+                    BorderBrush="Gray"
+                    BorderThickness="1">
                 <StackPanel>
-                    <TextBlock Text="Đang tạo lịch, xin vui lòng chờ..." Margin="0,0,0,8" HorizontalAlignment="Center"/>
-                    <ProgressBar Height="24" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" Width="300"/>
+                    <TextBlock Text="Đang tạo lịch, xin vui lòng chờ..."
+                            Margin="0,0,0,8"
+                            HorizontalAlignment="Center"/>
+                    <ProgressBar Height="24"
+                            Minimum="0"
+                            Maximum="100"
+                            Value="{Binding ProgressValue}"
+                            Width="300"/>
                 </StackPanel>
             </Border>
         </Popup>

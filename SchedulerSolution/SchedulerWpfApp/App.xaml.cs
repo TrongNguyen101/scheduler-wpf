@@ -103,7 +103,7 @@ namespace SchedulerWpfApp
                     .Build();
 
                 // Get the Syncfusion license key from configuration
-                string syncfusionLicenceKey = configuration["Syncfusion:LicenceKey"];
+                string? syncfusionLicenceKey = configuration["Syncfusion:LicenceKey"];
 
                 if (!string.IsNullOrEmpty(syncfusionLicenceKey))
                 {
@@ -204,6 +204,19 @@ namespace SchedulerWpfApp
             // Register the unit of work with scoped lifetime (one instance per request)
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            // Register HTTP client for API calls with proper timeout configuration
+            services.AddSingleton<HttpClient>(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                var timeoutSeconds = configuration.GetValue<int>("ApiConfiguration:TimeoutSeconds", 300); // Default 5 minutes
+
+                var httpClient = new HttpClient();
+                httpClient.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "WPF-Scheduler-Client/1.0");
+
+                return httpClient;
+            });
+
             // Register person service with scoped lifetime (one instance per scope)
             services.AddScoped<IGroupNameService, GroupNameService>();
             services.AddScoped<ILecturerServices, LecturerServices>();
@@ -219,7 +232,6 @@ namespace SchedulerWpfApp
             services.AddSingleton<AuthState>();
             services.AddSingleton<AuthConfig>();
             services.AddSingleton<ITokenStore, DpapiTokenStore>();
-            services.AddSingleton(sp => new HttpClient());
             services.AddSingleton<AuthService>();
             services.AddTransient<LoginViewModel>();
             services.AddTransient<LoginView>();

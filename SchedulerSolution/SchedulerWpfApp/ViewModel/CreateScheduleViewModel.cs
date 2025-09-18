@@ -73,6 +73,7 @@ namespace SchedulerWpfApp.ViewModel
         public ObservableCollection<string> TypeSlots { get; } = new() { "NEW SLOT", "OLD SLOT" }; // AM, PM 
         private bool _isOpenConfirmDeleteData;
         private bool _isOpenConfirmSwapSchedule;
+        private bool _isUploading;
         private string _textSwapSchedule;
 
         private TimetableCellViewModel _sourceCell, _targetCell; // Cells for drag-and-drop functionality
@@ -436,8 +437,15 @@ namespace SchedulerWpfApp.ViewModel
             set => SetProperty(ref _textSwapSchedule, value);
         }
 
+        public bool IsUploading
+        {
+            get => _isUploading;
+            set => SetProperty(ref _isUploading, value);
+        }
+
         public ICommand CreateScheduleCommand { get; }
         public ICommand ExportExcelCommand { get; }
+        public ICommand UploadSchedulesCommand { get; }
         public ICommand UpdateScheduleCommand { get; }
         public ICommand CancelEditScheduleCommand { get; }
         public ICommand SetDisplayModeCommand { get; }
@@ -491,6 +499,7 @@ namespace SchedulerWpfApp.ViewModel
             SelectedYear = DateTime.Now.Year; // Default to current year
             CreateScheduleCommand = new RelayCommand(async () => await CreateScheduleDemo());
             ExportExcelCommand = new RelayCommand(async () => await ExportSchedulesToExcel());
+            UploadSchedulesCommand = new RelayCommand(async () => await UploadSchedulesToServer(), () => !IsUploading);
             UpdateScheduleCommand = new RelayCommand(async () => await UpdateSchedule());
             CancelEditScheduleCommand = new RelayCommand(() => CancelEditSchedule());
 
@@ -903,6 +912,35 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
+        /// Upload all schedules to the server
+        /// </summary>
+        private async Task UploadSchedulesToServer()
+        {
+            try
+            {
+                IsUploading = true;
+                var result = await _implementScheduleServices.UploadAllSchedulesAsync();
+
+                if (result)
+                {
+                    _notificationService.ShowSuccess("Tải lên lịch học thành công!");
+                }
+                else
+                {
+                    _notificationService.ShowError("Tải lên lịch học thất bại. Vui lòng thử lại.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError($"Có lỗi xảy ra khi tải lên: {ex.Message}");
+            }
+            finally
+            {
+                IsUploading = false;
+            }
+        }
+
+        /// <summary>
         /// Print timetable grouped by week for each class, including detailed information for each slot.
         /// </summary>
         /// <param name="schedules"></param>
@@ -1308,7 +1346,7 @@ namespace SchedulerWpfApp.ViewModel
                 if (s.ScheduleId == schedule.ScheduleId) return false;
                 if (!s.Date.HasValue || !s.SlotTime.HasValue || string.IsNullOrEmpty(s.TypeSlot)) return false;
                 if (s.Date.Value.Date != schedule.Date.Value.Date) return false; // khác ngày thì không trùng
-                if(s.TypeSlot.ToLower() == schedule.TypeSlot.ToLower()) return false; // khác loại slot thì không trùng
+                if (s.TypeSlot.ToLower() == schedule.TypeSlot.ToLower()) return false; // khác loại slot thì không trùng
 
                 var otherSlotTable = s.TypeSlot.ToLower() == "New Slot".ToLower() ? NewSlotTimes : OldSlotTimes;
                 if (!otherSlotTable.ContainsKey(s.SlotTime.Value)) return false;
@@ -1376,7 +1414,7 @@ namespace SchedulerWpfApp.ViewModel
                 var checkGroupClass = AllSchedules.Any(s => s.GroupName == targetSchedule.GroupName &&
                            s.Date == sourceCell.DayOfWeek.Date &&
                            s.SlotTime == sourceCell.SlotNumber &&
-                           s.ScheduleId != sourceCell.Schedule?.ScheduleId && 
+                           s.ScheduleId != sourceCell.Schedule?.ScheduleId &&
                            s.ScheduleId != targetSchedule.ScheduleId);
                 if (checkGroupClass)
                 {
