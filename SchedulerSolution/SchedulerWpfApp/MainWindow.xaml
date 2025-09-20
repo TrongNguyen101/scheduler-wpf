@@ -778,30 +778,6 @@
                                            Margin="5,0,0,0"
                                            Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}"/>
                             </StackPanel>
-
-                            <!-- User Info -->
-                            <StackPanel Grid.Column="2"
-                                        Orientation="Horizontal"
-                                        VerticalAlignment="Center"
-                                        Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <TextBlock Text="👤"
-                                           FontSize="12"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,5,0"/>
-                                <TextBlock Text="{Binding CurrentUsername}"
-                                           FontSize="12"
-                                           VerticalAlignment="Center"
-                                           Foreground="#495057"/>
-                                <Button Content="Đăng xuất"
-                                        Command="{Binding LogoutCommand}"
-                                        FontSize="11"
-                                        Padding="8,2"
-                                        Margin="10,0,0,0"
-                                        Background="#dc3545"
-                                        Foreground="White"
-                                        BorderBrush="Transparent"
-                                        Style="{StaticResource {x:Type Button}}"/>
-                            </StackPanel>
                         </Grid>
                     </Border>
                 </Grid>
