@@ -135,7 +135,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
+
             <!-- Title bar for login window -->
             <StackPanel Grid.Row="0"
                         Background="Transparent"
@@ -166,9 +166,10 @@
                         BorderBrush="Transparent"
                         Foreground="#2c3e50"/>
             </StackPanel>
-            
+
             <!-- Login content -->
-            <ContentControl Grid.Row="1" Content="{Binding LoginVm}"/>
+            <ContentControl Grid.Row="1"
+                            Content="{Binding LoginVm}"/>
         </Grid>
 
         <!-- Main Content (only visible when authenticated) -->
@@ -605,22 +606,28 @@
                                            Foreground="{StaticResource LightTextColor}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
-                            
+
                             <TextBlock Text="{Binding CurrentUsername}"
                                        FontSize="14"
                                        FontWeight="SemiBold"
                                        Foreground="{StaticResource TextColor}"
                                        Margin="0,0,0,12"
                                        TextTrimming="CharacterEllipsis"/>
-                            
-                            <Button Content="Đăng xuất"
-                                    Command="{Binding LogoutCommand}"
+
+                            <!-- Backup & Restore Button -->
+                            <Button Content="🛡️ Sao lưu &amp; Phục hồi"
+                                    Command="{Binding ShowBackupRestoreCommand}"
                                     Height="32"
                                     FontSize="12"
-                                    HorizontalAlignment="Stretch">
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,0,0,8">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
-                                        <Setter Property="Background" Value="{StaticResource ErrorColor}"/>
+                                    <Style TargetType="Button"
+                                           BasedOn="{StaticResource ActionButtonStyle}">
+                                        <Setter Property="Background"
+                                                Value="#3498DB"/>
+                                        <Setter Property="Foreground"
+                                                Value="White"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
@@ -631,8 +638,43 @@
                                                                           VerticalAlignment="Center"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="{StaticResource ErrorColorDark}"/>
+                                                        <Trigger Property="IsMouseOver"
+                                                                 Value="True">
+                                                            <Setter Property="Background"
+                                                                    Value="#2980B9"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
+                            <Button Content="Đăng xuất"
+                                    Command="{Binding LogoutCommand}"
+                                    Height="32"
+                                    FontSize="12"
+                                    HorizontalAlignment="Stretch">
+                                <Button.Style>
+                                    <Style TargetType="Button"
+                                           BasedOn="{StaticResource ActionButtonStyle}">
+                                        <Setter Property="Background"
+                                                Value="{StaticResource ErrorColor}"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="4"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver"
+                                                                 Value="True">
+                                                            <Setter Property="Background"
+                                                                    Value="{StaticResource ErrorColorDark}"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -692,9 +734,75 @@
 
                     <!-- Main Dynamic Content -->
                     <Border Grid.Row="1"
-                            Margin="20,5,20,0"
+                            Margin="20,5,20,40"
                             CornerRadius="10">
                         <ContentControl Content="{Binding CurrentViewModel}"/>
+                    </Border>
+
+                    <!-- Status Bar -->
+                    <Border Grid.Row="1"
+                            Height="35"
+                            Background="#f8f9fa"
+                            BorderBrush="#e9ecef"
+                            BorderThickness="0,1,0,0"
+                            VerticalAlignment="Bottom">
+                        <Grid Margin="20,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Server Connection Status -->
+                            <StackPanel Grid.Column="0"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="🔗"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,5,0"/>
+                                <TextBlock Text="Server:"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="#6c757d"/>
+                                <TextBlock Text="Đã kết nối"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="#28a745"
+                                           Margin="5,0,0,0"
+                                           Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <TextBlock Text="Chưa kết nối"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="#dc3545"
+                                           Margin="5,0,0,0"
+                                           Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}"/>
+                            </StackPanel>
+
+                            <!-- User Info -->
+                            <StackPanel Grid.Column="2"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="👤"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,5,0"/>
+                                <TextBlock Text="{Binding CurrentUsername}"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="#495057"/>
+                                <Button Content="Đăng xuất"
+                                        Command="{Binding LogoutCommand}"
+                                        FontSize="11"
+                                        Padding="8,2"
+                                        Margin="10,0,0,0"
+                                        Background="#dc3545"
+                                        Foreground="White"
+                                        BorderBrush="Transparent"
+                                        Style="{StaticResource {x:Type Button}}"/>
+                            </StackPanel>
+                        </Grid>
                     </Border>
                 </Grid>
             </Grid>

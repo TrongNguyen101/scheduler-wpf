@@ -265,6 +265,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0"
@@ -280,24 +281,7 @@
                     </StackPanel>
                 </Button>
 
-                <!-- Upload Button -->
-                <Button Grid.Column="1"
-                        Style="{StaticResource SuccessButtonStyle}"
-                        Margin="10,0,10,0"
-                        Command="{Binding UploadSchedulesCommand}"
-                        IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBooleanConverter}}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="☁️"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text=" Tải Lên Server"
-                                   Margin="5,0,0,0"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text=" (Đang tải...)"
-                                   Margin="5,0,0,0"
-                                   VerticalAlignment="Center"
-                                   Visibility="{Binding IsUploading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    </StackPanel>
-                </Button>
+               
 
                 <Button Grid.Column="2"
                         Style="{StaticResource ExportButtonStyle}"
@@ -1483,9 +1467,9 @@
             </Border>
         </Popup>
         <Popup IsOpen="{Binding IsDeletedProgressBarOpen}"
-                StaysOpen="True"
-                Placement="Center"
-                AllowsTransparency="True">
+               StaysOpen="True"
+               Placement="Center"
+               AllowsTransparency="True">
             <Border Background="#CCFFFFFF"
                     Padding="20"
                     CornerRadius="8"
@@ -1493,20 +1477,20 @@
                     BorderThickness="1">
                 <StackPanel>
                     <TextBlock Text="Đang xóa lịch cũ, xin vui lòng chờ..."
-                            Margin="0,0,0,8"
-                            HorizontalAlignment="Center"/>
+                               Margin="0,0,0,8"
+                               HorizontalAlignment="Center"/>
                     <ProgressBar Height="24"
-                            Minimum="0"
-                            Maximum="100"
-                            Value="{Binding DeletedProgressValue}"
-                            Width="300"/>
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="{Binding DeletedProgressValue}"
+                                 Width="300"/>
                 </StackPanel>
             </Border>
         </Popup>
         <Popup IsOpen="{Binding IsProgressBarOpen}"
-                StaysOpen="True"
-                Placement="Center"
-                AllowsTransparency="True">
+               StaysOpen="True"
+               Placement="Center"
+               AllowsTransparency="True">
             <Border Background="#CCFFFFFF"
                     Padding="20"
                     CornerRadius="8"
@@ -1514,13 +1498,13 @@
                     BorderThickness="1">
                 <StackPanel>
                     <TextBlock Text="Đang tạo lịch, xin vui lòng chờ..."
-                            Margin="0,0,0,8"
-                            HorizontalAlignment="Center"/>
+                               Margin="0,0,0,8"
+                               HorizontalAlignment="Center"/>
                     <ProgressBar Height="24"
-                            Minimum="0"
-                            Maximum="100"
-                            Value="{Binding ProgressValue}"
-                            Width="300"/>
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="{Binding ProgressValue}"
+                                 Width="300"/>
                 </StackPanel>
             </Border>
         </Popup>

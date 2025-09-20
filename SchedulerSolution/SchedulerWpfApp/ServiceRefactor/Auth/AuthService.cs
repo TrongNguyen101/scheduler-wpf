@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using SchedulerWpfApp.Algorithm.DTO;
 
 namespace SchedulerWpfApp.ServiceRefactor.Auth
 {
@@ -33,12 +34,16 @@ namespace SchedulerWpfApp.ServiceRefactor.Auth
             {
                 var res = await _http.PostAsync("/auth/refresh", JsonBody(new { refreshToken = refresh }));
                 if (!res.IsSuccessStatusCode) return false;
-                var data = JsonSerializer.Deserialize<AccessTokenResponse>(await res.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                var apiResponse = JsonSerializer.Deserialize<ApiResponse<AccessTokenResponse>>(await res.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                if (!apiResponse.Success || apiResponse.Data == null) return false;
+                var data = apiResponse.Data;
                 var meReq = new HttpRequestMessage(HttpMethod.Get, "/auth/me");
                 meReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", data.accessToken);
                 var meRes = await _http.SendAsync(meReq);
                 if (!meRes.IsSuccessStatusCode) return false;
-                var me = JsonSerializer.Deserialize<UserDto>(await meRes.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                var meApiResponse = JsonSerializer.Deserialize<ApiResponse<UserDto>>(await meRes.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                if (!meApiResponse.Success || meApiResponse.Data == null) return false;
+                var me = meApiResponse.Data;
                 var exp = JwtParser.GetExpiryUtc(data.accessToken);
                 _state.SetSession(data.accessToken, refresh, me, exp);
                 return true;
@@ -50,7 +55,9 @@ namespace SchedulerWpfApp.ServiceRefactor.Auth
         {
             var res = await _http.PostAsync("/auth/login", JsonBody(new LoginRequest { username = username, password = password }));
             if (!res.IsSuccessStatusCode) return false;
-            var data = JsonSerializer.Deserialize<LoginResponse>(await res.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            var apiResponse = JsonSerializer.Deserialize<ApiResponse<LoginResponse>>(await res.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            if (!apiResponse.Success || apiResponse.Data == null) return false;
+            var data = apiResponse.Data;
             var exp = JwtParser.GetExpiryUtc(data.accessToken);
             _tokenStore.SaveRefreshToken(data.refreshToken);
             _state.SetSession(data.accessToken, data.refreshToken, data.user, exp);
@@ -63,7 +70,9 @@ namespace SchedulerWpfApp.ServiceRefactor.Auth
             var refresh = _state.RefreshToken;
             var res = await _http.PostAsync("/auth/refresh", JsonBody(new { refreshToken = refresh }));
             if (!res.IsSuccessStatusCode) return false;
-            var data = JsonSerializer.Deserialize<AccessTokenResponse>(await res.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            var apiResponse = JsonSerializer.Deserialize<ApiResponse<AccessTokenResponse>>(await res.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            if (!apiResponse.Success || apiResponse.Data == null) return false;
+            var data = apiResponse.Data;
             var exp = JwtParser.GetExpiryUtc(data.accessToken);
             _state.SetSession(data.accessToken, refresh, _state.CurrentUser, exp);
             return true;

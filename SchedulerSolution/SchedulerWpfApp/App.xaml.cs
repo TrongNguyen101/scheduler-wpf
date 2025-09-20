@@ -31,6 +31,7 @@ using SchedulerWpfApp.ServiceRefactor.CurriculumSubjectServices;
 using SchedulerWpfApp.Algorithm.DTO;
 using SchedulerWpfApp.ServiceRefactor.NotificationService;
 using SchedulerWpfApp.ServiceRefactor.Auth;
+using SchedulerWpfApp.ServiceRefactor.BackupRestoreService;
 //using SchedulerWpfApp.ServiceRefactor.Maintenance;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
@@ -45,6 +46,13 @@ namespace SchedulerWpfApp
     {
         #region Fields
         private readonly IHost _host;
+        #endregion
+
+        #region Properties
+        /// <summary>
+        /// Gets the service provider for dependency injection
+        /// </summary>
+        public IServiceProvider Services => _host.Services;
         #endregion
 
         #region Constructor
@@ -163,6 +171,18 @@ namespace SchedulerWpfApp
             }
             catch { }
 
+            // Initialize and configure database
+            try
+            {
+                var dataContext = _host.Services.GetRequiredService<DataContext>();
+                await dataContext.EnsureDatabaseConfiguredAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log database configuration errors but don't prevent app startup
+                System.Diagnostics.Debug.WriteLine($"Database configuration warning: {ex.Message}");
+            }
+
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             mainWindow.DataContext = _host.Services.GetRequiredService<MainViewModel>();
             mainWindow.Show();
@@ -186,8 +206,12 @@ namespace SchedulerWpfApp
             // Register the AutoMapper configuration
             services.AddAutoMapper(typeof(AutoMappingProfiles));
 
-            // Register the database context
-            services.AddDbContext<DataContext>();
+            // Register the database context with proper configuration
+            services.AddDbContext<DataContext>(options =>
+            {
+                // Use the helper class to configure SQLite properly
+                SqliteConnectionHelper.ConfigureDbContext(options);
+            }, ServiceLifetime.Scoped);
 
             // Register repositories with scoped lifetime (one instance per request)
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
@@ -228,6 +252,9 @@ namespace SchedulerWpfApp
             services.AddScoped<ICurriculumSubjectServices, CurriculumSubjectServices>();
             services.AddScoped<INotificationService, NotificationService>();
 
+            // Backup & Restore Services
+            services.AddScoped<IBackupRestoreService, BackupRestoreService>();
+
             // Auth
             services.AddSingleton<AuthState>();
             services.AddSingleton<AuthConfig>();
@@ -251,6 +278,7 @@ namespace SchedulerWpfApp
             services.AddTransient<LecturerSubjectViewModel>();
             services.AddTransient<CurriculumViewModel>();
             services.AddTransient<CurriculumSubjectViewModel>();
+            services.AddTransient<BackupRestoreViewModel>();
 
             // Add factories
             services.AddSingleton<Func<SubjectViewModel>>(sp => () => sp.GetRequiredService<SubjectViewModel>());

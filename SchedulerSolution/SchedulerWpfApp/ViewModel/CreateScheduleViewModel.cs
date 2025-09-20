@@ -74,6 +74,8 @@ namespace SchedulerWpfApp.ViewModel
         private bool _isOpenConfirmDeleteData;
         private bool _isOpenConfirmSwapSchedule;
         private bool _isUploading;
+        private bool _isDownloading;
+        private bool _isSyncing;
         private string _textSwapSchedule;
 
         private TimetableCellViewModel _sourceCell, _targetCell; // Cells for drag-and-drop functionality
@@ -443,9 +445,23 @@ namespace SchedulerWpfApp.ViewModel
             set => SetProperty(ref _isUploading, value);
         }
 
+        public bool IsDownloading
+        {
+            get => _isDownloading;
+            set => SetProperty(ref _isDownloading, value);
+        }
+
+        public bool IsSyncing
+        {
+            get => _isSyncing;
+            set => SetProperty(ref _isSyncing, value);
+        }
+
         public ICommand CreateScheduleCommand { get; }
         public ICommand ExportExcelCommand { get; }
         public ICommand UploadSchedulesCommand { get; }
+        public ICommand DownloadSchedulesCommand { get; }
+        public ICommand SyncWithServerCommand { get; }
         public ICommand UpdateScheduleCommand { get; }
         public ICommand CancelEditScheduleCommand { get; }
         public ICommand SetDisplayModeCommand { get; }
@@ -500,6 +516,8 @@ namespace SchedulerWpfApp.ViewModel
             CreateScheduleCommand = new RelayCommand(async () => await CreateScheduleDemo());
             ExportExcelCommand = new RelayCommand(async () => await ExportSchedulesToExcel());
             UploadSchedulesCommand = new RelayCommand(async () => await UploadSchedulesToServer(), () => !IsUploading);
+            DownloadSchedulesCommand = new RelayCommand(async () => await DownloadSchedulesFromServer(), () => !IsDownloading);
+            SyncWithServerCommand = new RelayCommand(async () => await SyncWithServer(), () => !IsSyncing);
             UpdateScheduleCommand = new RelayCommand(async () => await UpdateSchedule());
             CancelEditScheduleCommand = new RelayCommand(() => CancelEditSchedule());
 
@@ -1728,6 +1746,91 @@ namespace SchedulerWpfApp.ViewModel
                 _notificationService.ShowError("Lỗi khi tải danh sách giảng viên."); // Show error notification
             }
         }
+
+        /// <summary>
+        /// Download schedules from the server
+        /// </summary>
+        private async Task DownloadSchedulesFromServer()
+        {
+            try
+            {
+                IsDownloading = true;
+                var result = await _implementScheduleServices.DownloadSchedulesFromServerAsync();
+
+                if (result)
+                {
+                    // Reload schedules from database
+                    await LoadAllSchedules();
+                    FilterSchedules();
+                    _notificationService.ShowSuccess("Tải về dữ liệu từ server thành công!");
+                }
+                else
+                {
+                    _notificationService.ShowError("Tải về dữ liệu từ server thất bại. Vui lòng thử lại.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError($"Có lỗi xảy ra khi tải về: {ex.Message}");
+            }
+            finally
+            {
+                IsDownloading = false;
+            }
+        }
+
+        /// <summary>
+        /// Synchronize data with server
+        /// </summary>
+        private async Task SyncWithServer()
+        {
+            try
+            {
+                IsSyncing = true;
+                var result = await _implementScheduleServices.SyncWithServerAsync();
+
+                if (result)
+                {
+                    // Reload schedules from database
+                    await LoadAllSchedules();
+                    FilterSchedules();
+                    _notificationService.ShowSuccess("Đồng bộ dữ liệu với server thành công!");
+                }
+                else
+                {
+                    _notificationService.ShowError("Đồng bộ dữ liệu với server thất bại. Vui lòng thử lại.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError($"Có lỗi xảy ra khi đồng bộ: {ex.Message}");
+            }
+            finally
+            {
+                IsSyncing = false;
+            }
+        }
+
+        /// <summary>
+        /// Load all schedules from database
+        /// </summary>
+        private async Task LoadAllSchedules()
+        {
+            try
+            {
+                var schedules = await _implementScheduleServices.GetAllAsync();
+                AllSchedules.Clear();
+                foreach (var schedule in schedules)
+                {
+                    AllSchedules.Add(schedule);
+                }
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError("Lỗi khi tải danh sách lịch học.");
+            }
+        }
+
         #endregion
     }
 }

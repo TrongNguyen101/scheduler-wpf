@@ -901,6 +901,253 @@ namespace SchedulerWpfApp.ServiceRefactor.ScheduleServices
             }
         }
 
+        /// <summary>
+        /// Downloads schedules from the server and saves them to local database
+        /// </summary>
+        /// <returns>True if download successful, false otherwise</returns>
+        public async Task<bool> DownloadSchedulesFromServerAsync()
+        {
+            try
+            {
+                if (!_authState.IsAuthenticated)
+                {
+                    _notificationService.ShowError("Vui lòng đăng nhập để tải dữ liệu từ server.");
+                    return false;
+                }
+
+                var baseUrl = _configuration["ApiConfiguration:BaseUrl"] ?? "http://localhost:4000";
+
+                // Check server connectivity first
+                if (!await CheckServerConnectionAsync())
+                {
+                    _notificationService.ShowError("Không thể kết nối đến server.");
+                    return false;
+                }
+
+                // Set authorization header
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _authState.AccessToken);
+
+                var endpoint = $"{baseUrl}/schedules";
+
+                using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+                var response = await _httpClient.GetAsync(endpoint, cts.Token);
+
+                // Clear Authorization header
+                _httpClient.DefaultRequestHeaders.Authorization = null;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    _logger?.LogInformation($"Download successful. Response length: {responseContent.Length}");
+
+                    // Parse response - use dynamic parsing for flexibility
+                    var jsonOptions = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    var apiResponse = JsonSerializer.Deserialize<ApiResponse<dynamic>>(responseContent, jsonOptions);
+
+                    if (apiResponse?.Success == true && apiResponse.Data != null)
+                    {
+                        try
+                        {
+                            // Try to extract schedules array from response
+                            var schedulesElement = ((JsonElement)apiResponse.Data).GetProperty("schedules");
+                            var serverSchedules = JsonSerializer.Deserialize<List<ScheduleUploadDto>>(schedulesElement.GetRawText(), jsonOptions);
+
+                            if (serverSchedules?.Any() == true)
+                            {
+                                // Convert server schedules to local format and save
+                                var localSchedules = ConvertServerSchedulesToLocal(serverSchedules);
+
+                                // Clear existing schedules and add new ones
+                                await DeleteAllData();
+                                await AddScheduleAsync(localSchedules, new Progress<int>());
+
+                                _notificationService.ShowSuccess($"Tải về thành công {localSchedules.Count} lịch học từ server!");
+                                return true;
+                            }
+                            else
+                            {
+                                _notificationService.ShowWarning("Server không có dữ liệu lịch học nào.");
+                                return true; // Not an error, just no data
+                            }
+                        }
+                        catch (Exception parseEx)
+                        {
+                            _logger?.LogError(parseEx, "Error parsing server response");
+                            _notificationService.ShowWarning("Dữ liệu từ server có định dạng không hợp lệ.");
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        _notificationService.ShowWarning("Server không có dữ liệu lịch học nào.");
+                        return true; // Not an error, just no data
+                    }
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger?.LogError($"Download failed with status {response.StatusCode}: {errorContent}");
+                    _notificationService.ShowError($"Tải dữ liệu thất bại. Mã lỗi: {response.StatusCode}");
+                    return false;
+                }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                _logger?.LogError(httpEx, "HTTP error during download");
+                var baseUrl = _configuration["ApiConfiguration:BaseUrl"] ?? "http://localhost:4000";
+
+                if (httpEx.Message.Contains("connection was forcibly closed") ||
+                    httpEx.Message.Contains("No connection could be made") ||
+                    httpEx.InnerException is System.Net.Sockets.SocketException)
+                {
+                    _notificationService.ShowError($"Không thể kết nối đến server tại {baseUrl}. Vui lòng kiểm tra:\n" +
+                                                 "1. Server có đang chạy không?\n" +
+                                                 "2. Địa chỉ server có đúng không?\n" +
+                                                 "3. Firewall có chặn kết nối không?");
+                }
+                else
+                {
+                    _notificationService.ShowError("Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet và thử lại.");
+                }
+                return false;
+            }
+            catch (TaskCanceledException timeoutEx)
+            {
+                _logger?.LogError(timeoutEx, "Download timeout");
+                _notificationService.ShowError("Quá thời gian chờ. Vui lòng thử lại.");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error during download");
+                _notificationService.ShowError($"Có lỗi không mong muốn: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Synchronizes data with server (upload and download)
+        /// </summary>
+        /// <returns>True if sync successful, false otherwise</returns>
+        public async Task<bool> SyncWithServerAsync()
+        {
+            try
+            {
+                if (!_authState.IsAuthenticated)
+                {
+                    _notificationService.ShowError("Vui lòng đăng nhập để đồng bộ với server.");
+                    return false;
+                }
+
+                _notificationService.ShowInfo("Bắt đầu đồng bộ dữ liệu với server...");
+
+                // First upload local changes
+                var uploadSuccess = await UploadAllSchedulesAsync();
+                if (!uploadSuccess)
+                {
+                    _notificationService.ShowError("Đồng bộ thất bại: Không thể tải lên dữ liệu local.");
+                    return false;
+                }
+
+                // Then download server data
+                var downloadSuccess = await DownloadSchedulesFromServerAsync();
+                if (!downloadSuccess)
+                {
+                    _notificationService.ShowError("Đồng bộ thất bại: Không thể tải về dữ liệu từ server.");
+                    return false;
+                }
+
+                _notificationService.ShowSuccess("Đồng bộ dữ liệu với server thành công!");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error during sync");
+                _notificationService.ShowError($"Lỗi đồng bộ: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Checks server connection health
+        /// </summary>
+        /// <returns>True if server is accessible, false otherwise</returns>
+        public async Task<bool> CheckServerConnectionAsync()
+        {
+            try
+            {
+                var baseUrl = _configuration["ApiConfiguration:BaseUrl"] ?? "http://localhost:4000";
+
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                var response = await _httpClient.GetAsync($"{baseUrl}/health", cts.Token);
+
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Converts server schedule format to local schedule format
+        /// </summary>
+        /// <param name="serverSchedules">Schedules from server</param>
+        /// <returns>List of local schedule objects</returns>
+        private List<Schedule> ConvertServerSchedulesToLocal(List<ScheduleUploadDto> serverSchedules)
+        {
+            var localSchedules = new List<Schedule>();
+
+            foreach (var serverSchedule in serverSchedules)
+            {
+                var localSchedule = new Schedule
+                {
+                    // Note: ScheduleId in local is int (auto-generated), so we don't set it from server
+                    GroupName = serverSchedule.GroupName,
+                    SubjectCode = serverSchedule.SubjectCode,
+                    Date = serverSchedule.Date,
+                    SlotTime = ParseIntFromString(serverSchedule.SlotTime), // Convert string to int
+                    RoomName = serverSchedule.RoomName,
+                    SessionNo = serverSchedule.SessionNo,
+                    LecturerName = serverSchedule.LecturerName,
+                    SlotTypeCode = serverSchedule.SlotTypeCode,
+                    StatusSlot = serverSchedule.StatusSlot,
+                    TypeSlot = serverSchedule.TypeSlot,
+                    RoomId = ParseIntFromString(serverSchedule.RoomId), // Convert string to int
+                    PartOfDay = serverSchedule.PartOfDay,
+                    Major = serverSchedule.Major,
+                    LecturerId = serverSchedule.LecturerId,
+                    LecturerAccount = serverSchedule.LecturerAccount,
+                    TermInYear = serverSchedule.TermInYear
+                };
+
+                localSchedules.Add(localSchedule);
+            }
+
+            return localSchedules;
+        }
+
+        /// <summary>
+        /// Helper method to parse int from string
+        /// </summary>
+        /// <param name="value">String value to parse</param>
+        /// <returns>Parsed integer or null if parsing fails</returns>
+        private int? ParseIntFromString(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            if (int.TryParse(value, out int result))
+                return result;
+
+            return null;
+        }
+
         #endregion
     }
 }

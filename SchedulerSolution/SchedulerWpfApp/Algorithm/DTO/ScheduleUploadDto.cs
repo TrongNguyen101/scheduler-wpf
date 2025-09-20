@@ -197,4 +197,187 @@ namespace SchedulerWpfApp.Algorithm.DTO
         [JsonPropertyName("details")]
         public object? Details { get; set; }
     }
+
+    // ========================================
+    // Backup & Restore DTOs
+    // ========================================
+
+    /// <summary>
+    /// Metadata for a backup file
+    /// </summary>
+    public class BackupMetadata
+    {
+        [JsonPropertyName("filename")]
+        public string Filename { get; set; } = string.Empty;
+
+        [JsonPropertyName("originalName")]
+        public string? OriginalName { get; set; }
+
+        [JsonPropertyName("uploadDate")]
+        public DateTime UploadDate { get; set; }
+
+        [JsonPropertyName("fileSize")]
+        public long FileSize { get; set; }
+
+        [JsonPropertyName("checksum")]
+        public string Checksum { get; set; } = string.Empty;
+
+        [JsonPropertyName("userId")]
+        public string UserId { get; set; } = string.Empty;
+
+        [JsonPropertyName("username")]
+        public string? Username { get; set; }
+
+        /// <summary>
+        /// Formatted file size for display
+        /// </summary>
+        public string FormattedSize => FormatFileSize(FileSize);
+
+        /// <summary>
+        /// Formatted upload date for display
+        /// </summary>
+        public string FormattedDate => UploadDate.ToString("yyyy-MM-dd HH:mm:ss");
+
+        private static string FormatFileSize(long bytes)
+        {
+            string[] sizes = { "B", "KB", "MB", "GB" };
+            double len = bytes;
+            int order = 0;
+            while (len >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                len = len / 1024;
+            }
+            return $"{len:0.##} {sizes[order]}";
+        }
+    }
+
+    /// <summary>
+    /// Progress information for backup operations
+    /// </summary>
+    public class BackupProgress
+    {
+        public int PercentComplete { get; set; }
+        public string CurrentOperation { get; set; } = string.Empty;
+        public long BytesTransferred { get; set; }
+        public long TotalBytes { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public TimeSpan? ElapsedTime { get; set; }
+        public TimeSpan? EstimatedRemaining { get; set; }
+    }
+
+    /// <summary>
+    /// Progress information for restore operations
+    /// </summary>
+    public class RestoreProgress
+    {
+        public int PercentComplete { get; set; }
+        public string CurrentOperation { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public bool IsValidating { get; set; }
+        public string? ValidationMessage { get; set; }
+        public TimeSpan? ElapsedTime { get; set; }
+    }
+
+    /// <summary>
+    /// Result of a backup operation
+    /// </summary>
+    public class BackupResult
+    {
+        public bool Success { get; set; }
+        public string? Message { get; set; }
+        public string? Filename { get; set; }
+        public string? Checksum { get; set; }
+        public long FileSize { get; set; }
+        public DateTime BackupDate { get; set; }
+        public string? ErrorCode { get; set; }
+        public Exception? Exception { get; set; }
+        public TimeSpan Duration { get; set; }
+    }
+
+    /// <summary>
+    /// Result of a restore operation
+    /// </summary>
+    public class RestoreResult
+    {
+        public bool Success { get; set; }
+        public string? Message { get; set; }
+        public DateTime? RestoreDate { get; set; }
+        public string? BackupFileName { get; set; }
+        public bool RollbackPerformed { get; set; }
+        public string? ErrorCode { get; set; }
+        public Exception? Exception { get; set; }
+        public TimeSpan Duration { get; set; }
+        public string? RollbackPath { get; set; }
+    }
+
+    /// <summary>
+    /// Response from server listing available backups
+    /// </summary>
+    public class BackupListResponse
+    {
+        [JsonPropertyName("success")]
+        public bool Success { get; set; }
+
+        [JsonPropertyName("backups")]
+        public List<BackupMetadata> Backups { get; set; } = new List<BackupMetadata>();
+
+        [JsonPropertyName("message")]
+        public string? Message { get; set; }
+
+        [JsonPropertyName("errorCode")]
+        public string? ErrorCode { get; set; }
+
+        [JsonPropertyName("totalCount")]
+        public int TotalCount { get; set; }
+    }
+
+    /// <summary>
+    /// Response from server after backup upload
+    /// </summary>
+    public class BackupUploadResponse
+    {
+        [JsonPropertyName("success")]
+        public bool Success { get; set; }
+
+        [JsonPropertyName("message")]
+        public string? Message { get; set; }
+
+        [JsonPropertyName("metadata")]
+        public BackupMetadata? Metadata { get; set; }
+
+        [JsonPropertyName("errorCode")]
+        public string? ErrorCode { get; set; }
+    }
+
+    /// <summary>
+    /// Result of an upload operation
+    /// </summary>
+    public class UploadResult
+    {
+        public bool Success { get; set; }
+        public string? Message { get; set; }
+        public BackupMetadata? Metadata { get; set; }
+        public string? ErrorCode { get; set; }
+        public Exception? Exception { get; set; }
+        public TimeSpan Duration { get; set; }
+    }
+
+    /// <summary>
+    /// Response from server after file upload
+    /// </summary>
+    public class UploadResponse
+    {
+        [JsonPropertyName("success")]
+        public bool Success { get; set; }
+
+        [JsonPropertyName("message")]
+        public string? Message { get; set; }
+
+        [JsonPropertyName("metadata")]
+        public BackupMetadata? Metadata { get; set; }
+
+        [JsonPropertyName("errorCode")]
+        public string? ErrorCode { get; set; }
+    }
 }

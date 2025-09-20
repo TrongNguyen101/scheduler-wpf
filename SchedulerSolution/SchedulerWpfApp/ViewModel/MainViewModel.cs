@@ -60,6 +60,7 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand ShowLectureSubjectCommand { get; }
         public ICommand ShowCurriculumCommand { get; }
         public ICommand ShowCurriculumSubjectCommand { get; }
+        public ICommand ShowBackupRestoreCommand { get; }
 
         /// <summary>
         /// Initializes the MainViewModel with view model factories.
@@ -100,6 +101,7 @@ namespace SchedulerWpfApp.ViewModel
             ShowLectureSubjectCommand = new RelayCommand(ShowLectureSubject);
             ShowCurriculumCommand = new RelayCommand(ShowCurriculumList);
             ShowCurriculumSubjectCommand = new RelayCommand(ShowCurriculumSubjectList);
+            ShowBackupRestoreCommand = new RelayCommand(ShowBackupRestore);
 
             // Navigate based on auth state and listen for changes
             _authState.Changed += OnAuthChanged;
@@ -190,6 +192,12 @@ namespace SchedulerWpfApp.ViewModel
         {
             CurrentViewModel = _curriculumSubjectViewModelFactory();
             CurrentTab = TypeTab.CurriculumSubject;
+        }
+
+        private void ShowBackupRestore()
+        {
+            var backupRestoreWindow = new Views.BackupRestoreWindow();
+            backupRestoreWindow.ShowDialog();
         }
     }
 }
