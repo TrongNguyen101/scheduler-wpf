@@ -525,22 +525,38 @@ namespace SchedulerWpfApp.ViewModel
                     StatusMessage = "Cơ sở dữ liệu đã sẵn sàng. Đang tạo sao lưu...";
                 }
 
-                // Call CreateBackupAsync with isDatabasePrepared=true since database is now prepared
-                var result = await _backupRestoreService.CreateBackupAsync(progress, _cancellationTokenSource.Token, isDatabasePrepared: true);
-
-                if (result.Success)
+                // Call CreateServerBackupAsync with progress reporting
+                var progressAdapter = new Progress<(string message, double percentage)>(p =>
                 {
-                    StatusMessage = $"Sao lưu thành công: {result.Filename}";
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        BackupProgress = new BackupProgress
+                        {
+                            CurrentOperation = p.message,
+                            PercentComplete = (int)p.percentage,
+                            BytesTransferred = 0,
+                            TotalBytes = 0,
+                            Status = p.message
+                        };
+                        StatusMessage = p.message;
+                    });
+                });
+
+                bool result = await _backupRestoreService.CreateServerBackupAsync(progressAdapter, _cancellationTokenSource.Token);
+
+                if (result)
+                {
+                    StatusMessage = "Sao lưu lên server thành công!";
                     await RefreshBackupsAsync();
-                    _notificationService.ShowSuccess($"Sao lưu thành công! File: {result.Filename}");
+                    _notificationService.ShowSuccess("Sao lưu lên server thành công!");
                     // Reset preparation state after successful backup
                     IsDatabasePreparedForBackup = false;
                 }
                 else
                 {
-                    StatusMessage = $"Sao lưu thất bại: {result.Message}";
-                    _logger.LogError("Backup creation failed: {Message}", result.Message);
-                    _notificationService.ShowError($"Sao lưu thất bại: {result.Message}");
+                    StatusMessage = "Sao lưu lên server thất bại";
+                    _logger.LogError("Server backup creation failed");
+                    _notificationService.ShowError("Sao lưu lên server thất bại. Vui lòng thử lại.");
                     // Reset preparation state after failed backup
                     IsDatabasePreparedForBackup = false;
                 }
