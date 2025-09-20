@@ -235,7 +235,7 @@
                                                 Margin="0,0,0,15"
                                                 CornerRadius="5">
                                                 <StackPanel>
-                                                        <TextBlock Text="Create Server Backup"
+                                                        <TextBlock Text="Tạo lịch sử"
                                                                    Style="{StaticResource HeaderTextStyle}"
                                                                    FontSize="14"/>
                                                         <TextBlock Text="Creates a backup of your current database and uploads it to the server for safe storage."
@@ -265,7 +265,7 @@
                                                 </StackPanel>
                                         </Border>
 
-                                        <!-- Local Backup Section -->
+                                        <!-- Local Backup Section --><!--
                                         <Border BorderBrush="#27AE60"
                                                 BorderThickness="1"
                                                 Padding="15"
@@ -287,7 +287,7 @@
                                                                 Background="#27AE60"
                                                                 Foreground="White"/>
                                                 </StackPanel>
-                                        </Border>
+                                        </Border>-->
 
                                         <!-- Restore Backup Section -->
                                         <Border BorderBrush="#BDC3C7"

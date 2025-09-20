@@ -454,7 +454,7 @@ namespace SchedulerWpfApp.ServiceRefactor.BackupRestoreService
                 }
 
                 // Get upload endpoint from configuration
-                var uploadEndpoint = _configuration["ApiConfiguration:Backup:UploadEndpoint"] ?? "/api/backup/upload";
+                var uploadEndpoint = "http://localhost:4000/api/backups/upload";
 
                 progress?.Report(("Preparing file for upload...", 75));
 
@@ -468,14 +468,13 @@ namespace SchedulerWpfApp.ServiceRefactor.BackupRestoreService
 
                 // Generate filename with timestamp
                 var fileName = $"backup_{DateTime.Now:yyyyMMdd_HHmmss}.sqlite";
-                form.Add(fileContent, "backupFile", fileName);
-
+                form.Add(fileContent, "file", fileName);
+                
                 // Add metadata
+                form.Add(new StringContent(fileName), "originalName");
                 form.Add(new StringContent(DateTime.UtcNow.ToString("O")), "backupDate");
                 form.Add(new StringContent(Environment.MachineName), "machineName");
-                form.Add(new StringContent(Environment.UserName), "userName");
-
-                progress?.Report(("Uploading to server...", 80));
+                form.Add(new StringContent(Environment.UserName), "userName");                progress?.Report(("Uploading to server...", 80));
 
                 // Set authorization header
                 _httpClient.DefaultRequestHeaders.Authorization =
