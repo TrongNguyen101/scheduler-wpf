@@ -373,6 +373,53 @@
                             Style="{StaticResource SuccessButtonStyle}"/>
                 </Border>
 
+                <Border BorderThickness="2"
+                        BorderBrush="#3498DB"
+                        CornerRadius="6"
+                        Margin="0,0,10,0">
+                    <Button Content="🛡️ Sao lưu &amp; Phục hồi"
+                            Click="BackupRestoreButton_Click"
+                            FontSize="14"
+                            Background="#3498DB"
+                            Foreground="White"
+                            Padding="10,5"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            ToolTip="Mở cửa sổ sao lưu và phục hồi dữ liệu">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="border"
+                                                    Background="{TemplateBinding Background}"
+                                                    CornerRadius="6"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver"
+                                                         Value="True">
+                                                    <Setter TargetName="border"
+                                                            Property="Background"
+                                                            Value="#2980B9"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed"
+                                                         Value="True">
+                                                    <Setter TargetName="border"
+                                                            Property="Background"
+                                                            Value="#21618C"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Border>
+
             </StackPanel>
 
             <!-- Filter Controls -->

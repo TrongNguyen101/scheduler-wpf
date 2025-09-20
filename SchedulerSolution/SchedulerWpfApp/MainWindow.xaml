@@ -615,7 +615,7 @@
                                        TextTrimming="CharacterEllipsis"/>
 
                             <!-- Backup & Restore Button -->
-                            <Button Content="🛡️ Sao lưu &amp; Phục hồi"
+                            <!--<Button Content="🛡️ Sao lưu &amp; Phục hồi"
                                     Command="{Binding ShowBackupRestoreCommand}"
                                     Height="32"
                                     FontSize="12"
@@ -649,7 +649,7 @@
                                         </Setter>
                                     </Style>
                                 </Button.Style>
-                            </Button>
+                            </Button>-->
 
                             <Button Content="Đăng xuất"
                                     Command="{Binding LogoutCommand}"
@@ -740,21 +740,21 @@
                     </Border>
 
                     <!-- Status Bar -->
-                    <Border Grid.Row="1"
+                    <!--<Border Grid.Row="1"
                             Height="35"
                             Background="#f8f9fa"
                             BorderBrush="#e9ecef"
                             BorderThickness="0,1,0,0"
                             VerticalAlignment="Bottom">
-                        <Grid Margin="20,0">
+                        --><!--<Grid Margin="20,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- Server Connection Status -->
-                            <StackPanel Grid.Column="0"
+                            --><!-- Server Connection Status -->
+                            <!-- <StackPanel Grid.Column="0"
                                         Orientation="Horizontal"
                                         VerticalAlignment="Center">
                                 <TextBlock Text="🔗"
@@ -777,9 +777,9 @@
                                            Foreground="#dc3545"
                                            Margin="5,0,0,0"
                                            Visibility="{Binding IsAuthenticated, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                            </StackPanel> --><!--
+                        </Grid>--><!--
+                    </Border>-->
                 </Grid>
             </Grid>
         </Grid>

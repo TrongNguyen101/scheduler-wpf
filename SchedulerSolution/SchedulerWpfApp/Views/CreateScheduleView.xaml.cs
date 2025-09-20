@@ -1,4 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
+using System.Windows;
+using SchedulerWpfApp.ViewModel;
 
 namespace SchedulerWpfApp.Views
 {
@@ -10,6 +13,23 @@ namespace SchedulerWpfApp.Views
         public CreateScheduleView()
         {
             InitializeComponent();
+        }
+
+        /// <summary>
+        /// Event handler for backup and restore button click
+        /// Opens the BackupRestoreWindow
+        /// </summary>
+        private void BackupRestoreButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            try
+            {
+                var backupRestoreWindow = new BackupRestoreWindow();
+                backupRestoreWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi mở cửa sổ sao lưu: {ex.Message}");
+            }
         }
     }
 }

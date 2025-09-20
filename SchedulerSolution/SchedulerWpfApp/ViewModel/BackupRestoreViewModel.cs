@@ -188,9 +188,9 @@ namespace SchedulerWpfApp.ViewModel
         public bool CanPrepareBackup => CanPerformOperations && !IsBackupInProgress && !IsRestoreInProgress && !IsLoading && !IsDatabasePreparedForBackup;
 
         /// <summary>
-        /// Indicates if a backup can be created (requires database to be prepared first)
+        /// Indicates if a backup can be created
         /// </summary>
-        public bool CanCreateBackup => CanPerformOperations && !IsBackupInProgress && !IsRestoreInProgress && !IsLoading && IsDatabasePreparedForBackup;
+        public bool CanCreateBackup => CanPerformOperations && !IsBackupInProgress && !IsRestoreInProgress && !IsLoading;
 
         /// <summary>
         /// Indicates if a local backup can be created (doesn't require server preparation)
@@ -486,7 +486,7 @@ namespace SchedulerWpfApp.ViewModel
 
         /// <summary>
         /// Creates a new backup and uploads it to the server
-        /// NOTE: Database should be prepared using PrepareBackupAsync() before calling this
+        /// NOTE: Will automatically prepare database if needed
         /// </summary>
         private async Task CreateBackupAsync()
         {
@@ -505,13 +505,34 @@ namespace SchedulerWpfApp.ViewModel
                     });
                 });
 
-                // Call CreateBackupAsync with isDatabasePrepared=true since PrepareBackupAsync should be called first
+                // Automatically prepare database if not already prepared
+                if (!IsDatabasePreparedForBackup)
+                {
+                    StatusMessage = "Đang chuẩn bị cơ sở dữ liệu cho sao lưu...";
+                    _logger.LogInformation("Auto-preparing database for backup operations...");
+
+                    bool preparationSuccess = await _backupRestoreService.PrepareForBackupWithProgressAsync(progress, _cancellationTokenSource.Token);
+
+                    if (!preparationSuccess)
+                    {
+                        StatusMessage = "Chuẩn bị sao lưu thất bại.";
+                        _logger.LogError("Database preparation failed");
+                        _notificationService.ShowError("Không thể chuẩn bị cơ sở dữ liệu cho sao lưu.");
+                        return;
+                    }
+
+                    IsDatabasePreparedForBackup = true;
+                    StatusMessage = "Cơ sở dữ liệu đã sẵn sàng. Đang tạo sao lưu...";
+                }
+
+                // Call CreateBackupAsync with isDatabasePrepared=true since database is now prepared
                 var result = await _backupRestoreService.CreateBackupAsync(progress, _cancellationTokenSource.Token, isDatabasePrepared: true);
 
                 if (result.Success)
                 {
                     StatusMessage = $"Sao lưu thành công: {result.Filename}";
                     await RefreshBackupsAsync();
+                    _notificationService.ShowSuccess($"Sao lưu thành công! File: {result.Filename}");
                     // Reset preparation state after successful backup
                     IsDatabasePreparedForBackup = false;
                 }
@@ -519,6 +540,7 @@ namespace SchedulerWpfApp.ViewModel
                 {
                     StatusMessage = $"Sao lưu thất bại: {result.Message}";
                     _logger.LogError("Backup creation failed: {Message}", result.Message);
+                    _notificationService.ShowError($"Sao lưu thất bại: {result.Message}");
                     // Reset preparation state after failed backup
                     IsDatabasePreparedForBackup = false;
                 }
