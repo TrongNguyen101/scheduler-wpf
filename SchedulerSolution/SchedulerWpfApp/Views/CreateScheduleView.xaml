@@ -700,16 +700,30 @@
                                                                        LineHeight="16"/>
 
                                                             <StackPanel HorizontalAlignment="Center"
-                                                                        Orientation="Horizontal"
-                                                                        Margin="0,3,0,0">
+            Orientation="Horizontal"
+            Margin="0,3,0,0">
+                                                                <StackPanel.Style>
+                                                                    <Style TargetType="StackPanel">
+                                                                        <Style.Triggers>
+                                                                            <!-- Nếu null hoặc rỗng -->
+                                                                            <DataTrigger Binding="{Binding Schedule.LecturerAccount}" Value="">
+                                                                                <Setter Property="Background" Value="Red"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding Schedule.LecturerAccount}" Value="{x:Null}">
+                                                                                <Setter Property="Background" Value="Red"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </StackPanel.Style>
+
                                                                 <TextBlock Text="👨‍🏫"
-                                                                           FontSize="10"
-                                                                           VerticalAlignment="Center"
-                                                                           Margin="0,0,3,0"/>
+               FontSize="10"
+               VerticalAlignment="Center"
+               Margin="0,0,3,0"/>
                                                                 <TextBlock Text="{Binding Schedule.LecturerAccount}"
-                                                                           FontSize="12"
-                                                                           Foreground="#495057"
-                                                                           VerticalAlignment="Center"/>
+               FontSize="12"
+               Foreground="#495057"
+               VerticalAlignment="Center"/>
                                                             </StackPanel>
 
                                                             <StackPanel HorizontalAlignment="Center"
