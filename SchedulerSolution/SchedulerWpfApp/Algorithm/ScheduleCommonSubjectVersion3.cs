@@ -225,16 +225,15 @@ namespace SchedulerWpfApp.Algorithm
                 // === Nâng cấp phần xếp lịch ===
                 foreach (var lecturer in lecturersWithCapacity)
                 {
-
                     foreach (var pair in suitablePairs)
                     {
-                        if ((lecturer.Lecturer.Role ?? string.Empty).Trim() == "TBM" && pair.Code == "A53")
+                        if ((lecturer.Lecturer?.Role ?? string.Empty).Trim() == "TBM" && pair.Code == "A53")
                             continue;
 
                         var groupTable = groupTimetables[group.GroupName];
                         var lecturerTable = lecturerTimetables[lecturer.LecturerId];
 
-                        // Case 1: cả lớp và GV đều trống ở cả 2 ca -> xếp hoàn chỉnh
+                        // Case 1: cả lớp và GV đều trống ở cả 2 ca -> xếp hoàn chỉnh với giảng viên
                         if (groupTable.IsSlotFree(pair.Day1, pair.Slot1) &&
                             groupTable.IsSlotFree(pair.Day2, pair.Slot2) &&
                             lecturerTable.IsSlotFree(pair.Day1, pair.Slot1) &&
@@ -257,7 +256,31 @@ namespace SchedulerWpfApp.Algorithm
                             break;
                         }
 
-                        // KHÔNG còn nhánh else-if ở đây nữa
+                        // Case 2: Lớp trống nhưng GV bận -> tạo lịch không có giảng viên để đảm bảo lớp có đủ môn
+                        else if (groupTable.IsSlotFree(pair.Day1, pair.Slot1) &&
+                                groupTable.IsSlotFree(pair.Day2, pair.Slot2))
+                        {
+                            var schedule1 = CreateScheduleEntry(group, subject, null, pair, 1, startDate);
+                            var schedule2 = CreateScheduleEntry(group, subject, null, pair, 2, startDate);
+
+                            finalSchedule.Add(schedule1);
+                            finalSchedule.Add(schedule2);
+
+                            // Chỉ book vào group table để giữ chỗ, không book vào lecturer
+                            groupTable.Book(pair.Day1, pair.Slot1, schedule1);
+                            groupTable.Book(pair.Day2, pair.Slot2, schedule2);
+
+                            scheduledUnitsSet.Add((group.GroupName, subject.SubjectCode));
+
+                            // Ghi log để theo dõi những lịch cần được phân công giảng viên sau
+                            conflicts.Add(
+                                $"Lớp {group.GroupName} - môn {subject.SubjectCode}: đã tạo lịch chưa có giảng viên, " +
+                                $"GV {lecturer.LecturerName} bận slot {pair.Code} " +
+                                $"(D{pair.Day1}-S{pair.Slot1} & D{pair.Day2}-S{pair.Slot2}).");
+
+                            isScheduled = true;
+                            break;
+                        }
                     }
 
                     if (isScheduled) break;
@@ -324,7 +347,7 @@ namespace SchedulerWpfApp.Algorithm
                     unscheduledUnits);
         }
 
-        private Schedule CreateScheduleEntry(GroupClass groupName, CurriculumSubject curriculumSubject, LecturerSubject lecturer, SlotPair pair, int part, DateTime startDate)
+        private Schedule CreateScheduleEntry(GroupClass groupName, CurriculumSubject curriculumSubject, LecturerSubject? lecturer, SlotPair pair, int part, DateTime startDate)
         {
             int dayOfWeek = part == 1 ? pair.Day1 : pair.Day2;
             int slotTime = part == 1 ? pair.Slot1 : pair.Slot2;

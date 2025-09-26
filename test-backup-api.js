@@ -4,33 +4,35 @@ const API_BASE = "http://localhost:4000";
 // Mock data để test
 const testData = {
   accessToken: "your-test-token", // Thay bằng token thực
-  filename: "test-backup.db"
+  filename: "test-backup.db",
 };
 
 // Hàm test delete backup
 const testDeleteBackup = async () => {
   try {
     console.log("🧪 Testing DELETE backup API...");
-    
-    const response = await fetch(`${API_BASE}/api/backups/${encodeURIComponent(testData.filename)}`, {
-      method: "DELETE",
-      headers: {
-        "Authorization": `Bearer ${testData.accessToken}`,
-        "Content-Type": "application/json"
+
+    const response = await fetch(
+      `${API_BASE}/api/backups/${encodeURIComponent(testData.filename)}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${testData.accessToken}`,
+          "Content-Type": "application/json",
+        },
       }
-    });
+    );
 
     const result = await response.json();
-    
+
     console.log("📊 Response status:", response.status);
     console.log("📋 Response data:", result);
-    
+
     if (response.ok && result.success) {
       console.log("✅ DELETE backup API works correctly!");
     } else {
       console.log("❌ DELETE backup API failed:", result.message);
     }
-    
   } catch (error) {
     console.error("💥 Error testing DELETE backup API:", error);
   }
@@ -40,26 +42,25 @@ const testDeleteBackup = async () => {
 const testListBackups = async () => {
   try {
     console.log("🧪 Testing LIST backups API...");
-    
+
     const response = await fetch(`${API_BASE}/api/backups/list`, {
       headers: {
-        "Authorization": `Bearer ${testData.accessToken}`,
-        "Content-Type": "application/json"
-      }
+        Authorization: `Bearer ${testData.accessToken}`,
+        "Content-Type": "application/json",
+      },
     });
 
     const result = await response.json();
-    
+
     console.log("📊 Response status:", response.status);
     console.log("📋 Response data:", result);
-    
+
     if (response.ok && result.success) {
       console.log("✅ LIST backups API works correctly!");
       console.log(`📁 Found ${result.data?.length || 0} backup files`);
     } else {
       console.log("❌ LIST backups API failed:", result.message);
     }
-    
   } catch (error) {
     console.error("💥 Error testing LIST backups API:", error);
   }

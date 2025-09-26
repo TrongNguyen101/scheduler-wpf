@@ -546,6 +546,9 @@ namespace SchedulerWpfApp.ViewModel
             InitCurrentWeekDays(); // Initialize current week days
             FilterSchedules(); // Filter schedules based on initial selections
             InitListMajors();
+
+            // Refresh timetable để đảm bảo highlighting hoạt động
+            RefreshTimetableDisplay();
         }
         #endregion
 
@@ -784,7 +787,7 @@ namespace SchedulerWpfApp.ViewModel
         {
             SlotRows.Clear();
 
-            if (string.IsNullOrEmpty(SelectedWeek) || (CurrentDisplayMode == DisplayMode.CLASS && string.IsNullOrEmpty(SelectedGroupName)) || (CurrentDisplayMode == DisplayMode.ROOM && string.IsNullOrEmpty(SelectedRoomName)) || (CurrentDisplayMode == DisplayMode.LECTURER && string.IsNullOrEmpty(SelectedLecturer)))
+            if (string.IsNullOrEmpty(SelectedWeek) || (CurrentDisplayMode == DisplayMode.CLASS && string.IsNullOrEmpty(SelectedGroupName)) || (CurrentDisplayMode == DisplayMode.ROOM && string.IsNullOrEmpty(SelectedRoomName)))
             {
                 // If no group or week is selected, create empty rows
                 GenerateTimetableCellsAndSlotRows(new List<Schedule>());
@@ -801,7 +804,25 @@ namespace SchedulerWpfApp.ViewModel
                 filtered = AllSchedules.Where(s => s.RoomName == SelectedRoomName && s.StatusSlot == ScheduleConstants.StatusSlotIsOffline && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
             else if (CurrentDisplayMode == DisplayMode.CLASS)
                 filtered = AllSchedules.Where(s => s.GroupName == SelectedGroupName && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by group name and date range
-            else filtered = AllSchedules.Where(s => s.LecturerAccount == SelectedLecturer && s.Date >= start && s.Date <= end).ToList(); // Filter schedules by lecturer and date range
+            else
+            {
+                // LECTURER mode - show schedules for selected lecturer OR unassigned schedules (empty/null LecturerAccount)
+                if (string.IsNullOrEmpty(SelectedLecturer))
+                {
+                    // If no lecturer selected, show all schedules in the date range (including unassigned ones)
+                    filtered = AllSchedules.Where(s => s.Date >= start && s.Date <= end).ToList();
+                }
+                else if (SelectedLecturer == "UNASSIGNED")
+                {
+                    // Show only unassigned schedules using the new IsAssigned property
+                    filtered = AllSchedules.Where(s => !s.IsAssigned && s.Date >= start && s.Date <= end).ToList();
+                }
+                else
+                {
+                    // Show schedules for selected lecturer only
+                    filtered = AllSchedules.Where(s => s.LecturerAccount == SelectedLecturer && s.Date >= start && s.Date <= end).ToList();
+                }
+            }
             GenerateTimetableCellsAndSlotRows(filtered); // Generate timetable cells and slot rows based on the filtered schedules
         }
 
@@ -825,11 +846,27 @@ namespace SchedulerWpfApp.ViewModel
             var schedules = await _implementScheduleServices.GetAllAsync(); // Fetch all schedules from the service
             AllSchedules = new ObservableCollection<Schedule>(schedules); // Store all schedules in the AllSchedules collection
 
+            // Debug: Log thông tin về lịch chưa có giảng viên
+            var unassignedCount = schedules?.Count(s => !s.IsAssigned) ?? 0;
+            var totalCount = schedules?.Count ?? 0;
+            System.Diagnostics.Debug.WriteLine($"[LoadMockSchedules] Loaded {totalCount} schedules, {unassignedCount} unassigned");
+
             if (schedules?.Any() == true)
             {
-                GroupNames = new ObservableCollection<string>(schedules.Select(s => s.GroupName).Distinct().OrderBy(name => name)); // Get distinct group names from the schedules
-                Rooms = new ObservableCollection<string>(schedules.Select(s => s.RoomName).Distinct().OrderBy(name => name)); // Get distinct room names from the schedules
-                Lecturers = new ObservableCollection<string>(schedules.Select(s => s.LecturerAccount).Distinct().OrderBy(name => name)); // Get distinct lecturer IDs from the schedules
+                GroupNames = new ObservableCollection<string>(schedules.Select(s => s.GroupName).Distinct().Where(name => !string.IsNullOrEmpty(name)).OrderBy(name => name)); // Get distinct group names from the schedules
+                Rooms = new ObservableCollection<string>(schedules.Select(s => s.RoomName).Distinct().Where(name => !string.IsNullOrEmpty(name)).OrderBy(name => name)); // Get distinct room names from the schedules
+
+                // Get distinct lecturer accounts, filter out null/empty, and add "UNASSIGNED" option for schedules without lecturers
+                var lecturerAccounts = schedules.Select(s => s.LecturerAccount).Distinct().Where(name => !string.IsNullOrEmpty(name)).OrderBy(name => name).ToList();
+
+                // Check if there are any unassigned schedules using the new IsAssigned property
+                if (schedules.Any(s => !s.IsAssigned))
+                {
+                    lecturerAccounts.Insert(0, "UNASSIGNED"); // Add at the beginning for easy access
+                    System.Diagnostics.Debug.WriteLine($"[LoadMockSchedules] Added UNASSIGNED option to lecturer list");
+                }
+
+                Lecturers = new ObservableCollection<string>(lecturerAccounts); // Get distinct lecturer IDs from the schedules
             }
             else
             {
@@ -1123,6 +1160,10 @@ namespace SchedulerWpfApp.ViewModel
         {
             SlotRows.Clear();
 
+            // Debug: Log thông tin về filtered schedules
+            var unassignedInFiltered = filtered.Count(s => !s.IsAssigned);
+            System.Diagnostics.Debug.WriteLine($"[GenerateTimetableCells] Processing {filtered.Count} schedules, {unassignedInFiltered} unassigned");
+
             foreach (var slot in Slots)
             {
                 var cells = new ObservableCollection<TimetableCellViewModel>();
@@ -1134,6 +1175,12 @@ namespace SchedulerWpfApp.ViewModel
                     if (match != null)
                     {
                         slotTime = CalculatorTime(slot, match.TypeSlot); // Calculate time for new slot
+
+                        // Debug: Log info về lịch chưa có giảng viên
+                        if (!match.IsAssigned)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[GenerateTimetableCells] Found unassigned schedule: {match.SubjectCode} on {day:MM/dd} slot {slot}");
+                        }
                     }
 
                     cells.Add(new TimetableCellViewModel
@@ -1828,6 +1875,22 @@ namespace SchedulerWpfApp.ViewModel
             catch (Exception ex)
             {
                 _notificationService.ShowError("Lỗi khi tải danh sách lịch học.");
+            }
+        }
+
+        /// <summary>
+        /// Refresh timetable display để đảm bảo highlighting hoạt động đúng
+        /// </summary>
+        private void RefreshTimetableDisplay()
+        {
+            // Force refresh UI bằng cách notify property changed
+            OnPropertyChanged(nameof(AllSchedules));
+            OnPropertyChanged(nameof(SlotRows));
+
+            // Refresh filter để cập nhật UI
+            if (!string.IsNullOrEmpty(SelectedWeek))
+            {
+                FilterSchedules();
             }
         }
 

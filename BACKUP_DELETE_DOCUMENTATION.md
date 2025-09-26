@@ -1,6 +1,7 @@
 # Chức năng Delete File Backup
 
 ## Tổng quan
+
 Chức năng này cho phép người dùng xóa các file backup khỏi server, bao gồm cả file backup và metadata tương ứng.
 
 ## Kiến trúc hệ thống
@@ -8,9 +9,11 @@ Chức năng này cho phép người dùng xóa các file backup khỏi server, 
 ### Backend (Node.js/Express)
 
 #### 1. Routes (`/auth-service/src/routes/backups.js`)
+
 ```javascript
 // DELETE /api/backups/:filename - Delete specific backup
-router.delete("/:filename", 
+router.delete(
+  "/:filename",
   backupOperationLimiter,
   validateFilename,
   backupController.deleteBackup.bind(backupController)
@@ -18,11 +21,13 @@ router.delete("/:filename",
 ```
 
 **Features:**
+
 - Rate limiting: 10 operations per 15 minutes
 - Filename validation (ngăn chặn path traversal)
 - Authentication required
 
 #### 2. Controller (`/auth-service/src/controllers/backupController.js`)
+
 ```javascript
 async deleteBackup(req, res) {
   // 1. Lấy userId từ JWT token
@@ -35,6 +40,7 @@ async deleteBackup(req, res) {
 ```
 
 **Security measures:**
+
 - User isolation: Mỗi user chỉ có thể xóa backup của mình
 - File existence check
 - Error handling và logging
@@ -44,11 +50,13 @@ async deleteBackup(req, res) {
 #### 1. WPF Application (`/SchedulerWpfApp/`)
 
 **Files liên quan:**
+
 - `Views/BackupRestoreWindow.xaml` - UI với button delete
 - `ViewModel/BackupRestoreViewModel.cs` - Logic xử lý
 - `ServiceRefactor/BackupRestoreService/BackupRestoreService.cs` - API client
 
 **Workflow:**
+
 1. User chọn backup từ danh sách
 2. Click nút "🗑️ Xóa Sao lưu"
 3. Hiển thị dialog xác nhận
@@ -58,10 +66,12 @@ async deleteBackup(req, res) {
 #### 2. Web Admin Interface (`/auth-admin/`)
 
 **Files:**
+
 - `src/pages/Backups.jsx` - Giao diện quản lý backup
 - Tích hợp với `src/App.jsx` qua routing
 
 **Features:**
+
 - Danh sách tất cả backup files
 - Stats hiển thị (tổng số file, dung lượng, ngày backup mới nhất)
 - Download backup
@@ -85,12 +95,14 @@ async deleteBackup(req, res) {
 ### DELETE /api/backups/:filename
 
 **Request:**
+
 ```http
 DELETE /api/backups/mybackup.db
 Authorization: Bearer <jwt-token>
 ```
 
 **Response Success (200):**
+
 ```json
 {
   "success": true,
@@ -99,6 +111,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response Error (404):**
+
 ```json
 {
   "success": false,
@@ -110,6 +123,7 @@ Authorization: Bearer <jwt-token>
 ### GET /api/backups/list
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -129,7 +143,7 @@ Authorization: Bearer <jwt-token>
 1. **Authentication:** JWT token required
 2. **Authorization:** User chỉ có thể xóa backup của mình
 3. **Rate Limiting:** Tối đa 10 operations/15 phút
-4. **Input Validation:** 
+4. **Input Validation:**
    - Filename không chứa `..`, `/`, `\`
    - Path traversal protection
 5. **File Isolation:** Mỗi user có thư mục riêng
@@ -137,12 +151,14 @@ Authorization: Bearer <jwt-token>
 ## Error Handling
 
 ### Backend Errors:
+
 - `FILE_NOT_FOUND`: File backup không tồn tại
 - `DELETE_ERROR`: Lỗi khi xóa file
 - `INVALID_FILENAME`: Tên file không hợp lệ
 - `RATE_LIMIT_EXCEEDED`: Vượt quá giới hạn rate limit
 
 ### Frontend Error Handling:
+
 - Network errors
 - Authentication errors
 - Server errors
@@ -151,6 +167,7 @@ Authorization: Bearer <jwt-token>
 ## Testing
 
 ### Manual Testing:
+
 1. Upload một backup file
 2. Verify file xuất hiện trong danh sách
 3. Delete file và confirm
@@ -158,6 +175,7 @@ Authorization: Bearer <jwt-token>
 5. Verify file đã bị xóa khỏi file system
 
 ### API Testing:
+
 Sử dụng `test-backup-api.js` để test API endpoints
 
 ## Deployment Considerations
@@ -185,6 +203,7 @@ Sử dụng `test-backup-api.js` để test API endpoints
 4. **Rate Limited:** Đợi 15 phút hoặc reduce request frequency
 
 ### Logs to Check:
+
 - Backend console logs
 - File system access logs
 - Authentication logs

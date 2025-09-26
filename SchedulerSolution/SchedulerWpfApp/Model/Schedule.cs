@@ -63,6 +63,47 @@ namespace SchedulerWpfApp.Model
         [Column("TermInYear")]
         public string? TermInYear { get; set; } // Type of the slot (Normal - Combo)]
 
+        /// <summary>
+        /// Gets a value indicating whether this schedule is assigned to a lecturer.
+        /// A schedule is considered assigned if it has LecturerId (primary check).
+        /// </summary>
+        [NotMapped]
+        public bool IsAssigned => !string.IsNullOrEmpty(LecturerId);
+
+        /// <summary>
+        /// Gets a value indicating whether this schedule needs urgent assignment.
+        /// A schedule needs urgent assignment if both LecturerId and LecturerAccount are null or empty.
+        /// </summary>
+        [NotMapped]
+        public bool NeedsUrgentAssignment => string.IsNullOrEmpty(LecturerId) && string.IsNullOrEmpty(LecturerAccount) && string.IsNullOrEmpty(LecturerName);
+
+        /// <summary>
+        /// Gets the assignment status text for display purposes.
+        /// </summary>
+        [NotMapped]
+        public string AssignmentStatusText
+        {
+            get
+            {
+                if (IsAssigned)
+                {
+                    // Hiển thị thông tin giảng viên nếu có
+                    if (!string.IsNullOrEmpty(LecturerName))
+                        return LecturerName;
+                    if (!string.IsNullOrEmpty(LecturerAccount))
+                        return LecturerAccount;
+                    if (!string.IsNullOrEmpty(LecturerId))
+                        return LecturerId;
+                    return "Đã phân công";
+                }
+
+                if (NeedsUrgentAssignment)
+                    return "🚨 CẦN PHÂN CÔNG GẤP";
+
+                return "⚠️ CHƯA PHÂN CÔNG";
+            }
+        }
+
         public Schedule Clone()
         {
             return (Schedule)this.MemberwiseClone();

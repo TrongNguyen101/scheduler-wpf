@@ -89,12 +89,64 @@
         <Style x:Key="DragOverCellStyle"
                TargetType="Border">
             <Setter Property="Background"
-                    Value="LightBlue"/>
+                    Value="White"/>
             <Setter Property="BorderBrush"
-                    Value="Blue"/>
+                    Value="#E3E8ED"/>
             <Setter Property="BorderThickness"
-                    Value="0.5"/>
+                    Value="1"/>
             <Style.Triggers>
+                <!-- Highlight cho lịch có giảng viên -->
+                <DataTrigger Binding="{Binding Schedule.IsAssigned}"
+                             Value="True">
+                    <Setter Property="Background"
+                            Value="White"/>
+                    <Setter Property="BorderBrush"
+                            Value="#E3E8ED"/>
+                    <Setter Property="BorderThickness"
+                            Value="1"/>
+                </DataTrigger>
+
+                <!-- Highlight unassigned schedules with enhanced yellow background -->
+                <DataTrigger Binding="{Binding Schedule.IsAssigned}"
+                             Value="False">
+                    <Setter Property="Background"
+                            Value="#FFF3CD"/>
+                    <Setter Property="BorderBrush"
+                            Value="#FF8800"/>
+                    <Setter Property="BorderThickness"
+                            Value="2"/>
+                </DataTrigger>
+
+                <!-- Special highlight for schedules that need urgent assignment (higher priority) -->
+                <DataTrigger Binding="{Binding Schedule.NeedsUrgentAssignment}"
+                             Value="True">
+                    <Setter Property="Background"
+                            Value="#FFE6CC"/>
+                    <Setter Property="BorderBrush"
+                            Value="#FF6600"/>
+                    <Setter Property="BorderThickness"
+                            Value="3"/>
+                </DataTrigger>
+
+                <!-- Fallback cho lịch chưa có giảng viên bằng cách check LecturerId trực tiếp -->
+                <DataTrigger Binding="{Binding Schedule.LecturerId}"
+                             Value="">
+                    <Setter Property="Background"
+                            Value="#FFF3CD"/>
+                    <Setter Property="BorderBrush"
+                            Value="#FF8800"/>
+                    <Setter Property="BorderThickness"
+                            Value="2"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Schedule.LecturerId}"
+                             Value="{x:Null}">
+                    <Setter Property="Background"
+                            Value="#FFF3CD"/>
+                    <Setter Property="BorderBrush"
+                            Value="#FF8800"/>
+                    <Setter Property="BorderThickness"
+                            Value="2"/>
+                </DataTrigger>
                 <DataTrigger Binding="{Binding IsDragOver}"
                              Value="True">
                     <Setter Property="Background"
@@ -167,8 +219,81 @@
                         <TextBlock Text="{Binding Schedule.SubjectCode}"
                                    FontWeight="Bold"
                                    FontSize="12"/>
-                        <TextBlock Text="{Binding Schedule.LecturerId}"
-                                   FontSize="10"/>
+                        <TextBlock FontSize="10">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <!-- Default to showing LecturerName if assigned, otherwise show assignment status -->
+                                    <Setter Property="Text"
+                                            Value="{Binding Schedule.AssignmentStatusText}"/>
+                                    <Setter Property="Foreground"
+                                            Value="Black"/>
+                                    <Setter Property="FontWeight"
+                                            Value="Normal"/>
+                                    <Setter Property="FontSize"
+                                            Value="10"/>
+                                    <Style.Triggers>
+                                        <!-- Style for assigned schedules -->
+                                        <DataTrigger Binding="{Binding Schedule.IsAssigned}"
+                                                     Value="True">
+                                            <Setter Property="Foreground"
+                                                    Value="Black"/>
+                                            <Setter Property="FontWeight"
+                                                    Value="Normal"/>
+                                            <Setter Property="FontSize"
+                                                    Value="10"/>
+                                        </DataTrigger>
+
+                                        <!-- Style for unassigned schedules -->
+                                        <DataTrigger Binding="{Binding Schedule.IsAssigned}"
+                                                     Value="False">
+                                            <Setter Property="Foreground"
+                                                    Value="#DC3545"/>
+                                            <Setter Property="FontWeight"
+                                                    Value="Bold"/>
+                                            <Setter Property="FontSize"
+                                                    Value="9"/>
+                                        </DataTrigger>
+
+                                        <!-- Fallback: Kiểm tra LecturerId trực tiếp -->
+                                        <DataTrigger Binding="{Binding Schedule.LecturerId}"
+                                                     Value="">
+                                            <Setter Property="Text"
+                                                    Value="⚠️ CHƯA PHÂN CÔNG"/>
+                                            <Setter Property="Foreground"
+                                                    Value="#DC3545"/>
+                                            <Setter Property="FontWeight"
+                                                    Value="Bold"/>
+                                            <Setter Property="FontSize"
+                                                    Value="9"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Schedule.LecturerId}"
+                                                     Value="{x:Null}">
+                                            <Setter Property="Text"
+                                                    Value="⚠️ CHƯA PHÂN CÔNG"/>
+                                            <Setter Property="Foreground"
+                                                    Value="#DC3545"/>
+                                            <Setter Property="FontWeight"
+                                                    Value="Bold"/>
+                                            <Setter Property="FontSize"
+                                                    Value="9"/>
+                                        </DataTrigger>
+
+                                        <!-- Special style for schedules that need urgent assignment (highest priority) -->
+                                        <DataTrigger Binding="{Binding Schedule.NeedsUrgentAssignment}"
+                                                     Value="True">
+                                            <Setter Property="Text"
+                                                    Value="🚨 CẦN PHÂN CÔNG GẤP"/>
+                                            <Setter Property="Foreground"
+                                                    Value="#DC3545"/>
+                                            <Setter Property="FontWeight"
+                                                    Value="Bold"/>
+                                            <Setter Property="FontSize"
+                                                    Value="9"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <TextBlock Text="{Binding Schedule.RoomId}"
                                    FontSize="10"
                                    Foreground="Gray"/>
@@ -700,30 +825,34 @@
                                                                        LineHeight="16"/>
 
                                                             <StackPanel HorizontalAlignment="Center"
-            Orientation="Horizontal"
-            Margin="0,3,0,0">
+                                                                        Orientation="Horizontal"
+                                                                        Margin="0,3,0,0">
                                                                 <StackPanel.Style>
                                                                     <Style TargetType="StackPanel">
                                                                         <Style.Triggers>
                                                                             <!-- Nếu null hoặc rỗng -->
-                                                                            <DataTrigger Binding="{Binding Schedule.LecturerAccount}" Value="">
-                                                                                <Setter Property="Background" Value="Red"/>
+                                                                            <DataTrigger Binding="{Binding Schedule.LecturerAccount}"
+                                                                                         Value="">
+                                                                                <Setter Property="Background"
+                                                                                        Value="Red"/>
                                                                             </DataTrigger>
-                                                                            <DataTrigger Binding="{Binding Schedule.LecturerAccount}" Value="{x:Null}">
-                                                                                <Setter Property="Background" Value="Red"/>
+                                                                            <DataTrigger Binding="{Binding Schedule.LecturerAccount}"
+                                                                                         Value="{x:Null}">
+                                                                                <Setter Property="Background"
+                                                                                        Value="Red"/>
                                                                             </DataTrigger>
                                                                         </Style.Triggers>
                                                                     </Style>
                                                                 </StackPanel.Style>
 
                                                                 <TextBlock Text="👨‍🏫"
-               FontSize="10"
-               VerticalAlignment="Center"
-               Margin="0,0,3,0"/>
+                                                                           FontSize="10"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="0,0,3,0"/>
                                                                 <TextBlock Text="{Binding Schedule.LecturerAccount}"
-               FontSize="12"
-               Foreground="#495057"
-               VerticalAlignment="Center"/>
+                                                                           FontSize="12"
+                                                                           Foreground="#495057"
+                                                                           VerticalAlignment="Center"/>
                                                             </StackPanel>
 
                                                             <StackPanel HorizontalAlignment="Center"

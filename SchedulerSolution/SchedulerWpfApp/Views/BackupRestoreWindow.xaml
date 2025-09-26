@@ -397,78 +397,7 @@
                                                                 </StackPanel>
                                                         </Border>
 
-                                                        <!-- Local Backup Section -->
-                                                        <!--
-                                        <Border BorderBrush="#27AE60"
-                                                BorderThickness="1"
-                                                Padding="15"
-                                                Margin="0,0,0,15"
-                                                CornerRadius="5">
-                                                <StackPanel>
-                                                        <TextBlock Text="Create Local Backup"
-                                                                   Style="{StaticResource HeaderTextStyle}"
-                                                                   FontSize="14"/>
-                                                        <TextBlock Text="Creates a local backup file using VACUUM INTO. Fast and reliable for local storage."
-                                                                   TextWrapping="Wrap"
-                                                                   Style="{StaticResource InfoTextStyle}"
-                                                                   Margin="0,0,0,10"/>
-
-                                                        <Button Content="💾 Create Local Backup"
-                                                                Command="{Binding CreateLocalBackupCommand}"
-                                                                Style="{StaticResource ActionButtonStyle}"
-                                                                HorizontalAlignment="Stretch"
-                                                                Background="#27AE60"
-                                                                Foreground="White"/>
-                                                </StackPanel>
-                                        </Border>-->
-
-                                                        <!-- Restore Backup Section -->
-                                                        <Border BorderBrush="#BDC3C7"
-                                                                BorderThickness="1"
-                                                                Padding="12"
-                                                                Margin="0,0,0,12"
-                                                                CornerRadius="5">
-                                                                <StackPanel>
-                                                                        <TextBlock Text="Khôi phục từ Sao lưu"
-                                                                                   Style="{StaticResource HeaderTextStyle}"
-                                                                                   FontSize="13"/>
-                                                                        <TextBlock Text="Khôi phục cơ sở dữ liệu từ bản sao lưu đã chọn. Một bản sao lưu an toàn sẽ được tạo trước."
-                                                                                   TextWrapping="Wrap"
-                                                                                   Style="{StaticResource InfoTextStyle}"
-                                                                                   Margin="0,0,0,8"
-                                                                                   FontSize="11"/>
-
-                                                                        <Button Content="🔄 Khôi phục Cơ sở dữ liệu"
-                                                                                Command="{Binding RestoreBackupCommand}"
-                                                                                Style="{StaticResource PrimaryButtonStyle}"
-                                                                                HorizontalAlignment="Stretch"
-                                                                                Padding="10,6"
-                                                                                FontSize="11"/>
-
-                                                                        <!-- Restore Progress -->
-                                                                        <StackPanel Visibility="{Binding IsRestoreInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                                                    Margin="0,8,0,0">
-                                                                                <TextBlock Text="{Binding RestoreProgress.CurrentOperation}"
-                                                                                           FontSize="10"
-                                                                                           Margin="0,0,0,3"/>
-                                                                                <ProgressBar Value="{Binding RestoreProgress.PercentComplete}"
-                                                                                             Maximum="100"
-                                                                                             Style="{StaticResource ProgressBarStyle}"
-                                                                                             Height="15"/>
-                                                                                <TextBlock Text="{Binding RestoreProgress.Status}"
-                                                                                           FontSize="9"
-                                                                                           HorizontalAlignment="Center"
-                                                                                           Foreground="#7F8C8D"/>
-                                                                                <!-- Validation Message -->
-                                                                                <TextBlock Text="{Binding RestoreProgress.ValidationMessage}"
-                                                                                           FontSize="9"
-                                                                                           HorizontalAlignment="Center"
-                                                                                           Foreground="#E67E22"
-                                                                                           Visibility="{Binding RestoreProgress.IsValidating, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                                        </StackPanel>
-                                                                </StackPanel>
-                                                        </Border>
-
+                                                        
                                                         <!-- Sync to Version Section -->
                                                         <Border BorderBrush="#F39C12"
                                                                 BorderThickness="1"
