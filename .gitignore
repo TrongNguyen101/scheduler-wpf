@@ -8,6 +8,7 @@ auth-admin/.cache/
 auth-admin/.vite/
 auth-admin/.env
 auth-service/.env
+auth-service/backups
 auth-service/data/
 auth-service/logs/
 auth-admin/package-lock.json

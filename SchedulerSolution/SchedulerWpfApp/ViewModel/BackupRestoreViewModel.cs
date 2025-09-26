@@ -31,9 +31,11 @@ namespace SchedulerWpfApp.ViewModel
         private CancellationTokenSource? _cancellationTokenSource;
         private BackupProgress _backupProgress;
         private RestoreProgress _restoreProgress;
+        private RestoreProgress _syncProgress;
         private BackupMetadata? _selectedBackup;
         private bool _isBackupInProgress;
         private bool _isRestoreInProgress;
+        private bool _isSyncInProgress;
         private bool _isLoading;
         private string _statusMessage;
         private bool _canPerformOperations;
@@ -82,6 +84,15 @@ namespace SchedulerWpfApp.ViewModel
         }
 
         /// <summary>
+        /// Current sync operation progress
+        /// </summary>
+        public RestoreProgress SyncProgress
+        {
+            get => _syncProgress;
+            set => SetProperty(ref _syncProgress, value);
+        }
+
+        /// <summary>
         /// Indicates if a backup operation is currently in progress
         /// </summary>
         public bool IsBackupInProgress
@@ -94,6 +105,7 @@ namespace SchedulerWpfApp.ViewModel
                     OnPropertyChanged(nameof(CanCreateBackup));
                     OnPropertyChanged(nameof(CanCreateLocalBackup));
                     OnPropertyChanged(nameof(CanRestore));
+                    OnPropertyChanged(nameof(CanSync));
                     OnPropertyChanged(nameof(CanDelete));
                     OnPropertyChanged(nameof(CanRefresh));
                 }
@@ -113,6 +125,27 @@ namespace SchedulerWpfApp.ViewModel
                     OnPropertyChanged(nameof(CanCreateBackup));
                     OnPropertyChanged(nameof(CanCreateLocalBackup));
                     OnPropertyChanged(nameof(CanRestore));
+                    OnPropertyChanged(nameof(CanSync));
+                    OnPropertyChanged(nameof(CanDelete));
+                    OnPropertyChanged(nameof(CanRefresh));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Indicates if a sync operation is currently in progress
+        /// </summary>
+        public bool IsSyncInProgress
+        {
+            get => _isSyncInProgress;
+            set
+            {
+                if (SetProperty(ref _isSyncInProgress, value))
+                {
+                    OnPropertyChanged(nameof(CanCreateBackup));
+                    OnPropertyChanged(nameof(CanCreateLocalBackup));
+                    OnPropertyChanged(nameof(CanRestore));
+                    OnPropertyChanged(nameof(CanSync));
                     OnPropertyChanged(nameof(CanDelete));
                     OnPropertyChanged(nameof(CanRefresh));
                 }
@@ -132,6 +165,7 @@ namespace SchedulerWpfApp.ViewModel
                     OnPropertyChanged(nameof(CanCreateBackup));
                     OnPropertyChanged(nameof(CanCreateLocalBackup));
                     OnPropertyChanged(nameof(CanRestore));
+                    OnPropertyChanged(nameof(CanSync));
                     OnPropertyChanged(nameof(CanDelete));
                     OnPropertyChanged(nameof(CanRefresh));
                 }
@@ -160,6 +194,7 @@ namespace SchedulerWpfApp.ViewModel
                     OnPropertyChanged(nameof(CanCreateBackup));
                     OnPropertyChanged(nameof(CanCreateLocalBackup));
                     OnPropertyChanged(nameof(CanRestore));
+                    OnPropertyChanged(nameof(CanSync));
                     OnPropertyChanged(nameof(CanDelete));
                     OnPropertyChanged(nameof(CanRefresh));
                 }
@@ -190,42 +225,47 @@ namespace SchedulerWpfApp.ViewModel
         /// <summary>
         /// Indicates if a backup can be created
         /// </summary>
-        public bool CanCreateBackup => CanPerformOperations && !IsBackupInProgress && !IsRestoreInProgress && !IsLoading;
+        public bool CanCreateBackup => CanPerformOperations && !IsBackupInProgress && !IsRestoreInProgress && !IsSyncInProgress && !IsLoading;
 
         /// <summary>
         /// Indicates if a local backup can be created (doesn't require server preparation)
         /// </summary>
-        public bool CanCreateLocalBackup => CanPerformOperations && !IsBackupInProgress && !IsRestoreInProgress && !IsLoading;
+        public bool CanCreateLocalBackup => CanPerformOperations && !IsBackupInProgress && !IsRestoreInProgress && !IsSyncInProgress && !IsLoading;
 
         /// <summary>
         /// Indicates if a restore can be performed
         /// </summary>
-        public bool CanRestore => CanPerformOperations && SelectedBackup != null && !IsBackupInProgress && !IsRestoreInProgress && !IsLoading;
+        public bool CanRestore => CanPerformOperations && SelectedBackup != null && !IsBackupInProgress && !IsRestoreInProgress && !IsSyncInProgress && !IsLoading;
+
+        /// <summary>
+        /// Indicates if a sync can be performed
+        /// </summary>
+        public bool CanSync => CanPerformOperations && SelectedBackup != null && !IsBackupInProgress && !IsRestoreInProgress && !IsSyncInProgress && !IsLoading;
 
         /// <summary>
         /// Indicates if a backup can be deleted
         /// </summary>
-        public bool CanDelete => CanPerformOperations && SelectedBackup != null && !IsBackupInProgress && !IsRestoreInProgress && !IsLoading;
+        public bool CanDelete => CanPerformOperations && SelectedBackup != null && !IsBackupInProgress && !IsRestoreInProgress && !IsSyncInProgress && !IsLoading;
 
         /// <summary>
         /// Indicates if the backup list can be refreshed
         /// </summary>
-        public bool CanRefresh => CanPerformOperations && !IsBackupInProgress && !IsRestoreInProgress && !IsLoading;
+        public bool CanRefresh => CanPerformOperations && !IsBackupInProgress && !IsRestoreInProgress && !IsSyncInProgress && !IsLoading;
 
         /// <summary>
         /// Indicates if an operation can be cancelled
         /// </summary>
-        public bool CanCancel => IsBackupInProgress || IsRestoreInProgress;
+        public bool CanCancel => IsBackupInProgress || IsRestoreInProgress || IsSyncInProgress;
 
         /// <summary>
         /// Current user information
         /// </summary>
-        public string CurrentUser => _authState.IsAuthenticated ? _authState.CurrentUser.username : "Not authenticated";
+        public string CurrentUser => _authState.IsAuthenticated ? _authState.CurrentUser.username : "Chưa đăng nhập";
 
         /// <summary>
         /// Backup count for display
         /// </summary>
-        public string BackupCountText => $"{AvailableBackups.Count} backup(s) available";
+        public string BackupCountText => $"Có {AvailableBackups.Count} bản sao lưu";
 
         #endregion
 
@@ -235,6 +275,7 @@ namespace SchedulerWpfApp.ViewModel
         public ICommand CreateBackupCommand { get; }
         public ICommand CreateLocalBackupCommand { get; }
         public ICommand RestoreBackupCommand { get; }
+        public ICommand SyncBackupCommand { get; }
         public ICommand DeleteBackupCommand { get; }
         public ICommand RefreshBackupsCommand { get; }
         public ICommand CancelOperationCommand { get; }
@@ -261,13 +302,15 @@ namespace SchedulerWpfApp.ViewModel
             // Initialize progress objects
             _backupProgress = new BackupProgress();
             _restoreProgress = new RestoreProgress();
-            _statusMessage = "Ready";
+            _syncProgress = new RestoreProgress();
+            _statusMessage = "Sẵn sàng";
 
             // Initialize commands
             PrepareBackupCommand = new RelayCommand(async () => await PrepareBackupAsync(), () => CanPrepareBackup);
             CreateBackupCommand = new RelayCommand(async () => await CreateBackupAsync(), () => CanCreateBackup);
             CreateLocalBackupCommand = new RelayCommand(async () => await CreateLocalBackupAsync(), () => CanCreateLocalBackup);
             RestoreBackupCommand = new RelayCommand(async () => await RestoreBackupAsync(), () => CanRestore);
+            SyncBackupCommand = new RelayCommand(async () => await SyncBackupAsync(), () => CanSync);
             DeleteBackupCommand = new RelayCommand(async () => await DeleteBackupAsync(), () => CanDelete);
             RefreshBackupsCommand = new RelayCommand(async () => await RefreshBackupsAsync(), () => CanRefresh);
             CancelOperationCommand = new RelayCommand(CancelOperation, () => CanCancel);
@@ -352,14 +395,14 @@ namespace SchedulerWpfApp.ViewModel
                 _logger.LogInformation("Initiating ABSOLUTE database disconnection for backup...");
 
                 // Phase 1: Standard preparation
-                StatusMessage = "Closing database connections...";
+                StatusMessage = "Đang đóng kết nối cơ sở dữ liệu...";
                 await PrepareForBackupOperations();
 
                 // Phase 2: Multiple rounds of aggressive disconnection
                 const int maxDisconnectionRounds = 3;
                 for (int round = 1; round <= maxDisconnectionRounds; round++)
                 {
-                    StatusMessage = $"Ensuring database disconnection (round {round}/{maxDisconnectionRounds})...";
+                    StatusMessage = $"Đảm bảo ngắt kết nối cơ sở dữ liệu (lần {round}/{maxDisconnectionRounds})...";
                     _logger.LogDebug("Database disconnection round {Round}/{MaxRounds}", round, maxDisconnectionRounds);
 
                     // Call the backup service's preparation method with cancellation token
@@ -379,7 +422,7 @@ namespace SchedulerWpfApp.ViewModel
                 }
 
                 // Phase 3: Final verification that database is completely free
-                StatusMessage = "Verifying database is ready for backup...";
+                StatusMessage = "Đang xác minh cơ sở dữ liệu sẵn sàng sao lưu...";
                 _logger.LogDebug("Performing final database readiness verification...");
 
                 // Wait additional time for any lingering processes
@@ -391,7 +434,7 @@ namespace SchedulerWpfApp.ViewModel
                 GC.Collect();
 
                 _logger.LogInformation("ABSOLUTE database disconnection completed successfully");
-                StatusMessage = "Database ready for backup operations";
+                StatusMessage = "Cơ sở dữ liệu sẵn sàng để sao lưu";
 
                 // Small delay before proceeding to backup
                 await Task.Delay(200, _cancellationTokenSource?.Token ?? CancellationToken.None);
@@ -405,7 +448,7 @@ namespace SchedulerWpfApp.ViewModel
             {
                 _logger.LogError(ex, "Error during absolute database disconnection");
                 // Don't throw here - let backup attempt proceed and handle any file lock issues
-                StatusMessage = "Database disconnection completed with warnings";
+                StatusMessage = "Ngắt kết nối cơ sở dữ liệu hoàn thành với cảnh báo";
             }
         }
 
@@ -614,7 +657,7 @@ namespace SchedulerWpfApp.ViewModel
                 var saveDialog = new Microsoft.Win32.SaveFileDialog
                 {
                     Title = "Chọn vị trí lưu file sao lưu",
-                    Filter = "SQLite Database Files (*.sqlite)|*.sqlite|Database Files (*.db)|*.db|All Files (*.*)|*.*",
+                    Filter = "Tệp cơ sở dữ liệu SQLite (*.sqlite)|*.sqlite|Tệp cơ sở dữ liệu (*.db)|*.db|Tất cả tệp (*.*)|*.*",
                     DefaultExt = "sqlite",
                     FileName = $"backup_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.sqlite"
                 };
@@ -687,10 +730,10 @@ namespace SchedulerWpfApp.ViewModel
 
             // Confirm with user before proceeding
             var result = MessageBox.Show(
-                $"This will replace your current database with the backup from {SelectedBackup.FormattedDate}.\n\n" +
-                "A safety backup will be created before the restore operation.\n\n" +
-                "Do you want to continue?",
-                "Confirm Database Restore",
+                $"Điều này sẽ thay thế cơ sở dữ liệu hiện tại bằng bản sao lưu từ {SelectedBackup.FormattedDate}.\n\n" +
+                "Một bản sao lưu an toàn sẽ được tạo trước khi khôi phục.\n\n" +
+                "Bạn có muốn tiếp tục?",
+                "Xác nhận khôi phục cơ sở dữ liệu",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
@@ -699,13 +742,13 @@ namespace SchedulerWpfApp.ViewModel
             try
             {
                 IsRestoreInProgress = true;
-                StatusMessage = "Preparing database for restore...";
+                StatusMessage = "Đang chuẩn bị khôi phục cơ sở dữ liệu...";
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 // CRITICAL: Ensure ABSOLUTE disconnection from database before restore
                 await EnsureAbsoluteDatabaseDisconnection();
 
-                StatusMessage = "Restoring database...";
+                StatusMessage = "Đang khôi phục cơ sở dữ liệu...";
                 var progress = new Progress<RestoreProgress>(p =>
                 {
                     Application.Current.Dispatcher.Invoke(() =>
@@ -722,30 +765,30 @@ namespace SchedulerWpfApp.ViewModel
 
                 if (restoreResult.Success)
                 {
-                    StatusMessage = $"Database restored successfully from {SelectedBackup.Filename}";
+                    StatusMessage = $"Khôi phục thành công từ {SelectedBackup.Filename}";
                     MessageBox.Show(
-                        "Database restored successfully!\n\nThe application will need to restart to reflect the changes.",
-                        "Restore Successful",
+                        "Khôi phục cơ sở dữ liệu thành công!\n\nỨng dụng cần khởi động lại để áp dụng các thay đổi.",
+                        "Khôi phục thành công",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                 }
                 else
                 {
-                    StatusMessage = $"Restore failed: {restoreResult.Message}";
+                    StatusMessage = $"Khôi phục thất bại: {restoreResult.Message}";
                     if (restoreResult.RollbackPerformed)
                     {
                         MessageBox.Show(
-                            "Restore failed, but your original database has been restored.\n\n" +
-                            $"Error: {restoreResult.Message}",
-                            "Restore Failed - Database Restored",
+                            "Khôi phục thất bại, nhưng cơ sở dữ liệu gốc đã được khôi phục.\n\n" +
+                            $"Lỗi: {restoreResult.Message}",
+                            "Khôi phục thất bại - Cơ sở dữ liệu đã được khôi phục",
                             MessageBoxButton.OK,
                             MessageBoxImage.Warning);
                     }
                     else
                     {
                         MessageBox.Show(
-                            $"Restore failed: {restoreResult.Message}",
-                            "Restore Failed",
+                            $"Khôi phục thất bại: {restoreResult.Message}",
+                            "Khôi phục thất bại",
                             MessageBoxButton.OK,
                             MessageBoxImage.Error);
                     }
@@ -753,18 +796,110 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (OperationCanceledException)
             {
-                StatusMessage = "Restore operation cancelled";
+                StatusMessage = "Quá trình khôi phục đã bị hủy";
                 _logger.LogInformation("Restore operation was cancelled by user");
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Restore failed: {ex.Message}";
+                StatusMessage = $"Khôi phục thất bại: {ex.Message}";
                 _logger.LogError(ex, "Unexpected error during restore operation");
-                _notificationService.ShowError($"Restore failed: {ex.Message}");
+                _notificationService.ShowError($"Khôi phục thất bại: {ex.Message}");
             }
             finally
             {
                 IsRestoreInProgress = false;
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = null;
+            }
+        }
+
+        /// <summary>
+        /// Synchronizes the database to the selected backup version
+        /// </summary>
+        private async Task SyncBackupAsync()
+        {
+            if (SelectedBackup == null) return;
+
+            // Confirm with user before proceeding
+            var result = MessageBox.Show(
+                $"Đồng bộ cơ sở dữ liệu về phiên bản từ {SelectedBackup.FormattedDate}?\n\n" +
+                "Một bản sao lưu an toàn sẽ được tạo trước khi đồng bộ.\n\n" +
+                "Bạn có muốn tiếp tục?",
+                "Xác nhận đồng bộ cơ sở dữ liệu",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                IsSyncInProgress = true;
+                StatusMessage = "Đang chuẩn bị đồng bộ cơ sở dữ liệu...";
+                _cancellationTokenSource = new CancellationTokenSource();
+
+                // CRITICAL: Ensure ABSOLUTE disconnection from database before sync
+                await EnsureAbsoluteDatabaseDisconnection();
+
+                StatusMessage = "Đang đồng bộ cơ sở dữ liệu...";
+                var progress = new Progress<RestoreProgress>(p =>
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        SyncProgress = p;
+                        StatusMessage = p.CurrentOperation;
+                    });
+                });
+
+                var syncResult = await _backupRestoreService.SyncToVersionAsync(
+                    SelectedBackup.Filename,
+                    progress,
+                    _cancellationTokenSource.Token);
+
+                if (syncResult.Success)
+                {
+                    StatusMessage = $"Đồng bộ thành công đến phiên bản {SelectedBackup.Filename}";
+                    MessageBox.Show(
+                        "Đồng bộ cơ sở dữ liệu thành công!\n\nỨng dụng cần khởi động lại để áp dụng các thay đổi.",
+                        "Đồng bộ thành công",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+                else
+                {
+                    StatusMessage = $"Đồng bộ thất bại: {syncResult.Message}";
+                    if (syncResult.RollbackPerformed)
+                    {
+                        MessageBox.Show(
+                            "Đồng bộ thất bại, nhưng cơ sở dữ liệu gốc đã được khôi phục.\n\n" +
+                            $"Lỗi: {syncResult.Message}",
+                            "Đồng bộ thất bại - Cơ sở dữ liệu đã được khôi phục",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            $"Đồng bộ thất bại: {syncResult.Message}",
+                            "Đồng bộ thất bại",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                StatusMessage = "Quá trình đồng bộ đã bị hủy";
+                _logger.LogInformation("Sync operation was cancelled by user");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Đồng bộ thất bại: {ex.Message}";
+                _logger.LogError(ex, "Unexpected error during sync operation");
+                _notificationService.ShowError($"Đồng bộ thất bại: {ex.Message}");
+            }
+            finally
+            {
+                IsSyncInProgress = false;
                 _cancellationTokenSource?.Dispose();
                 _cancellationTokenSource = null;
             }
@@ -778,8 +913,8 @@ namespace SchedulerWpfApp.ViewModel
             if (SelectedBackup == null) return;
 
             var result = MessageBox.Show(
-                $"Are you sure you want to delete the backup '{SelectedBackup.Filename}'?\n\nThis action cannot be undone.",
-                "Confirm Delete",
+                $"Bạn có chắc chắn muốn xóa bản sao lưu '{SelectedBackup.Filename}'?\n\nHành động này không thể hoàn tác.",
+                "Xác nhận xóa",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -787,24 +922,24 @@ namespace SchedulerWpfApp.ViewModel
 
             try
             {
-                StatusMessage = $"Deleting backup {SelectedBackup.Filename}...";
+                StatusMessage = $"Đang xóa sao lưu {SelectedBackup.Filename}...";
                 var success = await _backupRestoreService.DeleteBackupAsync(SelectedBackup.Filename);
 
                 if (success)
                 {
-                    StatusMessage = $"Backup {SelectedBackup.Filename} deleted successfully";
+                    StatusMessage = $"Đã xóa thành công sao lưu {SelectedBackup.Filename}";
                     await RefreshBackupsAsync();
                 }
                 else
                 {
-                    StatusMessage = $"Failed to delete backup {SelectedBackup.Filename}";
+                    StatusMessage = $"Không thể xóa sao lưu {SelectedBackup.Filename}";
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error deleting backup: {ex.Message}";
+                StatusMessage = $"Lỗi khi xóa sao lưu: {ex.Message}";
                 _logger.LogError(ex, "Error deleting backup {Filename}", SelectedBackup.Filename);
-                _notificationService.ShowError($"Failed to delete backup: {ex.Message}");
+                _notificationService.ShowError($"Không thể xóa sao lưu: {ex.Message}");
             }
         }
 
@@ -816,7 +951,7 @@ namespace SchedulerWpfApp.ViewModel
             try
             {
                 IsLoading = true;
-                StatusMessage = "Loading backups...";
+                StatusMessage = "Đang tải danh sách sao lưu...";
 
                 var backups = await _backupRestoreService.GetBackupListAsync();
 
@@ -832,7 +967,7 @@ namespace SchedulerWpfApp.ViewModel
                         }
 
                         OnPropertyChanged(nameof(BackupCountText));
-                        StatusMessage = $"Loaded {backups.Count} backup(s)";
+                        StatusMessage = $"Đã tải {backups.Count} bản sao lưu";
                     });
                 }
                 else
@@ -845,12 +980,12 @@ namespace SchedulerWpfApp.ViewModel
                     }
 
                     OnPropertyChanged(nameof(BackupCountText));
-                    StatusMessage = $"Loaded {backups.Count} backup(s)";
+                    StatusMessage = $"Đã tải {backups.Count} bản sao lưu";
                 }
             }
             catch (System.Net.Http.HttpRequestException httpEx) when (httpEx.Message.Contains("NotFound"))
             {
-                StatusMessage = "Backup service not available - server may not be running";
+                StatusMessage = "Dịch vụ sao lưu không khả dụng - server có thể chưa chạy";
                 _logger.LogWarning("Backup service endpoint not found. Server may not be running or endpoint may not exist.");
 
                 if (Application.Current?.Dispatcher != null)
@@ -867,13 +1002,13 @@ namespace SchedulerWpfApp.ViewModel
             {
                 if (authEx.Message.Contains("Authentication failed"))
                 {
-                    StatusMessage = "Session expired - please logout and login again";
+                    StatusMessage = "Phiên làm việc đã hết hạn - vui lòng đăng xuất và đăng nhập lại";
                     _logger.LogWarning("Token refresh failed, user needs to re-authenticate");
-                    _notificationService.ShowWarning("Your session has expired and could not be refreshed. Please logout and login again.");
+                    _notificationService.ShowWarning("Phiên làm việc của bạn đã hết hạn và không thể làm mới. Vui lòng đăng xuất và đăng nhập lại.");
                 }
                 else
                 {
-                    StatusMessage = "Authentication required - please login";
+                    StatusMessage = "Cần xác thực - vui lòng đăng nhập";
                     _logger.LogWarning("User is not authenticated for backup operations");
                 }
 
@@ -888,9 +1023,9 @@ namespace SchedulerWpfApp.ViewModel
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Failed to load backups: {ex.Message}";
+                StatusMessage = $"Không thể tải danh sách sao lưu: {ex.Message}";
                 _logger.LogError(ex, "Error refreshing backup list");
-                _notificationService.ShowError($"Failed to load backups: {ex.Message}");
+                _notificationService.ShowError($"Không thể tải danh sách sao lưu: {ex.Message}");
 
                 if (Application.Current?.Dispatcher != null)
                 {

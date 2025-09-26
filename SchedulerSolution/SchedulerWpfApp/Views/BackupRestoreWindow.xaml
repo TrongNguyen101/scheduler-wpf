@@ -4,11 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Database Backup &amp; Restore"
-        Height="700"
-        Width="900"
-        MinHeight="600"
-        MinWidth="800"
+        Title="Sao lưu &amp; Khôi phục Cơ sở dữ liệu"
+        Height="750"
+        Width="1000"
+        MinHeight="650"
+        MinWidth="900"
         WindowStartupLocation="CenterScreen"
         Icon="/Images/Logo/Schedule.png">
 
@@ -42,11 +42,11 @@
                 <Style x:Key="ActionButtonStyle"
                        TargetType="Button">
                         <Setter Property="Padding"
-                                Value="15,8"/>
+                                Value="12,6"/>
                         <Setter Property="Margin"
-                                Value="5"/>
+                                Value="3"/>
                         <Setter Property="FontSize"
-                                Value="12"/>
+                                Value="11"/>
                         <Setter Property="FontWeight"
                                 Value="SemiBold"/>
                         <Setter Property="BorderThickness"
@@ -98,9 +98,9 @@
                 <Style x:Key="ProgressBarStyle"
                        TargetType="ProgressBar">
                         <Setter Property="Height"
-                                Value="20"/>
+                                Value="15"/>
                         <Setter Property="Margin"
-                                Value="0,5"/>
+                                Value="0,3"/>
                         <Setter Property="BorderThickness"
                                 Value="1"/>
                         <Setter Property="BorderBrush"
@@ -108,7 +108,7 @@
                 </Style>
         </Window.Resources>
 
-        <Grid Margin="20">
+        <Grid Margin="15">
                 <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -118,154 +118,287 @@
 
                 <!-- Header Section -->
                 <StackPanel Grid.Row="0"
-                            Margin="0,0,0,20">
-                        <TextBlock Text="Database Backup &amp; Restore - Server Storage"
+                            Margin="0,0,0,15">
+                        <TextBlock Text="Sao lưu &amp; Khôi phục Cơ sở dữ liệu - Lưu trữ Server"
                                    Style="{StaticResource HeaderTextStyle}"
-                                   FontSize="20"/>
+                                   FontSize="18"/>
                         <TextBlock Style="{StaticResource InfoTextStyle}">
-                <Run Text="Current User: "/>
+                <Run Text="Người dùng hiện tại: "/>
                 <Run Text="{Binding CurrentUser, Mode=OneWay}"
                                 FontWeight="SemiBold"/>
                         </TextBlock>
                         <TextBlock Text="{Binding BackupCountText}"
                                    Style="{StaticResource InfoTextStyle}"/>
-                        <TextBlock Text="All backups are securely stored on the server and can be accessed from any location."
+                        <TextBlock Text="Tất cả bản sao lưu đều được lưu trữ an toàn trên server và có thể truy cập từ mọi vị trí."
                                    Style="{StaticResource InfoTextStyle}"
                                    FontStyle="Italic"/>
                 </StackPanel>
 
-                <!-- Main Content -->
-                <Grid Grid.Row="1">
-                        <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                <!-- Main Content with ScrollViewer -->
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Auto">
+                        <Grid>
+                                <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.8*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="1.2*"/>
+                                </Grid.ColumnDefinitions>
 
-                        <!-- Backup List Section -->
-                        <GroupBox Grid.Column="0"
-                                  Header="Server Backups"
-                                  Margin="0,0,10,0">
-                                <Grid>
-                                        <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
+                                <!-- Backup List Section -->
+                                <GroupBox Grid.Column="0"
+                                          Header="Danh sách sao lưu trên Server"
+                                          Margin="0,0,10,0">
+                                        <Grid>
+                                                <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
 
-                                        <!-- Refresh Button -->
-                                        <Button Grid.Row="0"
-                                                Content="🔄 Refresh from Server"
-                                                Command="{Binding RefreshBackupsCommand}"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                HorizontalAlignment="Right"
-                                                Margin="0,0,0,10"/>
+                                                <!-- Refresh Button -->
+                                                <Button Grid.Row="0"
+                                                        Content="🔄 Làm mới từ Server"
+                                                        Command="{Binding RefreshBackupsCommand}"
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        HorizontalAlignment="Right"
+                                                        Margin="0,0,0,10"/>
 
-                                        <!-- Backup List -->
-                                        <DataGrid Grid.Row="1"
-                                                  ItemsSource="{Binding AvailableBackups}"
-                                                  SelectedItem="{Binding SelectedBackup}"
-                                                  AutoGenerateColumns="False"
-                                                  IsReadOnly="True"
-                                                  SelectionMode="Single"
-                                                  GridLinesVisibility="Horizontal"
-                                                  HeadersVisibility="Column"
-                                                  AlternatingRowBackground="#F8F9FA">
+                                                <!-- Backup List -->
+                                                <DataGrid Grid.Row="1"
+                                                          ItemsSource="{Binding AvailableBackups}"
+                                                          SelectedItem="{Binding SelectedBackup}"
+                                                          AutoGenerateColumns="False"
+                                                          IsReadOnly="True"
+                                                          SelectionMode="Single"
+                                                          GridLinesVisibility="Horizontal"
+                                                          HeadersVisibility="Column"
+                                                          AlternatingRowBackground="#F8F9FA"
+                                                          RowHeight="32"
+                                                          ColumnHeaderHeight="35"
+                                                          CanUserResizeColumns="True"
+                                                          CanUserReorderColumns="False"
+                                                          CanUserSortColumns="True"
+                                                          HorizontalScrollBarVisibility="Auto"
+                                                          ScrollViewer.CanContentScroll="True"
+                                                          EnableColumnVirtualization="True"
+                                                          FrozenColumnCount="0"
+                                                          EnableRowVirtualization="True">
 
-                                                <DataGrid.Columns>
-                                                        <DataGridTextColumn Header="Filename"
-                                                                            Binding="{Binding Filename}"
-                                                                            Width="*"
-                                                                            MinWidth="200"/>
-                                                        <DataGridTextColumn Header="Upload Date"
-                                                                            Binding="{Binding FormattedDate}"
-                                                                            Width="140"/>
-                                                        <DataGridTextColumn Header="Size"
-                                                                            Binding="{Binding FormattedSize}"
-                                                                            Width="80"/>
-                                                </DataGrid.Columns>
+                                                        <DataGrid.ColumnHeaderStyle>
+                                                                <Style TargetType="DataGridColumnHeader">
+                                                                        <Setter Property="Background"
+                                                                                Value="#ECF0F1"/>
+                                                                        <Setter Property="Foreground"
+                                                                                Value="#2C3E50"/>
+                                                                        <Setter Property="FontWeight"
+                                                                                Value="SemiBold"/>
+                                                                        <Setter Property="FontSize"
+                                                                                Value="12"/>
+                                                                        <Setter Property="Padding"
+                                                                                Value="8,6"/>
+                                                                        <Setter Property="BorderBrush"
+                                                                                Value="#BDC3C7"/>
+                                                                        <Setter Property="BorderThickness"
+                                                                                Value="0,0,1,1"/>
+                                                                        <Setter Property="HorizontalContentAlignment"
+                                                                                Value="Left"/>
+                                                                        <Setter Property="SeparatorBrush"
+                                                                                Value="#BDC3C7"/>
+                                                                        <Setter Property="SeparatorVisibility"
+                                                                                Value="Visible"/>
+                                                                        <Style.Triggers>
+                                                                                <Trigger Property="IsMouseOver"
+                                                                                         Value="True">
+                                                                                        <Setter Property="Background"
+                                                                                                Value="#D5DBDB"/>
+                                                                                        <Setter Property="Cursor"
+                                                                                                Value="SizeWE"/>
+                                                                                </Trigger>
+                                                                        </Style.Triggers>
+                                                                </Style>
+                                                        </DataGrid.ColumnHeaderStyle>
 
-                                                <DataGrid.RowStyle>
-                                                        <Style TargetType="DataGridRow">
-                                                                <Setter Property="Cursor"
-                                                                        Value="Hand"/>
-                                                                <Style.Triggers>
-                                                                        <Trigger Property="IsMouseOver"
-                                                                                 Value="True">
-                                                                                <Setter Property="Background"
-                                                                                        Value="#ECF0F1"/>
-                                                                        </Trigger>
-                                                                </Style.Triggers>
-                                                        </Style>
-                                                </DataGrid.RowStyle>
-                                        </DataGrid>
+                                                        <DataGrid.Columns>
+                                                                <DataGridTextColumn Header="Tên tập tin"
+                                                                                    Binding="{Binding Filename}"
+                                                                                    Width="280"
+                                                                                    MinWidth="150"
+                                                                                    MaxWidth="500"
+                                                                                    CanUserResize="True">
+                                                                        <DataGridTextColumn.ElementStyle>
+                                                                                <Style TargetType="TextBlock">
+                                                                                        <Setter Property="Margin"
+                                                                                                Value="8,4"/>
+                                                                                        <Setter Property="TextTrimming"
+                                                                                                Value="CharacterEllipsis"/>
+                                                                                        <Setter Property="ToolTip"
+                                                                                                Value="{Binding Filename}"/>
+                                                                                        <Setter Property="VerticalAlignment"
+                                                                                                Value="Center"/>
+                                                                                </Style>
+                                                                        </DataGridTextColumn.ElementStyle>
+                                                                </DataGridTextColumn>
+                                                                <DataGridTextColumn Header="Ngày tải lên"
+                                                                                    Binding="{Binding FormattedDate}"
+                                                                                    Width="160"
+                                                                                    MinWidth="120"
+                                                                                    MaxWidth="200"
+                                                                                    CanUserResize="True">
+                                                                        <DataGridTextColumn.ElementStyle>
+                                                                                <Style TargetType="TextBlock">
+                                                                                        <Setter Property="Margin"
+                                                                                                Value="8,4"/>
+                                                                                        <Setter Property="HorizontalAlignment"
+                                                                                                Value="Center"/>
+                                                                                        <Setter Property="VerticalAlignment"
+                                                                                                Value="Center"/>
+                                                                                </Style>
+                                                                        </DataGridTextColumn.ElementStyle>
+                                                                </DataGridTextColumn>
+                                                                <DataGridTextColumn Header="Kích thước"
+                                                                                    Binding="{Binding FormattedSize}"
+                                                                                    Width="110"
+                                                                                    MinWidth="80"
+                                                                                    MaxWidth="150"
+                                                                                    CanUserResize="True">
+                                                                        <DataGridTextColumn.ElementStyle>
+                                                                                <Style TargetType="TextBlock">
+                                                                                        <Setter Property="Margin"
+                                                                                                Value="8,4"/>
+                                                                                        <Setter Property="HorizontalAlignment"
+                                                                                                Value="Right"/>
+                                                                                        <Setter Property="VerticalAlignment"
+                                                                                                Value="Center"/>
+                                                                                </Style>
+                                                                        </DataGridTextColumn.ElementStyle>
+                                                                </DataGridTextColumn>
+                                                        </DataGrid.Columns>
 
-                                        <!-- Loading Indicator -->
-                                        <StackPanel Grid.Row="1"
-                                                    VerticalAlignment="Center"
-                                                    HorizontalAlignment="Center"
-                                                    Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                <ProgressBar IsIndeterminate="True"
-                                                             Width="200"
-                                                             Height="20"
-                                                             Margin="0,0,0,10"/>
-                                                <TextBlock Text="Loading server backups..."
-                                                           HorizontalAlignment="Center"
-                                                           Style="{StaticResource InfoTextStyle}"/>
-                                        </StackPanel>
-                                </Grid>
-                        </GroupBox>
+                                                        <DataGrid.RowStyle>
+                                                                <Style TargetType="DataGridRow">
+                                                                        <Setter Property="Cursor"
+                                                                                Value="Hand"/>
+                                                                        <Setter Property="Margin"
+                                                                                Value="0"/>
+                                                                        <Setter Property="Padding"
+                                                                                Value="0"/>
+                                                                        <Setter Property="BorderThickness"
+                                                                                Value="0,0,0,1"/>
+                                                                        <Setter Property="BorderBrush"
+                                                                                Value="#E8EAED"/>
+                                                                        <Style.Triggers>
+                                                                                <Trigger Property="IsMouseOver"
+                                                                                         Value="True">
+                                                                                        <Setter Property="Background"
+                                                                                                Value="#E3F2FD"/>
+                                                                                </Trigger>
+                                                                                <Trigger Property="IsSelected"
+                                                                                         Value="True">
+                                                                                        <Setter Property="Background"
+                                                                                                Value="#BBDEFB"/>
+                                                                                        <Setter Property="BorderBrush"
+                                                                                                Value="#2196F3"/>
+                                                                                </Trigger>
+                                                                        </Style.Triggers>
+                                                                </Style>
+                                                        </DataGrid.RowStyle>
 
-                        <!-- Splitter -->
-                        <GridSplitter Grid.Column="1"
-                                      Width="5"
-                                      HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Stretch"
-                                      Background="#BDC3C7"/>
+                                                        <DataGrid.CellStyle>
+                                                                <Style TargetType="DataGridCell">
+                                                                        <Setter Property="BorderThickness"
+                                                                                Value="0"/>
+                                                                        <Setter Property="FocusVisualStyle"
+                                                                                Value="{x:Null}"/>
+                                                                        <Setter Property="Template">
+                                                                                <Setter.Value>
+                                                                                        <ControlTemplate TargetType="DataGridCell">
+                                                                                                <Border Background="{TemplateBinding Background}"
+                                                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                                                        Padding="2">
+                                                                                                        <ContentPresenter VerticalAlignment="Center"/>
+                                                                                                </Border>
+                                                                                        </ControlTemplate>
+                                                                                </Setter.Value>
+                                                                        </Setter>
+                                                                </Style>
+                                                        </DataGrid.CellStyle>
+                                                </DataGrid>
 
-                        <!-- Actions Section -->
-                        <GroupBox Grid.Column="2"
-                                  Header="Actions"
-                                  Margin="10,0,0,0">
-                                <StackPanel>
-
-                                        <!-- Create Backup Section -->
-                                        <Border BorderBrush="#BDC3C7"
-                                                BorderThickness="1"
-                                                Padding="15"
-                                                Margin="0,0,0,15"
-                                                CornerRadius="5">
-                                                <StackPanel>
-                                                        <TextBlock Text="Tạo lịch sử"
-                                                                   Style="{StaticResource HeaderTextStyle}"
-                                                                   FontSize="14"/>
-                                                        <TextBlock Text="Creates a backup of your current database and uploads it to the server for safe storage."
-                                                                   TextWrapping="Wrap"
-                                                                   Style="{StaticResource InfoTextStyle}"
-                                                                   Margin="0,0,0,10"/>
-
-                                                        <Button Content="☁️ Create Server Backup"
-                                                                Command="{Binding CreateBackupCommand}"
-                                                                Style="{StaticResource PrimaryButtonStyle}"
-                                                                HorizontalAlignment="Stretch"/>
-
-                                                        <!-- Backup Progress -->
-                                                        <StackPanel Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                                    Margin="0,10,0,0">
-                                                                <TextBlock Text="{Binding BackupProgress.CurrentOperation}"
-                                                                           FontSize="11"
-                                                                           Margin="0,0,0,5"/>
-                                                                <ProgressBar Value="{Binding BackupProgress.PercentComplete}"
-                                                                             Maximum="100"
-                                                                             Style="{StaticResource ProgressBarStyle}"/>
-                                                                <TextBlock Text="{Binding BackupProgress.Status}"
-                                                                           FontSize="10"
-                                                                           HorizontalAlignment="Center"
-                                                                           Foreground="#7F8C8D"/>
-                                                        </StackPanel>
+                                                <!-- Loading Indicator -->
+                                                <StackPanel Grid.Row="1"
+                                                            VerticalAlignment="Center"
+                                                            HorizontalAlignment="Center"
+                                                            Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <ProgressBar IsIndeterminate="True"
+                                                                     Width="200"
+                                                                     Height="20"
+                                                                     Margin="0,0,0,10"/>
+                                                        <TextBlock Text="Đang tải danh sách sao lưu từ server..."
+                                                                   HorizontalAlignment="Center"
+                                                                   Style="{StaticResource InfoTextStyle}"/>
                                                 </StackPanel>
-                                        </Border>
+                                        </Grid>
+                                </GroupBox>
 
-                                        <!-- Local Backup Section --><!--
+                                <!-- Splitter -->
+                                <GridSplitter Grid.Column="1"
+                                              Width="5"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              Background="#BDC3C7"/>
+
+                                <!-- Actions Section -->
+                                <GroupBox Grid.Column="2"
+                                          Header="Thao tác"
+                                          Margin="10,0,0,0">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                      MaxHeight="500">
+                                                <StackPanel>
+
+                                                        <!-- Create Backup Section -->
+                                                        <Border BorderBrush="#BDC3C7"
+                                                                BorderThickness="1"
+                                                                Padding="12"
+                                                                Margin="0,0,0,12"
+                                                                CornerRadius="5">
+                                                                <StackPanel>
+                                                                        <TextBlock Text="Tạo sao lưu"
+                                                                                   Style="{StaticResource HeaderTextStyle}"
+                                                                                   FontSize="13"/>
+                                                                        <TextBlock Text="Tạo bản sao lưu của cơ sở dữ liệu hiện tại và tải lên server để lưu trữ an toàn."
+                                                                                   TextWrapping="Wrap"
+                                                                                   Style="{StaticResource InfoTextStyle}"
+                                                                                   Margin="0,0,0,8"
+                                                                                   FontSize="11"/>
+
+                                                                        <Button Content="☁️ Tạo sao lưu trên Server"
+                                                                                Command="{Binding CreateBackupCommand}"
+                                                                                Style="{StaticResource PrimaryButtonStyle}"
+                                                                                HorizontalAlignment="Stretch"
+                                                                                Padding="10,6"
+                                                                                FontSize="11"/>
+
+                                                                        <!-- Backup Progress -->
+                                                                        <StackPanel Visibility="{Binding IsBackupInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                                    Margin="0,8,0,0">
+                                                                                <TextBlock Text="{Binding BackupProgress.CurrentOperation}"
+                                                                                           FontSize="10"
+                                                                                           Margin="0,0,0,3"/>
+                                                                                <ProgressBar Value="{Binding BackupProgress.PercentComplete}"
+                                                                                             Maximum="100"
+                                                                                             Style="{StaticResource ProgressBarStyle}"
+                                                                                             Height="15"/>
+                                                                                <TextBlock Text="{Binding BackupProgress.Status}"
+                                                                                           FontSize="9"
+                                                                                           HorizontalAlignment="Center"
+                                                                                           Foreground="#7F8C8D"/>
+                                                                        </StackPanel>
+                                                                </StackPanel>
+                                                        </Border>
+
+                                                        <!-- Local Backup Section -->
+                                                        <!--
                                         <Border BorderBrush="#27AE60"
                                                 BorderThickness="1"
                                                 Padding="15"
@@ -289,95 +422,158 @@
                                                 </StackPanel>
                                         </Border>-->
 
-                                        <!-- Restore Backup Section -->
-                                        <Border BorderBrush="#BDC3C7"
-                                                BorderThickness="1"
-                                                Padding="15"
-                                                Margin="0,0,0,15"
-                                                CornerRadius="5">
-                                                <StackPanel>
-                                                        <TextBlock Text="Restore from Backup"
-                                                                   Style="{StaticResource HeaderTextStyle}"
-                                                                   FontSize="14"/>
-                                                        <TextBlock Text="Restores your database from the selected backup. A safety backup will be created first."
-                                                                   TextWrapping="Wrap"
-                                                                   Style="{StaticResource InfoTextStyle}"
-                                                                   Margin="0,0,0,10"/>
+                                                        <!-- Restore Backup Section -->
+                                                        <Border BorderBrush="#BDC3C7"
+                                                                BorderThickness="1"
+                                                                Padding="12"
+                                                                Margin="0,0,0,12"
+                                                                CornerRadius="5">
+                                                                <StackPanel>
+                                                                        <TextBlock Text="Khôi phục từ Sao lưu"
+                                                                                   Style="{StaticResource HeaderTextStyle}"
+                                                                                   FontSize="13"/>
+                                                                        <TextBlock Text="Khôi phục cơ sở dữ liệu từ bản sao lưu đã chọn. Một bản sao lưu an toàn sẽ được tạo trước."
+                                                                                   TextWrapping="Wrap"
+                                                                                   Style="{StaticResource InfoTextStyle}"
+                                                                                   Margin="0,0,0,8"
+                                                                                   FontSize="11"/>
 
-                                                        <Button Content="🔄 Restore Database"
-                                                                Command="{Binding RestoreBackupCommand}"
-                                                                Style="{StaticResource PrimaryButtonStyle}"
-                                                                HorizontalAlignment="Stretch"/>
+                                                                        <Button Content="🔄 Khôi phục Cơ sở dữ liệu"
+                                                                                Command="{Binding RestoreBackupCommand}"
+                                                                                Style="{StaticResource PrimaryButtonStyle}"
+                                                                                HorizontalAlignment="Stretch"
+                                                                                Padding="10,6"
+                                                                                FontSize="11"/>
 
-                                                        <!-- Restore Progress -->
-                                                        <StackPanel Visibility="{Binding IsRestoreInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                                    Margin="0,10,0,0">
-                                                                <TextBlock Text="{Binding RestoreProgress.CurrentOperation}"
-                                                                           FontSize="11"
-                                                                           Margin="0,0,0,5"/>
-                                                                <ProgressBar Value="{Binding RestoreProgress.PercentComplete}"
-                                                                             Maximum="100"
-                                                                             Style="{StaticResource ProgressBarStyle}"/>
-                                                                <TextBlock Text="{Binding RestoreProgress.Status}"
-                                                                           FontSize="10"
-                                                                           HorizontalAlignment="Center"
-                                                                           Foreground="#7F8C8D"/>
-                                                                <!-- Validation Message -->
-                                                                <TextBlock Text="{Binding RestoreProgress.ValidationMessage}"
-                                                                           FontSize="10"
-                                                                           HorizontalAlignment="Center"
-                                                                           Foreground="#E67E22"
-                                                                           Visibility="{Binding RestoreProgress.IsValidating, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                        </StackPanel>
+                                                                        <!-- Restore Progress -->
+                                                                        <StackPanel Visibility="{Binding IsRestoreInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                                    Margin="0,8,0,0">
+                                                                                <TextBlock Text="{Binding RestoreProgress.CurrentOperation}"
+                                                                                           FontSize="10"
+                                                                                           Margin="0,0,0,3"/>
+                                                                                <ProgressBar Value="{Binding RestoreProgress.PercentComplete}"
+                                                                                             Maximum="100"
+                                                                                             Style="{StaticResource ProgressBarStyle}"
+                                                                                             Height="15"/>
+                                                                                <TextBlock Text="{Binding RestoreProgress.Status}"
+                                                                                           FontSize="9"
+                                                                                           HorizontalAlignment="Center"
+                                                                                           Foreground="#7F8C8D"/>
+                                                                                <!-- Validation Message -->
+                                                                                <TextBlock Text="{Binding RestoreProgress.ValidationMessage}"
+                                                                                           FontSize="9"
+                                                                                           HorizontalAlignment="Center"
+                                                                                           Foreground="#E67E22"
+                                                                                           Visibility="{Binding RestoreProgress.IsValidating, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                        </StackPanel>
+                                                                </StackPanel>
+                                                        </Border>
+
+                                                        <!-- Sync to Version Section -->
+                                                        <Border BorderBrush="#F39C12"
+                                                                BorderThickness="1"
+                                                                Padding="12"
+                                                                Margin="0,0,0,12"
+                                                                CornerRadius="5">
+                                                                <StackPanel>
+                                                                        <TextBlock Text="Đồng bộ phiên bản"
+                                                                                   Style="{StaticResource HeaderTextStyle}"
+                                                                                   FontSize="13"/>
+                                                                        <TextBlock Text="Đồng bộ cơ sở dữ liệu về phiên bản được chọn. Một bản sao lưu an toàn sẽ được tạo trước khi đồng bộ."
+                                                                                   TextWrapping="Wrap"
+                                                                                   Style="{StaticResource InfoTextStyle}"
+                                                                                   Margin="0,0,0,8"
+                                                                                   FontSize="11"/>
+
+                                                                        <Button Content="🔄 Đồng bộ đến phiên bản này"
+                                                                                Command="{Binding SyncBackupCommand}"
+                                                                                Style="{StaticResource ActionButtonStyle}"
+                                                                                HorizontalAlignment="Stretch"
+                                                                                Background="#F39C12"
+                                                                                Foreground="White"
+                                                                                BorderBrush="#E67E22"
+                                                                                Padding="10,6"
+                                                                                FontSize="11"/>
+
+                                                                        <!-- Sync Progress -->
+                                                                        <StackPanel Visibility="{Binding IsSyncInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                                    Margin="0,8,0,0">
+                                                                                <TextBlock Text="{Binding SyncProgress.CurrentOperation}"
+                                                                                           FontSize="10"
+                                                                                           Margin="0,0,0,3"/>
+                                                                                <ProgressBar Value="{Binding SyncProgress.PercentComplete}"
+                                                                                             Maximum="100"
+                                                                                             Style="{StaticResource ProgressBarStyle}"
+                                                                                             Height="15"/>
+                                                                                <TextBlock Text="{Binding SyncProgress.Status}"
+                                                                                           FontSize="9"
+                                                                                           HorizontalAlignment="Center"
+                                                                                           Foreground="#7F8C8D"/>
+                                                                                <!-- Validation Message -->
+                                                                                <TextBlock Text="{Binding SyncProgress.ValidationMessage}"
+                                                                                           FontSize="9"
+                                                                                           HorizontalAlignment="Center"
+                                                                                           Foreground="#E67E22"
+                                                                                           Visibility="{Binding SyncProgress.IsValidating, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                        </StackPanel>
+                                                                </StackPanel>
+                                                        </Border>
+
+                                                        <!-- Delete Backup Section -->
+                                                        <Border BorderBrush="#BDC3C7"
+                                                                BorderThickness="1"
+                                                                Padding="12"
+                                                                Margin="0,0,0,12"
+                                                                CornerRadius="5">
+                                                                <StackPanel>
+                                                                        <TextBlock Text="Xóa Sao lưu"
+                                                                                   Style="{StaticResource HeaderTextStyle}"
+                                                                                   FontSize="13"/>
+                                                                        <TextBlock Text="Xóa vĩnh viễn bản sao lưu đã chọn khỏi server."
+                                                                                   TextWrapping="Wrap"
+                                                                                   Style="{StaticResource InfoTextStyle}"
+                                                                                   Margin="0,0,0,8"
+                                                                                   FontSize="11"/>
+
+                                                                        <Button Content="🗑️ Xóa Sao lưu"
+                                                                                Command="{Binding DeleteBackupCommand}"
+                                                                                Style="{StaticResource DangerButtonStyle}"
+                                                                                HorizontalAlignment="Stretch"
+                                                                                Padding="10,6"
+                                                                                FontSize="11"/>
+                                                                </StackPanel>
+                                                        </Border>
+
+                                                        <!-- Cancel Operation -->
+                                                        <Button Content="❌ Hủy thao tác"
+                                                                Command="{Binding CancelOperationCommand}"
+                                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                                HorizontalAlignment="Stretch"
+                                                                Visibility="{Binding CanCancel, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                Padding="10,6"
+                                                                FontSize="11"
+                                                                Margin="0,5,0,0"/>
                                                 </StackPanel>
-                                        </Border>
-
-                                        <!-- Delete Backup Section -->
-                                        <Border BorderBrush="#BDC3C7"
-                                                BorderThickness="1"
-                                                Padding="15"
-                                                Margin="0,0,0,15"
-                                                CornerRadius="5">
-                                                <StackPanel>
-                                                        <TextBlock Text="Delete Backup"
-                                                                   Style="{StaticResource HeaderTextStyle}"
-                                                                   FontSize="14"/>
-                                                        <TextBlock Text="Permanently deletes the selected backup from the server."
-                                                                   TextWrapping="Wrap"
-                                                                   Style="{StaticResource InfoTextStyle}"
-                                                                   Margin="0,0,0,10"/>
-
-                                                        <Button Content="🗑️ Delete Backup"
-                                                                Command="{Binding DeleteBackupCommand}"
-                                                                Style="{StaticResource DangerButtonStyle}"
-                                                                HorizontalAlignment="Stretch"/>
-                                                </StackPanel>
-                                        </Border>
-
-                                        <!-- Cancel Operation -->
-                                        <Button Content="❌ Cancel Operation"
-                                                Command="{Binding CancelOperationCommand}"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                HorizontalAlignment="Stretch"
-                                                Visibility="{Binding CanCancel, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-
-                                </StackPanel>
-                        </GroupBox>
-                </Grid>
+                                        </ScrollViewer>
+                                </GroupBox>
+                        </Grid>
+                </ScrollViewer>
 
                 <!-- Status Bar -->
                 <Border Grid.Row="2"
                         Background="#ECF0F1"
                         BorderBrush="#BDC3C7"
                         BorderThickness="0,1,0,0"
-                        Padding="10,8"
-                        Margin="-20,20,-20,0">
+                        Padding="8,6"
+                        Margin="-15,15,-15,0">
                         <DockPanel>
                                 <TextBlock DockPanel.Dock="Left"
-                                           Text="Status: "
-                                           FontWeight="SemiBold"/>
+                                           Text="Trạng thái: "
+                                           FontWeight="SemiBold"
+                                           FontSize="11"/>
                                 <TextBlock Text="{Binding StatusMessage}"
-                                           FontStyle="Italic"/>
+                                           FontStyle="Italic"
+                                           FontSize="11"/>
                         </DockPanel>
                 </Border>
 
@@ -385,11 +581,13 @@
                 <StackPanel Grid.Row="3"
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"
-                            Margin="0,15,0,0">
-                        <Button Content="Close"
+                            Margin="0,12,0,0">
+                        <Button Content="Đóng"
                                 Command="{Binding CloseCommand}"
                                 Style="{StaticResource SecondaryButtonStyle}"
-                                Width="100"/>
+                                Width="90"
+                                Padding="10,6"
+                                FontSize="11"/>
                 </StackPanel>
         </Grid>
 </Window>

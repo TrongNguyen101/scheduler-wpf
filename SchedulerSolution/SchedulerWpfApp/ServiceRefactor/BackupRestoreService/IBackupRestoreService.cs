@@ -81,5 +81,15 @@ namespace SchedulerWpfApp.ServiceRefactor.BackupRestoreService
         /// </summary>
         /// <returns>Version and support status</returns>
         Task<(string version, bool supportsVacuumInto)> GetSqliteInfoAsync();
+
+        /// <summary>
+        /// Synchronizes the database to a specific backup version
+        /// This function performs the same operation as RestoreFromBackupAsync but with different UI terminology
+        /// </summary>
+        /// <param name="filename">Name of the backup file to sync to</param>
+        /// <param name="progress">Progress reporting callback</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>Result of the sync operation</returns>
+        Task<RestoreResult> SyncToVersionAsync(string filename, IProgress<RestoreProgress>? progress = null, CancellationToken cancellationToken = default);
     }
 }
