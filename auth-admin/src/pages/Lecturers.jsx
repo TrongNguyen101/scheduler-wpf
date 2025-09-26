@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_CONFIG, buildUrl } from "../lib/apiConfig.js";
 
-const API = "http://localhost:4000/departments";
-const SUBJECT_API = "http://localhost:4000/subjects"; // Đổi lại endpoint nếu cần
+const API = buildUrl(API_CONFIG.ENDPOINTS.DEPARTMENTS.BASE);
+const SUBJECT_API = buildUrl(API_CONFIG.ENDPOINTS.SUBJECTS);
 
 export default function LecturerAssignments() {
   const [data, setData] = useState([]);
@@ -41,7 +42,7 @@ export default function LecturerAssignments() {
   const hasDepartment = !!user.department;
 
   const fetchLecturers = async () => {
-    const res = await axios.get("http://localhost:4000/lecturers", {
+    const res = await axios.get(buildUrl(API_CONFIG.ENDPOINTS.LECTURERS), {
       headers: {
         Authorization: "Bearer " + localStorage.getItem("aa_accessToken"),
       },
@@ -214,7 +215,7 @@ export default function LecturerAssignments() {
 
   const handleDownload = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/departments/export", {
+      const res = await axios.get(buildUrl(API_CONFIG.ENDPOINTS.DEPARTMENTS.EXPORT), {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("aa_accessToken"),
         },

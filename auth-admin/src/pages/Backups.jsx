@@ -1,30 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Table, Pagination } from "../components";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
-
-// Hàm helper để gọi API
-const callApi = async (url, options = {}) => {
-  const token = localStorage.getItem("accessToken");
-  const defaultHeaders = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-  }
-
-  return await response.json();
-};
+import { API_CONFIG, buildUrl, getAuthToken, apiCall } from "../lib/apiConfig.js";
 
 export default function Backups() {
   const [backups, setBackups] = useState([]);
@@ -41,7 +17,7 @@ export default function Backups() {
       setLoading(true);
       setError(null);
       
-      const response = await callApi(`${API_BASE}/api/backups/list`);
+      const response = await apiCall(API_CONFIG.ENDPOINTS.BACKUPS.LIST);
       
       if (response.success) {
         setBackups(response.data || []);
@@ -66,7 +42,7 @@ export default function Backups() {
     try {
       setDeleteLoading(prev => ({ ...prev, [filename]: true }));
       
-      const response = await callApi(`${API_BASE}/api/backups/${encodeURIComponent(filename)}`, {
+      const response = await apiCall(`${API_CONFIG.ENDPOINTS.BACKUPS.DELETE}/${encodeURIComponent(filename)}`, {
         method: "DELETE",
       });
 
@@ -88,8 +64,8 @@ export default function Backups() {
   // Download backup
   const downloadBackup = async (filename) => {
     try {
-      const token = localStorage.getItem("accessToken");
-      const url = `${API_BASE}/api/backups/download/${encodeURIComponent(filename)}`;
+      const token = getAuthToken();
+      const url = buildUrl(`${API_CONFIG.ENDPOINTS.BACKUPS.DOWNLOAD}/${encodeURIComponent(filename)}`);
       
       const response = await fetch(url, {
         headers: {

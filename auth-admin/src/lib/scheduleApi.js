@@ -1,10 +1,11 @@
 import { getAccessToken } from "./auth.js";
+import { API_CONFIG, buildUrl, getAuthToken } from "./apiConfig.js";
 
-const API_BASE_URL = "http://localhost:4000";
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 // Helper function to make authenticated API calls
 async function apiCall(endpoint, options = {}) {
-  const token = getAccessToken();
+  const token = getAuthToken(); // Use consistent token getter
 
   const config = {
     headers: {
@@ -15,7 +16,7 @@ async function apiCall(endpoint, options = {}) {
     ...options,
   };
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+  const response = await fetch(buildUrl(endpoint), config);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
@@ -41,19 +42,21 @@ export const scheduleApi = {
     });
 
     const queryString = queryParams.toString();
-    const endpoint = `/schedules${queryString ? `?${queryString}` : ""}`;
+    const endpoint = `${API_CONFIG.ENDPOINTS.SCHEDULES.BASE}${
+      queryString ? `?${queryString}` : ""
+    }`;
 
     return apiCall(endpoint);
   },
 
   // Get schedule by ID
   async getScheduleById(id) {
-    return apiCall(`/schedules/${id}`);
+    return apiCall(`${API_CONFIG.ENDPOINTS.SCHEDULES.BASE}/${id}`);
   },
 
   // Update schedule
   async updateSchedule(id, data) {
-    return apiCall(`/schedules/${id}`, {
+    return apiCall(`${API_CONFIG.ENDPOINTS.SCHEDULES.BASE}/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
@@ -61,14 +64,14 @@ export const scheduleApi = {
 
   // Delete schedule
   async deleteSchedule(id) {
-    return apiCall(`/schedules/${id}`, {
+    return apiCall(`${API_CONFIG.ENDPOINTS.SCHEDULES.BASE}/${id}`, {
       method: "DELETE",
     });
   },
 
   // Bulk upload schedules
   async bulkUpload(schedules, options = {}) {
-    return apiCall("/schedules/upload", {
+    return apiCall(API_CONFIG.ENDPOINTS.SCHEDULES.UPLOAD, {
       method: "POST",
       body: JSON.stringify({
         schedules,
@@ -89,14 +92,16 @@ export const scheduleApi = {
     });
 
     const queryString = queryParams.toString();
-    const endpoint = `/schedules/stats${queryString ? `?${queryString}` : ""}`;
+    const endpoint = `${API_CONFIG.ENDPOINTS.SCHEDULES.STATS}${
+      queryString ? `?${queryString}` : ""
+    }`;
 
     return apiCall(endpoint);
   },
 
   // Bulk delete schedules
   async bulkDelete(options = {}) {
-    return apiCall("/schedules/bulk-delete", {
+    return apiCall(API_CONFIG.ENDPOINTS.SCHEDULES.BULK_DELETE, {
       method: "POST",
       body: JSON.stringify(options),
     });
@@ -104,7 +109,7 @@ export const scheduleApi = {
 
   // Delete ALL schedules - DANGER: This will remove all schedules
   async deleteAllSchedules() {
-    return apiCall("/schedules/all", {
+    return apiCall(API_CONFIG.ENDPOINTS.SCHEDULES.DELETE_ALL, {
       method: "DELETE",
     });
   },

@@ -19,6 +19,10 @@ function PrivateRoute({ children, allowedRoles }) {
   const token = getAccessToken();
   const { user } = useAuthState();
 
+  console.log("PrivateRoute - token:", !!token);
+  console.log("PrivateRoute - user:", user);
+  console.log("PrivateRoute - allowedRoles:", allowedRoles);
+
   // Chưa đăng nhập → về login
   if (!token) return <Navigate to="/login" replace />;
 
@@ -31,6 +35,7 @@ function PrivateRoute({ children, allowedRoles }) {
     (!Array.isArray(user.roles) ||
       !user.roles.some((r) => allowedRoles.includes(r)))
   ) {
+    console.log("PrivateRoute - Access denied. User roles:", user.roles, "Required:", allowedRoles);
     return <Navigate to="/unauthorized" replace />;
   }
 

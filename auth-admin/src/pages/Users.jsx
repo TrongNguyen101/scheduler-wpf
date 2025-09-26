@@ -1,5 +1,6 @@
 import React from "react";
 import { api, useAuthState } from "../lib/auth.js";
+import { API_CONFIG, buildUrl } from "../lib/apiConfig.js";
 
 export default function Users() {
   const { user } = useAuthState();
@@ -47,9 +48,9 @@ export default function Users() {
       const params = new URLSearchParams();
       if (search && search.trim()) params.set("q", search.trim());
       const res = await api.get(
-        `http://localhost:4000/users${
+        buildUrl(`${API_CONFIG.ENDPOINTS.USERS.BASE}${
           params.toString() ? "?" + params.toString() : ""
-        }`
+        }`)
       );
       setItems(res.data);
     } catch (e) {
@@ -85,7 +86,7 @@ export default function Users() {
         return;
       }
 
-      await api.post("http://localhost:4000/users", form);
+      await api.post(buildUrl(API_CONFIG.ENDPOINTS.USERS.BASE), form);
       setForm({
         username: "",
         password: "",
@@ -102,7 +103,7 @@ export default function Users() {
   const removeUser = async (id) => {
     if (!confirm("Xóa người dùng?")) return;
     try {
-      await api.delete(`http://localhost:4000/users/${id}`);
+      await api.delete(buildUrl(`${API_CONFIG.ENDPOINTS.USERS.BASE}/${id}`));
       await load();
     } catch (e) {
       alert("Xóa thất bại");
@@ -119,7 +120,7 @@ export default function Users() {
     try {
       const body = { isActive: editForm.isActive, roles: editForm.roles };
       if (editForm.password) body.password = editForm.password;
-      await api.put(`http://localhost:4000/users/${editing.id}`, body);
+      await api.put(buildUrl(`${API_CONFIG.ENDPOINTS.USERS.BASE}/${editing.id}`), body);
       setEditing(null);
       setEditForm({ password: "", roles: [], isActive: true });
       await load();
@@ -384,7 +385,7 @@ export default function Users() {
                   onClick={async () => {
                     try {
                       const res = await api.get(
-                        "http://localhost:4000/users/import/template",
+                        buildUrl(API_CONFIG.ENDPOINTS.USERS.IMPORT_TEMPLATE),
                         { responseType: "blob" }
                       );
                       const url = URL.createObjectURL(res.data);
@@ -414,7 +415,7 @@ export default function Users() {
                   setImporting(true);
                   try {
                     await api.post(
-                      "http://localhost:4000/users/import",
+                      buildUrl(API_CONFIG.ENDPOINTS.USERS.IMPORT),
                       formData,
                       { headers: { "Content-Type": "multipart/form-data" } }
                     );

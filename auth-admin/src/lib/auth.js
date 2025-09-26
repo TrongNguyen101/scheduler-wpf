@@ -63,26 +63,61 @@ export function useAuthState() {
 }
 
 export async function login(username, password) {
-  const res = await axios.post(`${API_BASE}/auth/login`, {
-    username,
-    password,
-  });
-  accessToken = res.data.accessToken;
-  refreshToken = res.data.refreshToken;
-  user = res.data.user;
   try {
-    localStorage.setItem(LS_KEYS.access, accessToken);
-    localStorage.setItem(LS_KEYS.refresh, refreshToken);
-    localStorage.setItem(LS_KEYS.user, JSON.stringify(user));
-  } catch {}
-  notifyAuthListeners();
-  return res.data;
+    const res = await axios.post(`${API_BASE}/auth/login`, {
+      username,
+      password,
+    });
+
+    console.log("Raw login response:", res.data);
+
+    // Check if login was successful
+    if (!res.data.success) {
+      throw new Error(res.data.error?.message || "Login failed");
+    }
+
+    // Server returns data in res.data.data structure
+    const {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      user: newUser,
+    } = res.data.data;
+
+    if (!newAccessToken || !newUser) {
+      throw new Error("Invalid response format from server");
+    }
+
+    accessToken = newAccessToken;
+    refreshToken = newRefreshToken;
+    user = newUser;
+
+    try {
+      localStorage.setItem(LS_KEYS.access, accessToken);
+      localStorage.setItem(LS_KEYS.refresh, refreshToken);
+      localStorage.setItem(LS_KEYS.user, JSON.stringify(user));
+    } catch (storageError) {
+      console.warn("Failed to save to localStorage:", storageError);
+    }
+
+    notifyAuthListeners();
+    return res.data.data; // Return the actual data object
+  } catch (error) {
+    console.error("Login error:", error);
+    // Re-throw to be handled by the calling component
+    throw error;
+  }
 }
 
 export async function refresh() {
   if (!refreshToken) throw new Error("No refresh token");
   const res = await axios.post(`${API_BASE}/auth/refresh`, { refreshToken });
-  accessToken = res.data.accessToken;
+
+  // Server returns data in res.data.data structure
+  accessToken = res.data.data.accessToken;
+
+  try {
+    localStorage.setItem(LS_KEYS.access, accessToken);
+  } catch {}
   notifyAuthListeners();
   return accessToken;
 }

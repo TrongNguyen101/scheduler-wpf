@@ -15,17 +15,33 @@ export default function Login() {
     setError("");
     try {
       const data = await login(username, password);
+      console.log("Login response:", data);
+      
       const user = data.user;
-      if (user.roles.includes("Admin")) {
+      console.log("User data:", user);
+      console.log("User roles:", user?.roles);
+      
+      if (user && user.roles && user.roles.includes("Admin")) {
         navigate("/users");
       } else if (
-        user.roles.includes("HeadOfDepartment") ||
-        user.roles.includes("AcademicOfDepartment")
+        user && user.roles && (
+          user.roles.includes("HeadOfDepartment") ||
+          user.roles.includes("AcademicOfDepartment")
+        )
       ) {
         navigate("/lecturers");
-      } else navigate("/");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
-      setError(err?.response?.data?.message || "Đăng nhập thất bại");
+      console.error("Login error:", err);
+      // Handle different error response structures
+      const errorMessage = 
+        err?.response?.data?.error?.message || 
+        err?.response?.data?.message || 
+        err?.message || 
+        "Đăng nhập thất bại";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
